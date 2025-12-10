@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Live Uhr - Spanani DEV</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<style>
+			/* Schwarzer Overlay für besseren Kontrast der Uhr auf dem pinken Gradient */
+			#bg {
+				background: url('https://img.freepik.com/premium-vector/abstract-pink-purple-gradient-color-background-website-banner-graphic-design_120819-728.jpg') center center/cover no-repeat fixed;
+			}
+			#overlay {
+				background: rgba(0, 0, 0, 0.75); /* Dunkler Overlay für dramatischen Effekt */
+			}
+			#clock-time {
+				font-size: 12vw; /* Sehr groß, responsiv */
+				font-weight: bold;
+				letter-spacing: 0.1em;
+				color: white;
+				text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+				margin: 0;
+				font-family: 'Courier New', Courier, monospace; /* Digital-Clock-Look */
+			}
+			#clock-date {
+				font-size: 4vw;
+				color: white;
+				margin-top: 20px;
+				opacity: 0.9;
+			}
+			@media (max-width: 768px) {
+				#clock-time { font-size: 15vw; }
+				#clock-date { font-size: 6vw; }
+			}
+		</style>
+	</head>
+	<body class="is-preload">
+		<div id="wrapper">
+			<div id="bg"></div>
+			<div id="overlay"></div>
+			<div id="main">
+
+				<!-- Header -->
+				<header id="header" style="text-align: center; padding-top: 20vh;">
+					<h1 id="clock-time">00:00:00</h1>
+					<p id="clock-date">Lade...</p>
+					<nav style="margin-top: 50px;">
+						<ul>
+							<li><a href="index.html" class="icon solid fa-home"><span class="label">Zurück zur Startseite</span></a></li>
+						</ul>
+					</nav>
+				</header>
+
+				<!-- Footer -->
+				<footer id="footer">
+					<span class="copyright">&copy; Spanani 2025.</span>
+				</footer>
+
+			</div>
+		</div>
+		<script>
+			window.onload = function() { 
+				document.body.classList.remove('is-preload'); 
+				updateClock(); // Sofortige Anzeige
+			}
+			window.ontouchmove = function() { return false; }
+			window.onorientationchange = function() { document.body.scrollTop = 0; }
+
+			function updateClock() {
+				var now = new Date();
+				
+				// Uhrzeit
+				var hours = now.getHours().toString().padStart(2, '0');
+				var minutes = now.getMinutes().toString().padStart(2, '0');
+				var seconds = now.getSeconds().toString().padStart(2, '0');
+				document.getElementById('clock-time').innerHTML = hours + ':' + minutes + ':' + seconds;
+				
+				// Datum auf Deutsch
+				var optionsDate = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+				var dateStr = now.toLocaleDateString('de-DE', optionsDate);
+				// Großschreibung des Monats und Wochentags für schöneres Aussehen
+				dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+				document.getElementById('clock-date').innerHTML = dateStr;
+			}
+			
+			setInterval(updateClock, 1000);
+		</script>
+	</body>
+</html>

@@ -1,164 +1,71 @@
-/* assets/css/main.css */
+*{margin:0;padding:0;box-sizing:border-box}
 
-:root {
-    --bg-dark: #0d0819;
-    --purple-primary: #a855f7;
-    --purple-light: #c084fc;
-    --pink-accent: #e0a8ff;
-    --text-light: #fff;
-    --glow-soft: rgba(200, 132, 252, 0.4);
-    --glow-strong: rgba(200, 132, 252, 0.7);
+html,body{
+    height:100%;
+    font-family:"Inter", "Segoe UI", sans-serif;
+    overflow:hidden;
+    color:#fff;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+body{opacity:0;transition:opacity 1.4s}
+body:not(.is-preload){opacity:1}
+
+#bg{
+    position:fixed;top:0;left:0;width:100%;height:100%;z-index:-3;
+    background:linear-gradient(to bottom, #0a0819, #1a0e2e),
+               url("../images/bg.jpg") center/cover no-repeat;
 }
 
-html, body {
-    height: 100%;
-    font-family: 'Inter', "Segoe UI", Arial, sans-serif;
-    overflow: hidden;
-    color: var(--text-light);
+#stars{
+    position:fixed;top:0;left:0;width:200%;height:200%;
+    background:url("https://assets.codepen.io/1538479/stars.png") repeat;
+    opacity:0.4;pointer-events:none;
 }
 
-body {
-    opacity: 0;
-    transition: opacity 1.2s ease-out;
+#main{
+    position:relative;height:100vh;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;
 }
 
-body:not(.is-preload) {
-    opacity: 1;
+#header h1{
+    font-size:clamp(4.5rem,12vw,10rem);
+    font-weight:900;
+    background:linear-gradient(90deg,#c084fc,#e0a8ff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
 }
 
-/* Enhanced background with smoother gradient and image */
-#bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -3;
-    background: linear-gradient(to bottom, var(--bg-dark) 0%, var(--purple-primary) 100%),
-                url("../images/bg.jpg") center center / cover no-repeat;
-    filter: brightness(0.9);
+#header p{
+    font-size:1.5rem;margin:2rem 0 3.5rem;opacity:0.85;font-weight:300;
 }
 
-/* Stars layer with fixed URL and improved parallax */
-#stars {
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: url("https://assets.codepen.io/1538479/stars.png") repeat;
-    opacity: 0.6;
-    z-index: -2;
-    pointer-events: none;
-    transition: transform 0.5s ease-out;
+nav ul{
+    display:flex;gap:3rem;list-style:none;
 }
 
-/* Upgraded particles with more layers and smoother animation */
-#particles {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image: 
-        radial-gradient(circle at 15% 75%, var(--pink-accent) 0%, transparent 8%),
-        radial-gradient(circle at 85% 25%, var(--purple-light) 0%, transparent 8%),
-        radial-gradient(circle at 35% 35%, var(--purple-primary) 0%, transparent 10%),
-        radial-gradient(circle at 60% 80%, var(--glow-soft) 0%, transparent 12%);
-    opacity: 0.3;
-    animation: float 28s ease-in-out infinite;
+nav a{
+    width:68px;height:68px;border-radius:50%;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(168,85,247,0.25);
+    display:grid;place-items:center;
+    font-size:1.9rem;color:#e0a8ff;
+    transition:all .3s;
 }
 
-@keyframes float {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(40px, -40px); }
+nav a:hover{
+    transform:translateY(-8px);
+    background:rgba(168,85,247,0.2);
+    box-shadow:0 10px 30px rgba(168,85,247,0.3);
+    color:white;
 }
 
-/* Main content */
-#main {
-    position: relative;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+#footer{
+    position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+    font-size:0.9rem;opacity:0.6;color:#c084fc;
 }
 
-#header h1 {
-    font-size: clamp(4rem, 12vw, 9rem);
-    font-weight: 900;
-    background: linear-gradient(90deg, var(--pink-accent), var(--purple-light), var(--purple-primary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: glow 4s ease-in-out infinite alternate;
-    text-shadow: 0 0 20px var(--glow-soft);
-}
-
-@keyframes glow {
-    from { text-shadow: 0 0 30px var(--glow-soft); }
-    to { text-shadow: 0 0 60px var(--glow-strong); }
-}
-
-#header p {
-    font-size: 1.4rem;
-    margin: 1.5rem 0 3rem;
-    opacity: 0.9;
-    font-weight: 300;
-    letter-spacing: 0.05em;
-}
-
-/* Improved nav icons with glassmorphism and better hover */
-nav ul {
-    display: flex;
-    gap: 2.5rem;
-    list-style: none;
-}
-
-nav a {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(200, 132, 252, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.9rem;
-    color: var(--pink-accent);
-    backdrop-filter: blur(12px);
-    transition: all 0.4s ease;
-}
-
-nav a:hover {
-    transform: scale(1.15) translateY(-8px);
-    background: rgba(200, 132, 252, 0.3);
-    box-shadow: 0 0 50px var(--glow-strong);
-    color: var(--text-light);
-}
-
-/* Footer */
-#footer {
-    position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.9rem;
-    opacity: 0.7;
-    color: var(--purple-light);
-}
-
-/* Enhanced mobile adjustments */
-@media (max-width: 736px) {
-    nav ul { gap: 1.8rem; }
-    nav a { width: 60px; height: 60px; font-size: 1.7rem; }
-    #header h1 { font-size: clamp(3rem, 12vw, 7rem); }
-    #header p { font-size: 1.2rem; }
-    #footer { bottom: 1.5rem; font-size: 0.85rem; }
+@media(max-width:736px){
+    nav ul{gap:2.2rem}
+    nav a{width:60px;height:60px;font-size:1.7rem}
+    #header p{font-size:1.3rem;
 }

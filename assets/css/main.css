@@ -29,11 +29,10 @@ h1{
     -webkit-background-clip:text;background-clip:text;color:transparent;
 }
 
-.typing{
-    font-size:1.6rem;color:#d4c4ff;margin-bottom:3rem;height:2rem;
+.subtitle{
+    font-size:1.6rem;color:#d4c4ff;margin-bottom:4rem;
 }
 
-/* DIE GROSSEN GLAS-ICONS */
 .icons a{
     width:76px;height:76px;margin:0 .8rem;
     background:rgba(157,123,230,.15);
@@ -48,18 +47,3 @@ h1{
     box-shadow:0 0 40px rgba(157,123,230,.7);
     color:#fff;
 }
-
-/* Rest (Status, Countdown, etc.) */
-.status,.countdown,.worldclock,.visitors{
-    font-size:1rem;margin-top:1.2rem;opacity:0.85;color:#d4c4ff;
-}
-.worldclock div{margin:0 1rem;display:inline-block}
-
-.corner-link,.theme-toggle{
-    position:absolute;top:2rem;color:#b794f4;text-decoration:none;
-}
-.corner-link{right:2rem}
-.theme-toggle{right:8rem;background:none;border:none;font-size:1.5rem;cursor:pointer}
-
-body.light{background:#f8f5ff;color:#222}
-body.light #bg{filter:brightness(1.1) hue-rotate(180deg)}

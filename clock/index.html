@@ -1,35 +1,106 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Clock — Spanani</title>
-    <link rel="stylesheet" href="../assets/css/clock.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body,html{height:100%;font-family:'Space Grotesk',sans-serif;overflow:hidden;background:#0f0b1f;color:#fff}
+
+        #bg{
+            position:fixed;inset:0;
+            background:linear-gradient(180deg,#1a0b2e 0%,#2f1b5c 50%,#4c2a9d 100%),
+                       url("../images/bg.jpg") bottom center/cover no-repeat fixed;
+            z-index:-2;
+        }
+        #stars{
+            position:fixed;inset:0;
+            background:ur[](https://assets.codepen.io/1538479/stars.png);
+            opacity:0.4;animation:drift 160s linear infinite;z-index:-1;
+            filter:hue-rotate(280deg);
+        }
+        @keyframes drift{from{background-position:0 0}to{background-position:10000px 0}}
+
+        main{
+            position:relative;height:100vh;
+            display:flex;flex-direction:column;justify-content:center;align-items:center;
+            text-align:center;padding:2rem;
+        }
+
+        .back{
+            position:absolute;top:2.5rem;left:2.5rem;
+            color:#b794f4;font-size:1.2rem;text-decoration:none;
+            padding:0.7rem 1.3rem;background:rgba(157,123,230,.15);
+            border:1px solid rgba(157,123,230,.3);border-radius:50px;
+            backdrop-filter:blur(12px);transition:.3s;
+        }
+        .back:hover{background:rgba(157,123,230,.35);transform:translateX(-6px)}
+
+        h1{
+            font-size:clamp(4rem,10vw,8rem);font-weight:700;margin-bottom:.5rem;
+            background:linear-gradient(90deg,#e0d4ff,#b794f4,#9f7aea);
+            -webkit-background-clip:text;background-clip:text;color:transparent;
+        }
+
+        .time{
+            font-size:clamp(5rem,15vw,11rem);
+            font-weight:300;letter-spacing:-5px;
+            margin:2rem 0 1rem;
+            text-shadow:0 0 60px rgba(157,123,230,.9);
+            background:linear-gradient(90deg,#fff,#e0d4ff,#b794f4);
+            -webkit-background-clip:text;background-clip:text;color:transparent;
+        }
+
+        .date{
+            font-size:1.8rem;font-weight:400;color:#d4c4ff;opacity:0.9;
+            text-shadow:0 0 30px rgba(157,123,230,.6);
+        }
+
+        footer{
+            position:absolute;bottom:2rem;opacity:0.7;color:#b794f4;font-size:0.9rem;
+        }
+
+        @media (max-width:640px){
+            .back{top:1.5rem;left:1.5rem;font-size:1.1rem}
+            .time{letter-spacing:-3px}
+        }
+    </style>
 </head>
 <body>
 
-<a href="/" class="back">← Zurück</a>
+    <div id="bg"></div>
+    <div id="stars"></div>
 
-<div class="center">
-    <h1>Clock</h1>
-    <div class="time" id="time">00:00:00</div>
-    <div class="date" id="date">Lade…</div>
-</div>
+    <main>
+        <a href="/" class="back">← Zurück</a>
 
-<footer>© 2025 Spanani</footer>
+        <h1>Clock</h1>
 
-<script>
-    function update(){
-        const now = new Date();
-        document.getElementById('time').textContent = 
-            now.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
-        document.getElementById('date').textContent = 
-            now.toLocaleDateString('de-DE', {weekday:'long',day:'numeric',month:'long',year:'numeric'})
-               .replace(/^\w/, c => c.toUpperCase());
-    }
-    update();
-    setInterval(update,1000);
-</script>
+        <div class="time" id="time">00:00:00</div>
+        <div class="date" id="date">Donnerstag, 11. Dezember 2025</div>
+
+        <footer>© 2025 Spanani — made with curiosity & coffee</footer>
+    </main>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('de-DE', options);
+            const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            document.getElementById('time').textContent = timeStr;
+            document.getElementById('date').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
 
 </body>
 </html>

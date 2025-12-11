@@ -6,25 +6,18 @@
     <title>Spanani — Developer</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/main.css">
-    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 </head>
 <body>
 
     <div id="bg"></div>
     <div id="stars"></div>
-    <div id="particles-js"></div>
-    <div id="glitch"></div>
 
     <main>
-        <a href="/clock" class="corner-link">Clock</a>
-        <button id="theme-toggle" aria-label="Toggle theme">Moon</button>
-
         <h1>Spanani</h1>
-        <p class="typing">Developer</p>
+        <p class="subtitle">Developer • Learner • Always evolving</p>
 
-        <!-- DIE 5 GROSSEN ICONS SIND WIEDER DA -->
         <div class="icons">
             <a href="https://x.com/spananidev" target="_blank"><i class="fab fa-twitter"></i></a>
             <a href="https://discord.gg/ec3Uhbc2" target="_blank"><i class="fab fa-discord"></i></a>
@@ -32,70 +25,7 @@
             <a href="https://github.com/spananide" target="_blank"><i class="fab fa-github"></i></a>
             <a href="mailto:ttvspanani@gmail.com"><i class="fas fa-envelope"></i></a>
         </div>
-
-        <div class="status">
-            <span>Aktuell höre ich <strong>lofi hip hop radio</strong></span>
-            <span>Aktuell baue ich <strong>die Zukunft</strong></span>
-        </div>
-
-        <div class="countdown">Noch <span id="nye">--</span> bis 2026</div>
-
-        <div class="worldclock">
-            <div>Berlin <span id="tz-berlin">--:--</span></div>
-            <div>Tokyo <span id="tz-tokyo">--:--</span></div>
-            <div>New York <span id="tz-ny">--:--</span></div>
-        </div>
-
-        <div class="visitors">Besucher heute ≈ <span id="visitor-count">0</span></div>
     </main>
 
-    <div class="logo3d">S</div>
-    <audio id="easteregg" src="https://assets.codepen.io/605876/hacker-beep.mp3"></audio>
-
-    <script>
-        // Typing
-        const words = ["Developer","Learner","Dreamer","Always evolving"];
-        let i=0, j=0, dir=true;
-        setInterval(()=>{ 
-            const el=document.querySelector('.typing');
-            if(dir?el.textContent=words[i].slice(0,++j):el.textContent=words[i].slice(0,--j));
-            if(j===words[i].length) dir=false;
-            if(j===0){ dir=true; i=(i+1)%words.length; }
-        },120);
-
-        // Theme Toggle
-        document.getElementById('theme-toggle').onclick=()=>{ 
-            document.body.classList.toggle('light');
-            document.getElementById('theme-toggle').innerHTML = document.body.classList.contains('light')?'Sun':'Moon';
-        };
-
-        // Countdown + Zeitzonen + Counter (wie vorher)
-        function updateCountdown(){ 
-            const diff = new Date('2026-01-01') - new Date();
-            const d=Math.floor(diff/864e5), h=Math.floor(diff%864e5/36e5), m=Math.floor(diff%36e5/6e4);
-            document.getElementById('nye').textContent = `${d} Tage ${h} Std ${m} Min`;
-        }
-        setInterval(()=>{ 
-            ['Europe/Berlin','Asia/Tokyo','America/New_York'].forEach((tz,i)=> 
-                document.getElementById(['tz-berlin','tz-tokyo','tz-ny'][i]).textContent = 
-                new Intl.DateTimeFormat('de',{hour:'2-digit',minute:'2-digit',timeZone:tz}).format(new Date())
-            );
-        },1000);
-        setInterval(updateCountdown,60000); updateCountdown();
-
-        let count=42; setInterval(()=>{document.getElementById('visitor-count').textContent=++count;},9000);
-
-        // Particles + Konami + Glitch (wie vorher)
-        particlesJS('particles-js',{particles:{number:{value:80},color:{value:'#b794f4},size:{value:3},opacity:{value:0.6,anim:{enable:true}},move:{speed:0.6}},interactivity:{events:{onhover:{enable:true,mode:'repulse'}}}});
-        let k=[]; const code='38,38,40,40,37,39,37,39,66,65';
-        window.addEventListener('keydown',e=>{k.push(e.keyCode); if(k.toString().includes(code)){document.body.style.filter='hue-rotate(180deg) invert(1)';document.getElementById('easteregg').play();document.querySelector('h1').textContent='HACKED BY SPANANI';}});
-        setTimeout(()=>document.getElementById('glitch').style.opacity=0,600);
-    </script>
-
-    <style>
-        .icons a{width:76px;height:76px;margin:0 .7rem;background:rgba(157,123,230,.15);border:1px solid rgba(157,123,230,.3);border-radius:50%;font-size:2rem;color:#e0d4ff;display:inline-flex;align-items:center;justify-content:center;transition:.4s}
-        .icons a:hover{transform:translateY(-12px);background:rgba(157,123,230,.4);box-shadow:0 0 30px rgba(157,123,230,.8);color:#fff}
-        /* alles andere bleibt wie in deiner main.css + den kleinen Styles von vorhin */
-    </style>
 </body>
 </html>

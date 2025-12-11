@@ -8,7 +8,68 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/main.css">
-    <link rel="stylesheet" href="../assets/css/clock.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body,html{height:100%;font-family:'Space Grotesk',sans-serif;overflow:hidden;background:#0f0b1f;color:#fff}
+
+        #bg{
+            position:fixed;inset:0;
+            background:linear-gradient(180deg,#1a0b2e 0%,#2f1b5c 50%,#4c2a9d 100%),
+                       url("../images/bg.jpg") bottom center/cover no-repeat fixed;
+            z-index:-2;
+        }
+        #stars{
+            position:fixed;inset:0;
+            background:ur[](https://assets.codepen.io/1538479/stars.png);
+            opacity:0.4;animation:drift 160s linear infinite;z-index:-1;
+            filter:hue-rotate(280deg);
+        }
+        @keyframes drift{from{background-position:0 0}to{background-position:10000px 0}}
+
+        main{
+            position:relative;height:100vh;
+            display:flex;flex-direction:column;justify-content:center;align-items:center;
+            text-align:center;padding:2rem;
+        }
+
+        .back{
+            position:absolute;top:2.5rem;left:2.5rem;
+            color:#b794f4;font-size:1.2rem;text-decoration:none;
+            padding:0.7rem 1.3rem;background:rgba(157,123,230,.15);
+            border:1px solid rgba(157,123,230,.3);border-radius:50px;
+            backdrop-filter:blur(12px);transition:.3s;
+        }
+        .back:hover{background:rgba(157,123,230,.35);transform:translateX(-6px)}
+
+        h1{
+            font-size:clamp(4rem,10vw,8rem);font-weight:700;margin-bottom:.5rem;
+            background:linear-gradient(90deg,#e0d4ff,#b794f4,#9f7aea);
+            -webkit-background-clip:text;background-clip:text;color:transparent;
+        }
+
+        .time{
+            font-size:clamp(5rem,15vw,11rem);
+            font-weight:300;letter-spacing:-5px;
+            margin:2rem 0 1rem;
+            text-shadow:0 0 60px rgba(157,123,230,.9);
+            background:linear-gradient(90deg,#fff,#e0d4ff,#b794f4);
+            -webkit-background-clip:text;background-clip:text;color:transparent;
+        }
+
+        .date{
+            font-size:1.8rem;font-weight:400;color:#d4c4ff;opacity:0.9;
+            text-shadow:0 0 30px rgba(157,123,230,.6);
+        }
+
+        footer{
+            position:absolute;bottom:2rem;opacity:0.7;color:#b794f4;font-size:0.9rem;
+        }
+
+        @media (max-width:640px){
+            .back{top:1.5rem;left:1.5rem;font-size:1.1rem}
+            .time{letter-spacing:-3px}
+        }
+    </style>
 </head>
 <body>
 
@@ -16,69 +77,29 @@
     <div id="stars"></div>
 
     <main>
-        <a href="/" class="back">← Back</a>
+        <a href="/" class="back">← Zurück</a>
 
         <h1>Clock</h1>
-        <p class="subtitle">Just a beautiful time thing</p>
 
-        <!-- Analog Clock -->
-        <div class="clock-container">
-            <div class="clock">
-                <div class="hand hour"></div>
-                <div class="hand minute"></div>
-                <div class="hand second"></div>
-                <div class="center-dot"></div>
-                <div class="number" style="--i:1">1"><span>1</span></div>
-                <div class="number" style="--i:2"><span>2</span></div>
-                <div class="number" style="--i:3"><span>3</span></div>
-                <div class="number" style="--i:4"><span>4</span></div>
-                <div class="number" style="--i:5"><span>5</span></div>
-                <div class="number" style="--i:6"><span>6</span></div>
-                <div class="number" style="--i:7"><span>7</span></div>
-                <div class="number" style="--i:8"><span>8</span></div>
-                <div class="number" style="--i:9"><span>9</span></div>
-                <div class="number" style="--i:10"><span>10</span></div>
-                <div class="number" style="--i:11"><span>11</span></div>
-                <div class="number" style="--i:12"><span>12</span></div>
-            </div>
-        </div>
-
-        <!-- Digital Clock -->
-        <div class="digital">
-            <span id="time">00:00:00</span>
-            <span id="ampm">AM</span>
-        </div>
+        <div class="time" id="time">00:00:00</div>
+        <div class="date" id="date">Donnerstag, 11. Dezember 2025</div>
 
         <footer>© 2025 Spanani — made with curiosity & coffee</footer>
     </main>
 
     <script>
-        // Analog Clock
-        setInterval(() => {
+        function updateClock() {
             const now = new Date();
-            const h = now.getHours() % 12 / 12 * 360 + 90;
-            const m = now.getMinutes() / 60 * 360 + 90;
-            const s = now.getSeconds() / 60 * 360 + 90;
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('de-DE', options);
+            const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-            document.querySelector('.hour').style.transform   = `rotate(${h + m/12}deg)`;
-            document.querySelector('.minute').style.transform = `rotate(${m}deg)`;
-            document.querySelector('.second').style.transform = `rotate(${s}deg)`;
-        }, 1000);
-
-        // Digital Clock
-        function updateTime() {
-            const now = new Date();
-            let h = now.getHours();
-            const m = now.getMinutes().toString().padStart(2, '0');
-            const s = now.getSeconds().toString().padStart(2, '0');
-            const ampm = h >= 12 ? 'PM' : 'AM';
-            h = h % 12 || 12;
-
-            document.getElementById('time').textContent = `${h}:${m}:${s}`;
-            document.getElementById('ampm').textContent = ampm;
+            document.getElementById('time').textContent = timeStr;
+            document.getElementById('date').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
         }
-        setInterval(updateTime, 1000);
-        updateTime();
+
+        updateClock();
+        setInterval(updateClock, 1000);
     </script>
 
 </body>

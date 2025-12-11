@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="utf-8">
-    <title>Spanani</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <link rel="stylesheet" href="assets/css/main.css">
+    <meta name="description" content="Spanani - Developer, Beginner, Always Evolving">
+    <title>Spanani</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/main.css">
     <noscript><link rel="stylesheet" href="assets/css/noscript.css"></noscript>
 </head>
 <body class="is-preload">
@@ -13,35 +17,60 @@
 <div id="wrapper">
     <div id="bg"></div>
     <div id="stars"></div>
+    <div id="particles"></div>
 
     <div id="main">
-        <header id="header">
-            <h1>Spanani</h1>
+        <header id="header" aria-labelledby="site-title">
+            <h1 id="site-title">Spanani</h1>
             <p>Developer • Beginner • Always evolving</p>
-            <nav>
+            <nav aria-label="Social and Site Links">
                 <ul>
-                    <li><a href="https://x.com/spananidev" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-                    <li><a href="https://discord.gg/ec3Uhbc2" class="icon brands fa-discord"><span class="label">Discord</span></a></li>
-                    <li><a href="/clock" class="icon solid fa-clock"><span class="label">Clock</span></a></li>
-                    <li><a href="https://github.com/spananide" class="icon brands fa-github"><span class="label">Github</span></a></li>
-                    <li><a href="mailto:ttvspanani@gmail.com" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+                    <li><a href="https://x.com/spananidev" class="icon brands fa-twitter" aria-label="Twitter"><span class="label">Twitter</span></a></li>
+                    <li><a href="https://discord.gg/ec3Uhbc2" class="icon brands fa-discord" aria-label="Discord"><span class="label">Discord</span></a></li>
+                    <li><a href="/clock" class="icon solid fa-clock" aria-label="Clock"><span class="label">Clock</span></a></li>
+                    <li><a href="https://github.com/spananide" class="icon brands fa-github" aria-label="Github"><span class="label">Github</span></a></li>
+                    <li><a href="mailto:ttvspanani@gmail.com" class="icon solid fa-envelope" aria-label="Email"><span class="label">Email</span></a></li>
                 </ul>
             </nav>
         </header>
-        <footer id="footer">© 2025 Spanani</footer>
+
+        <footer id="footer">
+            <span class="copyright">© 2025 Spanani</span>
+        </footer>
     </div>
 </div>
 
 <script>
-    window.onload = () => document.body.classList.remove('is-preload');
-    
-    // Sehr dezenter Parallax – fast nicht spürbar, aber smooth
-    document.addEventListener('mousemove', e => {
+    // Smooth preload removal
+    window.addEventListener('load', () => {
+        document.body.classList.remove('is-preload');
+    });
+
+    // Enhanced parallax with requestAnimationFrame for smoothness
+    let lastX = 0, lastY = 0;
+    function parallax(e) {
         const stars = document.getElementById('stars');
-        const x = (e.clientX / window.innerWidth - 0.5) * 20;
-        const y = (e.clientY / window.innerHeight - 0.5) * 20;
-        stars.style.transform = `translate(${x}px, ${y}px)`;
+        lastX = e.clientX / window.innerWidth * 0.5;
+        lastY = e.clientY / window.innerHeight * 0.5;
+    }
+
+    function animate() {
+        const stars = document.getElementById('stars');
+        stars.style.transform = `translate(${lastX * 40}px, ${lastY * 40}px)`;
+        requestAnimationFrame(animate);
+    }
+
+    document.addEventListener('mousemove', parallax);
+    animate();
+
+    // Basic touch support for mobile parallax
+    document.addEventListener('touchmove', e => {
+        if (e.touches.length > 0) {
+            const touch = e.touches[0];
+            parallax({ clientX: touch.clientX, clientY: touch.clientY });
+        }
     });
 </script>
+
 </body>
 </html>

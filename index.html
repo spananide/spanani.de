@@ -1,51 +1,33 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="de">
 <head>
     <meta charset="utf-8">
-    <title>Spanani</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <link rel="stylesheet" href="assets/css/main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <noscript><link rel="stylesheet" href="assets/css/noscript.css"></noscript>
-</head>
-<body class="is-preload">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Spanani — Developer</title>
 
-<div id="wrapper">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
     <div id="bg"></div>
     <div id="stars"></div>
 
-    <div id="main">
-        <header id="header">
-            <h1>Spanani</h1>
-            <p>Developer • Beginner • Always evolving</p>
-            <nav>
-                <ul>
-                    <li><a href="https://x.com/spananidev" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-                    <li><a href="https://discord.gg/ec3Uhbc2" class="icon brands fa-discord"><span class="label">Discord</span></a></li>
-                    <li><a href="/clock" class="icon solid fa-clock"><span class="label">Clock</span></a></li>
-                    <li><a href="https://github.com/spananide" class="icon brands fa-github"><span class="label">Github</span></a></li>
-                    <li><a href="mailto:ttvspanani@gmail.com" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
-                </ul>
-            </nav>
-        </header>
+    <main>
+        <h1>Spanani</h1>
+        <p>Developer • Learner • Always evolving</p>
 
-        <footer id="footer">
-            <span class="copyright">© 2025 Spanani</span>
-        </footer>
-    </div>
-</div>
+        <div class="icons">
+            <a href="https://x.com/spananidev" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://discord.gg/ec3Uhbc2" target="_blank"><i class="fab fa-discord"></i></a>
+            <a href="/clock"><i class="fas fa-clock"></i></a>
+            <a href="https://github.com/spananide" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="mailto:ttvspanani@gmail.com"><i class="fas fa-envelope"></i></a>
+        </div>
 
-<script>
-    window.onload = () => document.body.classList.remove('is-preload');
-    
-    // Nur ganz leichter Parallax-Effekt für die Sterne
-    document.addEventListener('mousemove', e => {
-        const stars = document.getElementById('stars');
-        const x = e.clientX / window.innerWidth;
-        const y = e.clientY / window.innerHeight;
-        stars.style.transform = `translate(${x * 15}px, ${y * 15}px)`;
-    });
-</script>
+        <footer>© 2025 Spanani — made with curiosity & coffee</footer>
+    </main>
 
 </body>
 </html>

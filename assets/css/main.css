@@ -227,11 +227,11 @@ input, select, textarea {
 	/* Set your background with this */
 
 		position: fixed;
-    		inset: 0;
-    		background: #dd0ef0
+    	inset: 0;
+    	background: #dd0ef0
  		url("images/bg.jpg") bottom center / cover no-repeat;
-    		background-attachment: fixed;   /* echter Parallax-Effekt */
-    		z-index: -2;
+    	background-attachment: fixed;   /* echter Parallax-Effekt */
+    	z-index: -2;
 
 	}
 

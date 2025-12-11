@@ -6,17 +6,25 @@
     <title>Spanani — Developer</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 </head>
 <body>
 
     <div id="bg"></div>
     <div id="stars"></div>
+    <div id="particles-js"></div>
+
+    <!-- Glitch Overlay beim Laden -->
+    <div id="glitch"></div>
 
     <main>
-        <h1>Spanani</h1>
-        <p>Developer • Learner • Always evolving</p>
+        <a href="/clock" class="corner-link">Clock</a>
+        <button id="theme-toggle" aria-label="Toggle dark/light mode">Moon</button>
+
+        <h1 id="title">Spanani</h1>
+        <p class="typing"></p>
 
         <div class="icons">
             <a href="https://x.com/spananidev" target="_blank"><i class="fab fa-twitter"></i></a>
@@ -26,8 +34,114 @@
             <a href="mailto:ttvspanani@gmail.com"><i class="fas fa-envelope"></i></a>
         </div>
 
-        <footer>© 2025 Spanani — made with curiosity & coffee</footer>
+        <!-- Mini-Status -->
+        <div class="status">
+            <span>Aktuell höre ich <strong id="song">lofi hip hop radio</strong></span>
+            <span>Aktuell baue ich <strong>die Zukunft</strong></span>
+        </div>
+
+        <!-- Countdown 2026 -->
+        <div class="countdown">
+            <span id="nye">19 Tage 8 Std 34 Min bis 2026</span>
+        </div>
+
+        <!-- Weltzeitzonen -->
+        <div class="worldclock">
+            <div><span>Berlin</span><span id="tz-berlin">--:--</span></div>
+            <div><span>Tokyo</span><span id="tz-tokyo">--:--</span></div>
+            <div><span>New York</span><span id="tz-ny">--:--</span></div>
+        </div>
+
+        <!-- Visitor Counter -->
+        <div class="visitors">Besucher heute: <span id="visitor-count">0</span></div>
     </main>
 
+    <!-- 3D rotierendes S (CSS only) -->
+    <div class="logo3d">S</div>
+
+    <!-- Konami Code Easter Egg -->
+    <audio id="easteregg" src="https://assets.codepen.io/605876/hacker-beep.mp3"></audio>
+
+    <script>
+        // 1. Typing Animation
+        const texts = ["Developer", "Learner", "Dreamer", "Always evolving"];
+        let i = 0, j = 0, forward = true;
+        setInterval(() => {
+            const el = document.querySelector('.typing');
+            if (forward) {
+                el.textContent = texts[i].substring(0, j+1);
+                j++;
+                if (j === texts[i].length) forward = false;
+            } else {
+                el.textContent = texts[i].substring(0, j);
+                j--;
+                if (j === 0) { forward = true; i = (i+1)%texts.length; }
+            }
+        }, 120);
+
+        // 2. Theme Toggle
+        document.getElementById('theme-toggle').onclick = () => {
+            document.body.classList.toggle('light');
+            const isLight = document.body.classList.contains('light');
+            document.getElementById('theme-toggle').innerHTML = isLight ? 'Sun' : 'Moon';
+        };
+
+        // 3. Countdown 2026
+        function updateCountdown() {
+            const now = new Date();
+            const nye = new Date('2026-01-01T00:00:00');
+            const diff = nye - now;
+            const d = Math.floor(diff / 864e5);
+            const h = Math.floor(diff % 864e5 / 36e5);
+            const m = Math.floor(diff % 36e5 / 6e4);
+            document.getElementById('nye').textContent = `${d} Tage ${h} Std ${m} Min bis 2026`;
+        }
+        setInterval(updateCountdown, 6e4); updateCountdown();
+
+        // 4. Weltzeitzonen
+        const formatter = (tz) => new Intl.DateTimeFormat('de', {hour:'2-digit',minute:'2-digit',timeZone:tz}).format(new Date());
+        setInterval(() => {
+            document.getElementById('tz-berlin').textContent = formatter('Europe/Berlin');
+            document.getElementById('tz-tokyo').textContent = formatter('Asia/Tokyo');
+            document.getElementById('tz-ny').textContent = formatter('America/New_York');
+        }, 1000);
+
+        // 5. Fake Visitor Counter
+        let count = Math.floor(Math.random()*80 + 20);
+        setInterval(() => { count++; document.getElementById('visitor-count').textContent = count; }, 8000);
+
+        // 6. Particles.js Glühwürmchen
+        particlesJS('particles-js', {
+            particles: { number: { value: 80 }, color: { value: '#b794f4' }, shape: { type: 'circle' }, opacity: { value: 0.6, anim: { enable: true } }, size: { value: 3 }, line_linked: { enable: false }, move: { speed: 0.6 } },
+            interactivity: { events: { onhover: { enable: true, mode: 'repulse' } } }
+        });
+
+        // 7. Konami Code Easter Egg
+        let keys = [];
+        const code = '38,38,40,40,37,39,37,39,66,65';
+        window.addEventListener('keydown', e => {
+            keys.push(e.keyCode);
+            if (keys.toString().indexOf(code) >= 0) {
+                document.body.style.filter = 'hue-rotate(180deg) invert(1)';
+                document.getElementById('easteregg').play();
+                document.getElementById('title').textContent = 'HACKED BY SPANANI';
+                keys = [];
+            }
+        });
+
+        // Glitch beim Laden
+        setTimeout(() => document.getElementById('glitch').style.opacity = '0', 500);
+    </script>
+
+    <style>
+        body.light{background:#f8f5ff;color:#222}
+        body.light #bg{filter:invert(1) hue-rotate(180deg)}
+        .logo3d{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:30vw;color:#9f7aea;opacity:0.05;pointer-events:none;animation:spin 60s linear infinite}
+        @keyframes spin{to{transform:translate(-50%,-50%) rotateY(360deg)}}
+        #glitch{position:fixed;inset:0;background:#000;z-index:9999;opacity:1;transition:1s}
+        .corner-link{position:absolute;top:2rem;right:2rem;color:#b794f4;text-decoration:none;font-size:1.2rem}
+        .status,.countdown,.worldclock,.visitors{font-size:1rem;margin-top:1.5rem;opacity:0.9;color:#d4c4ff}
+        .worldclock div{display:inline-block;margin:0 1rem}
+    </style>
 </body>
 </html>

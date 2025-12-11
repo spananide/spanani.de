@@ -226,13 +226,13 @@ input, select, textarea {
 		transform: translate3d(0,0,0);
 	/* Set your background with this */
 
-		background: #dd0ef0 url("images/bg.jpg") bottom left;
-		background-repeat: repeat-x;
-		height: 100%;
-		left: 0;
-		opacity: 1;
 		position: fixed;
-		top: 0;
+    		inset: 0;
+    		background: #dd0ef0
+ 		url("images/bg.jpg") bottom center / cover no-repeat;
+    		background-attachment: fixed;   /* echter Parallax-Effekt */
+    		z-index: -2;
+
 	}
 
 	@-moz-keyframes bg {

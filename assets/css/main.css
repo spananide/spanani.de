@@ -226,12 +226,13 @@ input, select, textarea {
 		transform: translate3d(0,0,0);
 	/* Set your background with this */
 
-		position: fixed;
-    	inset: 0;
-    	background: #dd0ef0
- 		url("images/bg.jpg") bottom center / cover no-repeat;
-    	background-attachment: fixed;   /* echter Parallax-Effekt */
-    	z-index: -2;
+		background: #dd0ef0 url("images/bg.jpg") bottom left;
+    	background-repeat: repeat-x;
+    	position: fixed;
+    	top: 0;
+   	    left: 0;
+    	height: 100%;
+    	width: 6750px;
 
 	}
 

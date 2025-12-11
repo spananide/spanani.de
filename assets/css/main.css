@@ -14,36 +14,50 @@ html,body{height:100%;font-family:'Space Grotesk',sans-serif;overflow:hidden;bac
     opacity:0.4;animation:drift 160s linear infinite;z-index:-1;
     filter:hue-rotate(280deg);
 }
-
 @keyframes drift{from{background-position:0 0}to{background-position:10000px 0}}
 
 main{
     position:relative;height:100vh;
     display:flex;flex-direction:column;justify-content:center;align-items:center;
-    text-align:center;padding:2rem;
+    text-align:center;padding:5vh 2rem 10vh;
 }
 
 h1{
-    font-size:clamp(4.5rem,12vw,11rem);font-weight:700;margin-bottom:.5rem;
+    font-size:clamp(5rem,14vw,12rem);font-weight:700;margin-bottom:2rem;
     background:linear-gradient(90deg,#e0d4ff,#b794f4,#9f7aea);
     -webkit-background-clip:text;background-clip:text;color:transparent;
 }
 
-.subtitle{
-    font-size:1.6rem;color:#d4c4ff;margin-bottom:4rem;
+/* Buttons ganz oben */
+.top-icons{
+    position:absolute;top:5vh;left:50%;transform:translateX(-50%);
+    display:flex;gap:2.5rem;
 }
-
-.icons a{
-    width:76px;height:76px;margin:0 .8rem;
+.top-icons a{
+    width:68px;height:68px;
     background:rgba(157,123,230,.15);
     border:1px solid rgba(157,123,230,.3);
-    border-radius:50%;font-size:2rem;color:#e0d4ff;
-    display:inline-flex;align-items:center;justify-content:center;
+    border-radius:50%;font-size:1.9rem;color:#e0d4ff;
+    display:flex;align-items:center;justify-content:center;
     backdrop-filter:blur(12px);transition:.4s;
 }
-.icons a:hover{
-    transform:translateY(-12px) scale(1.12);
-    background:rgba(157,123,230,.35);
-    box-shadow:0 0 40px rgba(157,123,230,.7);
-    color:#fff;
+.top-icons a:hover{
+    transform:scale(1.15);
+    background:rgba(157,123,230,.4);
+    box-shadow:0 0 40px rgba(157,123,230,.8);
+}
+
+/* Unterstrichene Subtitle */
+.subtitle{
+    font-size:1.6rem;color:#d4c4ff;margin-top:-1rem;
+    position:relative;
+}
+.subtitle span{
+    background:linear-gradient(90deg,transparent,#9f7aea80,transparent);
+    padding:0 2rem;
+}
+
+/* Clock-Seite Footer */
+footer{
+    position:absolute;bottom:2rem;color:#b794f4;opacity:0.7;font-size:0.9rem;
 }

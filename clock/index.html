@@ -3,51 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Digital Clock by Spanani">
     <title>Clock — Spanani</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/clock.css">
 </head>
 <body>
-    <a href="/" class="back-btn" aria-label="Zurück zur Startseite">← Zurück</a>
 
-    <main class="container" aria-labelledby="clock-title">
-        <h1 id="clock-title">Clock</h1>
-        <time class="time" id="time" datetime="" aria-live="polite">22:05:07</time>
-        <div class="date" id="date" aria-label="Current Date">Donnerstag, 11. Dezember 2025</div>
-    </main>
+<a href="/" class="back">← Zurück</a>
 
-    <footer class="footer">© 2025 Spanani</footer>
+<div class="center">
+    <h1>Clock</h1>
+    <div class="time" id="time">00:00:00</div>
+    <div class="date" id="date">Lade…</div>
+</div>
 
-    <script>
-        function updateClock() {
-            const now = new Date();
+<footer>© 2025 Spanani</footer>
 
-            // Time — 24h format with leading zeros
-            const timeStr = now.toLocaleTimeString('de-DE', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-            document.getElementById('time').textContent = timeStr;
-            document.getElementById('time').setAttribute('datetime', timeStr);
+<script>
+    function update(){
+        const now = new Date();
+        document.getElementById('time').textContent = 
+            now.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+        document.getElementById('date').textContent = 
+            now.toLocaleDateString('de-DE', {weekday:'long',day:'numeric',month:'long',year:'numeric'})
+               .replace(/^\w/, c => c.toUpperCase());
+    }
+    update();
+    setInterval(update,1000);
+</script>
 
-            // Date — German format, capitalized first letter
-            const dateStr = now.toLocaleDateString('de-DE', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-            document.getElementById('date').textContent = 
-                dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
-        }
-
-        updateClock();
-        setInterval(updateClock, 1000);
-    </script>
 </body>
 </html>

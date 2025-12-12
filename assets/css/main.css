@@ -11,11 +11,11 @@ html,body{height:100%;font-family:'Space Grotesk',sans-serif;overflow:hidden;bac
 
 #stars{
     position:fixed;top:0;left:0;right:0;bottom:0;
- background:ur[](https://assets.codepen.io/1538479/stars.png);
- opacity:0.4;
- animation:drift 160s linear infinite;
- z-index:-1;
- filter:hue-rotate(280deg);
+    background:url(https://assets.codepen.io/1538479/stars.png);
+    opacity:0.4;
+    animation:drift 160s linear infinite;
+    z-index:-1;
+    filter:hue-rotate(280deg);
 }
 
 @keyframes drift{from{background-position:0 0}to{background-position:10000px 0}}
@@ -43,8 +43,10 @@ h1{
 
 p{
     font-size:1.5rem;
-    margin-bottom:4rem;
+    line-height:1.6;
+    margin-bottom:3rem;
     color:#d4c4ff;
+    max-width:600px;
 }
 
 .icons a{
@@ -63,10 +65,16 @@ p{
 }
 
 .icons a:hover{
-    transform:translateY(-12px);
+    transform:translateY(-12px) rotate(5deg);
     background:rgba(157,123,230,.4);
-    box-shadow:0 0 30px rgba(157,123,230,.6);
+    box-shadow:0 0 40px rgba(157,123,230,.8), 0 0 80px rgba(157,123,230,.4);
     color:#fff;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: translateY(-12px) rotate(5deg) scale(1); }
+    50% { transform: translateY(-12px) rotate(5deg) scale(1.05); }
 }
 
 footer{

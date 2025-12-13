@@ -9,50 +9,58 @@ html,body{height:100%;font-family:'Space Grotesk',sans-serif;overflow:hidden;bac
     z-index:-2;
 }
 
-
 #stars{
     position:fixed;top:0;left:0;right:0;bottom:0;
- background:url('https://assets.codepen.io/1538479/stars.png');
+ background:ur[](https://assets.codepen.io/1538479/stars.png);
  opacity:0.4;
  animation:drift 160s linear infinite;
  z-index:-1;
  filter:hue-rotate(280deg);
 }
 
-@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes drift{from{background-position:0 0}to{background-position:10000px 0}}
 
 main{
+    position:relative;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
     align-items:center;
     text-align:center;
     padding:2rem;
-    animation:fadeIn 1s .5s ease-out forwards;
 }
 
 h1{
-    font-size:clamp(3.5rem, 12vw, 10rem);
+    font-size:clamp(4.5rem,12vw,10rem);
  font-weight:700;
  margin:0 0 .5rem;
  background:linear-gradient(90deg,#e0d4ff,#b794f4,#9f7aea);
-    color:#b794f4;
-    font-size:.9rem;
+ -webkit-background-clip:text;
+ background-clip:text;
+ color:transparent;
 }
 
-@media (max-width: 768px) {
-    p {
-        font-size: 1.2rem;
-        margin-bottom: 3rem;
-    }
-
-    .icons a {
-        width: 60px;
-        height: 60px;
-        margin: 0 .5rem;
-        font-size: 1.5rem;
-    }
+p{
+    font-size:1.5rem;
+    margin-bottom:4rem;
+    color:#d4c4ff;
 }
 
-
+.icons a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:76px;height:76px;
+    margin:0 .7rem;
+    background:rgba(157,123,230,.15);
+    border:1px solid rgba(157,123,230,.3);
+    border-radius:50%;
+    font-size:2rem;
+    color:#e0d4ff;
+    text-decoration:none;
+    transition:.4s;
+}
 
 .icons a:hover{
     transform:translateY(-12px);

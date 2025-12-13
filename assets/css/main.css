@@ -1,156 +1,78 @@
 *{margin:0;padding:0;box-sizing:border-box}
-
-/* Theme Variables */
-:root {
-    --bg-color: #0f0b1f;
-    --text-color: #fff;
-    --p-color: #d4c4ff;
-    --icon-bg: rgba(157,123,230,.15);
-    --icon-border: rgba(157,123,230,.3);
-    --icon-color: #e0d4ff;
-    --icon-hover-bg: rgba(157,123,230,.4);
-    --icon-hover-shadow: 0 0 30px rgba(157,123,230,.6);
-    --icon-hover-color: #fff;
-    --footer-color: #b794f4;
-    --animated-bg-display: block;
-}
-
-[data-theme="light"] {
-    --bg-color: #f8f9fa;
-    --text-color: #212529;
-    --p-color: #6c757d;
-    --icon-bg: rgba(0,0,0,.05);
-    --icon-border: #dee2e6;
-    --icon-color: #6c757d;
-    --icon-hover-bg: rgba(0,0,0,.1);
-    --icon-hover-shadow: 0 8px 20px rgba(0,0,0,.1);
-    --icon-hover-color: #212529;
-    --footer-color: #6c757d;
-    --animated-bg-display: none;
-}
-
-html,body{height:100%;font-family:'Space Grotesk',sans-serif;overflow:hidden;background:var(--bg-color);color:var(--text-color);transition: background-color .4s, color .4s;}
+html,body{height:100%;font-family:'Space Grotesk',sans-serif;overflow:hidden;background:#0f0b1f;color:#fff}
 
 #bg{
     position:fixed;top:0;left:0;right:0;bottom:0;
+    background: linear-gradient(180deg, #1a0b2e 0%, #2f1b5c 50%, #4c2a9d 100%),
                 url("../images/bg.jpg") bottom center/cover no-repeat;
     background-attachment:fixed;
     z-index:-2;
-    display: var(--animated-bg-display);
 }
 
 #stars{
     position:fixed;top:0;left:0;right:0;bottom:0;
- background:url(https://assets.codepen.io/1538479/stars.png);
+ background:ur[](https://assets.codepen.io/1538479/stars.png);
  opacity:0.4;
  animation:drift 160s linear infinite;
  z-index:-1;
  filter:hue-rotate(280deg);
- display: var(--animated-bg-display);
 }
 
 @keyframes drift{from{background-position:0 0}to{background-position:10000px 0}}
- color:transparent;
+
+main{
+    position:relative;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:2rem;
 }
 
-/* Light theme override for H1 */
-[data-theme="light"] h1 {
-    background: none;
-    -webkit-background-clip: initial;
-    background-clip: initial;
-    color: var(--text-color);
+h1{
+    font-size:clamp(4.5rem,12vw,10rem);
+ font-weight:700;
+ margin:0 0 .5rem;
+ background:linear-gradient(90deg,#e0d4ff,#b794f4,#9f7aea);
+ -webkit-background-clip:text;
+ background-clip:text;
+ color:transparent;
 }
 
 p{
     font-size:1.5rem;
     margin-bottom:4rem;
-    color:var(--p-color);
+    color:#d4c4ff;
 }
 
 .icons a{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    width:76px;
-    height:76px;
+    width:76px;height:76px;
     margin:0 .7rem;
-    background:var(--icon-bg);
-    border:1px solid var(--icon-border);
+    background:rgba(157,123,230,.15);
+    border:1px solid rgba(157,123,230,.3);
     border-radius:50%;
     font-size:2rem;
-    color:var(--icon-color);
+    color:#e0d4ff;
     text-decoration:none;
     transition:.4s;
 }
 
 .icons a:hover{
     transform:translateY(-12px);
-    background:var(--icon-hover-bg);
-    box-shadow:var(--icon-hover-shadow);
-    color:var(--icon-hover-color);
+    background:rgba(157,123,230,.4);
+    box-shadow:0 0 30px rgba(157,123,230,.6);
+    color:#fff;
 }
 
 footer{
     position:absolute;
     bottom:2rem;
     opacity:.7;
-    color:var(--footer-color);
+    color:#b794f4;
     font-size:.9rem;
 }
-
-/* --- Styles for the toggle switch --- */
-.theme-switch-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 2rem;
-}
-.theme-switch-wrapper em {
-    margin-left: 10px;
-    font-size: 1rem;
-    color: var(--p-color);
-}
-.theme-switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
-}
-.theme-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-}
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
-}
-input:checked + .slider {
-    background-color: #9f7aea;
-}
-input:checked + .slider:before {
-    transform: translateX(26px);
-}
-.slider.round {
-    border-radius: 34px;
-}
-.slider.round:before {
-    border-radius: 50%;
-}
-

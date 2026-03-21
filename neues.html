@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Matti Sonnenschein – Persönliche Handy-Hilfe</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      background: radial-gradient(ellipse at top left, #0a0a15 0%, #000000 70%);
+      background-attachment: fixed;
+      color: #e8e8f5;
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.7;
+      font-size: 20px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    body {
+      min-height: 100vh;
+      padding-top: env(safe-area-inset-top);
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+    
+    header {
+      background: linear-gradient(145deg, rgba(12,15,35,0.82) 0%, rgba(4,6,22,0.92) 100%);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border-bottom: 1px solid rgba(160,180,255,0.09);
+      padding: 140px 0 90px;
+      text-align: center;
+      position: relative;
+      
+      opacity: 0;
+      transform: translateY(35px);
+      transition: opacity 1.5s ease-out, transform 1.8s ease-out;
+    }
+    
+    header.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    h1 {
+      font-size: 4.6rem;
+      font-weight: 800;
+      letter-spacing: -1.8px;
+      background: linear-gradient(90deg, #f0f4ff, #c0d0ff, #e0e8ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+    
+    .subtitle {
+      font-size: 1.85rem;
+      font-weight: 400;
+      color: #b8c0e0;
+      margin-bottom: 45px;
+      letter-spacing: 0.4px;
+    }
+    
+    .lead-text {
+      font-size: 1.42rem;
+      max-width: 780px;
+      margin: 0 auto 60px;
+      color: #c8d0e8;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #2a334f, #1a223a);
+      color: #f0f4ff;
+      font-size: 1.6rem;
+      font-weight: 600;
+      padding: 20px 65px;
+      border-radius: 18px;
+      text-decoration: none;
+      border: 1px solid rgba(192,208,255,0.18);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 14px 45px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);
+      transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.7), 0 0 35px rgba(160,190,255,0.22);
+      border-color: rgba(192,208,255,0.32);
+      background: linear-gradient(135deg, #323c5c, #222b48);
+    }
+    
+    .glass-card {
+      background: rgba(16,20,40,0.36);
+      backdrop-filter: blur(36px);
+      -webkit-backdrop-filter: blur(36px);
+      border: 1px solid rgba(160,180,255,0.11);
+      border-radius: 30px;
+      padding: 45px 38px;
+      box-shadow: 0 22px 80px rgba(0,0,0,0.58), inset 0 2px 1px rgba(255,255,255,0.05);
+      
+      opacity: 0;
+      transform: translateY(70px) scale(0.96);
+      transition: all 1.5s ease-out;
+    }
+    
+    .glass-card.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    
+    .glass-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 30px 100px rgba(0,0,0,0.68), inset 0 3px 2px rgba(255,255,255,0.06);
+    }
+    
+    h2 {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #f0f4ff;
+      margin: 100px 0 55px;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+    
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
+      gap: 45px;
+      margin: 70px 0;
+    }
+    
+    .service-card h3 {
+      font-size: 2rem;
+      color: #f8f8ff;
+      margin-bottom: 18px;
+      font-weight: 600;
+    }
+    
+    .service-card p {
+      color: #c8d0e8;
+      font-size: 1.18rem;
+      font-weight: 300;
+    }
+    
+    /* Responsive Preise */
+    .prices-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.2rem;
+      color: #d0d8f0;
+    }
+    
+    .prices-table th, .prices-table td {
+      padding: 24px 26px;
+      border: 1px solid rgba(160,180,255,0.09);
+      text-align: left;
+    }
+    
+    .prices-table th {
+      background: rgba(30,35,65,0.48);
+      color: #f0f4ff;
+      font-weight: 500;
+    }
+    
+    .price {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #d0e0ff;
+    }
+    
+    @media (max-width: 768px) {
+      header { padding: 120px 0 80px; }
+      h1 { font-size: 3.6rem; }
+      h2 { font-size: 2.6rem; }
+      .subtitle { font-size: 1.65rem; }
+      .lead-text { font-size: 1.28rem; }
+      
+      .prices-table thead { display: none; }
+      
+      .prices-table tr {
+        display: block;
+        margin-bottom: 32px;
+        background: rgba(22,27,52,0.42);
+        border: 1px solid rgba(160,180,255,0.13);
+        border-radius: 22px;
+      }
+      
+      .prices-table td {
+        display: block;
+        text-align: right;
+        border: none;
+        padding: 20px 26px;
+        position: relative;
+        font-size: 1.18rem;
+      }
+      
+      .prices-table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 26px;
+        width: 48%;
+        font-weight: 500;
+        color: #b0c0ff;
+        text-align: left;
+      }
+      
+      .prices-table td:last-child {
+        font-size: 1.55rem;
+        font-weight: 700;
+        color: #e0e8ff;
+        border-top: 1px solid rgba(160,180,255,0.12);
+      }
+    }
+    
+    .about {
+      text-align: center;
+      padding: 90px 0 70px;
+    }
+    
+    .about img {
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 6px solid rgba(192,208,255,0.14);
+      margin-bottom: 45px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.65);
+    }
+    
+    .contact-form {
+      max-width: 780px;
+      margin: 70px auto;
+      padding: 55px;
+    }
+    
+    label {
+      display: block;
+      margin: 30px 0 14px;
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #e0e8f5;
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 18px 22px;
+      font-size: 1.18rem;
+      background: rgba(22,27,52,0.48);
+      border: 1px solid rgba(160,180,255,0.13);
+      border-radius: 16px;
+      color: #f8f8ff;
+      backdrop-filter: blur(14px);
+      transition: border-color 0.3s;
+    }

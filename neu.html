@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Matti Sonnenschein – Handy-Hilfe für Senioren</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 30%, #0a0a12 0%, #000000 70%);
+      color: #e8e8f0;
+      line-height: 1.7;
+      font-size: 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 25px;
+    }
+    
+    header {
+      background: linear-gradient(135deg, rgba(15,15,35,0.75) 0%, rgba(5,5,20,0.85) 100%);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(180,180,220,0.08);
+      padding: 100px 0 80px;
+      text-align: center;
+      
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1.4s ease-out, transform 1.7s ease-out;
+    }
+    
+    header.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    h1 {
+      font-size: 4.2rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      background: linear-gradient(90deg, #f0f0ff, #d0d8ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    
+    .subtitle {
+      font-size: 1.7rem;
+      font-weight: 300;
+      color: #b0b0d0;
+      margin-bottom: 40px;
+    }
+    
+    .lead-text {
+      font-size: 1.4rem;
+      max-width: 760px;
+      margin: 0 auto 50px;
+      color: #c0c0d8;
+      font-weight: 300;
+      line-height: 1.55;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(145deg, rgba(40,45,70,0.85), rgba(25,30,55,0.9));
+      color: #f0f4ff;
+      font-size: 1.55rem;
+      font-weight: 600;
+      padding: 18px 55px;
+      border-radius: 16px;
+      text-decoration: none;
+      border: 1px solid rgba(200,210,255,0.14);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+      transition: all 0.35s ease;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.65), 0 0 30px rgba(120,140,255,0.15);
+      border-color: rgba(200,210,255,0.25);
+    }
+    
+    .glass-card {
+      background: rgba(18,22,42,0.35);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1px solid rgba(160,180,255,0.10);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.55);
+      
+      opacity: 0;
+      transform: translateY(60px) scale(0.97);
+      transition: all 1.4s ease-out;
+    }
+    
+    .glass-card.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    
+    h2 {
+      font-size: 2.8rem;
+      font-weight: 600;
+      color: #f0f0ff;
+      margin: 90px 0 50px;
+      text-align: center;
+    }
+    
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 40px;
+      margin: 60px 0;
+    }
+    
+    .service-card h3 {
+      font-size: 1.9rem;
+      color: #f8f8ff;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    
+    .service-card p {
+      color: #c0c0d8;
+      font-size: 1.15rem;
+      font-weight: 300;
+    }
+    
+    /* Preise – responsiv */
+    .prices-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.18rem;
+      color: #d0d0e8;
+    }
+    
+    .prices-table th, .prices-table td {
+      padding: 22px 24px;
+      border: 1px solid rgba(160,180,255,0.08);
+      text-align: left;
+    }
+    
+    .prices-table th {
+      background: rgba(30,35,60,0.45);
+      color: #f0f4ff;
+      font-weight: 500;
+    }
+    
+    .prices-table .price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #e0e8ff;
+    }
+    
+    /* Mobile: Tabelle → Karten */
+    @media (max-width: 768px) {
+      h1 { font-size: 3.4rem; }
+      h2 { font-size: 2.4rem; }
+      .subtitle { font-size: 1.55rem; }
+      .lead-text { font-size: 1.25rem; }
+      
+      .prices-table thead { display: none; }
+      
+      .prices-table tr {
+        display: block;
+        margin-bottom: 30px;
+        background: rgba(25,30,55,0.4);
+        border: 1px solid rgba(160,180,255,0.12);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      
+      .prices-table td {
+        display: block;
+        text-align: right;
+        border: none;
+        padding: 18px 24px;
+        position: relative;
+        font-size: 1.15rem;
+      }
+      
+      .prices-table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 24px;
+        width: 50%;
+        font-weight: 500;
+        color: #a0b0ff;
+        text-align: left;
+      }
+      
+      .prices-table td:last-child {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #e0e8ff;
+        border-top: 1px solid rgba(160,180,255,0.1);
+      }
+    }
+    
+    .about {
+      text-align: center;
+      padding: 80px 0 60px;
+    }
+    
+    .about img {
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid rgba(200,210,255,0.12);
+      margin-bottom: 40px;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.6);
+    }
+    
+    .contact-form {
+      max-width: 760px;
+      margin: 60px auto;
+      padding: 50px;
+    }
+    
+    label {
+      display: block;
+      margin: 28px 0 12px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #e0e0f0;
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 16px 20px;
+      font-size: 1.15rem;
+      background: rgba(25,30,55,0.45);
+      border: 1px solid rgba(180,190,255,0.11);
+      border-radius: 14px;
+      color: #f8f8ff;
+      backdrop-filter: blur(12px);
+    }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: rgba(180,200,255,0.35);
+    }
+    
+    footer {
+      background: linear-gradient(to top, #000000, #0a0a15);
+      color: #9090b0;
+      text-align: center;
+      padding: 90px 0 60px;
+      font-size: 1.05rem;
+      border-top: 1px solid rgba(180,190,255,0.06);
+    }
+    
+    footer a {
+      color: #c0c0d8;
+      text-decoration: none;
+    }
+    
+    footer a:hover {
+      color: #f0f0ff;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>Matti Sonnenschein</h1>
+    <div class="subtitle">Geduldige & persönliche Handy-Hilfe für Senioren</div>
+    
+    <p class="lead-text">
+      Hallo, ich bin Matti – Schüler und helfe seit Kurzem Senioren gerne zu Hause.<br>
+      Ich erkläre alles ganz ruhig, in Ihrem Tempo und ohne komplizierte Wörter.
+    </p>
+    
+    <a href="tel:+49123456789" class="cta-button">Termin vereinbaren</a>
+  </div>
+</header>
+
+<div class="container">
+
+  <h2>Was ich Ihnen zeigen kann</h2>
+  <div class="services">
+    <div class="glass-card service-card">
+      <h3>Telefon & Kontakte</h3>
+      <p>Nummern speichern, Anrufe tätigen, Klingelton ändern, Freisprechen nutzen</p>
+    </div>
+    <div class="glass-card service-card">
+      <h3>WhatsApp & Nachrichten</h3>
+      <p>Nachrichten schreiben, Fotos & Sprachnachrichten schicken, Gruppen verstehen</p>
+    </div>
+    <div class="glass-card service-card">
+      <h3>Fotos & Kamera</h3>
+      <p>Fotos machen, anschauen, löschen, an die Familie senden</p>
+    </div>
+    <div class="glass-card service-card">
+      <h3>Internet & Apps</h3>
+      <p>Einfach surfen, YouTube schauen, Wetter-App nutzen</p>
+    </div>
+    <div class="glass-card service-card">
+      <h3>Sicherheit</h3>
+      <p>Betrug erkennen, Passwörter schützen, Updates machen – ohne Angst</p>
+    </div>
+  </div>
+
+  <h2>Preise – transparent & fair</h2>
+  <div class="glass-card">
+    <table class="prices-table">
+      <thead>
+        <tr>
+          <th>Leistung</th>
+          <th>Dauer</th>
+          <th>Preis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-label="Leistung">Einzeltermin</td>
+          <td data-label="Dauer">ca. 60 Minuten</td>
+          <td data-label="Preis" class="price">25 €</td>
+        </tr>
+        <tr>
+          <td data-label="Leistung">3er-Paket</td>
+          <td data-label="Dauer">3 × ca. 60 Min</td>
+          <td data-label="Preis" class="price">70 €</td>
+        </tr>
+        <tr>
+          <td data-label="Leistung">Sicherheits-Check (Zusatz)</td>
+          <td data-label="Dauer">ca. 30 Min</td>
+          <td data-label="Preis" class="price">10 €</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="text-align:center; margin:90px 0 120px;">
+    <a href="tel:+49123456789" class="cta-button">Jetzt Termin vereinbaren</a>
+  </div>
+
+  <div class="about">
+    <h2>Über mich</h2>
+    <img src="https://i.ibb.co/CKfSCcLm/IMG-2001.jpg" alt="Matti Sonnenschein">
+    
+    <p class="lead-text" style="margin-top:30px;">
+      Ich heiße Matti Sonnenschein, gehe noch zur Schule und helfe in meiner Freizeit Senioren mit Smartphone und Tablet.<br><br>
+      Ich nehme mir Zeit und erkläre alles so, dass es wirklich verstanden wird.
+    </p>
+  </div>
+
+  <h2>Kontakt & Termin</h2>
+  <div class="glass-card contact-form">
+    <form action="mailto:deine@email.de" method="post" enctype="text/plain">
+      <label for="name">Ihr Name</label>
+      <input type="text" id="name" name="name" required placeholder="z. B. Frau Meier">
+      
+      <label for="phone">Telefonnummer</label>
+      <input type="tel" id="phone" name="phone" required placeholder="z. B. 0176 12345678">
+      
+      <label for="topic">Wobei brauche ich Hilfe?</label>
+      <textarea id="topic" name="topic" rows="4" placeholder="z. B. WhatsApp einrichten, Fotos schicken lernen..."></textarea>
+      
+      <label for="time">Wann würde es passen?</label>
+      <input type="text" id="time" name="time" placeholder="z. B. dienstags vormittags">
+      
+      <div style="text-align:center; margin-top:60px;">
+        <button type="submit" class="cta-button" style="border:none; cursor:pointer; padding:18px 70px;">Anfrage senden</button>
+      </div>
+    </form>
+    
+    <p style="text-align:center; margin-top:60px; font-size:1.5rem;">
+      Oder einfach anrufen:<br>
+      <strong style="font-size:2.3rem; color:#f0f4ff; display:block; margin:15px 0;">
+        <a href="tel:+49123456789" style="color:inherit; text-decoration:none;">0123 456789</a>
+      </strong>
+    </p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <p>Matti Sonnenschein – Handy-Hilfe für Senioren • © 2026</p>
+    <p style="margin-top:20px;">
+      <a href="#">Impressum</a>  •  <a href="#">Datenschutz</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: "0px 0px -100px 0px" });
+
+  document.querySelectorAll('header, .glass-card, .service-card').forEach(el => {
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>

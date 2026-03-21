@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Matti Sonnenschein – Persönliche Handy-Begleitung</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    
+    html, body {
+      height: 100%;
+      background: radial-gradient(ellipse at top left, #0a0d1f 0%, #000000 80%);
+      background-attachment: fixed;
+      color: #e8e8f5;
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.78;
+      font-size: 19px;
+    }
+    
+    body { padding-top: env(safe-area-inset-top); }
+    
+    .container { max-width: 980px; margin:0 auto; padding:0 20px; }
+    
+    header {
+      background: linear-gradient(155deg, rgba(10,13,32,0.92) 0%, rgba(2,5,20,0.97) 100%);
+      backdrop-filter: blur(34px);
+      border-bottom: 1px solid rgba(150,185,255,0.08);
+      padding: 105px 0 78px;
+      text-align: center;
+    }
+    
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.45rem, 7.2vw, 3.65rem);
+      font-weight: 700;
+      letter-spacing: -1.2px;
+      background: linear-gradient(90deg, #f0f4ff, #b0c8ff, #e0e8ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;           /* ← Überschrift bleibt in EINER Zeile */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 12px;
+    }
+    
+    .subtitle {
+      font-size: clamp(1.28rem, 3.8vw, 1.65rem);
+      font-weight: 400;
+      color: #b5c0e0;
+      margin-bottom: 36px;
+      white-space: nowrap;           /* auch Subtitle in einer Zeile */
+    }
+    
+    .lead-text {
+      font-size: clamp(1.08rem, 3.2vw, 1.28rem);
+      max-width: 740px;
+      margin: 0 auto 52px;
+      color: #c5cee8;
+      font-weight: 300;
+    }
+    
+    .cta-button {
+      background: linear-gradient(135deg, #1e2a44, #0f1a32);
+      color: #f0f4ff;
+      font-size: clamp(1.28rem, 4vw, 1.48rem);
+      font-weight: 600;
+      padding: 18px 58px;
+      border-radius: 20px;
+      text-decoration: none;
+      border: 1px solid rgba(160,190,255,0.20);
+      box-shadow: 0 12px 42px rgba(0,0,0,0.52);
+      transition: all 0.35s ease;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 18px 55px rgba(130,170,255,0.22);
+    }
+    
+    .glass-card {
+      background: rgba(12,17,37,0.34);
+      backdrop-filter: blur(36px);
+      border: 1px solid rgba(145,175,255,0.10);
+      border-radius: 30px;
+      padding: 38px 30px;
+      box-shadow: 0 18px 70px rgba(0,0,0,0.55);
+    }
+    
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.05rem, 5.5vw, 2.75rem);
+      font-weight: 700;
+      color: #f0f4ff;
+      margin: 88px 0 42px;
+      text-align: center;
+      white-space: nowrap;           /* Überschriften in einer Zeile */
+    }
+    
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 34px;
+    }
+    
+    .service-card h3 {
+      font-size: 1.78rem;
+      color: #f8f8ff;
+      margin-bottom: 14px;
+      white-space: nowrap;
+    }
+    
+    .service-card p {
+      color: #c0c8e0;
+      font-size: 1.12rem;
+    }
+    
+    /* Preise */
+    .prices-table { width:100%; border-collapse:collapse; font-size:1.15rem; }
+    .prices-table th, .prices-table td { padding:20px 22px; border:1px solid rgba(145,175,255,0.08); }
+    .prices-table th { background:rgba(24,30,52,0.45); color:#f0f4ff; }
+    .price { font-size:1.42rem; font-weight:700; color:#d0e0ff; }
+    
+    @media (max-width: 768px) {
+      header { padding:92px 0 65px; }
+      h1 { font-size: 2.75rem; }           /* extra klein auf Handy → bleibt in einer Zeile */
+      .subtitle { font-size: 1.38rem; }
+      .lead-text { font-size: 1.15rem; }
+      h2 { font-size: 2.25rem; }
+      .service-card h3 { font-size: 1.65rem; }
+      .glass-card { padding:32px 24px; }
+    }
+    
+    .about { text-align:center; padding:78px 0 60px; }
+    .about img {
+      width:255px; height:255px; border-radius:50%; object-fit:cover;
+      border:5px solid rgba(170,195,255,0.14);
+      box-shadow:0 20px 68px rgba(0,0,0,0.6);
+    }
+    
+    .contact-form { max-width:760px; margin:60px auto; padding:46px; }
+    
+    label { display:block; margin:26px 0 10px; font-size:1.18rem; color:#e0e8f5; }
+    input, textarea {
+      width:100%; padding:16px 20px; font-size:1.12rem;
+      background:rgba(16,22,46,0.45); border:1px solid rgba(145,175,255,0.12);
+      border-radius:16px; color:#f8f8ff;
+    }
+    
+    footer {
+      background:linear-gradient(to top,#000000,#050a1b);
+      color:#8f8fb5; text-align:center; padding:88px 0 60px;
+      border-top:1px solid rgba(145,175,255,0.06);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>Matti Sonnenschein</h1>
+    <div class="subtitle">Persönliche & geduldige Handy-Begleitung für Senioren</div>
+    <p class="lead-text">
+      Hallo, ich bin Matti – Schüler und helfe Ihnen zu Hause bei Smartphone und Tablet.<br>
+      Alles wird ruhig, klar und ohne Eile erklärt.
+    </p>
+    <a href="tel:+49123456789" class="cta-button">Termin vereinbaren</a>
+  </div>
+</header>
+
+<div class="container">
+
+  <h2>Meine Leistungen</h2>
+  <div class="services">
+    <div class="glass-card service-card">
+      <h3>Telefon & Kontakte</h3>
+      <p>Nummern speichern, Anrufe erleichtern, Freisprechen nutzen</p>
+    </div>
+    <div class="glass-card service-card">
+      <h3>WhatsApp & Nachrichten</h3>
+      <p>Nachrichten schreiben, Fotos & Sprachnachrichten versenden</p>
+    </div>
+    <div class="glass-card service-card">
+      <h3>Fotos & Kamera</h3>
+      <p>Fotos machen, anschauen und an die Familie schicken</p>
+    </div>
+    <div class="glass-card service-card">
+      <h3>Internet & Apps</h3>
+      <p>Sicher surfen, YouTube, Wetter und einfache Apps nutzen</p>
+    </div>
+    <div class="glass-card service-card">
+      <h3>Sicherheit</h3>
+      <p>Betrug erkennen, Passwörter schützen, Updates verstehen</p>
+    </div>
+  </div>
+
+  <h2>Preise – transparent & fair</h2>
+  <div class="glass-card">
+    <table class="prices-table">
+      <thead>
+        <tr><th>Leistung</th><th>Dauer</th><th>Preis</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-label="Leistung">Einzeltermin</td>
+          <td data-label="Dauer">ca. 60 Minuten</td>
+          <td data-label="Preis" class="price">25 €</td>
+        </tr>
+        <tr>
+          <td data-label="Leistung">3er-Paket</td>
+          <td data-label="Dauer">3 × ca. 60 Min</td>
+          <td data-label="Preis" class="price">70 €</td>
+        </tr>
+        <tr>
+          <td data-label="Leistung">Sicherheits-Check</td>
+          <td data-label="Dauer">ca. 30 Min</td>
+          <td data-label="Preis" class="price">10 €</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="text-align:center; margin:88px 0 115px;">
+    <a href="tel:+49123456789" class="cta-button">Jetzt Termin vereinbaren</a>
+  </div>
+
+  <div class="about">
+    <h2>Über mich</h2>
+    <img src="https://i.ibb.co/CKfSCcLm/IMG-2001.jpg" alt="Matti Sonnenschein">
+    <p class="lead-text" style="margin-top:32px;">
+      Ich heiße Matti Sonnenschein und gehe noch zur Schule.<br><br>
+      Mit viel Geduld und klarer Sprache unterstütze ich Senioren dabei, ihr Handy sicher und selbstständig zu nutzen.
+    </p>
+  </div>
+
+  <h2>Kontakt</h2>
+  <div class="glass-card contact-form">
+    <form action="mailto:deine@email.de" method="post" enctype="text/plain">
+      <label for="name">Ihr Name</label>
+      <input type="text" id="name" name="name" required placeholder="z. B. Frau Schmidt">
+      
+      <label for="phone">Telefonnummer</label>
+      <input type="tel" id="phone" name="phone" required placeholder="z. B. 0176 12345678">
+      
+      <label for="topic">Wobei darf ich helfen?</label>
+      <textarea id="topic" name="topic" rows="4" placeholder="z. B. WhatsApp einrichten oder Fotos versenden"></textarea>
+      
+      <label for="time">Wann passt es Ihnen?</label>
+      <input type="text" id="time" name="time" placeholder="z. B. dienstags vormittags">
+      
+      <div style="text-align:center; margin-top:58px;">
+        <button type="submit" class="cta-button" style="border:none; cursor:pointer; padding:18px 68px;">Anfrage senden</button>
+      </div>
+    </form>
+    
+    <p style="text-align:center; margin-top:58px; font-size:1.45rem;">
+      Oder einfach anrufen:<br>
+      <strong style="font-size:2.3rem; color:#f0f4ff; display:block; margin:14px 0;">
+        <a href="tel:+49123456789" style="color:inherit; text-decoration:none;">0123 456789</a>
+      </strong>
+    </p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <p>Matti Sonnenschein – Persönliche Handy-Begleitung • © 2026</p>
+    <p style="margin-top:20px;">
+      <a href="#">Impressum</a>  •  <a href="#">Datenschutz</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.12 });
+  
+  document.querySelectorAll('header, .glass-card, .service-card').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clock — Spanani</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+:root {
+  --bg:     #0a0a0a;
+  --fg:     #f0ede8;
+  --accent: #e8d5a3;
+  --dim:    #2e2b27;
+  --dim2:   #5a5450;
+  --glow:   rgba(232, 213, 163, 0.15);
+  --line:   rgba(240, 237, 232, 0.07);
+}
+
+html, body {
+  height: 100%; width: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'DM Mono', monospace;
+  overflow: hidden;
+}
+
+/* Grain */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 900; opacity: 0.5;
+}
+
+/* Ambient radial */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(232,213,163,0.04) 0%, transparent 65%);
+  pointer-events: none; z-index: 1;
+}
+
+/* Scanline */
+.scanline {
+  position: fixed; top: 0; left: 0; right: 0; height: 1.5px;
+  background: linear-gradient(90deg, transparent 0%, var(--glow) 50%, transparent 100%);
+  animation: scan 11s linear infinite;
+  pointer-events: none; z-index: 800; opacity: 0.5;
+}
+@keyframes scan { from { top: -2px; } to { top: 100%; } }
+
+/* ───────────────── TOP BAR ───────────────── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 500;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(10,10,10,0.7);
+  backdrop-filter: blur(16px);
+  animation: slideDown 0.6s ease both;
+}
+@keyframes slideDown { from { opacity:0; transform:translateY(-100%); } to { opacity:1; transform:translateY(0); } }
+
+.tb-back {
+  display: flex; align-items: center; gap: 0.5rem;
+  text-decoration: none;
+  color: var(--dim2);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: color 0.25s;
+}
+.tb-back svg { width: 13px; height: 13px; }
+.tb-back:hover { color: var(--accent); }
+
+.tb-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  color: var(--dim2);
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+}
+.tb-brand em { color: var(--accent); font-style: normal; }
+
+.tb-tz {
+  font-size: 0.52rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* ───────────────── CANVAS BACKGROUND ───────────────── */
+#bgCanvas {
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ───────────────── MAIN LAYOUT ───────────────── */
+.layout {
+  position: fixed;
+  top: 48px; left: 0; right: 0; bottom: 40px;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+}
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  position: relative;
+}
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  width: 280px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.8rem;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* ───────────────── CLOCK RING ───────────────── */
+.clock-wrap {
+  position: relative;
+  width: min(min(50vw, calc(100vh - 110px)), 480px);
+  height: min(min(50vw, calc(100vh - 110px)), 480px);
+}
+
+.clock-svg {
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+/* Outer decorative dashed ring */
+.ring-deco {
+  fill: none;
+  stroke: var(--dim);
+  stroke-width: 0.4;
+  stroke-dasharray: 1 4;
+  opacity: 0.5;
+}
+
+.ring-track { fill: none; stroke: var(--dim); stroke-width: 0.8; }
+
+.ring-hours {
+  fill: none; stroke: var(--fg);
+  stroke-width: 0.7; stroke-linecap: round; opacity: 0.28;
+}
+.ring-minutes {
+  fill: none; stroke: var(--fg);
+  stroke-width: 1; stroke-linecap: round; opacity: 0.6;
+}
+.ring-seconds {
+  fill: none; stroke: var(--accent);
+  stroke-width: 1.8; stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(232,213,163,0.8));
+}
+
+/* Tick marks */
+.tick-group line       { stroke: var(--dim);  stroke-width: 0.7; }
+.tick-group line.major { stroke: rgba(240,237,232,0.35); stroke-width: 1.4; }
+
+/* Hour labels */
+.hour-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 5.5px;
+  fill: var(--dim2);
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+/* Center */
+.center-ring-outer { fill: none; stroke: var(--dim); stroke-width: 0.5; }
+.center-ring-inner { fill: var(--bg); stroke: var(--dim); stroke-width: 0.5; }
+.center-dot        { fill: var(--accent); filter: drop-shadow(0 0 3px var(--accent)); }
+
+/* ── Digital overlay inside ring ── */
+.digital-inner {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+}
+
+.time-big {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.6rem, 4.5vw, 4rem);
+  letter-spacing: 0.05em;
+  color: var(--fg);
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(240,237,232,0.08);
+}
+.time-big .sep { color: var(--accent); animation: blink 1s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.1;} }
+
+.ms-row {
+  margin-top: 0.3rem;
+  font-size: 0.5rem;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+  opacity: 0.6;
+}
+
+/* ── Sweep second hand (classic needle) ── */
+.hand-second {
+  stroke: var(--accent);
+  stroke-width: 0.8;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 2px var(--accent));
+  transform-origin: 100px 100px;
+}
+.hand-minute {
+  stroke: rgba(240,237,232,0.65);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  transform-origin: 100px 100px;
+}
+.hand-hour {
+  stroke: rgba(240,237,232,0.4);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  transform-origin: 100px 100px;
+}
+
+/* ───────────────── RIGHT PANEL CONTENT ───────────────── */
+
+/* Date */
+.r-day {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.8rem, 3vw, 3rem);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--fg);
+}
+.r-date-line {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dim2);
+  margin-top: 0.4rem;
+}
+.r-date-line span { color: var(--accent); }
+
+.r-rule { width: 100%; height: 1px; background: var(--line); margin: 1.4rem 0; }
+
+/* Big second countdown */
+.r-secs-left {
+  display: flex; flex-direction: column; gap: 0.2rem;
+  margin-bottom: 1.2rem;
+}
+.r-secs-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  line-height: 1;
+}
+.r-secs-label {
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim2);
+}
+
+/* Progress bars */
+.prog-list { display: flex; flex-direction: column; gap: 0.9rem; }
+.prog-row  { display: flex; align-items: center; gap: 0.8rem; }
+.prog-lbl  { font-size: 0.5rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim2); width: 3.5rem; flex-shrink: 0; }
+.prog-track {
+  flex: 1; height: 2px; background: var(--dim);
+  border-radius: 999px; position: relative; overflow: hidden;
+}
+.prog-fill {
+  position: absolute; left: 0; top: 0; height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(232,213,163,0.5);
+}
+.prog-fill.muted { background: var(--fg); opacity: 0.35; box-shadow: none; }
+.prog-val { font-size: 0.48rem; letter-spacing: 0.08em; color: var(--dim2); width: 3.8rem; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+/* Legend */
+.legend { display: flex; flex-direction: column; gap: 0.55rem; }
+.legend-row { display: flex; align-items: center; gap: 0.7rem; font-size: 0.49rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim2); }
+.leg-sw { width: 18px; height: 1.5px; border-radius: 999px; flex-shrink: 0; }
+.ls { background: var(--accent); box-shadow: 0 0 4px var(--accent); }
+.lm { background: rgba(240,237,232,0.6); }
+.lh { background: rgba(240,237,232,0.3); }
+
+/* Unique: Sun/Moon phase indicator */
+.r-rule2 { width: 100%; height: 1px; background: var(--line); margin: 1.2rem 0; }
+.daynight {
+  display: flex; align-items: center; gap: 0.8rem;
+}
+.daynight-icon {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.daynight-label { font-size: 0.49rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim2); }
+.daynight-val   { font-size: 0.49rem; letter-spacing: 0.1em; color: var(--fg); margin-top: 0.15rem; }
+
+/* ───────────────── BOTTOM BAR ───────────────── */
+.bottombar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 40px; z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem;
+  border-top: 1px solid var(--line);
+  background: rgba(10,10,10,0.6);
+  backdrop-filter: blur(10px);
+}
+.bb-copy { font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); }
+.bb-home {
+  display: flex; align-items: center; gap: 0.45rem;
+  text-decoration: none;
+  color: var(--dim2); font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase;
+  transition: color 0.25s;
+}
+.bb-home:hover { color: var(--accent); }
+.bb-home svg { width: 11px; height: 11px; }
+
+/* ───────────────── MOBILE / PORTRAIT ───────────────── */
+@media (max-aspect-ratio: 4/5), (max-width: 580px) {
+  html, body { overflow: hidden; }
+
+  .layout {
+    flex-direction: column;
+    top: 48px; bottom: 40px;
+    overflow: hidden;
+  }
+
+  .left-panel {
+    flex: 0 0 auto;
+    padding: 1rem 1rem 0.5rem;
+  }
+
+  .clock-wrap {
+    width: min(68vw, calc(50vh - 60px));
+    height: min(68vw, calc(50vh - 60px));
+  }
+
+  .time-big { font-size: clamp(1.4rem, 8vw, 2.8rem); }
+
+  .right-panel {
+    width: 100%;
+    flex: 1 1 0;
+    border-left: none;
+    border-top: 1px solid var(--line);
+    padding: 1rem 1.4rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0;
+    align-content: flex-start;
+    overflow: hidden;
+  }
+
+  .r-day { font-size: clamp(1.2rem, 5vw, 1.8rem); }
+
+  /* On mobile: date left, secs remaining right */
+  .r-date-block { flex: 1; min-width: 0; }
+  .r-secs-left  { flex: 0; align-items: flex-end; }
+  .r-rule       { flex-basis: 100%; margin: 0.8rem 0; }
+
+  /* Stack bars and legend side by side */
+  .prog-list { flex: 1.3; min-width: 0; padding-right: 1rem; }
+  .r-rule2   { display: none; }
+  .daynight  { display: none; }
+  .legend    { flex: 1; min-width: 0; padding-top: 0.1rem; }
+
+  .r-secs-val { font-size: 1.4rem; }
+}
+```
+
+  </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="scanline"></div>
+
+<!-- TOP BAR -->
+
+<header class="topbar">
+  <a class="tb-back" href="https://spanani.de/">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
+    spanani.de
+  </a>
+  <div class="tb-brand"><em>S</em>panani — Clock</div>
+  <div class="tb-tz" id="tzBadge">—</div>
+</header>
+
+<!-- LAYOUT -->
+
+<div class="layout">
+
+  <!-- LEFT: Clock -->
+
+  <div class="left-panel">
+    <div class="clock-wrap">
+      <svg class="clock-svg" viewBox="0 0 200 200" id="clockSvg">
+
+```
+    <!-- Decorative outer ring -->
+    <circle class="ring-deco" cx="100" cy="100" r="97"/>
+
+    <!-- Ticks -->
+    <g class="tick-group" id="ticks"></g>
+    <!-- Hour labels -->
+    <g id="hourLabels"></g>
+
+    <!-- Arc rings (background tracks) -->
+    <circle class="ring-track" cx="100" cy="100" r="88"/>
+    <circle class="ring-hours"   id="ringHours"   cx="100" cy="100" r="88" stroke-dasharray="552.92" stroke-dashoffset="552.92"/>
+
+    <circle class="ring-track" cx="100" cy="100" r="77" opacity="0.45"/>
+    <circle class="ring-minutes" id="ringMinutes" cx="100" cy="100" r="77" stroke-dasharray="483.81" stroke-dashoffset="483.81"/>
+
+    <circle class="ring-track" cx="100" cy="100" r="64" opacity="0.3"/>
+    <circle class="ring-seconds" id="ringSeconds" cx="100" cy="100" r="64" stroke-dasharray="402.12" stroke-dashoffset="402.12"/>
+
+    <!-- Classic hands (drawn in un-rotated space, we rotate via JS) -->
+    <!-- Hour hand -->
+    <line id="handHour"   class="hand-hour"   x1="100" y1="100" x2="100" y2="68"/>
+    <!-- Minute hand -->
+    <line id="handMinute" class="hand-minute" x1="100" y1="100" x2="100" y2="57"/>
+    <!-- Second hand — long thin with tail -->
+    <line id="handSecTail" x1="100" y1="100" x2="100" y2="114"
+      stroke="var(--accent)" stroke-width="0.6" stroke-linecap="round" style="transform-origin:100px 100px"/>
+    <line id="handSec"    class="hand-second" x1="100" y1="100" x2="100" y2="53"/>
+
+    <!-- Center hub -->
+    <circle class="center-ring-outer" cx="100" cy="100" r="5"/>
+    <circle class="center-ring-inner" cx="100" cy="100" r="3.5"/>
+    <circle class="center-dot"        cx="100" cy="100" r="1.8"/>
+
+  </svg>
+
+  <!-- Digital overlay -->
+  <div class="digital-inner">
+    <div class="time-big">
+      <span id="hh">00</span><span class="sep">:</span><span id="mm">00</span><span class="sep">:</span><span id="ss">00</span>
+    </div>
+    <div class="ms-row" id="msRow">000ms</div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- RIGHT: Info panel -->
+
+  <div class="right-panel">
+
+```
+<div class="r-date-block">
+  <div class="r-day" id="rDay">—</div>
+  <div class="r-date-line" id="rDateLine">—</div>
+</div>
+
+<div class="r-secs-left">
+  <div class="r-secs-val" id="rSecsLeft">—</div>
+  <div class="r-secs-label">Sekunden heute noch</div>
+</div>
+
+<div class="r-rule"></div>
+
+<!-- Progress bars -->
+<div class="prog-list">
+  <div class="prog-row">
+    <span class="prog-lbl">Tag</span>
+    <div class="prog-track"><div class="prog-fill muted" id="barDay"></div></div>
+    <span class="prog-val" id="valDay">—</span>
+  </div>
+  <div class="prog-row">
+    <span class="prog-lbl">Monat</span>
+    <div class="prog-track"><div class="prog-fill" id="barMonth"></div></div>
+    <span class="prog-val" id="valMonth">—</span>
+  </div>
+  <div class="prog-row">
+    <span class="prog-lbl">Jahr</span>
+    <div class="prog-track"><div class="prog-fill muted" id="barYear"></div></div>
+    <span class="prog-val" id="valYear">—</span>
+  </div>
+</div>
+
+<div class="r-rule2"></div>
+
+<!-- Day/Night -->
+<div class="daynight" id="daynightWrap">
+  <canvas id="dnCanvas" width="22" height="22" style="border-radius:50%;flex-shrink:0;"></canvas>
+  <div>
+    <div class="daynight-label" id="dnLabel">—</div>
+    <div class="daynight-val"   id="dnVal">—</div>
+  </div>
+</div>
+
+<div class="r-rule" style="margin-top:1.2rem;"></div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-row"><span class="leg-sw ls"></span>Sekunden</div>
+  <div class="legend-row"><span class="leg-sw lm"></span>Minuten</div>
+  <div class="legend-row"><span class="leg-sw lh"></span>Stunden</div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+
+<footer class="bottombar">
+  <span class="bb-copy">&copy; 2026 Spanani</span>
+  <a class="bb-home" href="https://spanani.de/">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+    Zur Hauptseite
+  </a>
+</footer>
+
+<script>
+  const DAYS   = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+  /* ── Timezone ── */
+  document.getElementById('tzBadge').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  /* ── Build ticks + hour labels ── */
+  const tickG  = document.getElementById('ticks');
+  const labelG = document.getElementById('hourLabels');
+
+  for (let i = 0; i < 60; i++) {
+    const angle   = (i / 60) * 2 * Math.PI - Math.PI/2;
+    const major   = i % 5 === 0;
+    const r1 = major ? 89 : 91.5;
+    const r2 = major ? 94.5 : 93;
+    const x1 = 100 + r1 * Math.cos(angle);
+    const y1 = 100 + r1 * Math.sin(angle);
+    const x2 = 100 + r2 * Math.cos(angle);
+    const y2 = 100 + r2 * Math.sin(angle);
+    const ln = document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1',x1); ln.setAttribute('y1',y1);
+    ln.setAttribute('x2',x2); ln.setAttribute('y2',y2);
+    if (major) ln.classList.add('major');
+    tickG.appendChild(ln);
+
+    if (major) {
+      const hr  = (i/5 === 0 ? 12 : i/5);
+      const lr  = 82;
+      const lx  = 100 + lr * Math.cos(angle);
+      const ly  = 100 + lr * Math.sin(angle);
+      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.classList.add('hour-label');
+      txt.setAttribute('x', lx);
+      txt.setAttribute('y', ly);
+      // counter-rotate so numbers are upright (SVG rotated -90deg)
+      txt.setAttribute('transform', `rotate(90,${lx},${ly})`);
+      txt.textContent = hr;
+      labelG.appendChild(txt);
+    }
+  }
+
+  /* ── Particle canvas background ── */
+  const bgCvs = document.getElementById('bgCanvas');
+  const bgCtx = bgCvs.getContext('2d');
+  let particles = [];
+
+  function resizeBg() {
+    bgCvs.width  = window.innerWidth;
+    bgCvs.height = window.innerHeight;
+  }
+  resizeBg();
+  window.addEventListener('resize', resizeBg);
+
+  // Sparse floating dots
+  for (let i = 0; i < 55; i++) {
+    particles.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: Math.random() * 1.2 + 0.2,
+      vx: (Math.random() - 0.5) * 0.12,
+      vy: (Math.random() - 0.5) * 0.12,
+      a: Math.random() * 0.25 + 0.05,
+    });
+  }
+
+  function drawBg() {
+    bgCtx.clearRect(0, 0, bgCvs.width, bgCvs.height);
+    for (const p of particles) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = bgCvs.width;
+      if (p.x > bgCvs.width) p.x = 0;
+      if (p.y < 0) p.y = bgCvs.height;
+      if (p.y > bgCvs.height) p.y = 0;
+      bgCtx.beginPath();
+      bgCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      bgCtx.fillStyle = `rgba(232,213,163,${p.a})`;
+      bgCtx.fill();
+    }
+    requestAnimationFrame(drawBg);
+  }
+  drawBg();
+
+  /* ── Day/Night canvas ── */
+  const dnCvs = document.getElementById('dnCanvas');
+  const dnCtx = dnCvs.getContext('2d');
+
+  function drawDayNight(hour, minute) {
+    const frac = (hour + minute/60) / 24; // 0–1
+    const isDaytime = hour >= 6 && hour < 20;
+    const isGolden  = (hour >= 5 && hour < 7) || (hour >= 19 && hour < 21);
+    const c = dnCvs; const x = c.width/2; const y = c.height/2; const r = x - 1;
+
+    dnCtx.clearRect(0,0,c.width,c.height);
+
+    // Sky gradient
+    let sky;
+    if (hour >= 6 && hour < 19) {
+      sky = '#0a1a2e';
+      dnCtx.fillStyle = hour >= 10 && hour < 17 ? '#0d2137' : '#0a1525';
+    } else {
+      dnCtx.fillStyle = '#050810';
+    }
+    dnCtx.beginPath(); dnCtx.arc(x,y,r,0,Math.PI*2); dnCtx.fill();
+
+    // Celestial body
+    const angle = (frac * Math.PI * 2) - Math.PI/2;
+    const orbit = r * 0.55;
+    const cx2 = x + orbit * Math.cos(angle);
+    const cy2 = y + orbit * Math.sin(angle);
+
+    dnCtx.beginPath();
+    dnCtx.arc(cx2, cy2, 3.5, 0, Math.PI*2);
+    if (isDaytime) {
+      dnCtx.fillStyle = isGolden ? '#f5c842' : '#ffe89a';
+      dnCtx.shadowColor = '#ffe89a'; dnCtx.shadowBlur = 6;
+    } else {
+      dnCtx.fillStyle = '#d8d0c4';
+      dnCtx.shadowColor = '#d8d0c4'; dnCtx.shadowBlur = 3;
+    }
+    dnCtx.fill();
+    dnCtx.shadowBlur = 0;
+
+    // Label + value
+    document.getElementById('dnLabel').textContent = isDaytime ? 'Tagzeit' : 'Nachtzeit';
+    const sunrise = 6, sunset = 20;
+    if (isDaytime) {
+      const minsLeft = (sunset - hour - 1) * 60 + (60 - minute);
+      document.getElementById('dnVal').textContent = `Sonnenuntergang in ${Math.floor(minsLeft/60)}h ${minsLeft%60}m`;
+    } else {
+      const nextSunrise = hour >= 20 ? (24 - hour + sunrise) * 60 - minute : (sunrise - hour) * 60 - minute;
+      document.getElementById('dnVal').textContent = `Sonnenaufgang in ${Math.floor(nextSunrise/60)}h ${nextSunrise%60}m`;
+    }
+  }
+
+  /* ── Constants ── */
+  const cSec = 2 * Math.PI * 64;
+  const cMin = 2 * Math.PI * 77;
+  const cHr  = 2 * Math.PI * 88;
+
+  function pad(n) { return String(n).padStart(2,'0'); }
+  function deg(frac) { return frac * 360; }
+
+  /* ── Main update loop ── */
+  function update() {
+    const now = new Date();
+    const h = now.getHours(), m = now.getMinutes(),
+          s = now.getSeconds(), ms = now.getMilliseconds();
+
+    /* Digital */
+    document.getElementById('hh').textContent = pad(h);
+    document.getElementById('mm').textContent = pad(m);
+    document.getElementById('ss').textContent = pad(s);
+    document.getElementById('msRow').textContent = String(ms).padStart(3,'0') + 'ms';
+
+    /* Date */
+    document.getElementById('rDay').textContent = DAYS[now.getDay()];
+    document.getElementById('rDateLine').innerHTML =
+      `<span>${now.getDate()}.</span> ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+
+    /* Seconds remaining today */
+    const secsLeft = 86400 - (h*3600 + m*60 + s);
+    document.getElementById('rSecsLeft').textContent = secsLeft.toLocaleString('de-DE');
+
+    /* Fractions */
+    const secFrac = (s + ms/1000) / 60;
+    const minFrac = (m + (s + ms/1000)/60) / 60;
+    const hrFrac  = ((h%12) + (m + (s + ms/1000)/60)/60) / 12;
+
+    /* Arc rings */
+    document.getElementById('ringSeconds').style.strokeDashoffset = cSec * (1 - secFrac);
+    document.getElementById('ringMinutes').style.strokeDashoffset = cMin * (1 - minFrac);
+    document.getElementById('ringHours').style.strokeDashoffset   = cHr  * (1 - hrFrac);
+
+    /* Classic hands — rotate around center */
+    const sDeg = deg(secFrac);
+    const mDeg = deg(minFrac);
+    const hDeg = deg(hrFrac);
+    document.getElementById('handSec').style.transform    = `rotate(${sDeg}deg)`;
+    document.getElementById('handSecTail').style.transform = `rotate(${sDeg}deg)`;
+    document.getElementById('handMinute').style.transform = `rotate(${mDeg}deg)`;
+    document.getElementById('handHour').style.transform   = `rotate(${hDeg}deg)`;
+
+    /* Progress bars */
+    const startDay   = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const dayFrac    = (now - startDay) / 86400000;
+    const daysInMo   = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+    const monthFrac  = (now.getDate()-1 + dayFrac) / daysInMo;
+    const startYear  = new Date(now.getFullYear(), 0, 1);
+    const endYear    = new Date(now.getFullYear()+1, 0, 1);
+    const yearFrac   = (now - startYear) / (endYear - startYear);
+
+    const pct = v => (v*100).toFixed(2) + '%';
+    document.getElementById('barDay').style.width   = (dayFrac   * 100) + '%';
+    document.getElementById('barMonth').style.width = (monthFrac * 100) + '%';
+    document.getElementById('barYear').style.width  = (yearFrac  * 100) + '%';
+    document.getElementById('valDay').textContent   = pct(dayFrac);
+    document.getElementById('valMonth').textContent = pct(monthFrac);
+    document.getElementById('valYear').textContent  = pct(yearFrac);
+
+    /* Day/Night */
+    drawDayNight(h, m);
+
+    requestAnimationFrame(update);
+  }
+
+  requestAnimationFrame(update);
+</script>
+
+</body>
+</html>

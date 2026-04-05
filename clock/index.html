@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+
+<html lang="de" style="background:#0a0a0a;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clock — Spanani</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; background: #0a0a0a; color: #f0ede8; font-family: 'DM Mono', monospace; overflow: hidden; }
+
+```
+.scanline { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(232,213,163,.13), transparent); animation: scan 11s linear infinite; pointer-events: none; z-index: 3; opacity: .45; }
+@keyframes scan { from{top:-2px;} to{top:100%;} }
+
+/* TOP BAR */
+.topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; border-bottom: 1px solid rgba(240,237,232,.07); background: rgba(10,10,10,.9); animation: slideDown .6s ease both; }
+@keyframes slideDown { from{opacity:0;transform:translateY(-100%);} to{opacity:1;transform:translateY(0);} }
+.tb-back { display: flex; align-items: center; gap: .5rem; text-decoration: none; color: #5a5450; font-size: .58rem; letter-spacing: .18em; text-transform: uppercase; transition: color .25s; }
+.tb-back svg { width: 13px; height: 13px; }
+.tb-back:hover { color: #e8d5a3; }
+.tb-brand { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: .14em; color: #5a5450; position: absolute; left: 50%; transform: translateX(-50%); }
+.tb-brand em { color: #e8d5a3; font-style: normal; }
+.tb-right { display: flex; align-items: center; gap: .9rem; }
+.tb-tz { font-size: .5rem; letter-spacing: .14em; text-transform: uppercase; color: #3a3630; }
+
+/* Secret dot — tiny, innocent */
+.secret-btn { width: 18px; height: 18px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; opacity: .2; transition: opacity .3s; -webkit-tap-highlight-color: transparent; }
+.secret-btn:hover { opacity: .5; }
+.secret-btn.active { opacity: 1; }
+.secret-dot { width: 5px; height: 5px; border-radius: 50%; background: #3a3630; transition: background .3s, box-shadow .3s; }
+.secret-btn.active .secret-dot { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,.6); }
+
+/* LAYOUT */
+.layout { position: fixed; top: 48px; left: 0; right: 0; bottom: 40px; z-index: 2; display: flex; align-items: stretch; }
+.left-panel { flex: 1 1 0; display: flex; align-items: center; justify-content: center; padding: 1.5rem; position: relative; }
+.right-panel { width: 280px; flex-shrink: 0; border-left: 1px solid rgba(240,237,232,.07); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+/* CLOCK */
+.clock-wrap { position: relative; width: min(min(50vw, calc(100vh - 110px)), 480px); height: min(min(50vw, calc(100vh - 110px)), 480px); }
+.clock-svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+.ring-deco    { fill: none; stroke: #2e2b27; stroke-width: .4; stroke-dasharray: 1 4; opacity: .5; }
+.ring-track   { fill: none; stroke: #2e2b27; stroke-width: .8; }
+.ring-hours   { fill: none; stroke: #f0ede8; stroke-width: .7;  stroke-linecap: round; opacity: .28; }
+.ring-minutes { fill: none; stroke: #f0ede8; stroke-width: 1;   stroke-linecap: round; opacity: .6; }
+.ring-seconds { fill: none; stroke: #e8d5a3; stroke-width: 1.8; stroke-linecap: round; filter: drop-shadow(0 0 4px rgba(232,213,163,.8)); }
+.ring-overtime-arc { fill: none; stroke: #f87171; stroke-width: 2.4; stroke-linecap: round; filter: drop-shadow(0 0 5px rgba(248,113,113,.7)); opacity: 0; transition: opacity .5s; stroke-dasharray: 402.12; stroke-dashoffset: 402.12; }
+.ring-overtime-arc.visible { opacity: 1; }
+.tick-sm  { stroke: #2e2b27; stroke-width: .7; }
+.tick-maj { stroke: rgba(240,237,232,.35); stroke-width: 1.4; }
+.hour-label { font-family: 'DM Mono', monospace; font-size: 5.5px; fill: #5a5450; text-anchor: middle; dominant-baseline: middle; }
+.center-outer { fill: none; stroke: #2e2b27; stroke-width: .5; }
+.center-inner { fill: #0a0a0a; stroke: #2e2b27; stroke-width: .5; }
+.center-dot   { fill: #e8d5a3; }
+.hand-sec  { stroke: #e8d5a3; stroke-width: .8; stroke-linecap: round; transform-origin: 100px 100px; }
+.hand-tail { stroke: #e8d5a3; stroke-width: .6; stroke-linecap: round; transform-origin: 100px 100px; opacity: .6; }
+.hand-min  { stroke: rgba(240,237,232,.65); stroke-width: 1.2; stroke-linecap: round; transform-origin: 100px 100px; }
+.hand-hr   { stroke: rgba(240,237,232,.4);  stroke-width: 1.8; stroke-linecap: round; transform-origin: 100px 100px; }
+
+.digital-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.time-big { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.6rem, 4.5vw, 4rem); letter-spacing: .05em; color: #f0ede8; line-height: 1; }
+.time-sep { color: #e8d5a3; animation: blink 1s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.1;} }
+.ms-row { margin-top: .3rem; font-size: .5rem; letter-spacing: .22em; color: #e8d5a3; opacity: .6; }
+
+/* Overtime pulse badge on clock face */
+.ot-clock-badge { position: absolute; left: 50%; bottom: 16%; transform: translateX(-50%); font-family: 'Bebas Neue', sans-serif; font-size: clamp(.9rem, 2.2vw, 1.5rem); color: #f87171; letter-spacing: .1em; text-shadow: 0 0 12px rgba(248,113,113,.5); opacity: 0; transition: opacity .4s; pointer-events: none; white-space: nowrap; }
+.ot-clock-badge.visible { opacity: 1; animation: pulse-txt 1.5s ease-in-out infinite; }
+@keyframes pulse-txt { 0%,100%{opacity:1;} 50%{opacity:.5;} }
+
+/* ── NORMAL PANEL ── */
+.normal-panel { padding: 2rem 1.8rem; display: flex; flex-direction: column; height: 100%; transition: opacity .3s; }
+.normal-panel.hidden { opacity: 0; pointer-events: none; }
+.r-day { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.8rem, 3vw, 3rem); letter-spacing: .04em; line-height: 1; color: #f0ede8; }
+.r-date-line { font-size: .58rem; letter-spacing: .18em; text-transform: uppercase; color: #5a5450; margin-top: .4rem; }
+.r-date-line span { color: #e8d5a3; }
+.r-rule { width: 100%; height: 1px; background: rgba(240,237,232,.07); margin: 1.3rem 0; }
+.r-secs-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #e8d5a3; line-height: 1; }
+.r-secs-label { font-size: .5rem; letter-spacing: .2em; text-transform: uppercase; color: #5a5450; margin-top: .15rem; margin-bottom: 1.1rem; }
+.prog-list { display: flex; flex-direction: column; gap: .85rem; }
+.prog-row  { display: flex; align-items: center; gap: .8rem; }
+.prog-lbl  { font-size: .5rem; letter-spacing: .16em; text-transform: uppercase; color: #5a5450; width: 3.5rem; flex-shrink: 0; }
+.prog-track { flex: 1; height: 2px; background: #2e2b27; border-radius: 999px; position: relative; overflow: hidden; }
+.prog-fill  { position: absolute; left: 0; top: 0; height: 100%; border-radius: 999px; background: #e8d5a3; }
+.prog-fill.muted { background: #f0ede8; opacity: .35; }
+.prog-val  { font-size: .46rem; color: #5a5450; width: 3.8rem; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.r-rule2 { width: 100%; height: 1px; background: rgba(240,237,232,.07); margin: 1.1rem 0; }
+.daynight { display: flex; align-items: center; gap: .8rem; }
+.daynight-label { font-size: .49rem; letter-spacing: .15em; text-transform: uppercase; color: #5a5450; }
+.daynight-val   { font-size: .49rem; color: #f0ede8; margin-top: .12rem; }
+.legend { display: flex; flex-direction: column; gap: .5rem; margin-top: auto; }
+.legend-row { display: flex; align-items: center; gap: .7rem; font-size: .49rem; letter-spacing: .14em; text-transform: uppercase; color: #5a5450; }
+.leg-sw { width: 18px; height: 1.5px; border-radius: 999px; flex-shrink: 0; }
+.ls { background: #e8d5a3; } .lm { background: rgba(240,237,232,.6); } .lh { background: rgba(240,237,232,.3); }
+
+/* ── SCHOOL PANEL ── */
+.school-panel { position: absolute; inset: 0; padding: 1.4rem 1.5rem; display: none; flex-direction: column; gap: 0; background: #0a0a0a; overflow-y: auto; }
+.school-panel.visible { display: flex; }
+
+.sp-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.1rem; gap: .5rem; }
+.sp-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: .06em; color: #f0ede8; line-height: 1; }
+.sp-week-badge { font-size: .44rem; letter-spacing: .18em; text-transform: uppercase; padding: .22em .7em; border-radius: 999px; border: 1px solid #2e2b27; color: #5a5450; white-space: nowrap; flex-shrink: 0; }
+.sp-week-badge.a { color: #e8d5a3; border-color: rgba(232,213,163,.3); }
+.sp-week-badge.b { color: #93c5fd; border-color: rgba(147,197,253,.3); }
+
+/* Status line */
+.sp-status-row { display: flex; align-items: center; gap: .6rem; margin-bottom: 1rem; }
+.sp-dot { width: 6px; height: 6px; border-radius: 50%; background: #3a3630; flex-shrink: 0; }
+.sp-dot.green { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,.5); }
+.sp-dot.red   { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,.5); animation: blink-dot .8s step-end infinite; }
+.sp-dot.yellow { background: #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,.4); }
+@keyframes blink-dot { 0%,100%{opacity:1;} 50%{opacity:.2;} }
+.sp-status-txt { font-size: .5rem; letter-spacing: .14em; text-transform: uppercase; color: #5a5450; }
+.sp-status-txt.green { color: #4ade80; }
+.sp-status-txt.red   { color: #f87171; }
+.sp-status-txt.yellow { color: #fbbf24; }
+
+/* Lesson card */
+.sp-card { border: 1px solid rgba(240,237,232,.07); padding: 1rem 1.1rem; margin-bottom: .8rem; }
+.sp-card.active-lesson { border-color: rgba(74,222,128,.2); background: rgba(74,222,128,.02); }
+.sp-card.overtime      { border-color: rgba(248,113,113,.35); background: rgba(248,113,113,.03); }
+.sp-card.holiday       { border-color: rgba(251,191,36,.25); background: rgba(251,191,36,.02); }
+.sp-card-label { font-size: .43rem; letter-spacing: .18em; text-transform: uppercase; color: #5a5450; margin-bottom: .3rem; }
+.sp-card-label.green { color: #4ade80; }
+.sp-card-label.red   { color: #f87171; }
+.sp-card-label.yellow { color: #fbbf24; }
+.sp-card-subject { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: .05em; color: #f0ede8; line-height: 1; }
+.sp-card-meta { font-size: .5rem; letter-spacing: .08em; color: #5a5450; margin-top: .28rem; line-height: 1.6; }
+.sp-card-meta span { color: #3a3630; }
+
+/* THE big overtime counter */
+.sp-ot-box { padding: .9rem 1rem; background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.3); margin-bottom: .8rem; display: none; }
+.sp-ot-box.visible { display: block; }
+.sp-ot-lbl { font-size: .43rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(248,113,113,.7); margin-bottom: .25rem; }
+.sp-ot-counter { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; letter-spacing: .06em; color: #f87171; line-height: 1; text-shadow: 0 0 24px rgba(248,113,113,.3); }
+.sp-ot-secs { font-size: .46rem; letter-spacing: .12em; color: rgba(248,113,113,.5); margin-top: .1rem; }
+
+/* Next lesson row */
+.sp-next { margin-top: .2rem; }
+.sp-next-label { font-size: .43rem; letter-spacing: .18em; text-transform: uppercase; color: #3a3630; margin-bottom: .3rem; }
+.sp-next-list { display: flex; flex-direction: column; gap: .4rem; }
+.sp-next-row { display: flex; align-items: center; justify-content: space-between; padding: .45rem .7rem; border: 1px solid rgba(240,237,232,.05); }
+.sp-next-subject { font-size: .54rem; letter-spacing: .08em; color: #5a5450; }
+.sp-next-subject.current { color: #f0ede8; }
+.sp-next-time { font-size: .48rem; letter-spacing: .06em; color: #3a3630; }
+
+/* No school */
+.sp-no-school { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: .6rem; text-align: center; }
+.sp-no-school-icon { font-size: 1.8rem; opacity: .3; }
+.sp-no-school-txt { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: .06em; color: #3a3630; }
+.sp-no-school-sub { font-size: .48rem; letter-spacing: .14em; text-transform: uppercase; color: #2e2b27; }
+
+/* BOTTOM BAR */
+.bottombar { position: fixed; bottom: 0; left: 0; right: 0; height: 40px; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; border-top: 1px solid rgba(240,237,232,.07); background: rgba(10,10,10,.9); }
+.bb-copy { font-size: .5rem; letter-spacing: .15em; text-transform: uppercase; color: #3a3630; }
+.bb-home { display: flex; align-items: center; gap: .45rem; text-decoration: none; color: #5a5450; font-size: .5rem; letter-spacing: .15em; text-transform: uppercase; transition: color .25s; }
+.bb-home:hover { color: #e8d5a3; }
+.bb-home svg { width: 11px; height: 11px; }
+
+/* MOBILE */
+@media (max-aspect-ratio: 4/5), (max-width: 580px) {
+  html, body { overflow: hidden; }
+  .layout { flex-direction: column; }
+  .left-panel { flex: 0 0 auto; padding: .8rem 1rem .4rem; }
+  .clock-wrap { width: min(68vw, calc(46vh - 50px)); height: min(68vw, calc(46vh - 50px)); }
+  .time-big { font-size: clamp(1.3rem, 8vw, 2.4rem); }
+  .right-panel { width: 100%; flex: 1 1 0; border-left: none; border-top: 1px solid rgba(240,237,232,.07); }
+  .normal-panel { padding: 1rem 1.4rem; flex-direction: row; flex-wrap: wrap; gap: 0; align-content: flex-start; }
+  .r-day { font-size: clamp(1.1rem, 4.5vw, 1.6rem); }
+  .r-date-line { font-size: .52rem; }
+  .nm-date-block { flex: 1; min-width: 0; }
+  .nm-secs-block { flex: 0; align-items: flex-end; text-align: right; }
+  .r-secs-val { font-size: 1.3rem; }
+  .r-rule { flex-basis: 100%; margin: .6rem 0; }
+  .prog-list { flex: 1.3; min-width: 0; padding-right: .8rem; }
+  .r-rule2 { display: none; }
+  .daynight { display: none; }
+  .legend { flex: 1; min-width: 0; padding-top: .1rem; }
+  .school-panel { padding: 1rem 1.2rem; }
+  .sp-ot-counter { font-size: 2rem; }
+}
+```
+
+  </style>
+</head>
+<body>
+<div class="scanline"></div>
+
+<!-- TOP BAR -->
+
+<header class="topbar">
+  <a class="tb-back" href="https://spanani.de/">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
+    spanani.de
+  </a>
+  <div class="tb-brand"><em>S</em>panani &mdash; Clock</div>
+  <div class="tb-right">
+    <div class="tb-tz" id="tzBadge">—</div>
+    <button class="secret-btn" id="secretBtn" title=" " aria-label=" ">
+      <div class="secret-dot"></div>
+    </button>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+
+<div class="layout">
+  <!-- LEFT: Clock -->
+  <div class="left-panel">
+    <div class="clock-wrap">
+      <svg class="clock-svg" viewBox="0 0 200 200" id="clockSvg">
+        <circle class="ring-deco" cx="100" cy="100" r="97"/>
+        <g id="ticks"></g>
+        <g id="hourLabels"></g>
+        <circle class="ring-track" cx="100" cy="100" r="88"/>
+        <circle class="ring-hours"   id="ringHours"   cx="100" cy="100" r="88" stroke-dasharray="552.92" stroke-dashoffset="552.92"/>
+        <circle class="ring-track" cx="100" cy="100" r="77" opacity=".45"/>
+        <circle class="ring-minutes" id="ringMinutes" cx="100" cy="100" r="77" stroke-dasharray="483.81" stroke-dashoffset="483.81"/>
+        <circle class="ring-track" cx="100" cy="100" r="64" opacity=".3"/>
+        <circle class="ring-seconds" id="ringSeconds" cx="100" cy="100" r="64" stroke-dasharray="402.12" stroke-dashoffset="402.12"/>
+        <!-- Red overtime arc on innermost ring -->
+        <circle class="ring-overtime-arc" id="ringOvertime" cx="100" cy="100" r="64"/>
+        <line id="handHour"   class="hand-hr"   x1="100" y1="100" x2="100" y2="68"/>
+        <line id="handMinute" class="hand-min"  x1="100" y1="100" x2="100" y2="57"/>
+        <line id="handTail"   class="hand-tail" x1="100" y1="100" x2="100" y2="114"/>
+        <line id="handSec"    class="hand-sec"  x1="100" y1="100" x2="100" y2="53"/>
+        <circle class="center-outer" cx="100" cy="100" r="5"/>
+        <circle class="center-inner" cx="100" cy="100" r="3.5"/>
+        <circle class="center-dot"   cx="100" cy="100" r="1.8"/>
+      </svg>
+      <div class="digital-inner">
+        <div class="time-big">
+          <span id="hh">00</span><span class="time-sep">:</span><span id="mm">00</span><span class="time-sep">:</span><span id="ss">00</span>
+        </div>
+        <div class="ms-row" id="msRow">000ms</div>
+      </div>
+      <!-- Overtime shown on clock face -->
+      <div class="ot-clock-badge" id="otClockBadge"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+
+  <div class="right-panel">
+    <!-- Normal info panel -->
+    <div class="normal-panel" id="normalPanel">
+      <div class="nm-date-block">
+        <div class="r-day" id="rDay">—</div>
+        <div class="r-date-line" id="rDateLine">—</div>
+      </div>
+      <div class="nm-secs-block">
+        <div class="r-secs-val" id="rSecsLeft">—</div>
+        <div class="r-secs-label">Sek. heute noch</div>
+      </div>
+      <div class="r-rule"></div>
+      <div class="prog-list">
+        <div class="prog-row">
+          <span class="prog-lbl">Tag</span>
+          <div class="prog-track"><div class="prog-fill muted" id="barDay"></div></div>
+          <span class="prog-val" id="valDay">—</span>
+        </div>
+        <div class="prog-row">
+          <span class="prog-lbl">Monat</span>
+          <div class="prog-track"><div class="prog-fill" id="barMonth"></div></div>
+          <span class="prog-val" id="valMonth">—</span>
+        </div>
+        <div class="prog-row">
+          <span class="prog-lbl">Jahr</span>
+          <div class="prog-track"><div class="prog-fill muted" id="barYear"></div></div>
+          <span class="prog-val" id="valYear">—</span>
+        </div>
+      </div>
+      <div class="r-rule2"></div>
+      <div class="daynight">
+        <canvas id="dnCanvas" width="22" height="22" style="border-radius:50%;flex-shrink:0;"></canvas>
+        <div>
+          <div class="daynight-label" id="dnLabel">—</div>
+          <div class="daynight-val" id="dnVal">—</div>
+        </div>
+      </div>
+      <div class="r-rule" style="margin-top:1.1rem;"></div>
+      <div class="legend">
+        <div class="legend-row"><span class="leg-sw ls"></span>Sekunden</div>
+        <div class="legend-row"><span class="leg-sw lm"></span>Minuten</div>
+        <div class="legend-row"><span class="leg-sw lh"></span>Stunden</div>
+      </div>
+    </div>
+
+```
+<!-- School overtime panel -->
+<div class="school-panel" id="schoolPanel">
+  <!-- filled by JS -->
+</div>
+```
+
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+
+<footer class="bottombar">
+  <span class="bb-copy">&copy; 2026 Spanani</span>
+  <a class="bb-home" href="https://spanani.de/">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+    Zur Hauptseite
+  </a>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   STUNDENPLAN — vollständig
+   ═══════════════════════════════════════════════════ */
+
+// Stunden als [hh, mm] start/end
+// Wochentage: 0=So, 1=Mo, 2=Di, 3=Mi, 4=Do, 5=Fr
+
+const TIMETABLE = {
+  1: [ // Montag
+    { start:[8,0],  end:[9,35],  subject:'Physik',        room:'131',  teacher:'GA' },
+    { start:[9,55], end:[11,30], subject:'Sport',         room:'Foyer',teacher:'BRN' },
+    { start:[11,45],end:[12,30], subject:'Deutsch',       room:'216',  teacher:'SÜ' },
+    { start:[13,30],end:[14,15], subject:'Englisch',      room:'204',  teacher:'KP' },
+  ],
+  2: [ // Dienstag
+    { start:[8,0],  end:[9,35],  subject:'Vokal PKurs',   room:'013',  teacher:'DE/GR' },
+    { start:[9,55], end:[11,30], subject:'Informatik',    room:'209',  teacher:'HS' },
+    { start:[11,45],end:[13,20], subject:'Mathematik LK', room:'119',  teacher:'BZ' },
+    { start:[14,15],end:[15,45], subject:'PKI Projektkurs',room:'209', teacher:'HS' },
+  ],
+  3: [ // Mittwoch
+    { start:[8,50], end:[9,35],  subject:'Vokal PKurs',   room:'034',  teacher:'DE/GR' },
+    { start:[9,55], end:[11,30], subject:'Kath. Religion',room:'215',  teacher:'KN' },
+    { start:[11,45],end:[12,30], subject:'Englisch',      room:'204',  teacher:'KP' },
+    { start:[13,30],end:[14,15], subject:'Sozialwiss.',   room:'213',  teacher:'FÖ' },
+    { start:[14,15],end:[15,0],  subject:'Sport',         room:'Foyer',teacher:'BRN' },
+  ],
+  4: [ // Donnerstag
+    { start:[8,0],  end:[9,35],  subject:'Informatik',    room:'209',  teacher:'HS' },
+    { start:[9,55], end:[11,30], subject:'Mathematik LK', room:'Foyer',teacher:'BZ' },
+    { start:[11,45],end:[12,30], subject:'Erdkunde',      room:'154',  teacher:'ST' },
+    { start:[13,30],end:[15,0],  subject:'Deutsch',       room:'216',  teacher:'SÜ' },
+  ],
+  5: [ // Freitag — A-Woche
+    { start:[8,0],  end:[9,35],  subject:'Sozialwiss.',   room:'213',  teacher:'FÖ' },
+    { start:[9,55], end:[10,40], subject:'Kath. Religion',room:'215',  teacher:'KN' },
+    { start:[10,45],end:[11,30], subject:'Physik',        room:'131',  teacher:'GA' },
+    { start:[11,45],end:[13,20], subject:'Erdkunde',      room:'154',  teacher:'ST' },
+    { start:[14,15],end:[15,45], subject:'Informatik LK', room:'209',  teacher:'HS', abWeek:'A' },
+    { start:[14,15],end:[15,45], subject:'Mathematik LK', room:'209',  teacher:'BZ', abWeek:'B' },
+  ],
+};
+
+/* ═══════════════════════════════════════════════════
+   NRW FERIEN & FEIERTAGE 2025/2026
+   ═══════════════════════════════════════════════════ */
+function dateKey(d) {
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+function rangeKeys(y,m1,d1,m2,d2) {
+  const keys=new Set(); const cur=new Date(y,m1-1,d1);
+  const end=new Date(y,m2-1,d2);
+  while(cur<=end){keys.add(dateKey(cur));cur.setDate(cur.getDate()+1);}
+  return keys;
+}
+
+const FEIERTAGE = new Set([
+  // 2025
+  '2025-1-1','2025-4-18','2025-4-21','2025-5-1','2025-5-29',
+  '2025-6-9','2025-6-19','2025-10-3','2025-11-1','2025-12-25','2025-12-26',
+  // 2026
+  '2026-1-1','2026-4-3','2026-4-6','2026-5-1','2026-5-14',
+  '2026-5-25','2026-6-4','2026-10-3','2026-11-1','2026-12-25','2026-12-26',
+]);
+
+// NRW Schulferien 2025/2026
+const FERIEN_RANGES = [
+  // Osterferien 2025: 14.4.–26.4.
+  {y:2025,m1:4,d1:14,m2:4,d2:26,name:'Osterferien'},
+  // Pfingstferien 2025: 30.5.–7.6.
+  {y:2025,m1:5,d1:30,m2:6,d2:7,name:'Pfingstferien'},
+  // Sommerferien 2025: 14.7.–26.8.
+  {y:2025,m1:7,d1:14,m2:8,d2:26,name:'Sommerferien'},
+  // Herbstferien 2025: 13.10.–25.10.
+  {y:2025,m1:10,d1:13,m2:10,d2:25,name:'Herbstferien'},
+  // Weihnachtsferien 2025/26: 22.12.–6.1.
+  {y:2025,m1:12,d1:22,m2:12,d2:31,name:'Weihnachtsferien'},
+  {y:2026,m1:1,d1:1,m2:1,d2:6,name:'Weihnachtsferien'},
+  // Osterferien 2026: 30.3.–11.4.
+  {y:2026,m1:3,d1:30,m2:4,d2:11,name:'Osterferien'},
+  // Pfingstferien 2026: 26.5.–6.6.
+  {y:2026,m1:5,d1:26,m2:6,d2:6,name:'Pfingstferien'},
+];
+
+const FERIEN_KEYS = new Map(); // key -> name
+for(const r of FERIEN_RANGES){
+  const keys=rangeKeys(r.y,r.m1,r.d1,r.m2,r.d2);
+  for(const k of keys) FERIEN_KEYS.set(k,r.name);
+}
+
+function isFreeDay(date) {
+  const k = dateKey(date);
+  const dow = date.getDay();
+  if(dow===0||dow===6) return {free:true,reason:'Wochenende'};
+  if(FEIERTAGE.has(k)) return {free:true,reason:'Feiertag'};
+  if(FERIEN_KEYS.has(k)) return {free:true,reason:FERIEN_KEYS.get(k)};
+  return {free:false};
+}
+
+/* ═══════════════════════════════════════════════════
+   A/B WOCHE — KW13 2025 = A
+   ═══════════════════════════════════════════════════ */
+function getKW(date) {
+  const d = new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));
+  d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));
+  const yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return Math.ceil((((d-yearStart)/86400000)+1)/7);
+}
+function getABWeek(date) {
+  // KW13 2025 = A → gerade KW = B, ungerade KW = A (bezogen auf Parität zu KW13)
+  const kw=getKW(date);
+  const year=date.getFullYear();
+  // KW13 2025 ist ungerade → A. Daher: ungerade = A, gerade = B (global über Jahre)
+  // Für 2026: KW1 2026 → kw=1 (ungerade) = A
+  return kw%2===1?'A':'B';
+}
+
+/* ═══════════════════════════════════════════════════
+   HILFSFUNKTIONEN
+   ═══════════════════════════════════════════════════ */
+function toMins(h,m){return h*60+m;}
+function pad(n){return String(n).padStart(2,'0');}
+function fmtTime(h,m){return pad(h)+':'+pad(m);}
+function secsToMMSS(s){return pad(Math.floor(s/60))+':'+pad(s%60);}
+
+function getLessonsForDay(date) {
+  const dow = date.getDay();
+  const all = TIMETABLE[dow];
+  if(!all) return [];
+  const ab = getABWeek(date);
+  return all.filter(l => !l.abWeek || l.abWeek===ab);
+}
+
+function getCurrentLessonInfo(date) {
+  const lessons = getLessonsForDay(date);
+  const nowMins = toMins(date.getHours(), date.getMinutes());
+  const nowSecs = date.getHours()*3600 + date.getMinutes()*60 + date.getSeconds();
+
+  for(let i=0;i<lessons.length;i++){
+    const l=lessons[i];
+    const startMins=toMins(l.start[0],l.start[1]);
+    const endMins=toMins(l.end[0],l.end[1]);
+    const endSecs=l.end[0]*3600+l.end[1]*60;
+
+    // Unterricht läuft gerade
+    if(nowMins>=startMins && nowMins<endMins) {
+      const minsLeft=endMins-nowMins-1;
+      const secsLeft=endSecs-nowSecs;
+      return {state:'in',lesson:l,secsLeft,minsLeft,lessons,idx:i};
+    }
+    // Stunde ist zu Ende — überzogen
+    if(nowMins>=endMins && nowMins<endMins+15) {
+      const overSecs=nowSecs-endSecs;
+      return {state:'overtime',lesson:l,overSecs,lessons,idx:i};
+    }
+    // Pause vor nächster Stunde
+    if(i+1<lessons.length){
+      const nextStart=toMins(lessons[i+1].start[0],lessons[i+1].start[1]);
+      if(nowMins>=endMins && nowMins<nextStart){
+        return {state:'break',next:lessons[i+1],prev:l,lessons,idx:i};
+      }
+    }
+  }
+  // Vor der ersten Stunde
+  if(lessons.length && nowMins<toMins(lessons[0].start[0],lessons[0].start[1])){
+    return {state:'before',next:lessons[0],lessons,idx:-1};
+  }
+  // Nach der letzten Stunde
+  return {state:'after',lessons,idx:lessons.length-1};
+}
+
+/* ═══════════════════════════════════════════════════
+   UI TOGGLE
+   ═══════════════════════════════════════════════════ */
+let schoolMode = false;
+const secretBtn  = document.getElementById('secretBtn');
+const normalPanel= document.getElementById('normalPanel');
+const schoolPanel= document.getElementById('schoolPanel');
+const otClockBadge=document.getElementById('otClockBadge');
+const ringOvertime=document.getElementById('ringOvertime');
+
+secretBtn.addEventListener('click',()=>{
+  schoolMode=!schoolMode;
+  secretBtn.classList.toggle('active',schoolMode);
+  normalPanel.classList.toggle('hidden',schoolMode);
+  schoolPanel.classList.toggle('visible',schoolMode);
+});
+
+/* ═══════════════════════════════════════════════════
+   CLOCK TICKS & LABELS
+   ═══════════════════════════════════════════════════ */
+document.getElementById('tzBadge').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const tickG=document.getElementById('ticks'), labelG=document.getElementById('hourLabels');
+for(let i=0;i<60;i++){
+  const angle=(i/60)*2*Math.PI-Math.PI/2;
+  const major=i%5===0;
+  const r1=major?89:91.5,r2=major?94.5:93;
+  const x1=100+r1*Math.cos(angle),y1=100+r1*Math.sin(angle);
+  const x2=100+r2*Math.cos(angle),y2=100+r2*Math.sin(angle);
+  const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+  ln.setAttribute('x1',x1);ln.setAttribute('y1',y1);ln.setAttribute('x2',x2);ln.setAttribute('y2',y2);
+  ln.setAttribute('class',major?'tick-maj':'tick-sm');
+  tickG.appendChild(ln);
+  if(major){
+    const hr=i/5===0?12:i/5;const lr=82;
+    const lx=100+lr*Math.cos(angle),ly=100+lr*Math.sin(angle);
+    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('class','hour-label');txt.setAttribute('x',lx);txt.setAttribute('y',ly);
+    txt.setAttribute('transform','rotate(90,'+lx+','+ly+')');txt.textContent=hr;
+    labelG.appendChild(txt);
+  }
+}
+
+/* Particles */
+const bgCvs=document.createElement('canvas');
+bgCvs.style.cssText='position:fixed;inset:0;z-index:0;pointer-events:none;';
+document.body.prepend(bgCvs);
+const bgCtx=bgCvs.getContext('2d');
+function resizeBg(){bgCvs.width=window.innerWidth;bgCvs.height=window.innerHeight;}
+resizeBg();window.addEventListener('resize',resizeBg);
+const particles=Array.from({length:45},()=>({
+  x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+  r:Math.random()*1.1+0.2,vx:(Math.random()-.5)*.11,vy:(Math.random()-.5)*.11,
+  a:Math.random()*.2+.04
+}));
+function drawBg(){
+  bgCtx.clearRect(0,0,bgCvs.width,bgCvs.height);
+  for(const p of particles){
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=bgCvs.width;if(p.x>bgCvs.width)p.x=0;
+    if(p.y<0)p.y=bgCvs.height;if(p.y>bgCvs.height)p.y=0;
+    bgCtx.beginPath();bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    bgCtx.fillStyle='rgba(232,213,163,'+p.a+')';bgCtx.fill();
+  }
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+/* Day/Night */
+const dnCvs=document.getElementById('dnCanvas'),dnCtx=dnCvs.getContext('2d');
+function drawDayNight(h,m){
+  const frac=(h+m/60)/24,isDay=h>=6&&h<20,isGolden=(h>=5&&h<7)||(h>=19&&h<21);
+  const cx=dnCvs.width/2,cy=dnCvs.height/2,r=cx-1;
+  dnCtx.clearRect(0,0,dnCvs.width,dnCvs.height);
+  dnCtx.fillStyle=isDay?'#0d2137':'#050810';
+  dnCtx.beginPath();dnCtx.arc(cx,cy,r,0,Math.PI*2);dnCtx.fill();
+  const angle=(frac*Math.PI*2)-Math.PI/2,orbit=r*.55;
+  const bx=cx+orbit*Math.cos(angle),by=cy+orbit*Math.sin(angle);
+  dnCtx.beginPath();dnCtx.arc(bx,by,3.5,0,Math.PI*2);
+  dnCtx.fillStyle=isDay?(isGolden?'#f5c842':'#ffe89a'):'#d8d0c4';dnCtx.fill();
+  document.getElementById('dnLabel').textContent=isDay?'Tagzeit':'Nachtzeit';
+  if(isDay){const ml=(20-h-1)*60+(60-m);document.getElementById('dnVal').textContent='Untergang in '+Math.floor(ml/60)+'h '+ml%60+'m';}
+  else{const ns=h>=20?(24-h+6)*60-m:(6-h)*60-m;document.getElementById('dnVal').textContent='Aufgang in '+Math.floor(ns/60)+'h '+ns%60+'m';}
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER SCHOOL PANEL
+   ═══════════════════════════════════════════════════ */
+const DAYS_DE=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+const MONTHS_DE=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+function renderSchoolPanel(now) {
+  const panel=document.getElementById('schoolPanel');
+  const ab=getABWeek(now);
+  const free=isFreeDay(now);
+
+  // Header always
+  let html='<div class="sp-header">'
+    +'<div class="sp-title">Schule</div>'
+    +'<div class="sp-week-badge '+(ab==='A'?'a':'b')+'">'+ab+'-Woche &middot; KW'+getKW(now)+'</div>'
+    +'</div>';
+
+  if(free.free){
+    // No school today
+    panel.innerHTML=html
+      +'<div class="sp-no-school">'
+      +'<div class="sp-no-school-icon">&#127774;</div>'
+      +'<div class="sp-no-school-txt">'+free.reason+'</div>'
+      +'<div class="sp-no-school-sub">Kein Unterricht heute</div>'
+      +'</div>';
+
+    // Hide clock overtime
+    ringOvertime.classList.remove('visible');
+    otClockBadge.classList.remove('visible');
+    return;
+  }
+
+  const info=getCurrentLessonInfo(now);
+  const lessons=info.lessons;
+
+  // Status dot + text
+  let dotClass='', statusTxt='', statusClass='';
+  if(info.state==='in')         {dotClass='green';statusTxt='Läuft';statusClass='green';}
+  else if(info.state==='overtime'){dotClass='red';statusTxt='ÜBERZOGEN';statusClass='red';}
+  else if(info.state==='break') {dotClass='yellow';statusTxt='Pause';statusClass='yellow';}
+  else if(info.state==='before'){dotClass='yellow';statusTxt='Bald';statusClass='yellow';}
+  else                          {dotClass='';statusTxt='Schultag vorbei';statusClass='';}
+
+  html+='<div class="sp-status-row">'
+    +'<div class="sp-dot '+dotClass+'"></div>'
+    +'<div class="sp-status-txt '+statusClass+'">'+statusTxt+'</div>'
+    +'</div>';
+
+  // Overtime counter
+  let isOT=false, otSecs=0;
+  if(info.state==='overtime'){
+    isOT=true; otSecs=Math.floor(info.overSecs);
+    const otMins=Math.floor(otSecs/60), otS=otSecs%60;
+    html+='<div class="sp-ot-box visible">'
+      +'<div class="sp-ot-lbl">&#x26A0; Lehrer zieht &uuml;ber</div>'
+      +'<div class="sp-ot-counter">+'+pad(otMins)+':'+pad(otS)+'</div>'
+      +'<div class="sp-ot-secs">'+otSecs.toLocaleString('de-DE')+' Sekunden</div>'
+      +'</div>';
+  }
+
+  // Current / last lesson card
+  let cardLesson=null, cardLabel='', cardClass='';
+  if(info.state==='in')         {cardLesson=info.lesson;cardLabel='Aktuelle Stunde';cardClass='active-lesson';}
+  else if(info.state==='overtime'){cardLesson=info.lesson;cardLabel='Sollte vorbei sein';cardClass='overtime';}
+  else if(info.state==='break') {cardLesson=info.prev;cardLabel='Letzte Stunde';cardClass='';}
+  else if(info.state==='after') {cardLesson=lessons[lessons.length-1];cardLabel='Letzte Stunde';cardClass='';}
+
+  if(cardLesson){
+    const startFmt=fmtTime(cardLesson.start[0],cardLesson.start[1]);
+    const endFmt=fmtTime(cardLesson.end[0],cardLesson.end[1]);
+    html+='<div class="sp-card '+cardClass+'">'
+      +'<div class="sp-card-label '+(cardClass==='overtime'?'red':cardClass==='active-lesson'?'green':'')+'">'+cardLabel+'</div>'
+      +'<div class="sp-card-subject">'+cardLesson.subject+'</div>'
+      +'<div class="sp-card-meta">'+startFmt+' &ndash; '+endFmt+' &nbsp;&bull;&nbsp; <span>'+cardLesson.teacher+'</span> &nbsp;&bull;&nbsp; Raum '+cardLesson.room+'</div>'
+      +'</div>';
+  }
+
+  // Next lesson
+  let nextLesson=null;
+  if(info.state==='break')       nextLesson=info.next;
+  else if(info.state==='before') nextLesson=info.next;
+  else if(info.state==='in'&&info.idx+1<lessons.length) nextLesson=lessons[info.idx+1];
+
+  if(nextLesson){
+    const sf=fmtTime(nextLesson.start[0],nextLesson.start[1]);
+    const ef=fmtTime(nextLesson.end[0],nextLesson.end[1]);
+    html+='<div class="sp-card" style="opacity:.55;">'
+      +'<div class="sp-card-label">N&auml;chste Stunde</div>'
+      +'<div class="sp-card-subject">'+nextLesson.subject+'</div>'
+      +'<div class="sp-card-meta">'+sf+' &ndash; '+ef+' &nbsp;&bull;&nbsp; <span>'+nextLesson.teacher+'</span> &nbsp;&bull;&nbsp; Raum '+nextLesson.room+'</div>'
+      +'</div>';
+  }
+
+  // All today's lessons mini-list
+  html+='<div class="sp-next"><div class="sp-next-label">Heute</div><div class="sp-next-list">';
+  for(const l of lessons){
+    const isCur=(info.state==='in'||info.state==='overtime')&&l===info.lesson;
+    const sf=fmtTime(l.start[0],l.start[1]);const ef=fmtTime(l.end[0],l.end[1]);
+    html+='<div class="sp-next-row">'
+      +'<span class="sp-next-subject'+(isCur?' current':'')+'">'+l.subject+'</span>'
+      +'<span class="sp-next-time">'+sf+'&ndash;'+ef+'</span>'
+      +'</div>';
+  }
+  html+='</div></div>';
+
+  panel.innerHTML=html;
+
+  // Update clock face overtime arc
+  if(isOT){
+    const otFrac=Math.min(otSecs/900,1); // max 15min = full ring
+    const circ=402.12;
+    ringOvertime.style.strokeDashoffset=circ*(1-otFrac);
+    ringOvertime.classList.add('visible');
+    const otMins=Math.floor(otSecs/60),otS=otSecs%60;
+    otClockBadge.textContent='+'+pad(otMins)+':'+pad(otS);
+    otClockBadge.classList.add('visible');
+  } else {
+    ringOvertime.classList.remove('visible');
+    otClockBadge.classList.remove('visible');
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   MAIN LOOP
+   ═══════════════════════════════════════════════════ */
+const cSec=2*Math.PI*64,cMin=2*Math.PI*77,cHr=2*Math.PI*88;
+
+function update(){
+  const now=new Date();
+  const h=now.getHours(),m=now.getMinutes(),s=now.getSeconds(),ms=now.getMilliseconds();
+
+  document.getElementById('hh').textContent=pad(h);
+  document.getElementById('mm').textContent=pad(m);
+  document.getElementById('ss').textContent=pad(s);
+  document.getElementById('msRow').textContent=String(ms).padStart(3,'0')+'ms';
+
+  document.getElementById('rDay').textContent=DAYS_DE[now.getDay()];
+  document.getElementById('rDateLine').innerHTML='<span>'+now.getDate()+'.</span> '+MONTHS_DE[now.getMonth()]+' '+now.getFullYear();
+
+  const secsLeft=86400-(h*3600+m*60+s);
+  document.getElementById('rSecsLeft').textContent=secsLeft.toLocaleString('de-DE');
+
+  const secFrac=(s+ms/1000)/60;
+  const minFrac=(m+(s+ms/1000)/60)/60;
+  const hrFrac=((h%12)+(m+(s+ms/1000)/60)/60)/12;
+
+  document.getElementById('ringSeconds').style.strokeDashoffset=cSec*(1-secFrac);
+  document.getElementById('ringMinutes').style.strokeDashoffset=cMin*(1-minFrac);
+  document.getElementById('ringHours').style.strokeDashoffset=cHr*(1-hrFrac);
+
+  document.getElementById('handHour').style.transform='rotate('+hrFrac*360+'deg)';
+  document.getElementById('handMinute').style.transform='rotate('+minFrac*360+'deg)';
+  document.getElementById('handSec').style.transform='rotate('+secFrac*360+'deg)';
+  document.getElementById('handTail').style.transform='rotate('+secFrac*360+'deg)';
+
+  const startDay=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const dayFrac=(now-startDay)/86400000;
+  const daysInMo=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const monthFrac=(now.getDate()-1+dayFrac)/daysInMo;
+  const startYear=new Date(now.getFullYear(),0,1);
+  const endYear=new Date(now.getFullYear()+1,0,1);
+  const yearFrac=(now-startYear)/(endYear-startYear);
+
+  const pct=v=>(v*100).toFixed(2)+'%';
+  document.getElementById('barDay').style.width=(dayFrac*100)+'%';
+  document.getElementById('barMonth').style.width=(monthFrac*100)+'%';
+  document.getElementById('barYear').style.width=(yearFrac*100)+'%';
+  document.getElementById('valDay').textContent=pct(dayFrac);
+  document.getElementById('valMonth').textContent=pct(monthFrac);
+  document.getElementById('valYear').textContent=pct(yearFrac);
+
+  drawDayNight(h,m);
+
+  if(schoolMode) renderSchoolPanel(now);
+
+  requestAnimationFrame(update);
+}
+
+requestAnimationFrame(update);
+</script>
+
+</body>
+</html>

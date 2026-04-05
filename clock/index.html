@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html lang="de" style="background:#0a0a0a;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clock — Spanani</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+html, body {
+  height: 100%; width: 100%;
+  background: #0a0a0a;
+  color: #f0ede8;
+  font-family: 'DM Mono', monospace;
+  overflow: hidden;
+}
+
+/* Scanline — simple div, no pseudo */
+.scanline {
+  position: fixed; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(232,213,163,.13), transparent);
+  animation: scan 11s linear infinite;
+  pointer-events: none; z-index: 3; opacity: .45;
+}
+@keyframes scan { from{top:-2px;} to{top:100%;} }
+
+/* TOP BAR */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 200; height: 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid rgba(240,237,232,.07);
+  background: rgba(10,10,10,.88);
+  animation: slideDown .6s ease both;
+}
+@keyframes slideDown { from{opacity:0;transform:translateY(-100%);} to{opacity:1;transform:translateY(0);} }
+
+.tb-back {
+  display: flex; align-items: center; gap: .5rem;
+  text-decoration: none; color: #5a5450;
+  font-size: .58rem; letter-spacing: .18em; text-transform: uppercase;
+  transition: color .25s;
+}
+.tb-back svg { width: 13px; height: 13px; }
+.tb-back:hover { color: #e8d5a3; }
+
+.tb-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem; letter-spacing: .14em; color: #5a5450;
+  position: absolute; left: 50%; transform: translateX(-50%);
+}
+.tb-brand em { color: #e8d5a3; font-style: normal; }
+
+.tb-tz { font-size: .52rem; letter-spacing: .16em; text-transform: uppercase; color: #3a3630; }
+
+/* LAYOUT */
+.layout {
+  position: fixed;
+  top: 48px; left: 0; right: 0; bottom: 40px;
+  z-index: 2;
+  display: flex; align-items: stretch;
+}
+
+.left-panel {
+  flex: 1 1 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+}
+
+.right-panel {
+  width: 280px; flex-shrink: 0;
+  border-left: 1px solid rgba(240,237,232,.07);
+  display: flex; flex-direction: column;
+  padding: 2rem 1.8rem;
+  overflow: hidden;
+}
+
+/* CLOCK WRAP */
+.clock-wrap {
+  position: relative;
+  width: min(min(50vw, calc(100vh - 110px)), 480px);
+  height: min(min(50vw, calc(100vh - 110px)), 480px);
+}
+
+.clock-svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+
+/* SVG elements — hardcoded colors, no CSS vars */
+.ring-deco  { fill: none; stroke: #2e2b27; stroke-width: .4; stroke-dasharray: 1 4; opacity: .5; }
+.ring-track { fill: none; stroke: #2e2b27; stroke-width: .8; }
+.ring-hours   { fill: none; stroke: #f0ede8; stroke-width: .7;  stroke-linecap: round; opacity: .28; }
+.ring-minutes { fill: none; stroke: #f0ede8; stroke-width: 1;   stroke-linecap: round; opacity: .6; }
+.ring-seconds { fill: none; stroke: #e8d5a3; stroke-width: 1.8; stroke-linecap: round; filter: drop-shadow(0 0 4px rgba(232,213,163,.8)); }
+
+.tick-sm  { stroke: #2e2b27; stroke-width: .7; }
+.tick-maj { stroke: rgba(240,237,232,.35); stroke-width: 1.4; }
+
+.hour-label { font-family: 'DM Mono', monospace; font-size: 5.5px; fill: #5a5450; text-anchor: middle; dominant-baseline: middle; }
+
+.center-outer { fill: none; stroke: #2e2b27; stroke-width: .5; }
+.center-inner { fill: #0a0a0a; stroke: #2e2b27; stroke-width: .5; }
+.center-dot   { fill: #e8d5a3; }
+
+.hand-sec  { stroke: #e8d5a3; stroke-width: .8; stroke-linecap: round; transform-origin: 100px 100px; }
+.hand-tail { stroke: #e8d5a3; stroke-width: .6; stroke-linecap: round; transform-origin: 100px 100px; opacity: .6; }
+.hand-min  { stroke: rgba(240,237,232,.65); stroke-width: 1.2; stroke-linecap: round; transform-origin: 100px 100px; }
+.hand-hr   { stroke: rgba(240,237,232,.4);  stroke-width: 1.8; stroke-linecap: round; transform-origin: 100px 100px; }
+
+/* Digital overlay */
+.digital-inner {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.time-big {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.6rem, 4.5vw, 4rem);
+  letter-spacing: .05em; color: #f0ede8; line-height: 1;
+}
+.time-sep { color: #e8d5a3; animation: blink 1s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.1;} }
+.ms-row { margin-top: .3rem; font-size: .5rem; letter-spacing: .22em; color: #e8d5a3; opacity: .6; }
+
+/* RIGHT PANEL */
+.r-day {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.8rem, 3vw, 3rem);
+  letter-spacing: .04em; line-height: 1; color: #f0ede8;
+}
+.r-date-line { font-size: .58rem; letter-spacing: .18em; text-transform: uppercase; color: #5a5450; margin-top: .4rem; }
+.r-date-line span { color: #e8d5a3; }
+
+.r-rule { width: 100%; height: 1px; background: rgba(240,237,232,.07); margin: 1.4rem 0; }
+
+.r-secs-left { display: flex; flex-direction: column; gap: .2rem; margin-bottom: 1.2rem; }
+.r-secs-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #e8d5a3; line-height: 1; }
+.r-secs-label { font-size: .5rem; letter-spacing: .2em; text-transform: uppercase; color: #5a5450; }
+
+.prog-list { display: flex; flex-direction: column; gap: .9rem; }
+.prog-row  { display: flex; align-items: center; gap: .8rem; }
+.prog-lbl  { font-size: .5rem; letter-spacing: .18em; text-transform: uppercase; color: #5a5450; width: 3.5rem; flex-shrink: 0; }
+.prog-track { flex: 1; height: 2px; background: #2e2b27; border-radius: 999px; position: relative; overflow: hidden; }
+.prog-fill  { position: absolute; left: 0; top: 0; height: 100%; border-radius: 999px; background: #e8d5a3; }
+.prog-fill.muted { background: #f0ede8; opacity: .35; }
+.prog-val  { font-size: .48rem; color: #5a5450; width: 3.8rem; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+.r-rule2 { width: 100%; height: 1px; background: rgba(240,237,232,.07); margin: 1.2rem 0; }
+
+.daynight { display: flex; align-items: center; gap: .8rem; }
+.daynight-label { font-size: .49rem; letter-spacing: .15em; text-transform: uppercase; color: #5a5450; }
+.daynight-val   { font-size: .49rem; color: #f0ede8; margin-top: .15rem; }
+
+.legend { display: flex; flex-direction: column; gap: .55rem; }
+.legend-row { display: flex; align-items: center; gap: .7rem; font-size: .49rem; letter-spacing: .15em; text-transform: uppercase; color: #5a5450; }
+.leg-sw { width: 18px; height: 1.5px; border-radius: 999px; flex-shrink: 0; }
+.ls { background: #e8d5a3; }
+.lm { background: rgba(240,237,232,.6); }
+.lh { background: rgba(240,237,232,.3); }
+
+/* BOTTOM BAR */
+.bottombar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 40px; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem;
+  border-top: 1px solid rgba(240,237,232,.07);
+  background: rgba(10,10,10,.88);
+}
+.bb-copy { font-size: .5rem; letter-spacing: .15em; text-transform: uppercase; color: #3a3630; }
+.bb-home {
+  display: flex; align-items: center; gap: .45rem;
+  text-decoration: none; color: #5a5450;
+  font-size: .5rem; letter-spacing: .15em; text-transform: uppercase;
+  transition: color .25s;
+}
+.bb-home:hover { color: #e8d5a3; }
+.bb-home svg { width: 11px; height: 11px; }
+
+/* MOBILE */
+@media (max-aspect-ratio: 4/5), (max-width: 580px) {
+  html, body { overflow: hidden; }
+  .layout { flex-direction: column; }
+  .left-panel { flex: 0 0 auto; padding: 1rem 1rem .5rem; }
+  .clock-wrap {
+    width: min(72vw, calc(48vh - 55px));
+    height: min(72vw, calc(48vh - 55px));
+  }
+  .time-big { font-size: clamp(1.4rem, 9vw, 2.6rem); }
+  .right-panel {
+    width: 100%; flex: 1 1 0;
+    border-left: none; border-top: 1px solid rgba(240,237,232,.07);
+    padding: .9rem 1.4rem;
+    flex-direction: row; flex-wrap: wrap; gap: 0;
+    align-content: flex-start; overflow: hidden;
+  }
+  .r-date-block { flex: 1; min-width: 0; }
+  .r-day { font-size: clamp(1.2rem, 5vw, 1.8rem); }
+  .r-secs-left { align-items: flex-end; }
+  .r-secs-val { font-size: 1.3rem; }
+  .r-rule { flex-basis: 100%; margin: .7rem 0; }
+  .prog-list { flex: 1.3; min-width: 0; padding-right: .8rem; }
+  .r-rule2 { display: none; }
+  .daynight { display: none; }
+  .legend { flex: 1; min-width: 0; }
+}
+```
+
+  </style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<!-- TOP BAR -->
+
+<header class="topbar">
+  <a class="tb-back" href="https://spanani.de/">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <path d="M19 12H5M5 12l7-7M5 12l7 7"/>
+    </svg>
+    spanani.de
+  </a>
+  <div class="tb-brand"><em>S</em>panani &mdash; Clock</div>
+  <div class="tb-tz" id="tzBadge">—</div>
+</header>
+
+<!-- LAYOUT -->
+
+<div class="layout">
+
+  <!-- LEFT: Clock -->
+
+  <div class="left-panel">
+    <div class="clock-wrap">
+      <svg class="clock-svg" viewBox="0 0 200 200" id="clockSvg">
+        <circle class="ring-deco" cx="100" cy="100" r="97"/>
+        <g id="ticks"></g>
+        <g id="hourLabels"></g>
+
+```
+    <circle class="ring-track" cx="100" cy="100" r="88"/>
+    <circle class="ring-hours"   id="ringHours"   cx="100" cy="100" r="88" stroke-dasharray="552.92" stroke-dashoffset="552.92"/>
+    <circle class="ring-track" cx="100" cy="100" r="77" opacity=".45"/>
+    <circle class="ring-minutes" id="ringMinutes" cx="100" cy="100" r="77" stroke-dasharray="483.81" stroke-dashoffset="483.81"/>
+    <circle class="ring-track" cx="100" cy="100" r="64" opacity=".3"/>
+    <circle class="ring-seconds" id="ringSeconds" cx="100" cy="100" r="64" stroke-dasharray="402.12" stroke-dashoffset="402.12"/>
+
+    <line id="handHour"   class="hand-hr"   x1="100" y1="100" x2="100" y2="68"/>
+    <line id="handMinute" class="hand-min"  x1="100" y1="100" x2="100" y2="57"/>
+    <line id="handTail"   class="hand-tail" x1="100" y1="100" x2="100" y2="114"/>
+    <line id="handSec"    class="hand-sec"  x1="100" y1="100" x2="100" y2="53"/>
+
+    <circle class="center-outer" cx="100" cy="100" r="5"/>
+    <circle class="center-inner" cx="100" cy="100" r="3.5"/>
+    <circle class="center-dot"   cx="100" cy="100" r="1.8"/>
+  </svg>
+
+  <div class="digital-inner">
+    <div class="time-big">
+      <span id="hh">00</span><span class="time-sep">:</span><span id="mm">00</span><span class="time-sep">:</span><span id="ss">00</span>
+    </div>
+    <div class="ms-row" id="msRow">000ms</div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- RIGHT: Info -->
+
+  <div class="right-panel">
+    <div class="r-date-block">
+      <div class="r-day" id="rDay">—</div>
+      <div class="r-date-line" id="rDateLine">—</div>
+    </div>
+
+```
+<div class="r-secs-left">
+  <div class="r-secs-val" id="rSecsLeft">—</div>
+  <div class="r-secs-label">Sekunden heute noch</div>
+</div>
+
+<div class="r-rule"></div>
+
+<div class="prog-list">
+  <div class="prog-row">
+    <span class="prog-lbl">Tag</span>
+    <div class="prog-track"><div class="prog-fill muted" id="barDay"></div></div>
+    <span class="prog-val" id="valDay">—</span>
+  </div>
+  <div class="prog-row">
+    <span class="prog-lbl">Monat</span>
+    <div class="prog-track"><div class="prog-fill" id="barMonth"></div></div>
+    <span class="prog-val" id="valMonth">—</span>
+  </div>
+  <div class="prog-row">
+    <span class="prog-lbl">Jahr</span>
+    <div class="prog-track"><div class="prog-fill muted" id="barYear"></div></div>
+    <span class="prog-val" id="valYear">—</span>
+  </div>
+</div>
+
+<div class="r-rule2"></div>
+
+<div class="daynight">
+  <canvas id="dnCanvas" width="22" height="22" style="border-radius:50%;flex-shrink:0;"></canvas>
+  <div>
+    <div class="daynight-label" id="dnLabel">—</div>
+    <div class="daynight-val"   id="dnVal">—</div>
+  </div>
+</div>
+
+<div class="r-rule" style="margin-top:1.2rem;"></div>
+
+<div class="legend">
+  <div class="legend-row"><span class="leg-sw ls"></span>Sekunden</div>
+  <div class="legend-row"><span class="leg-sw lm"></span>Minuten</div>
+  <div class="legend-row"><span class="leg-sw lh"></span>Stunden</div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+
+<footer class="bottombar">
+  <span class="bb-copy">&copy; 2026 Spanani</span>
+  <a class="bb-home" href="https://spanani.de/">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/>
+    </svg>
+    Zur Hauptseite
+  </a>
+</footer>
+
+<script>
+  const DAYS   = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+  document.getElementById('tzBadge').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  /* Build ticks + hour labels */
+  const tickG  = document.getElementById('ticks');
+  const labelG = document.getElementById('hourLabels');
+  for (let i = 0; i < 60; i++) {
+    const angle = (i / 60) * 2 * Math.PI - Math.PI / 2;
+    const major = i % 5 === 0;
+    const r1 = major ? 89 : 91.5, r2 = major ? 94.5 : 93;
+    const x1 = 100 + r1 * Math.cos(angle), y1 = 100 + r1 * Math.sin(angle);
+    const x2 = 100 + r2 * Math.cos(angle), y2 = 100 + r2 * Math.sin(angle);
+    const ln = document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1',x1); ln.setAttribute('y1',y1);
+    ln.setAttribute('x2',x2); ln.setAttribute('y2',y2);
+    ln.setAttribute('class', major ? 'tick-maj' : 'tick-sm');
+    tickG.appendChild(ln);
+    if (major) {
+      const hr = i/5 === 0 ? 12 : i/5;
+      const lr = 82;
+      const lx = 100 + lr * Math.cos(angle), ly = 100 + lr * Math.sin(angle);
+      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('class','hour-label');
+      txt.setAttribute('x', lx); txt.setAttribute('y', ly);
+      txt.setAttribute('transform', `rotate(90,${lx},${ly})`);
+      txt.textContent = hr;
+      labelG.appendChild(txt);
+    }
+  }
+
+  /* Particle canvas */
+  const bgCvs = document.createElement('canvas');
+  bgCvs.style.cssText = 'position:fixed;inset:0;z-index:0;pointer-events:none;';
+  document.body.prepend(bgCvs);
+  const bgCtx = bgCvs.getContext('2d');
+  function resizeBg() { bgCvs.width = window.innerWidth; bgCvs.height = window.innerHeight; }
+  resizeBg();
+  window.addEventListener('resize', resizeBg);
+  const particles = Array.from({length:50}, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 1.2 + 0.2,
+    vx: (Math.random()-.5)*.12,
+    vy: (Math.random()-.5)*.12,
+    a: Math.random()*.22+.04
+  }));
+  function drawBg() {
+    bgCtx.clearRect(0,0,bgCvs.width,bgCvs.height);
+    for (const p of particles) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = bgCvs.width; if (p.x > bgCvs.width) p.x = 0;
+      if (p.y < 0) p.y = bgCvs.height; if (p.y > bgCvs.height) p.y = 0;
+      bgCtx.beginPath();
+      bgCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      bgCtx.fillStyle = 'rgba(232,213,163,' + p.a + ')';
+      bgCtx.fill();
+    }
+    requestAnimationFrame(drawBg);
+  }
+  drawBg();
+
+  /* Day/Night */
+  const dnCvs = document.getElementById('dnCanvas');
+  const dnCtx = dnCvs.getContext('2d');
+  function drawDayNight(h, m) {
+    const frac = (h + m/60) / 24;
+    const isDay = h >= 6 && h < 20;
+    const isGolden = (h>=5&&h<7)||(h>=19&&h<21);
+    const cx = dnCvs.width/2, cy = dnCvs.height/2, r = cx-1;
+    dnCtx.clearRect(0,0,dnCvs.width,dnCvs.height);
+    dnCtx.fillStyle = isDay ? '#0d2137' : '#050810';
+    dnCtx.beginPath(); dnCtx.arc(cx,cy,r,0,Math.PI*2); dnCtx.fill();
+    const angle = (frac * Math.PI*2) - Math.PI/2;
+    const orbit = r*.55;
+    const bx = cx + orbit*Math.cos(angle), by = cy + orbit*Math.sin(angle);
+    dnCtx.beginPath(); dnCtx.arc(bx,by,3.5,0,Math.PI*2);
+    dnCtx.fillStyle = isDay ? (isGolden ? '#f5c842' : '#ffe89a') : '#d8d0c4';
+    dnCtx.fill();
+    document.getElementById('dnLabel').textContent = isDay ? 'Tagzeit' : 'Nachtzeit';
+    if (isDay) {
+      const ml = (20-h-1)*60+(60-m);
+      document.getElementById('dnVal').textContent = 'Untergang in '+Math.floor(ml/60)+'h '+ml%60+'m';
+    } else {
+      const ns = h>=20 ? (24-h+6)*60-m : (6-h)*60-m;
+      document.getElementById('dnVal').textContent = 'Aufgang in '+Math.floor(ns/60)+'h '+ns%60+'m';
+    }
+  }
+
+  const cSec = 2*Math.PI*64, cMin = 2*Math.PI*77, cHr = 2*Math.PI*88;
+  function pad(n) { return String(n).padStart(2,'0'); }
+
+  function update() {
+    const now = new Date();
+    const h=now.getHours(), m=now.getMinutes(), s=now.getSeconds(), ms=now.getMilliseconds();
+
+    document.getElementById('hh').textContent = pad(h);
+    document.getElementById('mm').textContent = pad(m);
+    document.getElementById('ss').textContent = pad(s);
+    document.getElementById('msRow').textContent = String(ms).padStart(3,'0')+'ms';
+
+    document.getElementById('rDay').textContent = DAYS[now.getDay()];
+    document.getElementById('rDateLine').innerHTML = '<span>'+now.getDate()+'.</span> '+MONTHS[now.getMonth()]+' '+now.getFullYear();
+
+    const secsLeft = 86400 - (h*3600+m*60+s);
+    document.getElementById('rSecsLeft').textContent = secsLeft.toLocaleString('de-DE');
+
+    const secFrac = (s+ms/1000)/60;
+    const minFrac = (m+(s+ms/1000)/60)/60;
+    const hrFrac  = ((h%12)+(m+(s+ms/1000)/60)/60)/12;
+
+    document.getElementById('ringSeconds').style.strokeDashoffset = cSec*(1-secFrac);
+    document.getElementById('ringMinutes').style.strokeDashoffset = cMin*(1-minFrac);
+    document.getElementById('ringHours').style.strokeDashoffset   = cHr*(1-hrFrac);
+
+    const sd = hrFrac*360, md = minFrac*360, hd = secFrac*360;
+    document.getElementById('handHour').style.transform   = 'rotate('+sd+'deg)';
+    document.getElementById('handMinute').style.transform = 'rotate('+md+'deg)';
+    document.getElementById('handSec').style.transform    = 'rotate('+hd+'deg)';
+    document.getElementById('handTail').style.transform   = 'rotate('+hd+'deg)';
+
+    const startDay  = new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const dayFrac   = (now-startDay)/86400000;
+    const daysInMo  = new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+    const monthFrac = (now.getDate()-1+dayFrac)/daysInMo;
+    const startYear = new Date(now.getFullYear(),0,1);
+    const endYear   = new Date(now.getFullYear()+1,0,1);
+    const yearFrac  = (now-startYear)/(endYear-startYear);
+
+    const pct = v => (v*100).toFixed(2)+'%';
+    document.getElementById('barDay').style.width   = (dayFrac*100)+'%';
+    document.getElementById('barMonth').style.width = (monthFrac*100)+'%';
+    document.getElementById('barYear').style.width  = (yearFrac*100)+'%';
+    document.getElementById('valDay').textContent   = pct(dayFrac);
+    document.getElementById('valMonth').textContent = pct(monthFrac);
+    document.getElementById('valYear').textContent  = pct(yearFrac);
+
+    drawDayNight(h,m);
+    requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+</script>
+
+</body>
+</html>

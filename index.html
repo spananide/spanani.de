@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+
+<html lang="de" style="background:#0a0a0a;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spanani — Developer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+html {
+  background: #0a0a0a;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #0a0a0a;
+  color: #f0ede8;
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline */
+.scanline {
+  position: fixed; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(232,213,163,0.12), transparent);
+  animation: scan 10s linear infinite;
+  pointer-events: none; z-index: 3; opacity: 0.4;
+}
+@keyframes scan { from{top:-2px;} to{top:100%;} }
+
+/* Cursor — desktop only, NO mix-blend-mode */
+.cursor, .cursor-ring { display: none; pointer-events: none; }
+@media (pointer: fine) {
+  body { cursor: none; }
+  .cursor {
+    display: block; position: fixed;
+    width: 7px; height: 7px;
+    background: #e8d5a3; border-radius: 50%;
+    z-index: 9999; transform: translate(-50%,-50%);
+  }
+  .cursor-ring {
+    display: block; position: fixed;
+    width: 28px; height: 28px;
+    border: 1px solid rgba(232,213,163,0.4); border-radius: 50%;
+    z-index: 9998; transform: translate(-50%,-50%);
+    transition: width .3s, height .3s, border-color .3s;
+  }
+}
+
+.page { max-width: 880px; margin: 0 auto; padding: 0 1.5rem; }
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 400;
+  padding: 1.4rem 1.8rem;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid transparent;
+  transition: border-color .4s, background .4s;
+}
+nav.scrolled {
+  border-color: rgba(240,237,232,0.07);
+  background: rgba(10,10,10,0.95);
+}
+.nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem; letter-spacing: .08em;
+  color: #f0ede8; text-decoration: none;
+}
+.nav-logo .s { color: #e8d5a3; }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a {
+  font-size: .58rem; letter-spacing: .18em; text-transform: uppercase;
+  color: #5a5450; text-decoration: none; transition: color .3s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -3px; left: 0;
+  width: 0; height: 1px; background: #e8d5a3; transition: width .3s;
+}
+.nav-links a:hover { color: #f0ede8; }
+.nav-links a:hover::after { width: 100%; }
+.nav-clock { color: #e8d5a3 !important; }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding-top: 5rem; padding-bottom: 4rem; position: relative;
+}
+.hero-eyebrow {
+  font-size: .58rem; letter-spacing: .28em; text-transform: uppercase;
+  color: #e8d5a3; margin-bottom: 1.2rem;
+  opacity: 0; animation: fadeUp .7s ease .1s forwards;
+}
+.hero-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(4rem, 18vw, 13rem);
+  line-height: .88; letter-spacing: .02em; color: #f0ede8;
+  opacity: 0; animation: fadeUp .9s ease .2s forwards;
+}
+.hero-name .stroke { -webkit-text-stroke: 1px #f0ede8; color: transparent; }
+
+.hero-sub {
+  margin-top: 2rem; display: flex; align-items: flex-start; gap: 1.5rem;
+  opacity: 0; animation: fadeUp .9s ease .4s forwards;
+}
+.hero-sub-line { width: 32px; height: 1px; background: #e8d5a3; margin-top: .6em; flex-shrink: 0; }
+.hero-sub-text { font-size: .72rem; line-height: 1.9; color: #5a5450; max-width: 320px; }
+.hero-sub-text strong { color: #f0ede8; font-weight: 400; }
+
+.hero-tags {
+  margin-top: 2rem; display: flex; gap: .6rem; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp .9s ease .55s forwards;
+}
+.tag {
+  font-size: .52rem; letter-spacing: .18em; text-transform: uppercase;
+  border: 1px solid #3a3630; color: #5a5450;
+  padding: .38em .85em; border-radius: 999px;
+  transition: border-color .3s, color .3s;
+}
+
+.hero-socials {
+  margin-top: 1.6rem; display: flex; gap: .6rem; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp .9s ease .7s forwards;
+}
+.hero-pill {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .45em 1em; border: 1px solid #3a3630; border-radius: 999px;
+  text-decoration: none; color: #5a5450;
+  font-size: .54rem; letter-spacing: .12em; text-transform: uppercase;
+  transition: border-color .3s, color .3s, background .3s;
+}
+.hero-pill svg { width: 12px; height: 12px; flex-shrink: 0; }
+.hero-pill:hover { border-color: #e8d5a3; color: #e8d5a3; }
+.accent-pill { border-color: rgba(232,213,163,.3); color: #e8d5a3; }
+
+.scroll-hint {
+  margin-top: 3rem; display: flex; align-items: center; gap: 1rem;
+  opacity: 0; animation: fadeUp 1s ease 1s forwards;
+}
+.scroll-hint span { font-size: .5rem; letter-spacing: .25em; text-transform: uppercase; color: #3a3630; }
+.scroll-line { width: 36px; height: 1px; background: #3a3630; position: relative; overflow: hidden; }
+.scroll-line::after {
+  content: ''; position: absolute; left: -100%; top: 0; width: 100%; height: 100%;
+  background: #e8d5a3; animation: scrollA 2s ease-in-out infinite;
+}
+@keyframes scrollA { 0%{left:-100%;} 50%{left:0;} 100%{left:100%;} }
+
+.divider { width: 100%; height: 1px; background: rgba(240,237,232,.07); }
+
+/* SECTIONS */
+section { padding: 6rem 0; }
+.section-header { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 3.5rem; }
+.section-num { font-size: .52rem; letter-spacing: .2em; color: #e8d5a3; }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; letter-spacing: .05em; color: #f0ede8; }
+.section-line { flex: 1; height: 1px; background: rgba(240,237,232,.07); }
+
+/* ABOUT */
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: start; }
+.about-text { font-size: .75rem; line-height: 2; color: #5a5450; }
+.about-text p+p { margin-top: 1.1em; }
+.about-text strong { color: #f0ede8; font-weight: 400; }
+.about-stats { display: flex; flex-direction: column; gap: 1.4rem; }
+.stat-item { padding-bottom: 1.4rem; border-bottom: 1px solid rgba(240,237,232,.07); }
+.stat-item:last-child { border-bottom: none; }
+.stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; color: #e8d5a3; line-height: 1; }
+.stat-label { font-size: .52rem; letter-spacing: .2em; text-transform: uppercase; color: #3a3630; margin-top: .3rem; }
+
+/* Terminal */
+.terminal-wrap {
+  margin-top: 1.8rem; border: 1px solid rgba(240,237,232,.07);
+  background: rgba(240,237,232,.02); padding: 1.3rem 1.5rem;
+}
+.terminal-bar { display: flex; gap: .45rem; margin-bottom: .9rem; }
+.terminal-dot { width: 8px; height: 8px; border-radius: 50%; }
+.td1 { background: #ff5f57; } .td2 { background: #febc2e; } .td3 { background: #28c840; }
+.terminal-line { font-size: .62rem; color: #5a5450; line-height: 2; }
+.t-prompt { color: #e8d5a3; }
+.t-cmd { color: #f0ede8; }
+.t-cursor {
+  display: inline-block; width: 7px; height: .9em;
+  background: #e8d5a3; vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+/* SKILLS */
+.skills-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: rgba(240,237,232,.07); border: 1px solid rgba(240,237,232,.07); }
+.skill-cell { background: #0a0a0a; padding: 1.8rem 1.5rem; transition: background .3s; }
+.skill-cell:hover { background: rgba(232,213,163,.03); }
+.skill-icon { font-size: .68rem; color: #e8d5a3; margin-bottom: .7rem; }
+.skill-name { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: #f0ede8; margin-bottom: .45rem; }
+.skill-desc { font-size: .58rem; line-height: 1.7; color: #5a5450; }
+.skill-bar-wrap { margin-top: .9rem; height: 1px; background: #3a3630; }
+.skill-bar-fill { height: 100%; background: #e8d5a3; width: 0; transition: width 1.2s ease; }
+
+/* PROJECTS */
+.projects-list { display: flex; flex-direction: column; }
+.project-row {
+  display: grid; grid-template-columns: 2.5rem 1fr auto; gap: 1.5rem;
+  align-items: center; padding: 1.6rem 0;
+  border-bottom: 1px solid rgba(240,237,232,.07);
+  text-decoration: none; color: #f0ede8;
+  position: relative; overflow: hidden;
+}
+.project-row::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+  background: rgba(232,213,163,.04); transition: width .4s ease;
+}
+.project-row:hover::before { width: 100%; }
+.project-num { font-size: .58rem; color: #3a3630; }
+.project-name { font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; color: #f0ede8; margin-bottom: .25rem; transition: color .3s; }
+.project-row:hover .project-name { color: #e8d5a3; }
+.project-desc { font-size: .58rem; color: #5a5450; }
+.project-arrow { font-size: .7rem; color: #3a3630; transition: color .3s, transform .3s; }
+.project-row:hover .project-arrow { color: #e8d5a3; transform: translateX(4px); }
+.project-row.dimmed { opacity: .3; pointer-events: none; }
+
+/* MARQUEE */
+.marquee-wrap {
+  overflow: hidden; border-top: 1px solid rgba(240,237,232,.07); border-bottom: 1px solid rgba(240,237,232,.07);
+  padding: .85rem 0; white-space: nowrap;
+}
+.marquee-track { display: inline-flex; animation: marquee 22s linear infinite; }
+@keyframes marquee { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+.marquee-item { display: inline-flex; align-items: center; gap: 1.1rem; padding: 0 1.6rem; font-size: .5rem; letter-spacing: .2em; text-transform: uppercase; color: #5a5450; }
+.marquee-dot { width: 3px; height: 3px; border-radius: 50%; background: #e8d5a3; flex-shrink: 0; }
+
+/* SOCIAL CARDS */
+.social-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 1px;
+  background: rgba(240,237,232,.07); border: 1px solid rgba(240,237,232,.07);
+  margin-bottom: 1.5rem;
+}
+.social-card {
+  background: #0a0a0a; padding: 1.8rem 1.5rem;
+  text-decoration: none; display: flex; flex-direction: column; gap: 1rem;
+  position: relative; overflow: hidden; transition: background .3s;
+}
+.social-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: #e8d5a3; transform: scaleX(0); transform-origin: left; transition: transform .4s;
+}
+.social-card:hover { background: rgba(232,213,163,.03); }
+.social-card:hover::after { transform: scaleX(1); }
+.social-card-top { display: flex; align-items: center; justify-content: space-between; }
+.social-icon { width: 26px; height: 26px; color: #e8d5a3; transition: transform .3s; }
+.social-card:hover .social-icon { transform: scale(1.1); }
+.social-arrow { font-size: .7rem; color: #3a3630; transition: color .3s, transform .3s; }
+.social-card:hover .social-arrow { color: #e8d5a3; transform: translate(2px,-2px); }
+.social-name { font-size: .62rem; letter-spacing: .16em; text-transform: uppercase; color: #f0ede8; }
+.social-handle { font-size: .52rem; color: #5a5450; margin-top: .15rem; }
+
+/* CLOCK CARD */
+.clock-card {
+  border: 1px solid rgba(240,237,232,.07);
+  padding: 2.2rem; display: flex; align-items: center; justify-content: space-between;
+  text-decoration: none; color: #f0ede8;
+  transition: border-color .35s; position: relative; overflow: hidden;
+}
+.clock-card:hover { border-color: rgba(232,213,163,.35); }
+.clock-card-label { font-size: .52rem; letter-spacing: .22em; text-transform: uppercase; color: #e8d5a3; margin-bottom: .45rem; }
+.clock-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: #f0ede8; line-height: 1; margin-bottom: .5rem; }
+.clock-card-desc { font-size: .58rem; color: #5a5450; max-width: 280px; line-height: 1.7; }
+.clock-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: .4rem; flex-shrink: 0; }
+.clock-live-time { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; color: #e8d5a3; line-height: 1; }
+.clock-card-cta { font-size: .52rem; letter-spacing: .18em; text-transform: uppercase; color: #5a5450; transition: color .3s; }
+.clock-card:hover .clock-card-cta { color: #e8d5a3; }
+
+/* FOOTER */
+footer { border-top: 1px solid rgba(240,237,232,.07); padding: 1.8rem 0; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-size: .52rem; letter-spacing: .15em; text-transform: uppercase; color: #3a3630; }
+.footer-clock { font-size: .58rem; color: #5a5450; }
+.footer-clock a { color: #e8d5a3; text-decoration: none; }
+
+/* ANIMATIONS */
+@keyframes fadeUp { from{opacity:0;transform:translateY(18px);} to{opacity:1;transform:translateY(0);} }
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  nav .nav-links { display: none; }
+  .hero-name { font-size: clamp(3.8rem, 19vw, 7rem); }
+  .hero-sub { flex-direction: column; gap: .8rem; }
+  .hero-sub-line { display: none; }
+  .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .skills-grid { grid-template-columns: 1fr 1fr; }
+  .social-grid { grid-template-columns: 1fr; }
+  .clock-card { flex-direction: column; align-items: flex-start; gap: 1.2rem; }
+  .clock-card-right { align-items: flex-start; }
+  section { padding: 4rem 0; }
+}
+@media (max-width: 400px) {
+  .skills-grid { grid-template-columns: 1fr; }
+}
+```
+
+  </style>
+</head>
+<body>
+
+<div class="scanline"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+
+<nav id="nav">
+  <a class="nav-logo" href="#"><span class="s">S</span>panani</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a class="nav-clock" href="https://spanani.de/clock/">Clock</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+
+<div class="page">
+  <section class="hero">
+    <p class="hero-eyebrow">Based in Germany &mdash; Developer &amp; Learner</p>
+    <h1 class="hero-name">Spa<span class="stroke">nani</span></h1>
+
+```
+<div class="hero-sub">
+  <div class="hero-sub-line"></div>
+  <p class="hero-sub-text">
+    <strong>Developer.</strong> Learner. Always evolving.<br>
+    Building things for the web &mdash; with care for detail,<br>
+    a love for clean code, and an eye for design.
+  </p>
+</div>
+
+<div class="hero-tags">
+  <span class="tag">Web Dev</span>
+  <span class="tag">Informatik</span>
+  <span class="tag">Open Source</span>
+  <span class="tag">Always Learning</span>
+</div>
+
+<div class="hero-socials">
+  <a class="hero-pill" href="https://github.com/spananide" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.185 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.071 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.339-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.026 2.747-1.026.546 1.378.202 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.138 20.203 22 16.447 22 12.021 22 6.484 17.523 2 12 2z"/></svg>
+    spananide
+  </a>
+  <a class="hero-pill" href="https://x.com/spananidev" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L2.25 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    spananidev
+  </a>
+  <a class="hero-pill" href="https://discord.com/users/spanani" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+    spanani
+  </a>
+  <a class="hero-pill accent-pill" href="https://spanani.de/clock/">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 15.5"/></svg>
+    spanani.de/clock
+  </a>
+</div>
+
+<div class="scroll-hint">
+  <div class="scroll-line"></div>
+  <span>Scroll</span>
+</div>
+```
+
+  </section>
+</div>
+
+<!-- MARQUEE -->
+
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marqueeTrack"></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+
+<div class="page">
+  <section id="about">
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <h2 class="section-title">About</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>Hi &mdash; ich bin <strong>Spanani</strong>, ein Entwickler aus Deutschland mit einer starken Leidenschaft f&uuml;r das Web und sauberen Code.</p>
+        <p>Ich baue Websites und Projekte die <strong>funktionieren und gut aussehen</strong> &mdash; von kleinen Tools bis zu vollst&auml;ndigen Webpr&auml;senzen.</p>
+        <p>Aktuell fokussiere ich mich auf <strong>Webentwicklung, Informatik und pers&ouml;nliches Wachstum</strong> &mdash; immer auf der Suche nach dem n&auml;chsten Ding.</p>
+        <div class="terminal-wrap">
+          <div class="terminal-bar">
+            <span class="terminal-dot td1"></span>
+            <span class="terminal-dot td2"></span>
+            <span class="terminal-dot td3"></span>
+          </div>
+          <div id="terminalOutput"></div>
+        </div>
+      </div>
+      <div class="about-stats reveal">
+        <div class="stat-item">
+          <div class="stat-val" id="statYear">2026</div>
+          <div class="stat-label">Jahr des Lernens</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">2</div>
+          <div class="stat-label">Live Projects</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">DE</div>
+          <div class="stat-label">Standort &mdash; Deutschland</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+
+<div class="page">
+  <section id="skills">
+    <div class="section-header reveal">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Skills</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="skills-grid reveal" id="skillsGrid">
+      <div class="skill-cell">
+        <div class="skill-icon">{ }</div>
+        <div class="skill-name">HTML / CSS</div>
+        <div class="skill-desc">Grid &amp; Flexbox, responsive Design.</div>
+        <div class="skill-bar-wrap"><div class="skill-bar-fill" data-pct="90"></div></div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-icon">JS</div>
+        <div class="skill-name">JavaScript</div>
+        <div class="skill-desc">Vanilla JS, APIs, DOM.</div>
+        <div class="skill-bar-wrap"><div class="skill-bar-fill" data-pct="75"></div></div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-icon">//</div>
+        <div class="skill-name">Python</div>
+        <div class="skill-desc">Scripting &amp; Automatisierung.</div>
+        <div class="skill-bar-wrap"><div class="skill-bar-fill" data-pct="70"></div></div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-icon">GIT</div>
+        <div class="skill-name">Git &amp; CLI</div>
+        <div class="skill-desc">Versionskontrolle, Deployment.</div>
+        <div class="skill-bar-wrap"><div class="skill-bar-fill" data-pct="65"></div></div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-icon">UI</div>
+        <div class="skill-name">Design</div>
+        <div class="skill-desc">Typografie, Farbtheorie, UI.</div>
+        <div class="skill-bar-wrap"><div class="skill-bar-fill" data-pct="60"></div></div>
+      </div>
+      <div class="skill-cell">
+        <div class="skill-icon">&infin;</div>
+        <div class="skill-name">Always Learning</div>
+        <div class="skill-desc">Neugierig bleiben.</div>
+        <div class="skill-bar-wrap"><div class="skill-bar-fill" data-pct="100"></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+
+<div class="page">
+  <section id="projects">
+    <div class="section-header reveal">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Projects</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="projects-list reveal">
+      <a class="project-row" href="https://spanani.de/clock/">
+        <span class="project-num">01</span>
+        <div>
+          <div class="project-name">Clock</div>
+          <div class="project-desc">Live-Uhr mit analogen Ringen &mdash; spanani.de/clock</div>
+        </div>
+        <span class="project-arrow">&#8594;</span>
+      </a>
+      <a class="project-row" href="https://spanani.de/">
+        <span class="project-num">02</span>
+        <div>
+          <div class="project-name">Portfolio</div>
+          <div class="project-desc">Diese Website &mdash; spanani.de</div>
+        </div>
+        <span class="project-arrow">&#8594;</span>
+      </a>
+      <div class="project-row dimmed">
+        <span class="project-num">03</span>
+        <div>
+          <div class="project-name">Coming Soon</div>
+          <div class="project-desc">Mehr Projekte in Arbeit.</div>
+        </div>
+        <span class="project-arrow">&hellip;</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="divider"></div>
+
+<!-- FIND ME -->
+
+<div class="page">
+  <section id="contact">
+    <div class="section-header reveal">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Find me</h2>
+      <div class="section-line"></div>
+    </div>
+
+```
+<div class="social-grid reveal">
+  <a class="social-card" href="https://github.com/spananide" target="_blank" rel="noopener">
+    <div class="social-card-top">
+      <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.185 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.071 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.339-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.026 2.747-1.026.546 1.378.202 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.138 20.203 22 16.447 22 12.021 22 6.484 17.523 2 12 2z"/></svg>
+      <span class="social-arrow">&#8599;</span>
+    </div>
+    <div><div class="social-name">GitHub</div><div class="social-handle">@spananide</div></div>
+  </a>
+  <a class="social-card" href="https://x.com/spananidev" target="_blank" rel="noopener">
+    <div class="social-card-top">
+      <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L2.25 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      <span class="social-arrow">&#8599;</span>
+    </div>
+    <div><div class="social-name">X (Twitter)</div><div class="social-handle">@spananidev</div></div>
+  </a>
+  <a class="social-card" href="https://discord.com/users/spanani" target="_blank" rel="noopener">
+    <div class="social-card-top">
+      <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      <span class="social-arrow">&#8599;</span>
+    </div>
+    <div><div class="social-name">Discord</div><div class="social-handle">spanani</div></div>
+  </a>
+</div>
+
+<a class="clock-card reveal" href="https://spanani.de/clock/">
+  <div>
+    <div class="clock-card-label">Featured Tool</div>
+    <div class="clock-card-title">Live Clock</div>
+    <p class="clock-card-desc">Analoge Ringe, Zeiger, Tag/Nacht &mdash; live.<br>&#8594; spanani.de/clock</p>
+  </div>
+  <div class="clock-card-right">
+    <div class="clock-live-time" id="cardClock">--:--:--</div>
+    <span class="clock-card-cta">&#214;ffnen &#8594;</span>
+  </div>
+</a>
+```
+
+  </section>
+
+  <footer>
+    <span class="footer-left">&copy; 2026 Spanani</span>
+    <span class="footer-clock">
+      <span id="footerTime">--:--:--</span> &mdash; <a href="https://spanani.de/clock/">Clock &#8594;</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+  /* Cursor */
+  if (window.matchMedia('(pointer:fine)').matches) {
+    const cur = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+    (function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+    document.querySelectorAll('a,button').forEach(el=>{
+      el.addEventListener('mouseenter',()=>{ring.style.width='46px';ring.style.height='46px';ring.style.borderColor='rgba(232,213,163,.7)';});
+      el.addEventListener('mouseleave',()=>{ring.style.width='28px';ring.style.height='28px';ring.style.borderColor='rgba(232,213,163,.4)';});
+    });
+  }
+
+  /* Nav scroll */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>30),{passive:true});
+
+  /* Reveal */
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*70);io.unobserve(e.target);}});
+  },{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  /* Skill bars */
+  const sio = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('.skill-bar-fill').forEach(b=>b.style.width=b.dataset.pct+'%');sio.unobserve(e.target);}});
+  },{threshold:.25});
+  sio.observe(document.getElementById('skillsGrid'));
+
+  /* Year */
+  document.getElementById('statYear').textContent = new Date().getFullYear();
+
+  /* Clocks */
+  function pad(n){return String(n).padStart(2,'0');}
+  function tick(){const n=new Date();const t=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());document.getElementById('footerTime').textContent=t;document.getElementById('cardClock').textContent=t;}
+  tick();setInterval(tick,1000);
+
+  /* Marquee */
+  const words=['Developer','Web Design','HTML & CSS','JavaScript','Python','Git','Always Learning','Open Source','spananide','spananidev','spanani.de'];
+  const track=document.getElementById('marqueeTrack');
+  track.innerHTML=[...words,...words].map(w=>`<span class="marquee-item"><span class="marquee-dot"></span>${w}</span>`).join('');
+
+  /* Terminal */
+  const lines=[{p:true,text:'whoami'},{p:false,text:'spanani'},{p:true,text:'cat interests.txt'},{p:false,text:'web dev · open source · design'},{p:true,text:'ls projects/'},{p:false,text:'clock/   portfolio/'},{p:true,text:''}];
+  const tout=document.getElementById('terminalOutput');
+  let li=0,ci=0,curEl=null;
+  function type(){
+    if(li>=lines.length)return;
+    const line=lines[li];
+    if(ci===0){curEl=document.createElement('div');curEl.className='terminal-line';curEl.innerHTML=line.p?'<span class="t-prompt">&#8594; </span><span class="t-cmd"></span>':'<span class="t-out" style="color:#5a5450"></span>';tout.appendChild(curEl);}
+    const tgt=curEl.querySelector('.t-cmd,.t-out');
+    if(ci<line.text.length){tgt.textContent+=line.text[ci++];setTimeout(type,line.p?60:20);}
+    else{if(li===lines.length-1){curEl.innerHTML='<span class="t-prompt">&#8594; </span><span class="t-cursor"></span>';return;}li++;ci=0;setTimeout(type,line.p?360:160);}
+  }
+  const tio=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){setTimeout(type,400);tio.disconnect();}});},{threshold:.5});
+  tio.observe(tout);
+</script>
+
+</body>
+</html>

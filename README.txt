@@ -1,66 +1,163 @@
-# Hey, ich bin Spanani 👋
+<div align="center">
 
-<img src="https://spanani.de/assets/img/footer.svg" alt="Spanani Logo" width="120" align="right" style="margin-left: 20px;"/>
+# span*ani*
 
-**Developer • Beginner • Trying to evolve**
+A minimal, over-engineered developer portfolio & atomic clock.
 
-Willkommen auf dem offiziellen Repository meiner persönlichen Entwickler-Website  
-→ [https://spanani.dev](https://spanani.de)
+![Built with](https://img.shields.io/badge/built_with-vanilla_js-1e1e1e?style=flat-square&labelColor=0a0a0a)
+![CSS](https://img.shields.io/badge/css-custom_properties-1e1e1e?style=flat-square&labelColor=0a0a0a)
+![NTP](https://img.shields.io/badge/time-ntp_synced-1e1e1e?style=flat-square&labelColor=0a0a0a)
+![License](https://img.shields.io/badge/license-MIT-1e1e1e?style=flat-square&labelColor=0a0a0a)
 
-Hier teile ich meine Projekte, meinen Fortschritt und alles, woran ich gerade baue – von kleinen Experimenten bis zu größeren Ideen.
+<br>
 
----
+[Live Site](https://spanani.de) · [Clock](https://spanani.de/clock) · [Report Bug](mailto:webmaster@spanani.de)
 
-### 🌐 Die Website
-- Minimalistisches One-Page-Design mit wunderschönem Gradient-Hintergrund  
-- Voll responsiv (Mobile + Desktop)  
-- Schnell geladen dank purer HTML/CSS/JS (kein Framework-Bloat)  
-- FontAwesome Icons + eigene Farbpalette  
+<br>
 
-Live: [spanani.de](https://spanani.de)
+<img src="https://raw.githubusercontent.com/spananide/spanani.de/main/preview.png" alt="spanani.de preview" width="720">
 
----
-
-### 🛠️ Tech Stack der Seite
-- HTML5
-- CSS3 (SCSS → kompiliert zu `main.css`)
-- Vanilla JavaScript (nur ein paar Zeilen für den Preload-Effekt)
-- Font Awesome 5 (Brands + Solid)
-- Hosting: kostenlos über GitHub Pages / Vercel / Netlify (je nach aktuellem Setup)
+</div>
 
 ---
 
-### 🚀 Meine aktuellen Projekte & Lernziele
-| Projekt / Thema           | Status         | Tech Stack                  | Link |
-|---------------------------|----------------|-----------------------------|------|
-| Portfolio-Website (dieses) | Live           | HTML, SCSS, JS              | [spanani.dev](https://spanani.dev) |
-| Discord Bots              | aktiv          | Node.js, discord.js         | privat (bald public) |
-| Kleine Web-Apps           | in Planung     | React / Next.js             | coming soon |
-| UI/Design Experimente     | regelmäßig     | Figma → Code                | Dribbble (in Arbeit) |
+## ✦ About
+
+**spanani.de** is a personal developer portfolio with a built-in atomic clock — because device time just wasn't accurate enough. The site is intentionally minimal, dark, and slightly over-engineered.
+
+No frameworks. No build tools. No dependencies. Just HTML, CSS, and vanilla JavaScript.
 
 ---
 
-### 📈 Was ich gerade lerne
-- React & Next.js (App Router)
-- TypeScript
-- Bessere Barrierefreiheit (a11y)
-- Performance-Optimierung
-- Clean Code & bessere Projektstruktur
+## ✦ Features
 
-Ich bin noch am Anfang – aber ich gebe jeden Tag Gas.
+### Portfolio
+- **Loading animation** with branded intro
+- **Scroll-triggered reveals** via Intersection Observer
+- **Animated skill bars** with hover states
+- **Counter animations** on scroll
+- **Floating particles** in the hero section
+- **Marquee tech strip** with infinite scroll
+- **Auto-hiding navbar** on scroll direction
+- **Active section highlighting** in navigation
+- **Magnetic hover effects** on interactive elements (desktop)
+- **Konami code easter egg** 🎮 — try `↑↑↓↓←→←→BA`
+
+### Atomic Clock
+- **NTP-synced time** via WorldTimeAPI with weighted multi-sample averaging
+- **Fallback API** (TimeAPI.io) if primary fails
+- **RTT-compensated offset** for sub-100ms accuracy
+- **Millisecond display** at 60fps without flicker
+- **Day progress ring** — SVG circle showing % of day elapsed
+- **5 world clocks** using `Intl.DateTimeFormat` with real timezone data
+- **Built-in stopwatch** with lap tracking (best/worst highlighting)
+- **Countdown timer** with pause/resume and browser notifications
+- **Unix timestamp** display
+- **Sync status indicator** with latency & accuracy info
+
+### Shared
+- **7 color presets** + custom color picker (persisted via localStorage)
+- **Custom cursor** with ring follower & expand states (desktop only, auto-disabled on touch)
+- **Tooltips** on hover (desktop only)
+- **Keyboard shortcuts** for navigation and tools
+- **Responsive design** — works on mobile, tablet, desktop
+- **Noise texture overlay** + subtle grid background
+- **CSS custom properties** for full theme control
+- **Smooth scrolling** with anchor offset
+- **Back to top button**
+- **Console branding** — check your dev tools 👀
 
 ---
 
-### 📬 Kontakt
-- Twitter/X: [@Spanani](https://x.com/spananidev)
-- GitHub: [github.com/Spanani](https://github.com/spananide)
-- E-Mail: hallo@spanani.dev
+## ✦ Tech Stack
 
-Gerne Feedback, Tipps oder einfach ein „Hey“ schreiben – ich freue mich über jeden Kontakt!
+| Layer | Tech |
+|-------|------|
+| Markup | Semantic HTML5 |
+| Styling | Vanilla CSS with custom properties |
+| Logic | Vanilla JavaScript (ES6+) |
+| Fonts | [Instrument Serif](https://fonts.google.com/specimen/Instrument+Serif) + [DM Mono](https://fonts.google.com/specimen/DM+Mono) |
+| Time APIs | [WorldTimeAPI](http://worldtimeapi.org) + [TimeAPI.io](https://timeapi.io) |
+| Hosting | — |
+
+**Zero dependencies. Zero build step. Zero frameworks.**
+
 
 ---
 
-### ⭐ Star dieses Repo, wenn…
-…du das Design magst  
-…du auch gerade am Anfang stehst  
-…oder du einfach nette Menschen unterstützen willst :)
+## ✦ Keyboard Shortcuts
+
+### Portfolio
+
+| Key | Action |
+|-----|--------|
+| `T` | Scroll to top |
+| `1` | Go to hero |
+| `2` | Go to about |
+| `3` | Go to projects |
+| `4` | Go to contact |
+| `↑↑↓↓←→←→BA` | 🌈 |
+
+### Clock
+
+| Key | Action |
+|-----|--------|
+| `Space` | Start/stop stopwatch |
+| `L` | Record lap |
+| `R` | Reset |
+| `F` | Toggle fullscreen |
+| `1` | Clock tab |
+| `2` | Stopwatch tab |
+| `3` | Timer tab |
+
+---
+
+## ✦ Color Presets
+
+The accent color is fully customizable and synced across pages via `localStorage`.
+
+| Name | Hex |
+|------|-----|
+| Default | `#e2e2e2` |
+| Mint | `#6ee7b7` |
+| Sky | `#93c5fd` |
+| Lavender | `#c4b5fd` |
+| Rose | `#fca5a5` |
+| Amber | `#fcd34d` |
+| Peach | `#fdba74` |
+| Custom | Any hex via color picker |
+
+---
+
+## ✦ NTP Sync Algorithm
+
+The clock doesn't trust your device time. Instead it:
+
+1. Sends **5 sequential requests** to WorldTimeAPI
+2. Measures **round-trip time (RTT)** for each
+3. Estimates server time as `serverTime + RTT/2`
+4. Filters outliers using **median RTT × 2.5**
+5. Computes a **weighted average offset** (lower RTT = higher weight)
+6. Falls back to TimeAPI.io if primary fails
+7. **Re-syncs every 5 minutes** silently
+
+Result: typically **±5–50ms** accuracy depending on network conditions.
+
+---
+
+## ✦ Run Locally
+
+No build step needed. Just serve the files:
+
+```bash
+# Clone
+git clone https://github.com/spananide/spanani.de.git
+cd spanani.de
+
+# Serve (pick one)
+python3 -m http.server 8000
+npx serve .
+php -S localhost:8000
+
+# Open
+open http://localhost:8000

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>clock — spanani.de</title>
+<title>clock - spanani.de</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -48,7 +48,6 @@ input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;
 .setbtn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);border-radius:var(--r);background:transparent;cursor:pointer;transition:all .2s}
 .setbtn:hover{color:var(--text);border-color:var(--bh)}
 
-/* SETTINGS DRAWER */
 .sov{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;display:flex;justify-content:flex-end}
 .sov.open{opacity:1;visibility:visible}
 .sdr{width:340px;max-width:100vw;height:100vh;background:var(--bg1);border-left:1px solid var(--border);transform:translateX(100%);transition:transform .38s var(--ease);display:flex;flex-direction:column;overflow-y:auto}
@@ -169,7 +168,6 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;padding:36px 4
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
 .t-ctrl{display:flex;gap:7px;justify-content:center}
 
-/* GLOBE */
 .globewrap{width:100%;max-width:720px;margin-bottom:28px;border:1px solid var(--border);border-radius:5px;overflow:hidden;background:var(--bg1);opacity:0;animation:up .5s 1.05s both}
 .globehead{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 .globetit{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu)}
@@ -182,7 +180,6 @@ canvas#globe:active{cursor:grabbing}
 .cname{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#fff;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.95)}
 .ctime{font-size:10px;color:rgba(255,255,255,.82);white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.95);font-variant-numeric:tabular-nums}
 
-/* WORLD CLOCK TABLE — mobile only */
 .wct{width:100%;max-width:720px;margin-bottom:24px;border:1px solid var(--border);border-radius:5px;overflow:hidden;background:var(--bg1);opacity:0;animation:up .5s 1.05s both;display:none}
 .wct-h{padding:12px 18px;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu)}
 .wct-g{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border)}
@@ -225,7 +222,6 @@ footer a:hover{color:var(--text)}
 <div class="ambient" id="ambient"></div>
 <div id="cur"></div><div id="cur-ring"></div>
 
-<!-- SETTINGS -->
 <div class="sov" id="sov">
   <div class="sdr">
     <div class="shead">
@@ -302,42 +298,42 @@ footer a:hover{color:var(--text)}
 <main>
   <div class="syncrow">
     <div class="sdot" id="sdot"></div>
-    <span id="syncst">connecting to ntp…</span>
+    <span id="syncst">connecting to ntp...</span>
     <span id="syncq" style="color:var(--mu2);font-size:10px;margin-left:2px"></span>
   </div>
 
   <div class="timewrap">
     <div class="drW" id="drW">
       <svg viewBox="0 0 200 200"><circle class="dr-t" cx="100" cy="100" r="95"/><circle class="dr-f" id="drArc" cx="100" cy="100" r="95" stroke-dasharray="596.9" stroke-dashoffset="596.9"/></svg>
-      <div class="dr-l" id="drLbl">—</div>
+      <div class="dr-l" id="drLbl">-</div>
     </div>
     <div class="tblock">
       <div class="tmain"><span id="dH">--</span><span class="col" id="c1">:</span><span id="dM">--</span><span class="col" id="c2">:</span><span id="dS">--</span><span class="ampm" id="ampm"></span></div>
       <div class="msr" id="msr">.000</div>
     </div>
   </div>
-  <div class="drow" id="drow">— — —</div>
+  <div class="drow" id="drow">- - -</div>
 
   <div class="istrip">
-    <div class="ic"><div class="icl">Timezone</div><div class="icv ac" id="iTz">—</div></div>
-    <div class="ic"><div class="icl">UTC Offset</div><div class="icv" id="iOff">—</div></div>
-    <div class="ic"><div class="icl">Latency</div><div class="icv" id="iLat">—</div></div>
-    <div class="ic"><div class="icl">Accuracy</div><div class="icv ac" id="iAcc">—</div></div>
-    <div class="ic"><div class="icl">Unix</div><div class="icv" id="iUnix">—</div></div>
+    <div class="ic"><div class="icl">Timezone</div><div class="icv ac" id="iTz">-</div></div>
+    <div class="ic"><div class="icl">UTC Offset</div><div class="icv" id="iOff">-</div></div>
+    <div class="ic"><div class="icl">Latency</div><div class="icv" id="iLat">-</div></div>
+    <div class="ic"><div class="icl">Accuracy</div><div class="icv ac" id="iAcc">-</div></div>
+    <div class="ic"><div class="icl">Unix</div><div class="icv" id="iUnix">-</div></div>
   </div>
 
   <div class="offbox">
     <div class="offl">
       <div class="offic"><svg width="19" height="19" viewBox="0 0 19 19" fill="none"><rect x="3.5" y="2.5" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.2"/><line x1="6.5" y1="5.5" x2="12.5" y2="5.5" stroke="currentColor"/><line x1="6.5" y1="8.5" x2="12.5" y2="8.5" stroke="currentColor"/><line x1="6.5" y1="11.5" x2="9.5" y2="11.5" stroke="currentColor"/></svg></div>
-      <div><div class="offlb">Device vs Atomic</div><div class="offv" id="offv">—</div></div>
+      <div><div class="offlb">Device vs Atomic</div><div class="offv" id="offv">-</div></div>
     </div>
-    <div class="offbw"><div class="offbt"><div class="offbf" id="offbf"></div></div><div class="offbd" id="offbd">waiting for sync…</div></div>
+    <div class="offbw"><div class="offbt"><div class="offbf" id="offbf"></div></div><div class="offbd" id="offbd">waiting for sync...</div></div>
   </div>
 
   <div class="dtut" id="dtut">
     <div class="dth">
       <div class="dtic"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#ef4444" stroke-width="1.1"/><path d="M8 4.5V8M8 10.5v.5" stroke="#ef4444" stroke-width="1.3" stroke-linecap="round"/></svg></div>
-      <span class="dttit">Your clock is significantly off — fix it</span>
+      <span class="dttit">Your clock is significantly off - fix it</span>
       <button class="dtcls" id="dtcls">Dismiss</button>
     </div>
     <div class="dtsteps" id="dtsteps"></div>
@@ -367,13 +363,11 @@ footer a:hover{color:var(--text)}
     <div class="t-ctrl"><button class="btn pri" id="tSt">Start</button><button class="btn dan" id="tRs">Reset</button></div>
   </div>
 
-  <!-- GLOBE: desktop only -->
   <div class="globewrap">
-    <div class="globehead"><span class="globetit">world clocks · atomic time</span><span class="globehint">drag to rotate</span></div>
+    <div class="globehead"><span class="globetit">world clocks - atomic time</span><span class="globehint">drag to rotate</span></div>
     <div class="globecont"><canvas id="globe"></canvas><div class="gpins" id="gpins"></div></div>
   </div>
 
-  <!-- WORLD CLOCK TABLE: mobile only -->
   <div class="wct" id="wct">
     <div class="wct-h">World Clocks</div>
     <div class="wct-g" id="wctG"></div>
@@ -384,7 +378,7 @@ footer a:hover{color:var(--text)}
 
 <footer>
   <a href="/">spanani.de</a>
-  <span>ntp synced · atomic time</span>
+  <span>true ntp synced · atomic time</span>
   <a href="https://x.gd/CYVD6" target="_blank" class="egg"></a>
 </footer>
 
@@ -398,7 +392,6 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const RR=document.documentElement;
 const isT=('ontouchstart'in window)||navigator.maxTouchPoints>0;
 
-// ── SETTINGS ─────────────────────────────────────────────────────
 const DEF={ac:'#e2e2e2',grid:true,ring:true,amb:true,h24:true,ms:true,blink:true,cur:true,fs:100,sync:300,samples:3};
 let C={...DEF};
 try{const s=localStorage.getItem('spa-cfg');if(s)C={...DEF,...JSON.parse(s)};}catch(e){}
@@ -435,7 +428,6 @@ function applyAll(){
 }
 applyAll();
 
-// Cursor
 if(!isT){
   const cr=$('#cur'),cr2=$('#cur-ring');
   let mx=-99,my=-99,rx=-99,ry=-99,v=false;
@@ -449,7 +441,6 @@ if(!isT){
   });
 }
 
-// Settings UI
 const sov=$('#sov');
 $('#setbtn').addEventListener('click',()=>sov.classList.toggle('open'));
 $('#scls').addEventListener('click',()=>sov.classList.remove('open'));
@@ -462,95 +453,91 @@ $('#ssamples').addEventListener('change',e=>{C.samples=+e.target.value;save();})
 $$('.dot2').forEach(p=>p.addEventListener('click',()=>applyCol(p.dataset.c)));
 $$('.dot').forEach(p=>p.addEventListener('click',()=>applyCol(p.dataset.color)));
 $('#cpi').addEventListener('input',e=>applyCol(e.target.value));
-$('#sres').addEventListener('click',()=>{C={...DEF};try{localStorage.removeItem('spa-cfg');}catch(e){}applyAll();});
+$('#sres').addEventListener('click',()=>{C={...DEF};try{localStorage.removeItem('spa-cfg');}catch(e){}applyAll();reschedSync();});
 
-// ── NTP — parallel fast sync ──────────────────────────────────────
 let ntpOff=0,latMs=0,userTz=Intl.DateTimeFormat().resolvedOptions().timeZone,syncTimer=null;
 
-async function fetchOne(url){
+async function fetchNtpSample(samples){
   const t0=performance.now();
-  const res=await fetch(url+'?_='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(4500)});
-  if(!res.ok)throw 0;
+  const res=await fetch('/api/ntp?samples='+samples+'&_='+Date.now(),{cache:'no-store'});
   const t1=performance.now();
   const d=await res.json();
-  const rtt=t1-t0;
-  return{off:Math.round(new Date(d.datetime).getTime()+rtt/2-Date.now()),rtt:Math.round(rtt),tz:d.timezone||null};
+  if(!res.ok||!d.ok) throw new Error(d.error||'NTP failed');
+  const browserRtt=t1-t0;
+  const estimatedNow=d.ntpNowMs+(browserRtt/2);
+  return{
+    off:Math.round(estimatedNow-Date.now()),
+    rtt:Math.round(d.rttMs),
+    browserRtt:Math.round(browserRtt),
+    accuracy:Math.max(Math.round(d.accuracyMs||0),Math.round(browserRtt/2)),
+    server:d.server,
+    samples:d.samples
+  };
 }
 
 async function syncNTP(){
   const dot=$('#sdot'),st=$('#syncst'),sq=$('#syncq');
-  dot.className='sdot';st.textContent='syncing…';sq.textContent='';
-  const n=C.samples;
-  const BASE='https://worldtimeapi.org/api/ip';
-  const TZ='https://worldtimeapi.org/api/timezone/'+encodeURIComponent(userTz);
-  // Fire n requests in parallel (alternate endpoints for variety)
-  const reqs=Array.from({length:n},(_, i)=>fetchOne(i%2===0?BASE:TZ).catch(()=>null));
-  const results=[];
-  // Resolve as they come in — apply first result immediately for speed
-  await Promise.all(reqs.map(p=>p.then(r=>{
-    if(!r)return;
-    results.push(r);
-    if(results.length===1){
-      // Fast-apply first result
-      ntpOff=r.off;latMs=r.rtt;
-      if(r.tz)userTz=r.tz;
-      dot.className='sdot ok';st.textContent='synced · '+userTz;
-      updateSyncUI();
+  dot.className='sdot';st.textContent='syncing true ntp...';sq.textContent='';
+
+  try{
+    const quick=await fetchNtpSample(1);
+    ntpOff=quick.off;latMs=quick.rtt;
+    dot.className='sdot ok';
+    st.textContent='synced - '+userTz;
+    sq.textContent='· quick';
+    updateSyncUI(quick);
+
+    if(C.samples>1){
+      fetchNtpSample(C.samples).then(refined=>{
+        ntpOff=refined.off;latMs=refined.rtt;
+        sq.textContent='· '+refined.samples+'/'+C.samples+' ok';
+        updateSyncUI(refined);
+        setTimeout(()=>{if(sq)sq.textContent='';},3500);
+      }).catch(()=>{});
+    }else{
+      setTimeout(()=>{if(sq)sq.textContent='';},2500);
     }
-  })));
-  if(!results.length){
-    // Fallback
-    try{
-      const t0=performance.now();
-      const res=await fetch('https://timeapi.io/api/time/current/zone?timeZone=UTC',{signal:AbortSignal.timeout(5000)});
-      const t1=performance.now();
-      if(res.ok){const d=await res.json();ntpOff=Math.round(new Date(d.dateTime+'Z').getTime()+(t1-t0)/2-Date.now());latMs=Math.round((t1-t0)/2);}
-      dot.className='sdot ok';st.textContent='synced (fallback)';
-      updateSyncUI();
-    }catch(e){dot.className='sdot err';st.textContent='ntp unavailable';updateOff(0);return;}
-    return;
-  }
-  // Weighted average with all results
-  if(results.length>1){
-    results.sort((a,b)=>a.rtt-b.rtt);
-    const bestRtt=results[0].rtt;
-    const good=results.filter(r=>r.rtt<=bestRtt*2.5);
-    let tw=0,wo=0;good.forEach(r=>{const w=1/r.rtt;wo+=r.off*w;tw+=w;});
-    ntpOff=Math.round(wo/tw);latMs=results[0].rtt;
-    sq.textContent=`· ${results.length}/${n} ok`;
-    setTimeout(()=>{if(sq)sq.textContent='';},3500);
-    updateSyncUI();
+  }catch(e){
+    dot.className='sdot err';
+    st.textContent='ntp unavailable';
+    sq.textContent='';
+    $('#iLat').textContent='-';
+    $('#iAcc').textContent='-';
+    updateOff(0,true);
   }
 }
-function updateSyncUI(){
-  updateOff(ntpOff);
+function updateSyncUI(meta){
+  updateOff(ntpOff,false,meta);
   $('#iTz').textContent=userTz;
   const ro=new Date().getTimezoneOffset();
-  $('#iOff').textContent='UTC'+(ro<=0?'+':'−')+pad(Math.abs(Math.floor(ro/60)))+':'+pad(Math.abs(ro%60));
+  $('#iOff').textContent='UTC'+(ro<=0?'+':'-')+pad(Math.abs(Math.floor(ro/60)))+':'+pad(Math.abs(ro%60));
   $('#iLat').textContent=latMs+'ms';
-  $('#iAcc').textContent=latMs<20?'±5ms':latMs<60?'±20ms':latMs<120?'±50ms':'±100ms';
+  $('#iAcc').textContent='±'+meta.accuracy+'ms';
 }
 function reschedSync(){if(syncTimer)clearInterval(syncTimer);syncTimer=setInterval(syncNTP,C.sync*1000);}
 
-// ── DRIFT TUTORIAL ────────────────────────────────────────────────
 const OSG={
-  win:[{t:'Open Date & Time Settings',d:'Right-click taskbar clock → <strong>Adjust date/time</strong>.'},{t:'Enable automatic sync',d:'Turn on <strong>Set time automatically</strong>.'},{t:'Force sync now',d:'Click <strong>Sync now</strong>. Or in admin terminal: <strong>w32tm /resync /force</strong>'}],
-  mac:[{t:'Open System Settings',d:'Apple Menu → System Settings → <strong>General → Date & Time</strong>.'},{t:'Enable automatic',d:'Turn on <strong>Set time and date automatically</strong>.'},{t:'Force via Terminal',d:'<strong>sudo sntp -sS time.apple.com</strong>'}],
+  win:[{t:'Open Date & Time Settings',d:'Right-click taskbar clock -> <strong>Adjust date/time</strong>.'},{t:'Enable automatic sync',d:'Turn on <strong>Set time automatically</strong>.'},{t:'Force sync now',d:'Click <strong>Sync now</strong>. Or in admin terminal: <strong>w32tm /resync /force</strong>'}],
+  mac:[{t:'Open System Settings',d:'Apple Menu -> System Settings -> <strong>General -> Date & Time</strong>.'},{t:'Enable automatic',d:'Turn on <strong>Set time and date automatically</strong>.'},{t:'Force via Terminal',d:'<strong>sudo sntp -sS time.apple.com</strong>'}],
   linux:[{t:'Check status',d:'Terminal: <strong>timedatectl status</strong>'},{t:'Enable NTP',d:'<strong>sudo timedatectl set-ntp true</strong>'},{t:'Restart',d:'<strong>sudo systemctl restart systemd-timesyncd</strong>'}],
-  android:[{t:'Settings',d:'Settings → General Management → <strong>Date and Time</strong>.'},{t:'Enable automatic',d:'Toggle <strong>Automatic date and time</strong> on.'}],
-  ios:[{t:'Settings',d:'Settings → General → <strong>Date & Time</strong>.'},{t:'Set automatically',d:'Toggle <strong>Set Automatically</strong> on.'}],
+  android:[{t:'Settings',d:'Settings -> General Management -> <strong>Date and Time</strong>.'},{t:'Enable automatic',d:'Toggle <strong>Automatic date and time</strong> on.'}],
+  ios:[{t:'Settings',d:'Settings -> General -> <strong>Date & Time</strong>.'},{t:'Set automatically',d:'Toggle <strong>Set Automatically</strong> on.'}],
 };
 function osKey(){const ua=navigator.userAgent;if(/android/i.test(ua))return'android';if(/iphone|ipad/i.test(ua))return'ios';if(/mac/i.test(ua))return'mac';if(/win/i.test(ua))return'win';return'linux';}
 let tutOff=false;try{if(localStorage.getItem('spa-tut-off'))tutOff=true;}catch(e){}
 $('#dtcls').addEventListener('click',()=>{$('#dtut').classList.remove('on');tutOff=true;try{localStorage.setItem('spa-tut-off','1');}catch(e){}});
-function updateOff(ms){
+function updateOff(ms,isError=false,meta=null){
   const ov=$('#offv'),ob=$('#offbf'),od=$('#offbd');
+  if(isError){
+    ov.className='offv bad';ov.textContent='offline';ob.style.width='100%';ob.style.background='#ef4444';od.textContent='Local backend could not reach an NTP server.';return;
+  }
   const abs=Math.abs(ms),sign=ms>0?'+':ms<0?'-':'';
-  if(abs<50){ov.className='offv good';ov.textContent=ms===0?'±0':sign+abs+'ms';od.textContent='Your device clock is accurate.';}
-  else if(abs<500){ov.className='offv warn';ov.textContent=sign+abs+'ms';od.textContent='Slightly off — normal for most devices.';}
-  else if(abs<5000){ov.className='offv warn';ov.textContent=sign+(abs/1000).toFixed(2)+'s';od.textContent='Noticeable drift — consider syncing.';}
-  else{ov.className='offv bad';ov.textContent=sign+(abs/1000).toFixed(1)+'s';od.textContent='Significant drift — your clock is wrong.';}
-  ob.style.width=Math.min(100,abs/20)+'%';ob.style.background=abs<50?'#3db87a':abs<500?'#f59e0b':'#ef4444';
+  if(abs<30){ov.className='offv good';ov.textContent=ms===0?'±0ms':sign+abs+'ms';od.textContent='Your device clock is very close to true NTP time.';}
+  else if(abs<200){ov.className='offv warn';ov.textContent=sign+abs+'ms';od.textContent='Slightly off - common after sleep, resume, or delayed OS sync.';}
+  else if(abs<5000){ov.className='offv warn';ov.textContent=sign+(abs/1000).toFixed(2)+'s';od.textContent='Noticeable drift - consider syncing your system clock.';}
+  else{ov.className='offv bad';ov.textContent=sign+(abs/1000).toFixed(1)+'s';od.textContent='Significant drift - your clock is wrong.';}
+  ob.style.width=Math.min(100,abs/20)+'%';ob.style.background=abs<30?'#3db87a':abs<200?'#f59e0b':'#ef4444';
+  if(meta&&meta.samples===1&&abs<5000) od.textContent+=' Quick estimate shown first; refined samples will tighten this.';
   if(abs>=5000&&!tutOff){
     const steps=OSG[osKey()]||OSG.win;
     $('#dtsteps').innerHTML=steps.map((s,i)=>`<div class="dtstep"><div class="dtnum">${i+1}</div><div class="dtcnt"><strong>${s.t}</strong><br>${s.d}</div></div>`).join('');
@@ -558,7 +545,6 @@ function updateOff(ms){
   }else if(!tutOff)$('#dtut').classList.remove('on');
 }
 
-// ── CLOCK TICK ────────────────────────────────────────────────────
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const CIRC=2*Math.PI*95;
@@ -577,10 +563,9 @@ const CITIES=[
   {name:'Beijing',tz:'Asia/Shanghai',lat:39.91,lon:116.39},
 ];
 
-// Build mobile world clock table once
 function buildWCT(){
   const g=$('#wctG');if(!g||g.children.length)return;
-  g.innerHTML=CITIES.map(c=>`<div class="wc"><div class="wc-city">${c.name}</div><div class="wc-time" id="wc_${c.tz.replace(/[\/\-]/g,'_')}">--:--</div><div class="wc-off" id="wco_${c.tz.replace(/[\/\-]/g,'_')}">—</div></div>`).join('');
+  g.innerHTML=CITIES.map(c=>`<div class="wc"><div class="wc-city">${c.name}</div><div class="wc-time" id="wc_${c.tz.replace(/[\/\-]/g,'_')}">--:--</div><div class="wc-off" id="wco_${c.tz.replace(/[\/\-]/g,'_')}">-</div></div>`).join('');
 }
 buildWCT();
 
@@ -595,15 +580,12 @@ function tick(){
     $('#drow').textContent=DAYS[now.getDay()]+', '+now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
     if(C.ring){const p=(h*3600+m*60+s)/86400;$('#drArc').style.strokeDashoffset=CIRC*(1-p);$('#drLbl').textContent=Math.round(p*100)+'% of day';}
     $('#iUnix').textContent=Math.floor(ts/1000);
-    // World clock table
     CITIES.forEach(c=>{
       const key=c.tz.replace(/[\/\-]/g,'_');
       const el=$('#wc_'+key);if(!el)return;
       try{
         const t=now.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',hour12:!C.h24});
         el.textContent=t.slice(0,5);
-        // offset vs local
-        const localOff=now.getTimezoneOffset()*60000;
         const fmt=Intl.DateTimeFormat('en',{timeZone:c.tz,timeZoneName:'shortOffset'}).format(now);
         const m2=fmt.match(/GMT([+\-]\d+(?::\d+)?)?/);
         const el2=$('#wco_'+key);if(el2&&m2){const raw=m2[0];el2.textContent=raw==='GMT'?'UTC+0':raw.replace('GMT','UTC');}
@@ -615,12 +597,10 @@ function tick(){
 
 syncNTP().then(()=>{tick();setInterval(tick,16);reschedSync();});
 
-// ── TABS ──────────────────────────────────────────────────────────
 const tabs=$$('.tab'),pSw=$('#pSw'),pTm=$('#pTimer');
 function setTab(p){tabs.forEach(t=>t.classList.toggle('on',t.dataset.p===p));pSw.classList.toggle('on',p==='sw');pTm.classList.toggle('on',p==='timer');}
 tabs.forEach(t=>t.addEventListener('click',()=>setTab(t.dataset.p)));
 
-// ── STOPWATCH ─────────────────────────────────────────────────────
 let swR=false,swT0=0,swEl=0,swRaf=null,swLps=[];
 const fmtSW=ms=>{const t=Math.floor(ms/1000);return pad(Math.floor(t/3600))+':'+pad(Math.floor(t%3600/60))+':'+pad(t%60);};
 function updSW(){if(!swR)return;const t=swEl+(performance.now()-swT0);$('#swt').textContent=fmtSW(t);$('#swms').textContent='.'+pad(Math.floor(t%1000),3);swRaf=requestAnimationFrame(updSW);}
@@ -635,7 +615,6 @@ function renderLaps(){
   $('#swLaps').innerHTML=h;
 }
 
-// ── TIMER ─────────────────────────────────────────────────────────
 let tR=false,tEnd=0,tRem=0,tRaf=null;
 const fmtT=s=>pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60);
 const gTS=()=>(+$('#tH').value||0)*3600+(+$('#tM').value||0)*60+(+$('#tS').value||0);
@@ -643,7 +622,6 @@ function updT(){if(!tR)return;const r=Math.max(0,tEnd-Date.now());const s=Math.c
 $('#tSt').addEventListener('click',()=>{if(!tR){const ms=tRem>0?tRem:gTS()*1000;if(ms<=0)return;tEnd=Date.now()+ms;tR=true;$('#tSetup').style.display='none';$('#tDisp').style.display='block';$('#tSt').textContent='Pause';try{if(Notification.permission==='default')Notification.requestPermission();}catch(e){}updT();}else{tR=false;tRem=Math.max(0,tEnd-Date.now());cancelAnimationFrame(tRaf);$('#tSt').textContent='Resume';}});
 $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRaf);$('#tSetup').style.display='';$('#tDisp').style.display='none';$('#tTime').textContent='00:00:00';$('#tTime').classList.remove('urg');$('#tSt').textContent='Start';});
 
-// ── GLOBE ─────────────────────────────────────────────────────────
 (function globe(){
   const canvas=$('#globe');if(!canvas)return;
   const ctx=canvas.getContext('2d');
@@ -666,7 +644,6 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
   canvas.addEventListener('touchmove',e=>{if(!drag)return;const dx=e.touches[0].clientX-lx;rotY+=dx*.005;rotX=Math.max(-1.05,Math.min(1.05,rotX+(e.touches[0].clientY-ly)*.003));velX=dx*.005;lx=e.touches[0].clientX;ly=e.touches[0].clientY;},{passive:true});
   canvas.addEventListener('touchend',()=>{drag=false;});
 
-  // 3D math: lon=0 at +Z front, lat=90 at +Y (north pole)
   function ll2v(lat,lon){
     const p=(90-lat)*Math.PI/180,l=lon*Math.PI/180;
     return[Math.sin(p)*Math.sin(l),Math.cos(p),Math.sin(p)*Math.cos(l)];
@@ -677,17 +654,9 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
     const cx=Math.cos(rotX),sx=Math.sin(rotX);
     return[x2,y*cx-z2*sx,y*sx+z2*cx];
   }
-
-  // ── THE REAL FIX: horizon-clipped ring tracer ──────────────────
-  // When a ring crosses the visibility boundary (rz=0), we interpolate
-  // the exact edge point so lines always terminate at the sphere's rim.
-  // This prevents wrong geometry from "invisible" points polluting the path.
   function lerp3(a,b,t){return[a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1]),a[2]+t*(b[2]-a[2])];}
-
   function traceRing(ring,cx,cy,GR){
-    // ring: [[lon,lat],...] — TopoJSON decoded
     const n=ring.length;if(n<2)return;
-    // Rotate all points first
     const pts=ring.map(([lon,lat])=>rv(ll2v(lat,lon)));
     let wasVis=false;
     for(let i=0;i<n;i++){
@@ -697,17 +666,11 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
         const prev=pts[i-1];
         const prevVis=prev[2]>0;
         if(prevVis!==vis){
-          // horizon crossing — interpolate exact edge point
           const t=prev[2]/(prev[2]-cur[2]);
           const edge=lerp3(prev,cur,t);
           const ex=cx+edge[0]*GR,ey=cy-edge[1]*GR;
-          if(prevVis){
-            // going out: draw to edge
-            ctx.lineTo(ex,ey);
-          } else {
-            // coming in: move to edge, start fresh
-            ctx.moveTo(ex,ey);
-          }
+          if(prevVis) ctx.lineTo(ex,ey);
+          else ctx.moveTo(ex,ey);
         }
       }
       if(vis){
@@ -719,19 +682,11 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
     }
   }
 
-  // Graticule (precomputed 3D vecs)
   const grat=[];
   for(let lon=-180;lon<180;lon+=30){const l=[];for(let lat=-84;lat<=84;lat+=3)l.push(ll2v(lat,lon));grat.push(l);}
   for(let lat=-60;lat<=60;lat+=30){const l=[];for(let lon=-180;lon<=180;lon+=3)l.push(ll2v(lat,lon));grat.push(l);}
 
-  // Country colors — muted, visible on dark ocean
-  const LC=[
-    '#1e4d35','#2a5a40','#1a4060','#3a5220','#58321a',
-    '#38205c','#5c1e2a','#1a4848','#484816','#1e3a52',
-    '#521e1e','#163854','#3a2e10','#102c28','#3e2816',
-    '#1e2e40','#2c3e10','#46200e','#0e2c3e','#2a1040',
-  ];
-
+  const LC=['#1e4d35','#2a5a40','#1a4060','#3a5220','#58321a','#38205c','#5c1e2a','#1a4848','#484816','#1e3a52','#521e1e','#163854','#3a2e10','#102c28','#3e2816','#1e2e40','#2c3e10','#46200e','#0e2c3e','#2a1040'];
   let polys=[],mapOk=false;
 
   async function loadMap(){
@@ -744,7 +699,6 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
         const src=topo.arcs[i<0?~i:i];let ax=0,ay=0,pts=[];
         for(const[dx,dy]of src){ax+=dx;ay+=dy;pts.push([ax*sc[0]+tr[0],ay*sc[1]+tr[1]]);}
         return i<0?[...pts].reverse():pts;
-        // Each point is [lon, lat] after the quantization transform
       }
       function buildRing(ais){let r=[];for(const a of ais)r=r.concat(decArc(a));return r;}
       const obj=topo.objects.countries||topo.objects.land;
@@ -768,20 +722,16 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
     if(!drag){rotY+=velX*.88;velX*=.88;}
     const ac=getAc(),acs=`rgba(${ac[0]},${ac[1]},${ac[2]}`;
 
-    // Atmospheric halo
     const h0=ctx.createRadialGradient(cx,cy,GR*.65,cx,cy,GR*1.32);
     h0.addColorStop(0,`${acs},.09)`);h0.addColorStop(1,`${acs},0)`);
     ctx.beginPath();ctx.arc(cx,cy,GR*1.32,0,Math.PI*2);ctx.fillStyle=h0;ctx.fill();
 
-    // Clip to sphere
     ctx.save();ctx.beginPath();ctx.arc(cx,cy,GR,0,Math.PI*2);ctx.clip();
 
-    // Ocean
     const oc=ctx.createRadialGradient(cx-GR*.22,cy-GR*.18,GR*.04,cx,cy,GR);
     oc.addColorStop(0,'#1d4a7a');oc.addColorStop(.6,'#0e2e52');oc.addColorStop(1,'#06172a');
     ctx.fillStyle=oc;ctx.fillRect(cx-GR,cy-GR,GR*2,GR*2);
 
-    // Land
     if(mapOk){
       for(let pi=0;pi<polys.length;pi++){
         ctx.beginPath();
@@ -791,7 +741,6 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
       }
     }
 
-    // Graticule
     ctx.strokeStyle=`${acs},.055)`;ctx.lineWidth=.5;
     for(const line of grat){
       ctx.beginPath();let pv=false;
@@ -799,7 +748,6 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
       ctx.stroke();
     }
 
-    // Day/night
     const now=new Date(Date.now()+ntpOff);
     const df=(now.getUTCHours()*3600+now.getUTCMinutes()*60+now.getUTCSeconds())/86400;
     const sun=rv(ll2v(0,(0.5-df)*360));
@@ -807,16 +755,13 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
     ng.addColorStop(0,'rgba(0,0,0,0)');ng.addColorStop(.38,'rgba(0,0,0,0)');ng.addColorStop(1,'rgba(0,0,0,.58)');
     ctx.fillStyle=ng;ctx.fillRect(cx-GR,cy-GR,GR*2,GR*2);
 
-    // Specular
     const sp=ctx.createRadialGradient(cx-GR*.26,cy-GR*.3,0,cx,cy,GR*.92);
     sp.addColorStop(0,'rgba(255,255,255,.1)');sp.addColorStop(1,'rgba(255,255,255,0)');
     ctx.fillStyle=sp;ctx.fillRect(cx-GR,cy-GR,GR*2,GR*2);
     ctx.restore();
 
-    // Rim
     ctx.beginPath();ctx.arc(cx,cy,GR,0,Math.PI*2);ctx.strokeStyle=`${acs},.16)`;ctx.lineWidth=1.5;ctx.stroke();
 
-    // City pins
     const pins=$('#gpins');if(pins)pins.innerHTML='';
     const nd=new Date(Date.now()+ntpOff);
     for(const city of CITIES){
@@ -839,7 +784,6 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
   requestAnimationFrame(frame);
 })();
 
-// ── KEYBOARD ──────────────────────────────────────────────────────
 document.addEventListener('keydown',e=>{
   const t=document.activeElement.tagName;if(t==='INPUT'||t==='TEXTAREA')return;
   switch(e.key){

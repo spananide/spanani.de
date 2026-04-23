@@ -1,9 +1,0 @@
-{
-  "name": "spanani-clock",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Static portfolio and true-NTP-backed clock demo",
-  "scripts": {
-    "start": "node server.js"
-  }
-}

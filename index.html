@@ -69,7 +69,6 @@ body.has-cursor #cur-ring {
 body.has-cursor #cur-ring.hide { opacity: 0; }
 body.has-cursor #cur-ring.expand { width: 52px; height: 52px; border-color: rgba(var(--ac-rgb),0.4); }
 
-/* NAV */
 nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 500;
   display: flex; align-items: center; justify-content: space-between;
@@ -119,7 +118,6 @@ input[type="color"] { position: absolute; inset: 0; opacity: 0; cursor: pointer;
 }
 .settings-btn:hover { color: var(--text); border-color: var(--bh); }
 
-/* HERO */
 .hero {
   min-height: 100vh; min-height: 100dvh;
   display: flex; flex-direction: column; justify-content: center;
@@ -154,7 +152,6 @@ h1.hn em { font-style: italic; color: var(--ac); }
 .st::after { content: ''; position: absolute; top: -100%; left: 0; width: 100%; height: 100%; background: var(--ac); animation: sdown 2.5s ease-in-out infinite; }
 @keyframes sdown { 0%{top:-100%} 100%{top:100%} }
 
-/* SECTIONS */
 .sec { padding: 120px 48px; position: relative; }
 .slb {
   font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
@@ -172,7 +169,6 @@ h1.hn em { font-style: italic; color: var(--ac); }
 .ab-simple p { font-size: 15px; color: var(--mu); line-height: 2; }
 .ab-simple strong { color: var(--text); font-weight: 500; }
 
-/* PROJECTS */
 .pl { display: flex; flex-direction: column; }
 .pr {
   display: grid; grid-template-columns: 48px 1fr auto;
@@ -195,7 +191,6 @@ h1.hn em { font-style: italic; color: var(--ac); }
 .ptag { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mu); background: var(--bg2); border: 1px solid var(--border); padding: 3px 9px; border-radius: 2px; }
 .pa { color: var(--mu); transition: all 0.3s var(--ease); flex-shrink: 0; }
 
-/* CLOCK STRIP */
 .cs {
   background: var(--bg1); border: 1px solid var(--border); border-radius: 6px;
   padding: 40px 48px; display: flex; align-items: center; justify-content: space-between; gap: 32px;
@@ -210,7 +205,6 @@ h1.hn em { font-style: italic; color: var(--ac); }
 }
 .bo:hover { color: var(--ac); border-color: rgba(var(--ac-rgb),0.4); transform: translateY(-1px); }
 
-/* CONTACT */
 .ce {
   font-family: 'Instrument Serif', serif; font-size: clamp(24px,4vw,48px); font-weight: 400;
   letter-spacing: -0.02em; color: var(--text); text-decoration: none; display: inline-block;
@@ -252,7 +246,6 @@ footer a:hover { color: var(--text); }
 .rv-d2 { transition-delay: 0.2s; }
 @keyframes up { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:none} }
 
-/* ── SETTINGS OVERLAY (shared) ────────────────────────── */
 .settings-overlay {
   position: fixed; inset: 0; z-index: 800;
   background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
@@ -323,7 +316,6 @@ footer a:hover { color: var(--text); }
 <div id="cur"></div>
 <div id="cur-ring"></div>
 
-<!-- SETTINGS OVERLAY -->
 <div class="settings-overlay" id="settingsOverlay">
   <div class="settings-drawer">
     <div class="settings-head">
@@ -424,7 +416,7 @@ footer a:hover { color: var(--text); }
   <div class="hey"><span class="gdot"></span>available for new projects</div>
   <h1 class="hn">span<em>ani</em></h1>
   <div class="hb">
-    <p class="hd"><strong>Developer.</strong> I build things for the web —<br>clean interfaces, weird side projects,<br>over-engineered clocks.</p>
+    <p class="hd"><strong>Developer.</strong> I build things for the web -<br>clean interfaces, weird side projects,<br>over-engineered clocks.</p>
     <div class="hs"><div class="st"></div>scroll</div>
   </div>
 </section>
@@ -433,7 +425,7 @@ footer a:hover { color: var(--text); }
   <div class="slb">who i am</div>
   <h2 class="sti rv">just a dev<br><em>who builds stuff.</em></h2>
   <div class="ab-simple rv rv-d1">
-    <p>I'm <strong>spanani</strong>. I make things for the web. I care about <strong>clean code</strong> and honest design. My side projects tend to be small, precise, and occasionally absurd — like building an <strong>atomic clock</strong> website because device time just wasn't accurate enough.</p>
+    <p>I'm <strong>spanani</strong>. I make things for the web. I care about <strong>clean code</strong> and honest design. My side projects tend to be small, precise, and occasionally absurd - like building an <strong>atomic clock</strong> website because device time just wasn't accurate enough.</p>
   </div>
 </section>
 
@@ -445,7 +437,7 @@ footer a:hover { color: var(--text); }
       <div class="pn">01</div>
       <div>
         <div class="pt">Atomic Clock</div>
-        <div class="pd">True atomic time via NTP — not your device clock.</div>
+        <div class="pd">True atomic time via NTP - not your device clock.</div>
         <div class="ptags"><span class="ptag">NTP</span><span class="ptag">JavaScript</span></div>
       </div>
       <svg class="pa" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 14L14 2M14 2H6M14 2V10" stroke="currentColor" stroke-width="1.4"/></svg>
@@ -467,11 +459,11 @@ footer a:hover { color: var(--text); }
   <div class="cs rv" id="clockStrip">
     <div>
       <div class="cst" id="stripTime">--:--:--</div>
-      <div class="csl">atomic time · your region</div>
+      <div class="csl" id="stripLabel">true ntp time - your region</div>
     </div>
     <a href="/clock" class="bo">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><path d="M6 3.5V6l2 1.5" stroke="currentColor" stroke-width="1"/></svg>
-      open clock →
+      open clock ->
     </a>
   </div>
 </section>
@@ -503,7 +495,6 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const root=document.documentElement;
 const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
 
-// ── SETTINGS ────────────────────────────────────────────────────
 const DEFAULTS={ac:'#e2e2e2',grid:true,noise:true,cursor:true,scroll:true,clock:true};
 let cfg={...DEFAULTS};
 function loadCfg(){ try{const s=localStorage.getItem('spa-cfg');if(s)cfg={...DEFAULTS,...JSON.parse(s)}}catch(e){} }
@@ -530,7 +521,6 @@ function applyAll(){
     else document.body.classList.remove('has-cursor');
   }
   document.documentElement.style.scrollBehavior=cfg.scroll?'smooth':'auto';
-  // sync checkboxes
   const t=(id,v)=>{const el=$(id);if(el)el.checked=v};
   t('#toggleGrid',cfg.grid); t('#toggleNoise',cfg.noise);
   t('#toggleCursor',cfg.cursor); t('#toggleScroll',cfg.scroll);
@@ -539,7 +529,6 @@ function applyAll(){
 applyAll();
 if(!isTouch&&cfg.cursor) document.body.classList.add('has-cursor');
 
-// ── SETTINGS UI ─────────────────────────────────────────────────
 const overlay=$('#settingsOverlay');
 $('#settingsBtn').addEventListener('click',()=>overlay.classList.toggle('open'));
 $('#settingsClose').addEventListener('click',()=>overlay.classList.remove('open'));
@@ -554,16 +543,13 @@ bindToggle('#toggleClock','clock');
 $$('.preset-lg').forEach(p=>p.addEventListener('click',()=>applyColor(p.dataset.color)));
 $('#settingsReset').addEventListener('click',()=>{ cfg={...DEFAULTS}; try{localStorage.removeItem('spa-cfg')}catch(e){}; applyAll(); });
 
-// Quick color picker
 const cp=$('#cp'); if(cp) cp.addEventListener('input',e=>applyColor(e.target.value));
 $$('.preset').forEach(p=>p.addEventListener('click',()=>applyColor(p.dataset.color)));
 
-// ── LOADER ───────────────────────────────────────────────────────
 const loader=$('#loader');
 window.addEventListener('load',()=>setTimeout(()=>loader.classList.add('done'),1200));
 setTimeout(()=>loader.classList.add('done'),3000);
 
-// ── CURSOR ───────────────────────────────────────────────────────
 if(!isTouch){
   const cur=$('#cur'),ring=$('#cur-ring');
   let mx=-100,my=-100,rx=-100,ry=-100,vis=false;
@@ -577,7 +563,6 @@ if(!isTouch){
   });
 }
 
-// ── NAV ──────────────────────────────────────────────────────────
 const nav=$('#nav'); let lastSY=0,navHid=false,tick2=false;
 function updateNav(){
   const sy=window.scrollY; nav.classList.toggle('solid',sy>50);
@@ -587,37 +572,50 @@ function updateNav(){
 }
 window.addEventListener('scroll',()=>{if(!tick2){requestAnimationFrame(updateNav);tick2=true}});
 
-// ── BACK TO TOP ──────────────────────────────────────────────────
 const btt=$('#btt');
 window.addEventListener('scroll',()=>btt.classList.toggle('show',window.scrollY>600));
 
-// ── REVEAL ───────────────────────────────────────────────────────
 const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:0.06,rootMargin:'0px 0px -40px 0px'});
 $$('.rv').forEach(el=>obs.observe(el));
 
-// ── SMOOTH SCROLL ────────────────────────────────────────────────
 $$('a[href^="#"]').forEach(a=>{
   a.addEventListener('click',e=>{const h=a.getAttribute('href');if(h==='#')return;const t=$(h);if(!t)return;e.preventDefault();window.scrollTo({top:t.offsetTop-80,behavior:'smooth'})});
 });
 
-// ── NTP CLOCK STRIP ──────────────────────────────────────────────
 let ntpOff=0;
-async function syncNTP(){
-  const samples=[];
-  for(let i=0;i<3;i++){
-    try{const t0=Date.now();const res=await fetch('https://worldtimeapi.org/api/ip?_='+Date.now(),{cache:'no-store'});const t1=Date.now();if(!res.ok)continue;const d=await res.json();samples.push({offset:(new Date(d.datetime).getTime()+(t1-t0)/2)-t1,rtt:t1-t0})}catch(e){}
-    if(i<2)await new Promise(r=>setTimeout(r,200));
+let stripSyncTimer=null;
+
+async function syncNTP(samples=3){
+  try{
+    const t0=performance.now();
+    const res=await fetch('/api/ntp?samples='+samples+'&_='+Date.now(),{cache:'no-store'});
+    const t1=performance.now();
+    const d=await res.json();
+    if(!res.ok||!d.ok) throw new Error(d.error||'NTP failed');
+    const httpHalf=(t1-t0)/2;
+    ntpOff=Math.round((d.ntpNowMs+httpHalf)-Date.now());
+    const label=$('#stripLabel');
+    if(label) label.textContent='true ntp time - '+(Intl.DateTimeFormat().resolvedOptions().timeZone||'your region').replaceAll('_',' ');
+  }catch(e){
+    const label=$('#stripLabel');
+    if(label) label.textContent='ntp unavailable - backend required';
   }
-  if(samples.length){const best=samples.sort((a,b)=>a.rtt-b.rtt)[0];ntpOff=best.offset}
 }
 function tickStrip(){
   if(!cfg.clock)return;
   const n=new Date(Date.now()+ntpOff);const el=$('#stripTime');
   if(el)el.textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');
 }
-syncNTP().then(()=>{tickStrip();setInterval(tickStrip,1000);setInterval(syncNTP,5*60000)});
+async function bootStrip(){
+  await syncNTP(1);
+  tickStrip();
+  syncNTP(3).catch(()=>{});
+  if(stripSyncTimer) clearInterval(stripSyncTimer);
+  stripSyncTimer=setInterval(()=>syncNTP(3),5*60000);
+}
+bootStrip();
+setInterval(tickStrip,1000);
 
-// ── KONAMI ───────────────────────────────────────────────────────
 const kc=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let ki=0;
 document.addEventListener('keydown',e=>{if(e.key===kc[ki]){ki++;if(ki===kc.length){ki=0;let h=0;const iv=setInterval(()=>{h=(h+3)%360;root.style.setProperty('--ac',`hsl(${h},70%,75%)`)},50);setTimeout(()=>{clearInterval(iv);applyColor(cfg.ac)},5000)}}else ki=0});
 })();

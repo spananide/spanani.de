@@ -47,9 +47,9 @@ This project contains two handcrafted pages:
 
 ```text
 .
-├── index.html   # Portfolio homepage
-├── clock.html   # Atomic clock page
-└── README.md
+|-- index.html   # Portfolio homepage
+|-- clock.html   # Atomic clock page
+`-- README.md
 ```
 
 ## Running Locally

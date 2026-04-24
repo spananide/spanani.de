@@ -364,7 +364,7 @@ footer a:hover{color:var(--text)}
   </div>
 
   <div class="globewrap">
-    <div class="globehead"><span class="globetit">world clocks - atomic time</span><span class="globehint">drag to rotate</span></div>
+    <div class="globehead"><span class="globetit">world clocks - web synced</span><span class="globehint">drag to rotate</span></div>
     <div class="globecont"><canvas id="globe"></canvas><div class="gpins" id="gpins"></div></div>
   </div>
 
@@ -377,8 +377,8 @@ footer a:hover{color:var(--text)}
 </main>
 
 <footer>
-  <a href="/">spanani.de</a>
-  <span>true ntp synced · atomic time</span>
+  <a href="./index.html">spanani.de</a>
+  <span>web synced · browser hostable</span>
   <a href="https://x.gd/CYVD6" target="_blank" class="egg"></a>
 </footer>
 
@@ -457,30 +457,39 @@ $('#sres').addEventListener('click',()=>{C={...DEF};try{localStorage.removeItem(
 
 let ntpOff=0,latMs=0,userTz=Intl.DateTimeFormat().resolvedOptions().timeZone,syncTimer=null;
 
-async function fetchNtpSample(samples){
+async function fetchTimeSample(url){
   const t0=performance.now();
-  const res=await fetch('/api/ntp?samples='+samples+'&_='+Date.now(),{cache:'no-store'});
+  const res=await fetch(url+(url.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});
   const t1=performance.now();
   const d=await res.json();
-  if(!res.ok||!d.ok) throw new Error(d.error||'NTP failed');
+  if(!res.ok) throw new Error('Time API failed');
   const browserRtt=t1-t0;
-  const estimatedNow=d.ntpNowMs+(browserRtt/2);
+  const ts=d.datetime?new Date(d.datetime).getTime():d.dateTime?new Date(d.dateTime+(d.dateTime.endsWith('Z')?'':'Z')).getTime():NaN;
+  if(!Number.isFinite(ts)) throw new Error('Bad time payload');
+  const estimatedNow=ts+(browserRtt/2);
   return{
     off:Math.round(estimatedNow-Date.now()),
-    rtt:Math.round(d.rttMs),
+    rtt:Math.round(browserRtt),
     browserRtt:Math.round(browserRtt),
-    accuracy:Math.max(Math.round(d.accuracyMs||0),Math.round(browserRtt/2)),
-    server:d.server,
-    samples:d.samples
+    accuracy:Math.max(20,Math.round(browserRtt/2)),
+    server:d.timezone||url.replace(/^https?:\/\//,''),
+    samples:1
   };
 }
 
 async function syncNTP(){
   const dot=$('#sdot'),st=$('#syncst'),sq=$('#syncq');
-  dot.className='sdot';st.textContent='syncing true ntp...';sq.textContent='';
+  dot.className='sdot';st.textContent='syncing web time...';sq.textContent='';
+
+  const urls=[
+    'https://worldtimeapi.org/api/ip',
+    'https://worldtimeapi.org/api/timezone/'+encodeURIComponent(userTz),
+    'https://timeapi.io/api/time/current/zone?timeZone=UTC',
+    'https://timeapi.io/api/time/current/zone?timeZone='+encodeURIComponent(userTz)
+  ];
 
   try{
-    const quick=await fetchNtpSample(1);
+    const quick=await fetchTimeSample(urls[0]);
     ntpOff=quick.off;latMs=quick.rtt;
     dot.className='sdot ok';
     st.textContent='synced - '+userTz;
@@ -488,10 +497,25 @@ async function syncNTP(){
     updateSyncUI(quick);
 
     if(C.samples>1){
-      fetchNtpSample(C.samples).then(refined=>{
-        ntpOff=refined.off;latMs=refined.rtt;
-        sq.textContent='· '+refined.samples+'/'+C.samples+' ok';
-        updateSyncUI(refined);
+      Promise.all(urls.slice(0,Math.min(C.samples,urls.length)).map(url=>fetchTimeSample(url).catch(()=>null))).then(samples=>{
+        const valid=samples.filter(Boolean);
+        if(!valid.length) return;
+        valid.sort((a,b)=>a.rtt-b.rtt);
+        const best=Math.max(1,valid[0].rtt);
+        const good=valid.filter(v=>v.rtt<=best*2.5);
+        let totalWeight=0,totalOffset=0;
+        good.forEach(v=>{const w=1/Math.max(1,v.rtt);totalWeight+=w;totalOffset+=v.off*w;});
+        ntpOff=Math.round(totalOffset/totalWeight);
+        latMs=valid[0].rtt;
+        sq.textContent='· '+good.length+'/'+Math.min(C.samples,urls.length)+' ok';
+        updateSyncUI({
+          off:ntpOff,
+          rtt:latMs,
+          browserRtt:latMs,
+          accuracy:Math.max(20,Math.round(latMs/2)),
+          server:valid[0].server,
+          samples:good.length
+        });
         setTimeout(()=>{if(sq)sq.textContent='';},3500);
       }).catch(()=>{});
     }else{
@@ -499,7 +523,7 @@ async function syncNTP(){
     }
   }catch(e){
     dot.className='sdot err';
-    st.textContent='ntp unavailable';
+    st.textContent='web time unavailable';
     sq.textContent='';
     $('#iLat').textContent='-';
     $('#iAcc').textContent='-';
@@ -529,7 +553,7 @@ $('#dtcls').addEventListener('click',()=>{$('#dtut').classList.remove('on');tutO
 function updateOff(ms,isError=false,meta=null){
   const ov=$('#offv'),ob=$('#offbf'),od=$('#offbd');
   if(isError){
-    ov.className='offv bad';ov.textContent='offline';ob.style.width='100%';ob.style.background='#ef4444';od.textContent='Local backend could not reach an NTP server.';return;
+    ov.className='offv bad';ov.textContent='offline';ob.style.width='100%';ob.style.background='#ef4444';od.textContent='No browser-accessible time API could be reached.';return;
   }
   const abs=Math.abs(ms),sign=ms>0?'+':ms<0?'-':'';
   if(abs<30){ov.className='offv good';ov.textContent=ms===0?'±0ms':sign+abs+'ms';od.textContent='Your device clock is very close to true NTP time.';}

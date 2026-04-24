@@ -375,12 +375,12 @@ footer a:hover { color: var(--text); }
 </div>
 
 <nav id="nav">
-  <a href="/" class="logo">span<em>ani</em></a>
+  <a href="./index.html" class="logo">span<em>ani</em></a>
   <div class="nr">
     <a href="#about" class="nl">about</a>
     <a href="#projects" class="nl">projects</a>
     <a href="#contact" class="nl">contact</a>
-    <a href="/clock" class="nck"><span class="ldot"></span>clock</a>
+    <a href="./clock.html" class="nck"><span class="ldot"></span>clock</a>
     <div class="color-controls">
       <div class="presets-wrap" id="presets">
         <div class="preset active" style="background:#e2e2e2" data-color="#e2e2e2"></div>
@@ -433,12 +433,12 @@ footer a:hover { color: var(--text); }
   <div class="slb">work</div>
   <h2 class="sti rv">projects &<br><em>experiments.</em></h2>
   <div class="pl">
-    <a href="/clock" class="pr rv">
+    <a href="./clock.html" class="pr rv">
       <div class="pn">01</div>
       <div>
         <div class="pt">Atomic Clock</div>
-        <div class="pd">True atomic time via NTP - not your device clock.</div>
-        <div class="ptags"><span class="ptag">NTP</span><span class="ptag">JavaScript</span></div>
+        <div class="pd">Web-synced time with fast drift estimation - not just your device clock.</div>
+        <div class="ptags"><span class="ptag">Time API</span><span class="ptag">JavaScript</span></div>
       </div>
       <svg class="pa" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 14L14 2M14 2H6M14 2V10" stroke="currentColor" stroke-width="1.4"/></svg>
     </a>
@@ -459,9 +459,9 @@ footer a:hover { color: var(--text); }
   <div class="cs rv" id="clockStrip">
     <div>
       <div class="cst" id="stripTime">--:--:--</div>
-      <div class="csl" id="stripLabel">true ntp time - your region</div>
+      <div class="csl" id="stripLabel">web-synced time - your region</div>
     </div>
-    <a href="/clock" class="bo">
+    <a href="./clock.html" class="bo">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/><path d="M6 3.5V6l2 1.5" stroke="currentColor" stroke-width="1"/></svg>
       open clock ->
     </a>
@@ -585,17 +585,19 @@ $$('a[href^="#"]').forEach(a=>{
 let ntpOff=0;
 let stripSyncTimer=null;
 
-async function syncNTP(samples=3){
+async function fetchTimeSample(url){
   try{
     const t0=performance.now();
-    const res=await fetch('/api/ntp?samples='+samples+'&_='+Date.now(),{cache:'no-store'});
+    const res=await fetch(url+(url.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});
     const t1=performance.now();
-    const d=await res.json();
-    if(!res.ok||!d.ok) throw new Error(d.error||'NTP failed');
-    const httpHalf=(t1-t0)/2;
-    ntpOff=Math.round((d.ntpNowMs+httpHalf)-Date.now());
-    const label=$('#stripLabel');
-    if(label) label.textContent='true ntp time - '+(Intl.DateTimeFormat().resolvedOptions().timeZone||'your region').replaceAll('_',' ');
+    const rtt=t1-t0;
+    const ts=d.datetime?new Date(d.datetime).getTime():d.dateTime?new Date(d.dateTime+(d.dateTime.endsWith('Z')?'':'Z')).getTime():NaN;
+    if(!Number.isFinite(ts)) throw new Error('Bad time payload');
+    return{
+      offset:Math.round((ts+(rtt/2))-Date.now()),
+      rtt:Math.round(rtt),
+      timezone:d.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
   }catch(e){
     const label=$('#stripLabel');
     if(label) label.textContent='ntp unavailable - backend required';
@@ -603,8 +605,33 @@ async function syncNTP(samples=3){
 }
 function tickStrip(){
   if(!cfg.clock)return;
-  const n=new Date(Date.now()+ntpOff);const el=$('#stripTime');
-  if(el)el.textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');
+  return null;
+  }
+}
+
+async function syncNTP(samples=3){
+  const urls=[
+    'https://worldtimeapi.org/api/ip',
+    'https://timeapi.io/api/time/current/zone?timeZone=UTC',
+    'https://worldtimeapi.org/api/timezone/'+encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC')
+  ];
+  const requests=Array.from({length:samples},(_,i)=>fetchTimeSample(urls[i%urls.length]));
+  const results=(await Promise.all(requests)).filter(Boolean);
+  const label=$('#stripLabel');
+  if(!results.length){
+    if(label) label.textContent='web time unavailable';
+    return;
+}
+  results.sort((a,b)=>a.rtt-b.rtt);
+  ntpOff=results[0].offset;
+  if(results.length>1){
+    const best=Math.max(1,results[0].rtt);
+    const good=results.filter(r=>r.rtt<=best*2.5);
+    let totalWeight=0,totalOffset=0;
+    good.forEach(r=>{const w=1/Math.max(1,r.rtt);totalWeight+=w;totalOffset+=r.offset*w;});
+    ntpOff=Math.round(totalOffset/totalWeight);
+  }
+  if(label) label.textContent='web-synced time - '+(results[0].timezone||'your region').replaceAll('_',' ');
 }
 async function bootStrip(){
   await syncNTP(1);

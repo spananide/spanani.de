@@ -464,7 +464,12 @@ async function fetchTimeSample(url){
   const d=await res.json();
   if(!res.ok) throw new Error('Time API failed');
   const browserRtt=t1-t0;
-  const ts=d.datetime?new Date(d.datetime).getTime():d.dateTime?new Date(d.dateTime+(d.dateTime.endsWith('Z')?'':'Z')).getTime():NaN;
+  const ts=
+    d.datetime ? new Date(d.datetime).getTime() :
+    d.dateTime ? new Date(d.dateTime+(d.dateTime.endsWith('Z')?'':'Z')).getTime() :
+    d.iso8601 ? new Date(d.iso8601).getTime() :
+    Number.isFinite(d.timestamp) ? d.timestamp*1000 :
+    NaN;
   if(!Number.isFinite(ts)) throw new Error('Bad time payload');
   const estimatedNow=ts+(browserRtt/2);
   return{
@@ -472,7 +477,7 @@ async function fetchTimeSample(url){
     rtt:Math.round(browserRtt),
     browserRtt:Math.round(browserRtt),
     accuracy:Math.max(20,Math.round(browserRtt/2)),
-    server:d.timezone||url.replace(/^https?:\/\//,''),
+    server:d.timezone||d.abbr||url.replace(/^https?:\/\//,''),
     samples:1
   };
 }
@@ -482,10 +487,10 @@ async function syncNTP(){
   dot.className='sdot';st.textContent='syncing web time...';sq.textContent='';
 
   const urls=[
-    'https://worldtimeapi.org/api/ip',
+    'https://gettimeapi.dev/v1/time?timezone='+encodeURIComponent(userTz),
+    'https://gettimeapi.dev/v1/time?timezone=UTC',
     'https://worldtimeapi.org/api/timezone/'+encodeURIComponent(userTz),
-    'https://timeapi.io/api/time/current/zone?timeZone=UTC',
-    'https://timeapi.io/api/time/current/zone?timeZone='+encodeURIComponent(userTz)
+    'https://worldtimeapi.org/api/ip'
   ];
 
   try{

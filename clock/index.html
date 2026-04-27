@@ -457,6 +457,26 @@ $('#sres').addEventListener('click',()=>{C={...DEF};try{localStorage.removeItem(
 
 let ntpOff=0,latMs=0,userTz=Intl.DateTimeFormat().resolvedOptions().timeZone,syncTimer=null;
 
+  function parseTimePayload(d){
+  if(typeof d.datetime==='string'){
+    const ts=new Date(d.datetime).getTime();
+    if(Number.isFinite(ts)) return ts;
+  }
+  if(typeof d.dateTime==='string'){
+    const ts=new Date(d.dateTime).getTime();
+    if(Number.isFinite(ts)) return ts;
+  }
+  if(typeof d.iso8601==='string'){
+    const preciseIso=typeof d.time==='string' && /^\d{2}:\d{2}:\d{2}\.\d+/.test(d.time)
+      ? d.iso8601.replace(/T\d{2}:\d{2}:\d{2}(?:\.\d+)?/,'T'+d.time)
+      : d.iso8601;
+    const ts=new Date(preciseIso).getTime();
+    if(Number.isFinite(ts)) return ts;
+  }
+  if(Number.isFinite(d.timestamp)) return d.timestamp*1000;
+  return NaN;
+}
+
 async function fetchTimeSample(url){
   const t0=performance.now();
   const res=await fetch(url+(url.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});
@@ -464,12 +484,7 @@ async function fetchTimeSample(url){
   const d=await res.json();
   if(!res.ok) throw new Error('Time API failed');
   const browserRtt=t1-t0;
-  const ts=
-    d.datetime ? new Date(d.datetime).getTime() :
-    d.dateTime ? new Date(d.dateTime+(d.dateTime.endsWith('Z')?'':'Z')).getTime() :
-    d.iso8601 ? new Date(d.iso8601).getTime() :
-    Number.isFinite(d.timestamp) ? d.timestamp*1000 :
-    NaN;
+  const ts=parseTimePayload(d);
   if(!Number.isFinite(ts)) throw new Error('Bad time payload');
   const estimatedNow=ts+(browserRtt/2);
   return{

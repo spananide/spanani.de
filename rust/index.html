@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Spanani Raid Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -24,15 +24,13 @@
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             background-image: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.05) 0%, transparent 70%);
+            touch-action: manipulation; /* Smooth mobile tapping */
         }
 
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
-
+        ::-webkit-scrollbar { width: 0px; height: 0px; display: none; } /* Hidden scrollbars for clean mobile view */
+        
         .glass-panel {
             background: var(--color-panel);
             border: 1px solid var(--color-border);
@@ -40,210 +38,201 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.4);
         }
 
-        .subtle-btn {
-            background: transparent; border: 1px solid var(--color-border);
-            color: var(--color-muted); transition: all 0.2s;
-        }
-        .subtle-btn:hover { border-color: #333; color: var(--color-text); background: #111; }
-        .subtle-btn.active { border-color: var(--color-primary); color: var(--color-primary); background: rgba(249,115,22,0.05); }
-
         .target-card { border: 1px solid transparent; transition: all 0.2s; border-bottom: 1px solid var(--color-border); }
-        .target-card:hover { background: rgba(255,255,255,0.02); }
         .target-card:last-child { border-bottom: none; }
         .target-card.has-qty { background: rgba(249,115,22,0.03); border-left: 2px solid var(--color-primary); padding-left: 14px; }
 
-        .fade-in { animation: fadeIn 0.2s ease-out forwards; }
+        .fade-in { animation: fadeIn 0.25s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
-        .theme-swatch { border-radius: 50%; width: 24px; height: 24px; cursor: pointer; transition: transform 0.2s; }
-        .theme-swatch.active { box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary); transform: scale(1.1); }
+        .theme-swatch { border-radius: 50%; width: 28px; height: 28px; cursor: pointer; transition: transform 0.2s; }
+        .theme-swatch.active { box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-primary); transform: scale(1.1); }
         
         .logo-btn { transition: all 0.2s; border: 1px solid var(--color-border); background: var(--color-panel); }
-        .logo-btn:hover { border-color: #444; }
         .logo-btn.active { border-color: var(--color-primary); color: var(--color-primary); }
 
-        /* Toggle Switch */
         .toggle-switch.active { background: var(--color-primary); border-color: var(--color-primary); }
         .toggle-knob { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .toggle-switch.active .toggle-knob { transform: translateX(20px); }
+
+        /* Tap Highlights for Mobile */
+        .tap-active:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
     </style>
 
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: { colors: { dark: { 900: '#0a0a0a', 800: '#111111', 700: '#1f1f1f', 400: '#888888' } } }
-            }
+            theme: { extend: { colors: { dark: { 900: '#0a0a0a', 800: '#111111', 700: '#1f1f1f', 400: '#888888' } } } }
         }
     </script>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+<body class="min-h-screen flex flex-col items-center p-2 sm:p-4 md:p-8">
 
     <!-- Navbar -->
-    <nav class="w-full max-w-[1200px] flex justify-between items-center mb-8 fade-in">
-        <div class="flex items-center space-x-4">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white" style="background: var(--color-primary); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);">
+    <nav class="w-full max-w-[1200px] flex justify-between items-center mb-6 sm:mb-8 fade-in px-2 sm:px-0">
+        <div class="flex items-center space-x-3 sm:space-x-4">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0" style="background: var(--color-primary); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);">
                 <i id="nav-logo" class="fa-solid fa-crosshairs text-xl"></i>
             </div>
-            <div>
-                <h1 class="text-xl font-bold tracking-tight text-white leading-none">Spanani <span style="color: var(--color-primary)">Raid</span></h1>
-                <p class="text-xs font-medium uppercase tracking-widest mt-1" style="color: var(--color-muted)">Analytics Engine</p>
+            <div class="flex flex-col">
+                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white leading-none">Spanani <span style="color: var(--color-primary)">Raid</span></h1>
+                <p class="text-[10px] sm:text-xs font-medium uppercase tracking-widest mt-1 hidden min-[380px]:block" style="color: var(--color-muted)">Analytics Engine</p>
             </div>
         </div>
         
-        <div class="flex items-center space-x-3">
-            <div class="hidden sm:flex items-center px-3 py-1.5 rounded-md border border-dark-700 bg-dark-900 text-xs font-mono">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="hidden md:flex items-center px-3 py-1.5 rounded-md border border-dark-700 bg-dark-900 text-xs font-mono">
                 <span style="color: var(--color-muted)">Rate:</span>
                 <span class="ml-2 font-bold text-white" id="nav-rate">1x</span>
             </div>
-            <button onclick="resetData()" class="subtle-btn px-4 py-2 rounded-md text-sm font-medium flex items-center">
-                <i class="fa-solid fa-rotate-left md:mr-2"></i><span class="hidden md:inline">Reset</span>
-            </button>
-            <button onclick="toggleSettings()" id="btn-settings" class="subtle-btn px-4 py-2 rounded-md text-sm font-medium flex items-center">
-                <i class="fa-solid fa-gear"></i>
+            <button onclick="resetData()" class="tap-active px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium flex items-center bg-dark-900 border border-dark-700 text-dark-400 transition-all">
+                <i class="fa-solid fa-rotate-left sm:mr-2"></i><span class="hidden sm:inline">Reset</span>
             </button>
         </div>
     </nav>
 
-    <!-- MAIN DASHBOARD -->
-    <main class="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-12 gap-8" id="dashboard-view">
+    <!-- MAIN GRID -->
+    <main class="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mx-auto relative" id="main-grid">
         
-        <!-- Left Column: Target Selection -->
-        <div class="lg:col-span-7 flex flex-col h-full fade-in">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-sm uppercase tracking-widest font-bold" style="color: var(--color-muted)">Select Targets</h2>
-                <div class="flex p-1 rounded-lg bg-dark-900 border border-dark-700">
-                    <button onclick="setCat('doors')" id="cat-doors" class="px-4 py-1.5 rounded-md text-xs font-semibold transition-all text-white bg-dark-700 shadow-sm">Doors</button>
-                    <button onclick="setCat('walls')" id="cat-walls" class="px-4 py-1.5 rounded-md text-xs font-semibold transition-all" style="color: var(--color-muted)">Walls</button>
-                    <button onclick="setCat('deployables')" id="cat-deployables" class="px-4 py-1.5 rounded-md text-xs font-semibold transition-all" style="color: var(--color-muted)">Items</button>
-                </div>
+        <!-- LEFT COLUMN -->
+        <div id="left-col" class="lg:col-span-7 flex flex-col h-full fade-in transition-all duration-300">
+            
+            <!-- Side Tabs -->
+            <div class="flex space-x-2 overflow-x-auto pb-3 mb-1 px-2 sm:px-0">
+                <button onclick="switchTab('targets')" id="tab-targets" class="tap-active px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-white shadow-md shrink-0" style="background: var(--color-primary);">
+                    <i class="fa-solid fa-bullseye mr-1.5 sm:mr-2"></i>Targets
+                </button>
+                <button onclick="switchTab('arsenal')" id="tab-arsenal" class="tap-active px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all bg-dark-900 border border-dark-700 text-dark-400 shrink-0">
+                    <i class="fa-solid fa-toolbox mr-1.5 sm:mr-2"></i>Arsenal
+                </button>
+                <div class="w-px bg-dark-700 mx-1 sm:mx-2 my-1 shrink-0"></div>
+                <button onclick="switchTab('settings')" id="tab-settings" class="tap-active px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all bg-dark-900 border border-dark-700 text-dark-400 shrink-0">
+                    <i class="fa-solid fa-gear mr-1.5 sm:mr-2"></i>Settings
+                </button>
             </div>
 
-            <div class="glass-panel p-2 flex-grow">
-                <div id="targets-container" class="flex flex-col"></div>
+            <!-- VIEW: TARGETS -->
+            <div id="view-targets" class="glass-panel flex-grow flex flex-col overflow-hidden fade-in">
+                <div class="p-3 sm:p-4 border-b border-dark-700 bg-dark-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+                    <h2 class="text-[11px] sm:text-xs uppercase tracking-widest font-bold" style="color: var(--color-muted)">Select Structure</h2>
+                    <div class="flex w-full sm:w-auto p-1 rounded-lg bg-dark-800 border border-dark-700">
+                        <button onclick="setCat('doors')" id="cat-doors" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-[11px] sm:text-xs font-semibold transition-all text-white bg-dark-700 shadow-sm">Doors</button>
+                        <button onclick="setCat('walls')" id="cat-walls" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-[11px] sm:text-xs font-semibold transition-all" style="color: var(--color-muted)">Walls</button>
+                        <button onclick="setCat('deployables')" id="cat-deployables" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-[11px] sm:text-xs font-semibold transition-all" style="color: var(--color-muted)">Items</button>
+                    </div>
+                </div>
+                <div class="p-1 sm:p-2 overflow-y-auto flex-grow" id="targets-container"></div>
+            </div>
+
+            <!-- VIEW: ARSENAL -->
+            <div id="view-arsenal" class="glass-panel flex-grow hidden flex flex-col fade-in">
+                <div class="p-4 sm:p-5 border-b border-dark-700 bg-dark-900">
+                    <h2 class="text-sm sm:text-base font-bold text-white mb-1"><i class="fa-solid fa-toolbox mr-2" style="color: var(--color-primary)"></i> Available Arsenal</h2>
+                    <p class="text-[11px] sm:text-xs" style="color: var(--color-muted)">Select the tools you want to allow. Click a category title to toggle all items in it.</p>
+                </div>
+                <div class="p-4 sm:p-6 overflow-y-auto flex-grow space-y-2" id="arsenal-container"></div>
+            </div>
+
+            <!-- VIEW: SETTINGS -->
+            <div id="view-settings" class="glass-panel flex-grow hidden flex flex-col fade-in">
+                <div class="p-4 sm:p-5 border-b border-dark-700 bg-dark-900">
+                    <h2 class="text-sm sm:text-base font-bold text-white"><i class="fa-solid fa-gear mr-2" style="color: var(--color-primary)"></i> System Configuration</h2>
+                </div>
+                <div class="p-5 sm:p-8 overflow-y-auto flex-grow space-y-8 sm:space-y-10">
+                    <div>
+                        <h3 class="font-bold text-white text-base sm:text-lg mb-1">Server Gather Rate</h3>
+                        <p class="text-xs sm:text-sm mb-4" style="color: var(--color-muted)">Adjust to match your server for accurate farming node calculations.</p>
+                        <div class="flex items-center">
+                            <input type="number" id="setting-rate" value="1" min="1" step="0.5" class="w-24 sm:w-32 bg-dark-800 border border-dark-700 rounded-lg py-2.5 sm:py-3 text-center text-white font-mono font-bold text-base sm:text-lg outline-none focus:border-orange-500 transition-all">
+                            <span class="ml-4 font-bold text-sm sm:text-lg" style="color: var(--color-muted)">x Multiplier</span>
+                        </div>
+                    </div>
+                    <div class="border-t border-dark-700 pt-6 sm:pt-8">
+                        <h3 class="font-bold text-white text-base sm:text-lg mb-1">Dashboard Logo</h3>
+                        <p class="text-xs sm:text-sm mb-4" style="color: var(--color-muted)">Personalize the top-left icon.</p>
+                        <div class="flex flex-wrap gap-3" id="logo-selector"></div>
+                    </div>
+                    <div class="border-t border-dark-700 pt-6 sm:pt-8">
+                        <h3 class="font-bold text-white text-base sm:text-lg mb-4">Dashboard Accent Color</h3>
+                        <div class="flex flex-wrap gap-4 sm:gap-5" id="theme-selector"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Right Column: Logistics Output -->
-        <div class="lg:col-span-5 space-y-6 fade-in">
+        <!-- RIGHT COLUMN -->
+        <div id="right-col" class="lg:col-span-5 space-y-4 sm:space-y-6 fade-in transition-all duration-300">
             
-            <!-- Total Cost Summary (Gunpowder & Pure Sulfur) -->
-            <div class="glass-panel p-6 relative overflow-hidden">
+            <!-- Top Summary -->
+            <div class="glass-panel p-4 sm:p-6 relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" style="background: var(--color-primary); opacity: 0.1;"></div>
                 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3 sm:gap-4">
                     <!-- Gunpowder -->
-                    <div>
-                        <h2 class="text-xs uppercase tracking-widest font-bold mb-3" style="color: var(--color-muted)">Total Gunpowder</h2>
-                        <div class="flex items-center space-x-3">
-                            <div id="icon-total-gp" class="w-10 h-10 text-2xl"></div>
-                            <span class="text-3xl lg:text-4xl font-mono font-bold tracking-tight text-white" id="total-gp">0</span>
+                    <div class="flex flex-col">
+                        <h2 class="text-[10px] sm:text-[11px] uppercase tracking-widest font-bold mb-2 sm:mb-3" style="color: var(--color-muted)">Total Gunpowder</h2>
+                        <div class="flex items-center space-x-2 sm:space-x-3">
+                            <div id="icon-total-gp" class="w-8 h-8 sm:w-10 sm:h-10 text-xl sm:text-2xl shrink-0"></div>
+                            <span class="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold tracking-tight text-white truncate" id="total-gp">0</span>
                         </div>
                     </div>
                     <!-- Pure Sulfur -->
-                    <div>
-                        <h2 class="text-xs uppercase tracking-widest font-bold mb-3" style="color: var(--color-muted)">Pure Sulfur (Extra)</h2>
-                        <div class="flex items-center space-x-3">
-                            <div id="icon-total-sulfur" class="w-10 h-10 text-2xl"></div>
-                            <span class="text-3xl lg:text-4xl font-mono font-bold tracking-tight text-white" id="total-pure-sulfur">0</span>
+                    <div class="flex flex-col">
+                        <h2 class="text-[10px] sm:text-[11px] uppercase tracking-widest font-bold mb-2 sm:mb-3" style="color: var(--color-muted)">Pure Sulfur <span class="hidden sm:inline">(Extra)</span></h2>
+                        <div class="flex items-center space-x-2 sm:space-x-3">
+                            <div id="icon-total-pure-sulfur" class="w-8 h-8 sm:w-10 sm:h-10 text-xl sm:text-2xl shrink-0"></div>
+                            <span class="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold tracking-tight text-white truncate" id="total-pure-sulfur">0</span>
                         </div>
                     </div>
                 </div>
-                
-                <p class="text-xs mt-4 font-medium" style="color: var(--color-muted)"><i class="fa-solid fa-bolt text-yellow-500 mr-1"></i> Engine calculated the cheapest valid path.</p>
             </div>
 
-            <!-- Explosives Required -->
-            <div class="glass-panel p-6">
-                <h2 class="text-xs uppercase tracking-widest font-bold mb-4" style="color: var(--color-muted)">Crafting Blueprint</h2>
+            <!-- Explosives Blueprint -->
+            <div class="glass-panel p-4 sm:p-6">
+                <h2 class="text-[11px] sm:text-xs uppercase tracking-widest font-bold mb-3 sm:mb-4" style="color: var(--color-muted)">Crafting Blueprint</h2>
                 <div class="space-y-1" id="crafting-list">
-                    <div class="text-sm py-4 text-center font-mono" style="color: var(--color-muted)">Add targets to generate layout.</div>
+                    <div class="text-xs sm:text-sm py-4 text-center font-mono" style="color: var(--color-muted)">Add targets to generate layout.</div>
                 </div>
             </div>
 
             <!-- Raw Materials -->
-            <div class="glass-panel p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xs uppercase tracking-widest font-bold" style="color: var(--color-muted)">Raw Materials</h2>
+            <div class="glass-panel p-4 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-5 gap-3 sm:gap-0">
+                    <h2 class="text-[11px] sm:text-xs uppercase tracking-widest font-bold" style="color: var(--color-muted)">Raw Materials</h2>
                     
-                    <!-- Smart Raw/Base Mats Toggle -->
-                    <div class="flex items-center space-x-2 cursor-pointer" onclick="toggleRawMode()">
-                        <span class="text-[10px] uppercase tracking-widest font-bold transition-colors" id="label-raw-mode" style="color: var(--color-muted)">Raw Base Mode</span>
-                        <div id="switch-raw-mode" class="toggle-switch w-10 h-5 rounded-full bg-dark-800 border border-dark-600 relative transition-all">
-                            <div class="toggle-knob w-3 h-3 rounded-full bg-white absolute top-[3px] left-[3px]"></div>
+                    <!-- Smart Toggle (Logik umgekehrt) -->
+                    <div class="flex items-center space-x-2 cursor-pointer self-start sm:self-auto tap-active" onclick="toggleTotalMode()">
+                        <span class="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold transition-colors" id="label-total-mode" style="color: var(--color-muted)">Show Total + Base Res</span>
+                        <div id="switch-total-mode" class="toggle-switch w-8 sm:w-10 h-4 sm:h-5 rounded-full bg-dark-800 border border-dark-600 relative transition-all">
+                            <div class="toggle-knob w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-white absolute top-[2px] sm:top-[3px] left-[2px] sm:left-[3px]"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-4 gap-3 mb-6" id="materials-container">
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3 mb-5 sm:mb-6" id="materials-container">
                     <!-- Materials injected here -->
                 </div>
 
-                <div class="pt-4 border-t border-dark-700 flex justify-between items-center">
+                <div class="pt-4 sm:pt-5 border-t border-dark-700 flex justify-between items-center">
                     <div class="flex items-center">
-                        <div id="icon-farm-nodes" class="w-8 h-8 mr-3 text-xl"></div>
-                        <span class="text-sm font-medium text-white">Nodes to Farm</span>
+                        <div id="icon-farm-nodes" class="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-lg sm:text-xl"></div>
+                        <span class="text-xs sm:text-sm font-medium text-white">Nodes to Farm</span>
                     </div>
-                    <span class="text-xl font-mono font-bold" style="color: var(--color-primary)" id="farm-nodes">0</span>
+                    <span class="text-lg sm:text-xl font-mono font-bold" style="color: var(--color-primary)" id="farm-nodes">0</span>
                 </div>
             </div>
             
-        </div>
-    </main>
-
-    <!-- SETTINGS VIEW -->
-    <main class="w-full max-w-[800px] hidden fade-in" id="settings-view">
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-white mb-2">Configuration</h1>
-            <p style="color: var(--color-muted)">Adjust your logistics engine parameters.</p>
-        </div>
-
-        <div class="space-y-6">
-            <div class="glass-panel p-6">
-                <h3 class="font-bold text-white mb-1">Dashboard Logo</h3>
-                <p class="text-sm mb-4" style="color: var(--color-muted)">Choose the icon displayed in the top left corner.</p>
-                <div class="flex space-x-3" id="logo-selector"></div>
-            </div>
-
-            <div class="glass-panel p-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h3 class="font-bold text-white mb-1">Server Gather Rate</h3>
-                        <p class="text-sm" style="color: var(--color-muted)">Calculates node farming requirements.</p>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="number" id="setting-rate" value="1" min="1" step="0.5" class="w-20 bg-dark-800 border border-dark-700 rounded-md py-2 text-center text-white font-mono font-bold outline-none focus:border-orange-500">
-                        <span class="ml-3 font-bold" style="color: var(--color-muted)">x</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-panel p-6">
-                <h3 class="font-bold text-white mb-1">Allowed Explosives</h3>
-                <p class="text-sm mb-6" style="color: var(--color-muted)">The engine will ONLY use enabled tools to find the cheapest raid path.</p>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="settings-tools"></div>
-            </div>
-
-            <div class="glass-panel p-6">
-                <h3 class="font-bold text-white mb-4">Dashboard Accent</h3>
-                <div class="flex space-x-4" id="theme-selector"></div>
-            </div>
-            
-            <button onclick="toggleSettings()" class="w-full py-3 rounded-lg font-bold text-white transition-all shadow-lg" style="background: var(--color-primary);">
-                Save & Return to Dashboard
-            </button>
         </div>
     </main>
 
     <script>
         // ==========================================
-        // SYSTEM CONFIG (Github Bilder)
+        // SYSTEM CONFIG
         // ==========================================
         const GITHUB_IMAGES_URL = "https://raw.githubusercontent.com/spananide/spanani.de/main/rust/images/";
 
-        // 🖼️ IMAGES CONFIG
         const resImgs = {
             sulfur: { img: 'sulfur.png', icon: 'fa-gem', name: 'Sulfur' },
             charcoal: { img: 'charcoal.png', icon: 'fa-fire', name: 'Charcoal' },
@@ -262,69 +251,88 @@
 
         const logos = ['fa-crosshairs', 'fa-bomb', 'fa-radiation', 'fa-skull', 'fa-shield-halved', 'fa-rocket'];
 
-        // 💥 EXPLOSIVES DB (Sulfur & GP Costs accurately mapped)
+        // 💥 EXPLOSIVES DB
         const explosivesData = {
-            c4: { name: 'C4 Charge', img: 'c4.png', cost: { sulfur: 2200, gp: 1000, charcoal: 3000, metal: 200, pipes: 0, tech: 2, lgf: 20, cloth: 0 } },
-            rocket: { name: 'Rocket', img: 'rocket.png', cost: { sulfur: 1400, gp: 650, charcoal: 1950, metal: 100, pipes: 2, tech: 0, lgf: 10, cloth: 0 } },
-            satchel: { name: 'Satchel', img: 'satchel.png', cost: { sulfur: 480, gp: 240, charcoal: 720, metal: 80, pipes: 0, tech: 0, lgf: 0, cloth: 0 } },
-            explo: { name: 'Explo Ammo', img: 'explo.png', cost: { sulfur: 25, gp: 10, charcoal: 30, metal: 10, pipes: 0, tech: 0, lgf: 0, cloth: 0 } },
-            beancan: { name: 'Beancan', img: 'beancan.png', cost: { sulfur: 120, gp: 60, charcoal: 160, metal: 20, pipes: 0, tech: 0, lgf: 0, cloth: 0 } },
-            molotov: { name: 'Molotov', img: 'molotov.png', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 40, cloth: 10 } },
-            hv: { name: 'HV Rocket', img: 'hv.png', cost: { sulfur: 200, gp: 100, charcoal: 300, metal: 100, pipes: 1, tech: 0, lgf: 0, cloth: 0 } }
+            c4: { name: 'C4 Charge', img: 'c4.png', cat: 'high', cost: { sulfur: 2200, gp: 1000, charcoal: 3000, metal: 200, pipes: 0, tech: 2, lgf: 20, cloth: 0, wood: 0 } },
+            rocket: { name: 'Rocket', img: 'rocket.png', cat: 'high', cost: { sulfur: 1400, gp: 650, charcoal: 1950, metal: 100, pipes: 2, tech: 0, lgf: 10, cloth: 0, wood: 0 } },
+            satchel: { name: 'Satchel', img: 'satchel.png', cat: 'high', cost: { sulfur: 480, gp: 240, charcoal: 720, metal: 80, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
+            explo: { name: 'Explo Ammo', img: 'explo.png', cat: 'high', cost: { sulfur: 25, gp: 10, charcoal: 30, metal: 10, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
+            beancan: { name: 'Beancan', img: 'beancan.png', cat: 'high', cost: { sulfur: 120, gp: 60, charcoal: 160, metal: 20, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
+            
+            he40: { name: '40mm HE', img: '40mm_he.png', cat: 'siege', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
+            hv: { name: 'HV Rocket', img: 'hv.png', cat: 'siege', cost: { sulfur: 200, gp: 100, charcoal: 300, metal: 100, pipes: 1, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
+            incen: { name: 'Incen Rocket', img: 'incen.png', cat: 'siege', cost: { sulfur: 110, gp: 50, charcoal: 150, metal: 10, pipes: 2, tech: 0, lgf: 253, cloth: 0, wood: 0 } },
+            f1: { name: 'F1 Grenade', img: 'f1.png', cat: 'siege', cost: { sulfur: 60, gp: 30, charcoal: 90, metal: 15, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
+
+            jackhammer: { name: 'Jackhammer', img: 'jackhammer.png', cat: 'eco', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
+            pickaxe: { name: 'Pickaxe', img: 'pickaxe.png', cat: 'eco', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 125, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 100 } },
+            sword: { name: 'Salvaged Sword', img: 'sword.png', cat: 'eco', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 15, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } }, 
+            molotov: { name: 'Molotov', img: 'molotov.png', cat: 'eco', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 40, cloth: 10, wood: 0 } },
+            handmade: { name: 'Handmade Shell', img: 'handmade.png', cat: 'eco', cost: { sulfur: 10, gp: 5, charcoal: 15, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } }
         };
+
+        const arsenalCategories = [
+            { id: 'high', name: 'High Explosives' },
+            { id: 'siege', name: 'Siege Weapons' },
+            { id: 'eco', name: 'Close Range & Eco' }
+        ];
 
         // 🎯 TARGETS DB
         const dbItems = [
-            { id: 'woodDoor', name: 'Wooden Door', cat: 'doors', hp: 200, img: 'wood_door.png', strats: [{ molotov: 2 }, { satchel: 2 }, { beancan: 6 }, { explo: 19 }, { c4: 1 }, { rocket: 1 }] },
-            { id: 'sheetDoor', name: 'Sheet Metal Door', cat: 'doors', hp: 250, img: 'sheet_door.png', strats: [{ satchel: 4 }, { beancan: 18 }, { explo: 63 }, { rocket: 1, explo: 8 }, { c4: 1 }, { rocket: 2 }] },
-            { id: 'garageDoor', name: 'Garage Door', cat: 'doors', hp: 600, img: 'garage_door.png', strats: [{ c4: 1, explo: 40 }, { satchel: 9 }, { beancan: 42 }, { explo: 150 }, { c4: 2 }, { rocket: 3 }] },
+            { id: 'woodDoor', name: 'Wooden Door', cat: 'doors', hp: 200, img: 'wood_door.png', strats: [{ jackhammer: 1 }, { sword: 18 }, { pickaxe: 7 }, { molotov: 2 }, { handmade: 45 }, { satchel: 2 }, { beancan: 6 }, { explo: 19 }, { c4: 1 }, { rocket: 1 }] },
+            { id: 'sheetDoor', name: 'Sheet Metal Door', cat: 'doors', hp: 250, img: 'sheet_door.png', strats: [{ jackhammer: 4 }, { he40: 12 }, { satchel: 4 }, { beancan: 18 }, { explo: 63 }, { rocket: 1, explo: 8 }, { c4: 1 }, { rocket: 2 }] },
+            { id: 'garageDoor', name: 'Garage Door', cat: 'doors', hp: 600, img: 'garage_door.png', strats: [{ jackhammer: 10 }, { he40: 25 }, { c4: 1, explo: 40 }, { satchel: 9 }, { beancan: 42 }, { explo: 150 }, { c4: 2 }, { rocket: 3 }] },
             { id: 'armoredDoor', name: 'Armored Door', cat: 'doors', hp: 1000, img: 'armored_door.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 12 }, { explo: 250 }] },
-            { id: 'ladderHatch', name: 'Ladder Hatch', cat: 'doors', hp: 250, img: 'ladder_hatch.png', strats: [{ satchel: 4 }, { explo: 63 }, { rocket: 1, explo: 8 }, { c4: 1 }, { rocket: 2 }] },
+            { id: 'ladderHatch', name: 'Ladder Hatch', cat: 'doors', hp: 250, img: 'ladder_hatch.png', strats: [{ he40: 12 }, { satchel: 4 }, { explo: 63 }, { rocket: 1, explo: 8 }, { c4: 1 }, { rocket: 2 }] },
+            { id: 'stoneWallSoft', name: 'Stone Wall (Soft)', cat: 'walls', hp: 500, img: 'stone_wall.png', strats: [{ jackhammer: 2 }, { pickaxe: 7 }, { sword: 23 }, { c4: 2 }, { rocket: 4 }] },
             { id: 'stoneWall', name: 'Stone Wall', cat: 'walls', hp: 500, img: 'stone_wall.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 10 }, { explo: 185 }] },
             { id: 'metalWall', name: 'Metal Wall', cat: 'walls', hp: 1000, img: 'metal_wall.png', strats: [{ c4: 4 }, { rocket: 8 }, { satchel: 23 }, { explo: 400 }] },
             { id: 'armoredWall', name: 'Armored Wall', cat: 'walls', hp: 2000, img: 'armored_wall.png', strats: [{ c4: 8 }, { rocket: 15 }, { satchel: 46 }, { explo: 799 }] },
-            { id: 'highStone', name: 'High Ext. Stone', cat: 'walls', hp: 500, img: 'high_stone.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 10 }, { explo: 185 }] },
-            { id: 'tc', name: 'Tool Cupboard', cat: 'deployables', hp: 100, img: 'tc.png', strats: [{ molotov: 1 }, { satchel: 3 }, { explo: 9 }, { c4: 1 }, { rocket: 1 }] },
-            { id: 'turret', name: 'Auto Turret', cat: 'deployables', hp: 1000, img: 'turret.png', strats: [{ hv: 3 }, { c4: 1 }, { rocket: 4 }, { explo: 100 }] },
+            { id: 'tc', name: 'Tool Cupboard', cat: 'deployables', hp: 100, img: 'tc.png', strats: [{ jackhammer: 1 }, { pickaxe: 2 }, { sword: 7 }, { molotov: 1 }, { f1: 3 }, { handmade: 20 }, { satchel: 3 }, { explo: 9 }, { c4: 1 }, { rocket: 1 }] },
+            { id: 'turret', name: 'Auto Turret', cat: 'deployables', hp: 1000, img: 'turret.png', strats: [{ hv: 3 }, { incen: 4 }, { he40: 10 }, { rocket: 4 }, { c4: 1 }, { explo: 100 }] },
             { id: 'vending', name: 'Vending Machine', cat: 'deployables', hp: 2500, img: 'vending.png', strats: [{ c4: 3 }, { rocket: 10 }, { satchel: 23 }] },
             { id: 'windowGlass', name: 'Reinf. Glass', cat: 'deployables', hp: 500, img: 'glass.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 12 }, { explo: 200 }] }
         ];
 
         let state = {
-            targets: {}, cat: 'doors', settingsActive: false, rawMode: false,
-            settings: { 
-                gatherRate: 1, themeKey: 'rust', logo: 'fa-crosshairs',
-                tools: { c4: true, rocket: true, satchel: true, explo: true, beancan: true, molotov: true, hv: true } 
-            }
+            targets: {}, cat: 'doors', currentTab: 'targets', showTotal: false, // Default is false = Pure Mode
+            settings: { gatherRate: 1, themeKey: 'rust', logo: 'fa-crosshairs', tools: {} }
         };
 
         // --- INIT ---
         function init() {
-            const ls = localStorage.getItem('spananiV8');
+            const ls = localStorage.getItem('spananiV13');
             if (ls) {
                 const parsed = JSON.parse(ls);
                 state = { ...state, ...parsed, settings: { ...state.settings, ...parsed.settings } };
-                if(!state.settings.logo) state.settings.logo = 'fa-crosshairs';
             } else {
                 dbItems.forEach(i => state.targets[i.id] = 0);
+                Object.keys(explosivesData).forEach(k => {
+                    state.settings.tools[k] = (explosivesData[k].cat === 'high');
+                });
             }
 
             document.getElementById('setting-rate').value = state.settings.gatherRate;
             applyTheme(state.settings.themeKey);
             applyLogo(state.settings.logo);
             
-            // Set Static UI Images
             document.getElementById('icon-total-gp').innerHTML = buildImg('gp.png', 'fa-flask text-gray-400');
-            document.getElementById('icon-total-sulfur').innerHTML = buildImg('sulfur.png', 'fa-gem text-yellow-500');
+            document.getElementById('icon-total-pure-sulfur').innerHTML = buildImg('sulfur.png', 'fa-gem text-yellow-500');
             document.getElementById('icon-farm-nodes').innerHTML = buildImg('node.png', 'fa-mountain text-yellow-600');
 
             buildMaterialGrid();
+            
+            if(state.showTotal) {
+                document.getElementById('switch-total-mode').classList.add('active');
+                document.getElementById('label-total-mode').style.color = "var(--color-primary)";
+            }
+
             renderAll();
         }
 
-        function saveData() { localStorage.setItem('spananiV8', JSON.stringify(state)); }
+        function saveData() { localStorage.setItem('spananiV13', JSON.stringify(state)); }
 
-        // --- BUILDERS & HTML ---
+        // --- BILDER & UI ---
         function buildImg(imgFile, fallback) {
             return `
                 <img src="${GITHUB_IMAGES_URL}${imgFile}" class="w-full h-full object-contain drop-shadow-md" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -350,7 +358,7 @@
             logos.forEach(logo => {
                 const active = logo === iconClass ? 'active' : '';
                 document.getElementById('logo-selector').innerHTML += `
-                    <button onclick="applyLogo('${logo}')" class="logo-btn w-12 h-12 rounded-lg flex justify-center items-center text-xl text-gray-400 ${active}">
+                    <button onclick="applyLogo('${logo}')" class="logo-btn w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex justify-center items-center text-lg sm:text-xl text-gray-400 ${active}">
                         <i class="fa-solid ${logo}"></i>
                     </button>
                 `;
@@ -358,27 +366,56 @@
             saveData();
         }
 
-        function toggleSettings() {
-            state.settingsActive = !state.settingsActive;
-            document.getElementById('dashboard-view').classList.toggle('hidden', state.settingsActive);
-            document.getElementById('settings-view').classList.toggle('hidden', !state.settingsActive);
-            document.getElementById('btn-settings').classList.toggle('active', state.settingsActive);
-            if(!state.settingsActive) renderAll();
+        function switchTab(tabId) {
+            state.currentTab = tabId;
+            ['targets','arsenal','settings'].forEach(id => {
+                const btn = document.getElementById(`tab-${id}`);
+                const view = document.getElementById(`view-${id}`);
+                
+                if(id === tabId) {
+                    btn.style.background = 'var(--color-primary)';
+                    btn.classList.add('text-white', 'shadow-md');
+                    btn.classList.remove('bg-dark-900', 'text-dark-400', 'border-dark-700');
+                    btn.style.borderColor = 'transparent';
+                    view.classList.remove('hidden');
+                } else {
+                    btn.style.background = '';
+                    btn.classList.remove('text-white', 'shadow-md');
+                    btn.classList.add('bg-dark-900', 'text-dark-400', 'border-dark-700');
+                    view.classList.add('hidden');
+                }
+            });
+
+            const leftCol = document.getElementById('left-col');
+            const rightCol = document.getElementById('right-col');
+
+            if(tabId === 'targets') {
+                leftCol.classList.remove('lg:col-span-12');
+                leftCol.classList.add('lg:col-span-7');
+                rightCol.classList.remove('hidden');
+                renderTargets();
+            } else {
+                leftCol.classList.remove('lg:col-span-7');
+                leftCol.classList.add('lg:col-span-12');
+                rightCol.classList.add('hidden');
+                if(tabId === 'arsenal') renderArsenal();
+            }
         }
 
-        function toggleRawMode() {
-            state.rawMode = !state.rawMode;
-            const toggle = document.getElementById('switch-raw-mode');
-            const label = document.getElementById('label-raw-mode');
+        function toggleTotalMode() {
+            state.showTotal = !state.showTotal;
+            const toggle = document.getElementById('switch-total-mode');
+            const label = document.getElementById('label-total-mode');
             
-            if(state.rawMode) {
+            if(state.showTotal) {
                 toggle.classList.add('active');
                 label.style.color = "var(--color-primary)";
             } else {
                 toggle.classList.remove('active');
                 label.style.color = "var(--color-muted)";
             }
-            calculateEngine(); // Recalculate to show/hide charcoal
+            saveData();
+            calculateEngine();
         }
 
         function setCat(cat) {
@@ -402,10 +439,10 @@
             ['sulfur','charcoal','metal','lgf','pipes','tech','cloth','wood'].forEach(key => {
                 const res = resImgs[key];
                 container.innerHTML += `
-                    <div class="flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-300" id="mat-card-${key}">
-                        <div class="w-10 h-10 mb-2 opacity-90">${buildImg(res.img, res.icon)}</div>
-                        <span class="text-sm font-mono font-bold text-white mb-0.5" id="mat-${key}">0</span>
-                        <span class="text-[10px] uppercase tracking-wider" style="color: var(--color-muted)" id="mat-label-${key}">${res.name}</span>
+                    <div class="flex flex-col items-center justify-center p-2 sm:p-3 border border-transparent rounded-xl transition-all duration-300" id="mat-card-${key}">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 mb-1.5 sm:mb-2 opacity-90">${buildImg(res.img, res.icon)}</div>
+                        <span class="text-xs sm:text-sm font-mono font-bold text-white mb-0.5" id="mat-${key}">0</span>
+                        <span class="text-[9px] sm:text-[10px] uppercase tracking-wider text-center leading-tight" style="color: var(--color-muted)" id="mat-label-${key}">${res.name}</span>
                     </div>
                 `;
             });
@@ -417,36 +454,83 @@
             dbItems.filter(i => i.cat === state.cat).forEach(item => {
                 const qty = state.targets[item.id] || 0;
                 container.innerHTML += `
-                    <div class="target-card p-3 flex justify-between items-center ${qty > 0 ? 'has-qty' : ''}">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-8 h-8 text-xl">${buildImg(item.img, 'fa-box')}</div>
+                    <div class="target-card p-2 sm:p-3 flex justify-between items-center ${qty > 0 ? 'has-qty' : ''}">
+                        <div class="flex items-center space-x-3 sm:space-x-4">
+                            <div class="w-6 h-6 sm:w-8 sm:h-8 text-lg sm:text-xl shrink-0">${buildImg(item.img, 'fa-box')}</div>
                             <div class="flex flex-col">
-                                <span class="font-medium text-sm text-white">${item.name}</span>
-                                <span class="text-[10px] font-mono mt-0.5" style="color: var(--color-muted)">${item.hp} HP</span>
+                                <span class="font-medium text-xs sm:text-sm text-white leading-tight">${item.name}</span>
+                                <span class="text-[9px] sm:text-[10px] font-mono mt-0.5" style="color: var(--color-muted)">${item.hp} HP</span>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-1">
-                            <button onclick="updateQty('${item.id}', -1)" class="w-8 h-8 rounded-md flex items-center justify-center text-dark-400 hover:text-white hover:bg-dark-800 transition"><i class="fa-solid fa-minus text-xs"></i></button>
-                            <span class="w-6 text-center font-mono text-sm font-bold text-white">${qty}</span>
-                            <button onclick="updateQty('${item.id}', 1)" class="w-8 h-8 rounded-md flex items-center justify-center text-dark-400 hover:text-white hover:bg-dark-800 transition"><i class="fa-solid fa-plus text-xs"></i></button>
+                        <div class="flex items-center space-x-0.5 sm:space-x-1 shrink-0">
+                            <button onclick="updateQty('${item.id}', -1)" class="tap-active w-8 h-8 sm:w-10 sm:h-10 rounded-md flex items-center justify-center text-dark-400 hover:text-white hover:bg-dark-800 transition"><i class="fa-solid fa-minus text-xs sm:text-sm"></i></button>
+                            <span class="w-5 sm:w-6 text-center font-mono text-sm sm:text-base font-bold text-white">${qty}</span>
+                            <button onclick="updateQty('${item.id}', 1)" class="tap-active w-8 h-8 sm:w-10 sm:h-10 rounded-md flex items-center justify-center text-dark-400 hover:text-white hover:bg-dark-800 transition"><i class="fa-solid fa-plus text-xs sm:text-sm"></i></button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function renderSettingsTools() {
-            const container = document.getElementById('settings-tools');
+        function toggleCategory(catId) {
+            const toolsInCat = Object.keys(explosivesData).filter(k => explosivesData[k].cat === catId);
+            const allActive = toolsInCat.every(k => state.settings.tools[k]);
+            
+            toolsInCat.forEach(k => state.settings.tools[k] = !allActive);
+            saveData(); renderArsenal(); calculateEngine();
+        }
+
+        function renderArsenal() {
+            const container = document.getElementById('arsenal-container');
             container.innerHTML = '';
-            Object.keys(explosivesData).forEach(key => {
-                const exp = explosivesData[key];
-                const active = state.settings.tools[key];
-                container.innerHTML += `
-                    <div onclick="toggleTool('${key}')" class="subtle-btn cursor-pointer rounded-lg p-3 flex flex-col items-center ${active ? 'active' : ''}">
-                        <div class="w-8 h-8 mb-2 text-xl">${buildImg(exp.img, 'fa-bomb')}</div>
-                        <span class="text-xs font-semibold ${active ? 'text-white' : ''}">${exp.name}</span>
-                    </div>
+
+            arsenalCategories.forEach(category => {
+                const toolsInCat = Object.keys(explosivesData).filter(k => explosivesData[k].cat === category.id);
+                if (toolsInCat.length === 0) return;
+
+                const isAllActive = toolsInCat.every(k => state.settings.tools[k]);
+                
+                let html = `
+                    <div class="mb-6 sm:mb-8 fade-in">
+                        <div class="flex justify-between items-center border-b border-dark-700 pb-2 sm:pb-3 mb-3 sm:mb-4 cursor-pointer group tap-active" onclick="toggleCategory('${category.id}')">
+                            <div class="flex items-center space-x-2 sm:space-x-3">
+                                <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md bg-dark-800 flex items-center justify-center border border-dark-700 group-hover:border-primary-500 transition-colors">
+                                    <i class="fa-solid ${isAllActive ? 'fa-check' : 'fa-minus'} text-xs sm:text-sm" style="${isAllActive ? 'color: var(--color-primary)' : 'color: var(--color-muted)'}"></i>
+                                </div>
+                                <h3 class="text-xs sm:text-sm uppercase tracking-widest font-bold text-white transition-colors group-hover:text-primary-500" style="group-hover: {color: var(--color-primary)}">${category.name}</h3>
+                            </div>
+                            <span class="text-[10px] sm:text-xs transition-colors" style="color: var(--color-muted)">Toggle All</span>
+                        </div>
+                        <div class="grid grid-cols-3 min-[450px]:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-4">
                 `;
+
+                toolsInCat.forEach(key => {
+                    const exp = explosivesData[key];
+                    const active = state.settings.tools[key];
+
+                    let costStr = [];
+                    if(exp.cost.sulfur > 0) costStr.push(`<span class="text-yellow-500">${exp.cost.sulfur} S</span>`);
+                    if(exp.cost.gp > 0) costStr.push(`<span class="text-gray-400">${exp.cost.gp} GP</span>`);
+                    if(costStr.length === 0) {
+                        if(exp.cost.metal > 0) costStr.push(`<span class="text-blue-400">${exp.cost.metal} F</span>`);
+                        if(exp.cost.wood > 0) costStr.push(`<span class="text-green-600">${exp.cost.wood} W</span>`);
+                        if(exp.cost.lgf > 0) costStr.push(`<span class="text-red-500">${exp.cost.lgf} L</span>`);
+                    }
+                    const costDisplay = costStr.join('<br/>');
+
+                    html += `
+                        <div onclick="toggleTool('${key}', event)" class="tap-active cursor-pointer rounded-xl p-2 sm:p-3 flex flex-col items-center border transition-all ${active ? 'bg-dark-900' : 'bg-dark-900 border-dark-700 hover:border-dark-400'}" style="${active ? 'border-color: var(--color-primary); box-shadow: 0 0 15px rgba(249,115,22,0.1)' : ''}">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 mb-2 text-xl" style="${active ? '' : 'opacity: 0.4; filter: grayscale(100%);'}">${buildImg(exp.img, 'fa-bomb')}</div>
+                            <span class="text-[9px] sm:text-[10px] font-bold text-center leading-tight mb-1.5 sm:mb-2 ${active ? 'text-white' : 'text-dark-500'}">${exp.name}</span>
+                            <div class="text-[8px] sm:text-[9px] font-mono mt-auto pt-1.5 sm:pt-2 border-t border-dark-800 w-full text-center leading-tight">
+                                ${costDisplay || '<span class="text-dark-500">Free</span>'}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+                container.innerHTML += html;
             });
         }
 
@@ -457,15 +541,16 @@
             }
         }
 
-        function toggleTool(key) {
+        function toggleTool(key, event) {
+            event.stopPropagation();
             state.settings.tools[key] = !state.settings.tools[key];
-            saveData(); renderSettingsTools();
+            saveData(); renderArsenal(); calculateEngine();
         }
 
         document.getElementById('setting-rate').addEventListener('change', (e) => {
             let val = parseFloat(e.target.value);
             state.settings.gatherRate = val > 0 ? val : 1;
-            saveData();
+            saveData(); calculateEngine();
         });
 
         function resetData() {
@@ -475,7 +560,9 @@
 
         function renderAll() {
             document.getElementById('nav-rate').innerText = state.settings.gatherRate + 'x';
-            renderTargets(); renderSettingsTools(); calculateEngine();
+            renderTargets(); 
+            if (state.currentTab === 'arsenal') renderArsenal();
+            calculateEngine();
         }
 
         function calculateEngine() {
@@ -518,76 +605,85 @@
             craftList.innerHTML = '';
             
             if(!hasTargets) {
-                craftList.innerHTML = `<div class="text-sm py-4 text-center font-mono" style="color: var(--color-muted)">Add targets to generate layout.</div>`;
+                craftList.innerHTML = `<div class="text-xs sm:text-sm py-4 text-center font-mono" style="color: var(--color-muted)">Add targets to generate layout.</div>`;
             } else if (invalidPath) {
-                craftList.innerHTML = `<div class="text-sm py-4 text-center text-red-500 font-medium">Path blocked. Enable more tools in Settings.</div>`;
+                craftList.innerHTML = `<div class="text-xs sm:text-sm py-4 text-center text-red-500 font-medium">Path blocked. Enable more tools in Arsenal.</div>`;
             } else {
                 for(const [key, req] of Object.entries(requiredExp)) {
                     const expDef = explosivesData[key];
                     craftList.innerHTML += `
                         <div class="flex justify-between items-center py-2 border-b border-dark-700 last:border-0 fade-in">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-6 h-6 text-lg">${buildImg(expDef.img, 'fa-bomb')}</div>
-                                <span class="text-sm font-medium text-white">${expDef.name}</span>
+                            <div class="flex items-center space-x-2 sm:space-x-3">
+                                <div class="w-6 h-6 sm:w-8 sm:h-8 text-base sm:text-lg">${buildImg(expDef.img, 'fa-bomb')}</div>
+                                <span class="text-xs sm:text-sm font-medium text-white">${expDef.name}</span>
                             </div>
-                            <span class="text-lg font-mono font-bold" style="color: var(--color-primary)">${req}</span>
+                            <span class="text-base sm:text-lg font-mono font-bold" style="color: var(--color-primary)">${req}</span>
                         </div>
                     `;
                 }
             }
 
-            let matTotals = { sulfur: 0, pureSulfur: 0, gp: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0 };
+            let matTotals = { sulfur: 0, pureSulfur: 0, gp: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 };
             
             if(!invalidPath) {
                 for (const [key, qty] of Object.entries(requiredExp)) {
                     const cost = explosivesData[key].cost;
                     matTotals.sulfur += cost.sulfur * qty;
                     matTotals.gp += cost.gp * qty;
-                    matTotals.pureSulfur += (cost.sulfur - (cost.gp * 2)) * qty; // Pure sulfur = Total - (GP * 2)
+                    matTotals.pureSulfur += (cost.sulfur - (cost.gp * 2)) * qty; 
                     matTotals.charcoal += cost.charcoal * qty;
                     matTotals.metal += cost.metal * qty;
                     matTotals.pipes += cost.pipes * qty;
                     matTotals.tech += cost.tech * qty;
                     matTotals.lgf += cost.lgf * qty;
                     matTotals.cloth += cost.cloth * qty;
+                    matTotals.wood += cost.wood * qty; 
                 }
             }
 
-            // Top Summary (GP & Pure Sulfur)
+            // Top Summary
             document.getElementById('total-gp').innerText = matTotals.gp.toLocaleString();
             document.getElementById('total-pure-sulfur').innerText = matTotals.pureSulfur.toLocaleString();
 
-            // Materials Grid
-            let displaySulfur = state.rawMode ? matTotals.sulfur : matTotals.pureSulfur;
+            // LOGIK FÜR DEN TOGGLE (Standard: Pure Mode = false = Charcoal versteckt)
+            let displaySulfur = state.showTotal ? matTotals.sulfur : matTotals.pureSulfur;
+            let displayLabel = state.showTotal ? "Total Sulfur" : "Pure Sulfur";
+
             document.getElementById('mat-sulfur').innerText = displaySulfur.toLocaleString();
-            document.getElementById('mat-label-sulfur').innerText = state.rawMode ? "Total Sulfur" : "Pure Sulfur";
+            document.getElementById('mat-label-sulfur').innerText = displayLabel;
             
-            // Handle Charcoal & Wood Visibility based on Toggle
-            const showCharcoal = state.rawMode;
-            
+            const showHidden = state.showTotal; // False = versteckt
+            const totalWood = matTotals.wood + matTotals.charcoal;
+
             ['charcoal','metal','pipes','tech','lgf','cloth','wood'].forEach(mat => {
                 const el = document.getElementById(`mat-${mat}`);
                 const card = document.getElementById(`mat-card-${mat}`);
                 
                 if(el && card) {
                     if (mat === 'charcoal' || mat === 'wood') {
-                        if (!showCharcoal) {
+                        if (!showHidden) {
                             card.style.display = 'none';
-                            return; // skip further logic for hidden items
+                            return; 
                         } else {
                             card.style.display = 'flex';
                         }
                     }
 
-                    // For visible items, set values and opacities
-                    const val = mat === 'wood' ? matTotals.charcoal : matTotals[mat];
+                    const val = mat === 'wood' ? totalWood : matTotals[mat];
                     el.innerText = val.toLocaleString();
                     card.style.opacity = val > 0 ? '1' : '0.2';
-                    card.style.background = val > 0 ? 'rgba(255,255,255,0.03)' : 'transparent';
+                    card.style.borderColor = val > 0 ? 'var(--color-border)' : 'transparent';
+                    card.style.background = val > 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
                 }
             });
+            
+            const sulfurCard = document.getElementById('mat-card-sulfur');
+            if(sulfurCard) {
+                sulfurCard.style.opacity = displaySulfur > 0 ? '1' : '0.2';
+                sulfurCard.style.borderColor = displaySulfur > 0 ? 'var(--color-border)' : 'transparent';
+                sulfurCard.style.background = displaySulfur > 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+            }
 
-            // Node Farming (Always calculates Total Sulfur)
             const nodeYield = 300 * state.settings.gatherRate;
             document.getElementById('farm-nodes').innerText = Math.ceil(matTotals.sulfur / nodeYield).toLocaleString();
         }

@@ -6,57 +6,65 @@
     <title>Spanani Raid Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --color-primary-400: #fb923c;
-            --color-primary-500: #f97316;
-            --color-primary-600: #ea580c;
-            --glow-primary: 0 0 30px rgba(249, 115, 22, 0.15);
+            --color-primary: #f97316; /* Rust Orange */
+            --color-primary-hover: #ea580c;
+            --color-bg: #000000;
+            --color-panel: #0a0a0a;
+            --color-border: #1f1f1f;
+            --color-text: #ededed;
+            --color-muted: #888888;
         }
-        
-        body { 
-            background-color: #09090b; /* Zinc 950 */
-            color: #fafafa;
-            font-family: 'Outfit', sans-serif;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(255,255,255,0.015) 0%, transparent 50%),
-                radial-gradient(circle at 85% 30%, var(--glow-primary) 0%, transparent 50%);
-            background-attachment: fixed;
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background-image: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.05) 0%, transparent 70%);
         }
 
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--color-primary-500); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
 
-        /* UI Elements */
-        .panel { background: #111113; border: 1px solid #27272a; border-radius: 1rem; }
-        .card { background: #18181b; border: 1px solid #27272a; transition: all 0.2s ease; }
-        .card:hover { border-color: #3f3f46; transform: translateY(-1px); }
-        
-        .tab-btn { transition: all 0.2s ease; }
-        .tab-active { background: var(--color-primary-500); color: white; box-shadow: 0 4px 14px rgba(0,0,0,0.2); border-color: transparent !important; }
-        
-        .fade-in { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* UI Components */
+        .glass-panel {
+            background: var(--color-panel);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
 
-        /* Interactive Inputs */
+        .subtle-btn {
+            background: transparent; border: 1px solid var(--color-border);
+            color: var(--color-muted); transition: all 0.2s;
+        }
+        .subtle-btn:hover { border-color: #333; color: var(--color-text); background: #111; }
+        .subtle-btn.active { border-color: var(--color-primary); color: var(--color-primary); background: rgba(249,115,22,0.05); }
+
+        .target-card {
+            border: 1px solid transparent; transition: all 0.2s; border-bottom: 1px solid var(--color-border);
+        }
+        .target-card:hover { background: rgba(255,255,255,0.02); }
+        .target-card:last-child { border-bottom: none; }
+        .target-card.has-qty { background: rgba(249,115,22,0.03); border-left: 2px solid var(--color-primary); padding-left: 14px; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.2s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
-        /* Swatches */
-        .theme-swatch { position: relative; overflow: hidden; transition: all 0.2s; }
-        .theme-swatch::after {
-            content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            color: white; opacity: 0; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .theme-swatch.active { transform: scale(1.1); box-shadow: 0 0 0 2px #09090b, 0 0 0 4px var(--color-primary-500); }
-        .theme-swatch.active::after { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        .theme-swatch { border-radius: 50%; width: 24px; height: 24px; cursor: pointer; transition: transform 0.2s; }
+        .theme-swatch.active { box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary); transform: scale(1.1); }
     </style>
 
     <script>
@@ -65,494 +73,469 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: {
-                            400: 'var(--color-primary-400)',
-                            500: 'var(--color-primary-500)',
-                            600: 'var(--color-primary-600)',
-                        },
-                        dark: { 950: '#09090b', 900: '#111113', 800: '#18181b', 700: '#27272a', 600: '#3f3f46', 500: '#52525b' }
+                        dark: { 900: '#0a0a0a', 800: '#111111', 700: '#1f1f1f', 400: '#888888' }
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4 md:p-8 overflow-x-hidden selection:bg-primary-500 selection:text-white">
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
 
-    <!-- Header -->
-    <header class="w-full max-w-[1400px] mb-8 flex flex-col md:flex-row justify-between items-center panel p-4 px-6 shadow-xl z-10">
-        <div class="flex items-center space-x-5 mb-4 md:mb-0">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg transition-all duration-300">
-                <i class="fa-solid fa-bomb text-2xl text-white"></i>
+    <!-- Navbar -->
+    <nav class="w-full max-w-[1200px] flex justify-between items-center mb-8 fade-in">
+        <div class="flex items-center space-x-4">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white" style="background: var(--color-primary); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);">
+                <i class="fa-solid fa-crosshairs text-xl"></i>
             </div>
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white leading-none">Spanani <span class="text-primary-500 transition-colors duration-300">Raid</span></h1>
-                <p class="text-dark-500 text-sm font-medium mt-1">Professional Logistics Hub</p>
+                <h1 class="text-xl font-bold tracking-tight text-white leading-none">Spanani <span style="color: var(--color-primary)">Raid</span></h1>
+                <p class="text-xs font-medium uppercase tracking-widest mt-1" style="color: var(--color-muted)">Analytics Engine</p>
             </div>
         </div>
+        
         <div class="flex items-center space-x-3">
-            <div class="card px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2 border-dark-700">
-                <i class="fa-solid fa-server text-primary-500"></i>
-                <span class="text-dark-400">Server Rate: <span class="text-white font-mono font-bold ml-1" id="header-gather-rate">1x</span></span>
+            <div class="hidden sm:flex items-center px-3 py-1.5 rounded-md border border-dark-700 bg-dark-900 text-xs font-mono">
+                <span style="color: var(--color-muted)">Rate:</span>
+                <span class="ml-2 font-bold text-white" id="nav-rate">1x</span>
             </div>
-            <button onclick="resetCart()" class="px-4 py-2 rounded-lg bg-dark-800 hover:bg-red-500/10 hover:text-red-500 text-dark-400 border border-dark-700 hover:border-red-500/30 font-semibold transition-all flex items-center">
-                <i class="fa-solid fa-trash-can md:mr-2"></i> <span class="hidden md:inline">Clear</span>
+            <button onclick="resetData()" class="subtle-btn px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                <i class="fa-solid fa-rotate-left md:mr-2"></i><span class="hidden md:inline">Reset</span>
+            </button>
+            <button onclick="toggleSettings()" id="btn-settings" class="subtle-btn px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                <i class="fa-solid fa-gear"></i>
             </button>
         </div>
-    </header>
+    </nav>
 
-    <!-- Main Dashboard -->
-    <main class="w-full max-w-[1400px] grid grid-cols-1 xl:grid-cols-12 gap-8 relative transition-all duration-300" id="main-grid">
+    <!-- MAIN DASHBOARD -->
+    <main class="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-12 gap-8" id="dashboard-view">
         
-        <!-- Left Section (Expands on Settings) -->
-        <div class="xl:col-span-7 space-y-6 flex flex-col h-full transition-all duration-300" id="left-panel">
+        <!-- Left Column: Target Selection -->
+        <div class="lg:col-span-7 flex flex-col h-full fade-in">
             
-            <!-- Navigation Tabs -->
-            <div class="flex space-x-2 overflow-x-auto custom-scrollbar pb-2">
-                <button onclick="switchTab('doors')" id="tab-doors" class="tab-btn flex-1 py-2.5 px-5 rounded-lg border border-dark-700 bg-dark-800 text-dark-400 hover:text-white font-semibold tracking-wide whitespace-nowrap">
-                    <i class="fa-solid fa-door-closed mr-2"></i>Doors
-                </button>
-                <button onclick="switchTab('walls')" id="tab-walls" class="tab-btn flex-1 py-2.5 px-5 rounded-lg border border-dark-700 bg-dark-800 text-dark-400 hover:text-white font-semibold tracking-wide whitespace-nowrap">
-                    <i class="fa-solid fa-layer-group mr-2"></i>Walls
-                </button>
-                <button onclick="switchTab('deployables')" id="tab-deployables" class="tab-btn flex-1 py-2.5 px-5 rounded-lg border border-dark-700 bg-dark-800 text-dark-400 hover:text-white font-semibold tracking-wide whitespace-nowrap">
-                    <i class="fa-solid fa-crosshairs mr-2"></i>Deployables
-                </button>
-                <div class="w-px bg-dark-700 mx-2"></div>
-                <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn py-2.5 px-5 rounded-lg border border-dark-700 bg-dark-800 text-dark-400 hover:text-white font-semibold tracking-wide whitespace-nowrap">
-                    <i class="fa-solid fa-sliders md:mr-2"></i><span class="hidden md:inline">Settings</span>
-                </button>
-            </div>
-
-            <!-- Targets View -->
-            <div id="view-targets" class="panel p-6 flex-grow shadow-lg">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="targets-container">
-                    <!-- Javascript injects targets here -->
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm uppercase tracking-widest font-bold" style="color: var(--color-muted)">Select Targets</h2>
+                
+                <!-- Category Segmented Control -->
+                <div class="flex p-1 rounded-lg bg-dark-900 border border-dark-700">
+                    <button onclick="setCat('doors')" id="cat-doors" class="px-4 py-1.5 rounded-md text-xs font-semibold transition-all text-white bg-dark-700 shadow-sm">Doors</button>
+                    <button onclick="setCat('walls')" id="cat-walls" class="px-4 py-1.5 rounded-md text-xs font-semibold transition-all" style="color: var(--color-muted)">Walls</button>
+                    <button onclick="setCat('deployables')" id="cat-deployables" class="px-4 py-1.5 rounded-md text-xs font-semibold transition-all" style="color: var(--color-muted)">Items</button>
                 </div>
             </div>
 
-            <!-- Settings View (Massive & Clean) -->
-            <div id="view-settings" class="hidden panel p-8 md:p-12 flex-grow shadow-lg fade-in">
-                <div class="max-w-3xl mx-auto space-y-10">
-                    
-                    <div class="border-b border-dark-700 pb-6">
-                        <h2 class="text-3xl font-bold text-white tracking-tight">Application Settings</h2>
-                        <p class="text-dark-400 mt-2">Configure your interface and logistics math.</p>
-                    </div>
-
-                    <!-- Gather Rate Config -->
-                    <div class="space-y-4">
-                        <div>
-                            <h3 class="text-xl font-semibold text-white flex items-center"><i class="fa-solid fa-server text-primary-500 mr-3"></i>Server Gather Multiplier</h3>
-                            <p class="text-dark-500 text-sm mt-1">Adjust this to match your server's gather rate (e.g., 2x, 3x). This recalculates your farming requirements for Nodes and Trees.</p>
-                        </div>
-                        
-                        <div class="flex items-center space-x-4">
-                            <div class="relative w-48">
-                                <button onclick="adjustRate(-0.5)" class="absolute left-2 top-2 w-8 h-8 rounded bg-dark-700 hover:bg-dark-600 text-white flex items-center justify-center transition-colors"><i class="fa-solid fa-minus text-xs"></i></button>
-                                <input type="number" id="setting-rate" value="1" min="1" step="0.5" class="w-full bg-dark-800 border border-dark-700 rounded-xl py-3 text-center text-white font-mono font-bold text-lg outline-none focus:border-primary-500 transition-all">
-                                <button onclick="adjustRate(0.5)" class="absolute right-2 top-2 w-8 h-8 rounded bg-dark-700 hover:bg-dark-600 text-white flex items-center justify-center transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
-                            </div>
-                            <button onclick="saveSettings()" class="bg-primary-500 hover:bg-primary-400 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20">Apply Rate</button>
-                        </div>
-                    </div>
-
-                    <div class="w-full h-px bg-dark-800"></div>
-
-                    <!-- Theme Config -->
-                    <div class="space-y-4">
-                        <div>
-                            <h3 class="text-xl font-semibold text-white flex items-center"><i class="fa-solid fa-palette text-primary-500 mr-3"></i>Dashboard Theme</h3>
-                            <p class="text-dark-500 text-sm mt-1">Select an accent color for your interface.</p>
-                        </div>
-                        
-                        <div class="flex flex-wrap gap-4 pt-2" id="theme-selector">
-                            <!-- Theme swatches injected via JS -->
-                        </div>
-                    </div>
-                    
+            <div class="glass-panel p-2 flex-grow">
+                <div id="targets-container" class="flex flex-col">
+                    <!-- Targets injected here -->
                 </div>
             </div>
         </div>
 
-        <!-- Right Section (Strategy & Logistics) -->
-        <div class="xl:col-span-5 space-y-6 transition-all duration-300" id="right-panel">
+        <!-- Right Column: Logistics Output -->
+        <div class="lg:col-span-5 space-y-6 fade-in">
             
-            <!-- Strategy Selector -->
-            <div class="panel p-6 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none transition-colors duration-300"></div>
+            <!-- Total Cost Summary -->
+            <div class="glass-panel p-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" style="background: var(--color-primary); opacity: 0.1;"></div>
                 
-                <div class="flex justify-between items-start mb-4 relative z-10">
+                <h2 class="text-xs uppercase tracking-widest font-bold mb-4" style="color: var(--color-muted)">Total Sulfur Cost</h2>
+                <div class="flex items-baseline space-x-3">
+                    <i class="fa-solid fa-gem text-yellow-500 text-2xl"></i>
+                    <span class="text-5xl font-mono font-bold tracking-tight text-white" id="total-sulfur">0</span>
+                </div>
+                <p class="text-xs mt-3 font-medium" style="color: var(--color-muted)"><i class="fa-solid fa-bolt text-yellow-500 mr-1"></i> Engine calculated the cheapest valid path.</p>
+            </div>
+
+            <!-- Explosives Required -->
+            <div class="glass-panel p-6">
+                <h2 class="text-xs uppercase tracking-widest font-bold mb-4" style="color: var(--color-muted)">Crafting Blueprint</h2>
+                <div class="space-y-1" id="crafting-list">
+                    <div class="text-sm py-4 text-center font-mono" style="color: var(--color-muted)">Add targets to generate layout.</div>
+                </div>
+            </div>
+
+            <!-- Raw Materials -->
+            <div class="glass-panel p-6">
+                <h2 class="text-xs uppercase tracking-widest font-bold mb-4" style="color: var(--color-muted)">Raw Materials</h2>
+                <div class="grid grid-cols-4 gap-3 mb-6" id="materials-container">
+                    <!-- Materials injected here -->
+                </div>
+
+                <div class="pt-4 border-t border-dark-700 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-mountain text-yellow-600 text-lg mr-3"></i>
+                        <span class="text-sm font-medium text-white">Nodes to Farm</span>
+                    </div>
+                    <span class="text-xl font-mono font-bold" style="color: var(--color-primary)" id="farm-nodes">0</span>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- SETTINGS VIEW (Hidden by Default) -->
+    <main class="w-full max-w-[800px] hidden fade-in" id="settings-view">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">Configuration</h1>
+            <p style="color: var(--color-muted)">Adjust your logistics engine parameters.</p>
+        </div>
+
+        <div class="space-y-6">
+            <!-- Server Rate -->
+            <div class="glass-panel p-6">
+                <div class="flex justify-between items-center">
                     <div>
-                        <h2 class="text-xs uppercase tracking-widest text-dark-500 font-bold mb-1">Raid Strategy</h2>
-                        <h3 class="text-2xl font-bold text-white flex items-center" id="strat-name">
-                            <i class="fa-solid fa-gem text-primary-500 mr-2"></i> Optimal
-                        </h3>
+                        <h3 class="font-bold text-white mb-1">Server Gather Rate</h3>
+                        <p class="text-sm" style="color: var(--color-muted)">Calculates node farming requirements.</p>
                     </div>
-                    <button onclick="cycleStrategy()" class="bg-dark-800 hover:bg-primary-500 text-white border border-dark-700 hover:border-primary-500 px-4 py-2 rounded-lg font-semibold flex items-center transition-all shadow-sm">
-                        <i class="fa-solid fa-rotate md:mr-2 text-sm"></i> <span class="hidden md:inline">Change</span>
-                    </button>
-                </div>
-                
-                <div class="p-4 bg-dark-900 rounded-xl border border-dark-800 flex justify-between items-center relative z-10">
-                    <span class="text-dark-400 font-medium">Total Sulfur Cost</span>
-                    <span class="text-3xl font-mono font-bold text-white" id="grand-total-sulfur">0</span>
+                    <div class="flex items-center">
+                        <input type="number" id="setting-rate" value="1" min="1" step="0.5" class="w-20 bg-dark-800 border border-dark-700 rounded-md py-2 text-center text-white font-mono font-bold outline-none focus:border-orange-500">
+                        <span class="ml-3 font-bold" style="color: var(--color-muted)">x</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Required Crafting List -->
-            <div class="panel p-6">
-                <h2 class="text-lg font-semibold mb-4 text-white">Explosives Required</h2>
-                <div class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2" id="crafting-list">
-                    <div class="text-center p-6 text-dark-500 font-medium border border-dashed border-dark-700 rounded-xl bg-dark-800/50">Add targets to generate a loadout.</div>
-                </div>
+            <!-- Allowed Tools -->
+            <div class="glass-panel p-6">
+                <h3 class="font-bold text-white mb-1">Allowed Explosives</h3>
+                <p class="text-sm mb-6" style="color: var(--color-muted)">The engine will ONLY use enabled tools to find the cheapest raid path.</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="settings-tools"></div>
             </div>
 
-            <!-- Raw Materials & Farming -->
-            <div class="panel p-6">
-                <div class="flex justify-between items-end mb-4">
-                    <h2 class="text-lg font-semibold text-white">Raw Materials</h2>
-                    <span class="text-xs text-dark-500 font-mono" id="logistics-rate">1x Server Rate</span>
-                </div>
-                
-                <!-- Material Grid -->
-                <div class="grid grid-cols-4 gap-2 mb-6">
-                    <div class="card rounded-lg p-3 flex flex-col items-center">
-                        <span class="text-yellow-500 mb-1"><i class="fa-solid fa-gem"></i></span>
-                        <span class="text-sm font-mono font-bold text-white" id="mat-sulfur">0</span>
-                    </div>
-                    <div class="card rounded-lg p-3 flex flex-col items-center">
-                        <span class="text-gray-400 mb-1"><i class="fa-solid fa-fire"></i></span>
-                        <span class="text-sm font-mono font-bold text-white" id="mat-charcoal">0</span>
-                    </div>
-                    <div class="card rounded-lg p-3 flex flex-col items-center">
-                        <span class="text-blue-400 mb-1"><i class="fa-solid fa-cubes"></i></span>
-                        <span class="text-sm font-mono font-bold text-white" id="mat-metal">0</span>
-                    </div>
-                    <div class="card rounded-lg p-3 flex flex-col items-center">
-                        <span class="text-red-400 mb-1"><i class="fa-solid fa-droplet"></i></span>
-                        <span class="text-sm font-mono font-bold text-white" id="mat-lgf">0</span>
-                    </div>
-                    
-                    <div class="card rounded-lg p-3 flex flex-col items-center">
-                        <span class="text-stone-400 mb-1"><i class="fa-solid fa-pipe-valve"></i></span>
-                        <span class="text-sm font-mono font-bold text-white" id="mat-pipes">0</span>
-                    </div>
-                    <div class="card rounded-lg p-3 flex flex-col items-center">
-                        <span class="text-green-500 mb-1"><i class="fa-solid fa-microchip"></i></span>
-                        <span class="text-sm font-mono font-bold text-white" id="mat-tech">0</span>
-                    </div>
-                    <div class="card rounded-lg p-3 flex flex-col items-center">
-                        <span class="text-yellow-600 mb-1"><i class="fa-solid fa-scroll"></i></span>
-                        <span class="text-sm font-mono font-bold text-white" id="mat-cloth">0</span>
-                    </div>
-                    <div class="card rounded-lg p-3 flex flex-col items-center">
-                        <span class="text-green-600 mb-1"><i class="fa-solid fa-tree"></i></span>
-                        <span class="text-sm font-mono font-bold text-white" id="farm-wood">0</span>
-                    </div>
-                </div>
-
-                <!-- Farming Output -->
-                <div class="bg-dark-900 p-4 rounded-xl border border-dark-700 flex justify-between items-center">
-                    <div class="flex items-center text-dark-300">
-                        <div class="w-10 h-10 rounded-lg bg-dark-800 border border-dark-700 flex items-center justify-center mr-3">
-                            <i class="fa-solid fa-mountain text-yellow-500 text-lg"></i>
-                        </div>
-                        <span class="font-medium text-sm text-dark-400">Nodes Required</span>
-                    </div>
-                    <span class="font-mono font-bold text-white text-2xl" id="farm-nodes">0</span>
-                </div>
+            <!-- Theme -->
+            <div class="glass-panel p-6">
+                <h3 class="font-bold text-white mb-4">Dashboard Accent</h3>
+                <div class="flex space-x-4" id="theme-selector"></div>
             </div>
+            
+            <button onclick="toggleSettings()" class="w-full py-3 rounded-lg font-bold text-white transition-all shadow-lg" style="background: var(--color-primary);">
+                Save & Return to Dashboard
+            </button>
         </div>
-
     </main>
 
     <script>
         // ==========================================
-        // HARDCODED SETTINGS
+        // SYSTEM CONFIG 
         // ==========================================
         const GITHUB_IMAGES_URL = "https://raw.githubusercontent.com/spananide/spanani.de/main/rust/images/";
 
-        // THEMES
-        const themes = {
-            rust:   { name: 'Rust Red', color: '#f97316', hover: '#ea580c', light: '#fb923c' },
-            cyan:   { name: 'Neon Blue', color: '#06b6d4', hover: '#0891b2', light: '#22d3ee' },
-            green:  { name: 'Toxic Green', color: '#22c55e', hover: '#16a34a', light: '#4ade80' },
-            purple: { name: 'Amethyst', color: '#a855f7', hover: '#9333ea', light: '#c084fc' },
-            pink:   { name: 'Cyber Pink', color: '#ec4899', hover: '#db2777', light: '#f472b6' }
+        const resImgs = {
+            sulfur: { img: 'sulfur.png', icon: 'fa-gem', name: 'Sulfur' },
+            charcoal: { img: 'charcoal.png', icon: 'fa-fire', name: 'Charcoal' },
+            metal: { img: 'metal.png', icon: 'fa-cubes', name: 'Metal' },
+            lgf: { img: 'lgf.png', icon: 'fa-droplet', name: 'Fuel' },
+            pipes: { img: 'pipes.png', icon: 'fa-pipe-valve', name: 'Pipes' },
+            tech: { img: 'tech.png', icon: 'fa-microchip', name: 'Tech' },
+            cloth: { img: 'cloth.png', icon: 'fa-scroll', name: 'Cloth' },
+            wood: { img: 'wood.png', icon: 'fa-tree', name: 'Wood' }
         };
 
-        // STRATEGIES
-        const strategies = [
-            { id: 0, name: "Optimal (Cheapest)", icon: "fa-gem" },
-            { id: 1, name: "C4 Main (Fastest)", icon: "fa-box" },
-            { id: 2, name: "Rocket Main (Splash)", icon: "fa-rocket" },
-            { id: 3, name: "Satchel (Tier 2)", icon: "fa-bomb" },
-            { id: 4, name: "Explo Ammo (Silent)", icon: "fa-capsules" }
-        ];
+        const themes = {
+            rust: { color: '#f97316' },
+            cyan: { color: '#06b6d4' },
+            green: { color: '#22c55e' },
+            purple: { color: '#a855f7' },
+            white: { color: '#ffffff' }
+        };
 
-        // DB: ITEMS
-        const dbItems = [
-            { id: 'woodDoor', name: 'Wooden Door', cat: 'doors', hp: 200, img: 'wood_door.png', icon: 'fa-door-closed', strats: [{ molotov: 1 }, { c4: 1 }, { rocket: 1 }, { satchel: 2 }, { explo: 19 }] },
-            { id: 'sheetDoor', name: 'Sheet Door', cat: 'doors', hp: 250, img: 'sheet_door.png', icon: 'fa-door-open', strats: [{ rocket: 1, explo: 8 }, { c4: 1 }, { rocket: 2 }, { satchel: 4 }, { explo: 63 }] },
-            { id: 'garageDoor', name: 'Garage Door', cat: 'doors', hp: 600, img: 'garage_door.png', icon: 'fa-warehouse', strats: [{ c4: 1, explo: 40 }, { c4: 2 }, { rocket: 3 }, { satchel: 9 }, { explo: 150 }] },
-            { id: 'armoredDoor', name: 'Armored Door', cat: 'doors', hp: 1000, img: 'armored_door.png', icon: 'fa-door-closed', strats: [{ c4: 2 }, { c4: 2 }, { rocket: 4 }, { satchel: 12 }, { explo: 250 }] },
-            { id: 'ladderHatch', name: 'Ladder Hatch', cat: 'doors', hp: 250, img: 'ladder_hatch.png', icon: 'fa-stairs', strats: [{ rocket: 1, explo: 8 }, { c4: 1 }, { rocket: 2 }, { satchel: 4 }, { explo: 63 }] },
-            { id: 'woodWall', name: 'Wooden Wall', cat: 'walls', hp: 250, img: 'wood_wall.png', icon: 'fa-cubes', strats: [{ molotov: 2 }, { c4: 1 }, { rocket: 2 }, { satchel: 3 }, { explo: 49 }] },
-            { id: 'stoneWall', name: 'Stone Wall', cat: 'walls', hp: 500, img: 'stone_wall.png', icon: 'fa-cubes', strats: [{ c4: 2 }, { c4: 2 }, { rocket: 4 }, { satchel: 10 }, { explo: 185 }] },
-            { id: 'metalWall', name: 'Metal Wall', cat: 'walls', hp: 1000, img: 'metal_wall.png', icon: 'fa-layer-group', strats: [{ c4: 4 }, { c4: 4 }, { rocket: 8 }, { satchel: 23 }, { explo: 400 }] },
-            { id: 'armoredWall', name: 'Armored Wall', cat: 'walls', hp: 2000, img: 'armored_wall.png', icon: 'fa-shield-halved', strats: [{ c4: 8 }, { c4: 8 }, { rocket: 15 }, { satchel: 46 }, { explo: 799 }] },
-            { id: 'highStone', name: 'High Ext. Stone', cat: 'walls', hp: 500, img: 'high_stone.png', icon: 'fa-chess-rook', strats: [{ c4: 2 }, { c4: 2 }, { rocket: 4 }, { satchel: 10 }, { explo: 185 }] },
-            { id: 'tc', name: 'Tool Cupboard', cat: 'deployables', hp: 100, img: 'tc.png', icon: 'fa-box-archive', strats: [{ molotov: 1 }, { c4: 1 }, { rocket: 1 }, { satchel: 3 }, { explo: 9 }] },
-            { id: 'turret', name: 'Auto Turret', cat: 'deployables', hp: 1000, img: 'turret.png', icon: 'fa-satellite-dish', strats: [{ hv: 3 }, { c4: 1 }, { rocket: 4 }, { hv: 3 }, { explo: 100 }] },
-            { id: 'vending', name: 'Vending Machine', cat: 'deployables', hp: 2500, img: 'vending.png', icon: 'fa-cash-register', strats: [{ c4: 3 }, { c4: 3 }, { rocket: 10 }, { satchel: 23 }, { c4: 3 }] },
-            { id: 'windowGlass', name: 'Reinf. Glass', cat: 'deployables', hp: 500, img: 'glass.png', icon: 'fa-border-all', strats: [{ c4: 2 }, { c4: 2 }, { rocket: 4 }, { satchel: 12 }, { explo: 200 }] }
-        ];
-
-        // DB: EXPLOSIVES
         const explosivesData = {
-            c4:      { name: 'C4 Charge', img: 'c4.png', cost: { sulfur: 2200, charcoal: 3000, metal: 200, pipes: 0, tech: 2, lgf: 20, cloth: 0 } },
-            rocket:  { name: 'Rocket', img: 'rocket.png', cost: { sulfur: 1400, charcoal: 1950, metal: 100, pipes: 2, tech: 0, lgf: 10, cloth: 0 } },
+            c4: { name: 'C4 Charge', img: 'c4.png', cost: { sulfur: 2200, charcoal: 3000, metal: 200, pipes: 0, tech: 2, lgf: 20, cloth: 0 } },
+            rocket: { name: 'Rocket', img: 'rocket.png', cost: { sulfur: 1400, charcoal: 1950, metal: 100, pipes: 2, tech: 0, lgf: 10, cloth: 0 } },
             satchel: { name: 'Satchel', img: 'satchel.png', cost: { sulfur: 480, charcoal: 720, metal: 80, pipes: 0, tech: 0, lgf: 0, cloth: 0 } },
-            explo:   { name: 'Explo Ammo', img: 'explo.png', cost: { sulfur: 25, charcoal: 30, metal: 10, pipes: 0, tech: 0, lgf: 0, cloth: 0 } },
+            explo: { name: 'Explosive Ammo', img: 'explo.png', cost: { sulfur: 25, charcoal: 30, metal: 10, pipes: 0, tech: 0, lgf: 0, cloth: 0 } },
             beancan: { name: 'Beancan', img: 'beancan.png', cost: { sulfur: 120, charcoal: 160, metal: 20, pipes: 0, tech: 0, lgf: 0, cloth: 0 } },
             molotov: { name: 'Molotov', img: 'molotov.png', cost: { sulfur: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 40, cloth: 10 } },
-            hv:      { name: 'HV Rocket', img: 'hv.png', cost: { sulfur: 200, charcoal: 300, metal: 100, pipes: 1, tech: 0, lgf: 0, cloth: 0 } }
+            hv: { name: 'HV Rocket', img: 'hv.png', cost: { sulfur: 200, charcoal: 300, metal: 100, pipes: 1, tech: 0, lgf: 0, cloth: 0 } }
         };
+
+        const dbItems = [
+            { id: 'woodDoor', name: 'Wooden Door', cat: 'doors', hp: 200, img: 'wood_door.png', strats: [{ molotov: 2 }, { satchel: 2 }, { beancan: 6 }, { explo: 19 }, { c4: 1 }, { rocket: 1 }] },
+            { id: 'sheetDoor', name: 'Sheet Metal Door', cat: 'doors', hp: 250, img: 'sheet_door.png', strats: [{ satchel: 4 }, { beancan: 18 }, { explo: 63 }, { rocket: 1, explo: 8 }, { c4: 1 }, { rocket: 2 }] },
+            { id: 'garageDoor', name: 'Garage Door', cat: 'doors', hp: 600, img: 'garage_door.png', strats: [{ c4: 1, explo: 40 }, { satchel: 9 }, { beancan: 42 }, { explo: 150 }, { c4: 2 }, { rocket: 3 }] },
+            { id: 'armoredDoor', name: 'Armored Door', cat: 'doors', hp: 1000, img: 'armored_door.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 12 }, { explo: 250 }] },
+            { id: 'ladderHatch', name: 'Ladder Hatch', cat: 'doors', hp: 250, img: 'ladder_hatch.png', strats: [{ satchel: 4 }, { explo: 63 }, { rocket: 1, explo: 8 }, { c4: 1 }, { rocket: 2 }] },
+            { id: 'stoneWall', name: 'Stone Wall', cat: 'walls', hp: 500, img: 'stone_wall.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 10 }, { explo: 185 }] },
+            { id: 'metalWall', name: 'Metal Wall', cat: 'walls', hp: 1000, img: 'metal_wall.png', strats: [{ c4: 4 }, { rocket: 8 }, { satchel: 23 }, { explo: 400 }] },
+            { id: 'armoredWall', name: 'Armored Wall', cat: 'walls', hp: 2000, img: 'armored_wall.png', strats: [{ c4: 8 }, { rocket: 15 }, { satchel: 46 }, { explo: 799 }] },
+            { id: 'highStone', name: 'High Ext. Stone', cat: 'walls', hp: 500, img: 'high_stone.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 10 }, { explo: 185 }] },
+            { id: 'tc', name: 'Tool Cupboard', cat: 'deployables', hp: 100, img: 'tc.png', strats: [{ molotov: 1 }, { satchel: 3 }, { explo: 9 }, { c4: 1 }, { rocket: 1 }] },
+            { id: 'turret', name: 'Auto Turret', cat: 'deployables', hp: 1000, img: 'turret.png', strats: [{ hv: 3 }, { c4: 1 }, { rocket: 4 }, { explo: 100 }] },
+            { id: 'vending', name: 'Vending Machine', cat: 'deployables', hp: 2500, img: 'vending.png', strats: [{ c4: 3 }, { rocket: 10 }, { satchel: 23 }] },
+            { id: 'windowGlass', name: 'Reinf. Glass', cat: 'deployables', hp: 500, img: 'glass.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 12 }, { explo: 200 }] }
+        ];
 
         // --- APP STATE ---
         let state = {
-            cart: {},
-            currentTab: 'doors',
-            stratIndex: 0,
-            settings: { gatherRate: 1, themeKey: 'rust' }
+            targets: {},
+            cat: 'doors',
+            settingsActive: false,
+            settings: { 
+                gatherRate: 1, themeKey: 'rust',
+                tools: { c4: true, rocket: true, satchel: true, explo: true, beancan: true, molotov: true, hv: true }
+            }
         };
 
         // --- INIT ---
         function init() {
-            const savedCart = localStorage.getItem('spananiCartV2');
-            const savedSettings = localStorage.getItem('spananiSettingsV2');
-            
-            if(savedCart) state.cart = JSON.parse(savedCart);
-            else dbItems.forEach(i => state.cart[i.id] = 0);
-
-            if(savedSettings) state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
+            const ls = localStorage.getItem('spananiV8');
+            if (ls) {
+                const parsed = JSON.parse(ls);
+                state = { ...state, ...parsed, settings: { ...state.settings, ...parsed.settings } };
+            } else {
+                dbItems.forEach(i => state.targets[i.id] = 0);
+            }
 
             document.getElementById('setting-rate').value = state.settings.gatherRate;
-            
             applyTheme(state.settings.themeKey);
-            updateStratUI();
-            renderTargets();
-            calculate();
+            buildMaterialGrid();
+            renderAll();
         }
 
-        function saveData() {
-            localStorage.setItem('spananiCartV2', JSON.stringify(state.cart));
-            localStorage.setItem('spananiSettingsV2', JSON.stringify(state.settings));
-        }
+        function saveData() { localStorage.setItem('spananiV8', JSON.stringify(state)); }
 
-        // --- UI & TABS ---
-        function switchTab(tabId) {
-            state.currentTab = tabId;
-            
-            // Tab styling
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('tab-active');
-            });
-            document.getElementById(`tab-${tabId}`).classList.add('tab-active');
-
-            // View toggling
-            const isSettings = tabId === 'settings';
-            
-            if (isSettings) {
-                document.getElementById('view-targets').classList.add('hidden');
-                document.getElementById('right-panel').classList.add('hidden');
-                document.getElementById('left-panel').classList.replace('xl:col-span-7', 'xl:col-span-12');
-                document.getElementById('view-settings').classList.remove('hidden');
-            } else {
-                document.getElementById('view-settings').classList.add('hidden');
-                document.getElementById('left-panel').classList.replace('xl:col-span-12', 'xl:col-span-7');
-                document.getElementById('right-panel').classList.remove('hidden');
-                document.getElementById('view-targets').classList.remove('hidden');
-                renderTargets();
-            }
-        }
-
-        // --- THEMES ---
+        // --- UI & THEMES ---
         function applyTheme(key) {
             state.settings.themeKey = key;
-            const t = themes[key];
             const root = document.documentElement;
-            root.style.setProperty('--color-primary-400', t.light);
-            root.style.setProperty('--color-primary-500', t.color);
-            root.style.setProperty('--color-primary-600', t.hover);
-            root.style.setProperty('--glow-primary', `0 0 30px ${t.color}25`);
+            root.style.setProperty('--color-primary', themes[key].color);
             
-            renderThemeSelector();
-            saveData();
-        }
-
-        function renderThemeSelector() {
-            const container = document.getElementById('theme-selector');
-            container.innerHTML = '';
-            for (const [key, t] of Object.entries(themes)) {
-                const isActive = state.settings.themeKey === key;
-                container.innerHTML += `
-                    <button onclick="applyTheme('${key}')" 
-                        class="theme-swatch w-14 h-14 rounded-2xl cursor-pointer ${isActive ? 'active' : ''}" 
-                        style="background-color: ${t.color}" 
-                        title="${t.name}">
-                    </button>
+            document.getElementById('theme-selector').innerHTML = '';
+            for (const [k, t] of Object.entries(themes)) {
+                document.getElementById('theme-selector').innerHTML += `
+                    <div onclick="applyTheme('${k}')" class="theme-swatch ${key === k ? 'active' : ''}" style="background-color: ${t.color}"></div>
                 `;
             }
-        }
-
-        function adjustRate(amount) {
-            const input = document.getElementById('setting-rate');
-            let val = parseFloat(input.value) + amount;
-            if(val < 1) val = 1;
-            input.value = val;
-        }
-
-        function saveSettings() {
-            state.settings.gatherRate = parseFloat(document.getElementById('setting-rate').value) || 1;
             saveData();
-            calculate();
+        }
+
+        function toggleSettings() {
+            state.settingsActive = !state.settingsActive;
+            document.getElementById('dashboard-view').classList.toggle('hidden', state.settingsActive);
+            document.getElementById('settings-view').classList.toggle('hidden', !state.settingsActive);
             
-            // Visual feedback
-            const btn = event.target;
-            const orig = btn.innerText;
-            btn.innerText = "Saved!";
-            btn.classList.add('bg-green-500');
-            setTimeout(() => { btn.innerText = orig; btn.classList.remove('bg-green-500'); }, 1000);
+            const btn = document.getElementById('btn-settings');
+            btn.classList.toggle('active', state.settingsActive);
+
+            if(!state.settingsActive) renderAll(); // Re-calc when closing settings
+        }
+
+        function setCat(cat) {
+            state.cat = cat;
+            ['doors','walls','deployables'].forEach(c => {
+                const el = document.getElementById(`cat-${c}`);
+                if(c === cat) {
+                    el.classList.add('bg-dark-700', 'text-white', 'shadow-sm');
+                    el.style.color = 'white';
+                } else {
+                    el.classList.remove('bg-dark-700', 'text-white', 'shadow-sm');
+                    el.style.color = 'var(--color-muted)';
+                }
+            });
+            renderTargets();
         }
 
         // --- BUILDERS ---
-        function buildImg(imgFile, icon) {
-            const url = GITHUB_IMAGES_URL + imgFile;
+        function buildImg(imgFile, fallback) {
             return `
-                <img src="${url}" alt="icon" class="w-8 h-8 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <i class="fa-solid ${icon} text-xl hidden text-dark-500"></i>
+                <img src="${GITHUB_IMAGES_URL}${imgFile}" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <i class="fa-solid ${fallback} text-xl hidden" style="color: var(--color-muted)"></i>
             `;
+        }
+
+        function buildMaterialGrid() {
+            const container = document.getElementById('materials-container');
+            container.innerHTML = '';
+            ['sulfur','charcoal','metal','lgf','pipes','tech','cloth','wood'].forEach(key => {
+                const res = resImgs[key];
+                container.innerHTML += `
+                    <div class="flex flex-col items-center justify-center p-2 rounded-lg transition-opacity duration-300" id="mat-card-${key}">
+                        <div class="w-6 h-6 mb-2 opacity-80">${buildImg(res.img, res.icon)}</div>
+                        <span class="text-xs font-mono font-bold text-white mb-0.5" id="mat-${key}">0</span>
+                        <span class="text-[9px] uppercase tracking-wider" style="color: var(--color-muted)">${res.name}</span>
+                    </div>
+                `;
+            });
         }
 
         function renderTargets() {
             const container = document.getElementById('targets-container');
             container.innerHTML = '';
-            
-            dbItems.filter(i => i.cat === state.currentTab).forEach(item => {
-                const qty = state.cart[item.id] || 0;
-                const activeBorder = qty > 0 ? 'border-primary-500/50 bg-primary-500/5' : 'border-dark-700 bg-dark-900';
-                
+            dbItems.filter(i => i.cat === state.cat).forEach(item => {
+                const qty = state.targets[item.id] || 0;
                 container.innerHTML += `
-                    <div class="card rounded-xl p-3 flex items-center justify-between ${activeBorder}">
+                    <div class="target-card p-3 flex justify-between items-center ${qty > 0 ? 'has-qty' : ''}">
                         <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 rounded-lg bg-dark-800 border border-dark-700 flex items-center justify-center">
-                                ${buildImg(item.img, item.icon)}
-                            </div>
+                            <div class="w-8 h-8">${buildImg(item.img, 'fa-box')}</div>
                             <div class="flex flex-col">
-                                <span class="font-semibold text-white tracking-wide">${item.name}</span>
-                                <span class="text-[10px] text-dark-400 font-mono font-medium">${item.hp} HP</span>
+                                <span class="font-medium text-sm text-white">${item.name}</span>
+                                <span class="text-[10px] font-mono mt-0.5" style="color: var(--color-muted)">${item.hp} HP</span>
                             </div>
                         </div>
-                        <div class="flex items-center bg-dark-800 rounded-lg border border-dark-700 p-1">
-                            <button onclick="updateQty('${item.id}', -1)" class="w-8 h-8 flex justify-center items-center text-dark-400 hover:text-white rounded transition-colors"><i class="fa-solid fa-minus text-sm"></i></button>
-                            <span id="qty-${item.id}" class="w-8 text-center font-mono font-bold text-white">${qty}</span>
-                            <button onclick="updateQty('${item.id}', 1)" class="w-8 h-8 flex justify-center items-center text-primary-500 hover:text-white rounded transition-colors"><i class="fa-solid fa-plus text-sm"></i></button>
+                        <div class="flex items-center space-x-1">
+                            <button onclick="updateQty('${item.id}', -1)" class="w-8 h-8 rounded-md flex items-center justify-center text-dark-400 hover:text-white hover:bg-dark-800 transition"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <span class="w-6 text-center font-mono text-sm font-bold text-white">${qty}</span>
+                            <button onclick="updateQty('${item.id}', 1)" class="w-8 h-8 rounded-md flex items-center justify-center text-dark-400 hover:text-white hover:bg-dark-800 transition"><i class="fa-solid fa-plus text-xs"></i></button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // --- LOGIC ---
+        function renderSettingsTools() {
+            const container = document.getElementById('settings-tools');
+            container.innerHTML = '';
+            Object.keys(explosivesData).forEach(key => {
+                const exp = explosivesData[key];
+                const active = state.settings.tools[key];
+                container.innerHTML += `
+                    <div onclick="toggleTool('${key}')" class="subtle-btn cursor-pointer rounded-lg p-3 flex flex-col items-center ${active ? 'active' : ''}">
+                        <div class="w-8 h-8 mb-2">${buildImg(exp.img, 'fa-bomb')}</div>
+                        <span class="text-xs font-semibold ${active ? 'text-white' : ''}">${exp.name}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // --- INTERACTION ---
         function updateQty(id, change) {
-            if (state.cart[id] + change >= 0) {
-                state.cart[id] += change;
+            if (state.targets[id] + change >= 0) {
+                state.targets[id] += change;
                 saveData();
-                renderTargets(); // re-render to trigger active border
-                calculate();
+                renderTargets();
+                calculateEngine();
             }
         }
 
-        function cycleStrategy() {
-            state.stratIndex = (state.stratIndex + 1) % strategies.length;
-            updateStratUI();
-            calculate();
-        }
-
-        function updateStratUI() {
-            const strat = strategies[state.stratIndex];
-            document.getElementById('strat-name').innerHTML = `<i class="fa-solid ${strat.icon} text-primary-500 mr-3"></i> ${strat.name}`;
-        }
-
-        function resetCart() {
-            dbItems.forEach(i => state.cart[i.id] = 0);
+        function toggleTool(key) {
+            state.settings.tools[key] = !state.settings.tools[key];
             saveData();
-            if(state.currentTab !== 'settings') renderTargets();
-            calculate();
+            renderSettingsTools();
         }
 
-        // --- MATH ---
-        function calculate() {
+        document.getElementById('setting-rate').addEventListener('change', (e) => {
+            let val = parseFloat(e.target.value);
+            state.settings.gatherRate = val > 0 ? val : 1;
+            saveData();
+        });
+
+        function resetData() {
+            dbItems.forEach(i => state.targets[i.id] = 0);
+            saveData();
+            renderAll();
+        }
+
+        function renderAll() {
+            document.getElementById('nav-rate').innerText = state.settings.gatherRate + 'x';
+            renderTargets();
+            renderSettingsTools();
+            calculateEngine();
+        }
+
+        // --- LOGISTICS ENGINE ---
+        function calculateEngine() {
             let requiredExp = {}; 
+            let hasTargets = false;
+            let invalidPath = false;
+
+            // 1. Pathfinding
             dbItems.forEach(item => {
-                const qty = state.cart[item.id];
+                const qty = state.targets[item.id];
                 if (qty > 0) {
-                    const mix = item.strats[state.stratIndex];
-                    for (const [expKey, expQty] of Object.entries(mix)) {
-                        if (!requiredExp[expKey]) requiredExp[expKey] = 0;
-                        requiredExp[expKey] += (expQty * qty);
+                    hasTargets = true;
+                    const allowedStrats = item.strats.filter(strat => {
+                        for(const expKey in strat) {
+                            if(!state.settings.tools[expKey]) return false; 
+                        }
+                        return true;
+                    });
+
+                    if(allowedStrats.length === 0) { invalidPath = true; return; }
+
+                    let cheapestCost = Infinity;
+                    let bestStrat = null;
+
+                    allowedStrats.forEach(strat => {
+                        let cost = 0;
+                        for(const [expKey, expQty] of Object.entries(strat)) {
+                            cost += (explosivesData[expKey].cost.sulfur * expQty);
+                        }
+                        if(cost < cheapestCost) { cheapestCost = cost; bestStrat = strat; }
+                    });
+
+                    if(bestStrat) {
+                        for(const [expKey, expQty] of Object.entries(bestStrat)) {
+                            if(!requiredExp[expKey]) requiredExp[expKey] = 0;
+                            requiredExp[expKey] += (expQty * qty);
+                        }
                     }
                 }
             });
 
-            const craftContainer = document.getElementById('crafting-list');
-            craftContainer.innerHTML = '';
+            // 2. Blueprint UI
+            const craftList = document.getElementById('crafting-list');
+            craftList.innerHTML = '';
             
-            if (Object.keys(requiredExp).length === 0) {
-                craftContainer.innerHTML = `<div class="text-center p-6 text-dark-500 font-medium border border-dashed border-dark-700 rounded-xl bg-dark-800/50">Add targets to generate a loadout.</div>`;
+            if(!hasTargets) {
+                craftList.innerHTML = `<div class="text-sm py-4 text-center font-mono" style="color: var(--color-muted)">Add targets to generate layout.</div>`;
+            } else if (invalidPath) {
+                craftList.innerHTML = `<div class="text-sm py-4 text-center text-red-500 font-medium">Path blocked. Enable more tools in Settings.</div>`;
             } else {
-                for (const [key, qty] of Object.entries(requiredExp)) {
+                for(const [key, req] of Object.entries(requiredExp)) {
                     const expDef = explosivesData[key];
-                    craftContainer.innerHTML += `
-                        <div class="card p-3 rounded-xl flex justify-between items-center fade-in">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-10 h-10 rounded-lg bg-dark-800 border border-dark-700 flex justify-center items-center">${buildImg(expDef.img, 'fa-bomb')}</div>
-                                <span class="font-semibold text-white">${expDef.name}</span>
+                    craftList.innerHTML += `
+                        <div class="flex justify-between items-center py-2 border-b border-dark-700 last:border-0 fade-in">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-6 h-6">${buildImg(expDef.img, 'fa-bomb')}</div>
+                                <span class="text-sm font-medium text-white">${expDef.name}</span>
                             </div>
-                            <span class="text-xl font-mono font-bold text-primary-500">${qty.toLocaleString()}</span>
+                            <span class="text-lg font-mono font-bold" style="color: var(--color-primary)">${req}</span>
                         </div>
                     `;
                 }
             }
 
-            let totals = { sulfur: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0 };
+            // 3. Materials
+            let matTotals = { sulfur: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0 };
             
-            for (const [key, qty] of Object.entries(requiredExp)) {
-                const cost = explosivesData[key].cost;
-                totals.sulfur += cost.sulfur * qty;
-                totals.charcoal += cost.charcoal * qty;
-                totals.metal += cost.metal * qty;
-                totals.pipes += cost.pipes * qty;
-                totals.tech += cost.tech * qty;
-                totals.lgf += cost.lgf * qty;
-                totals.cloth += cost.cloth * qty;
+            if(!invalidPath) {
+                for (const [key, qty] of Object.entries(requiredExp)) {
+                    const cost = explosivesData[key].cost;
+                    matTotals.sulfur += cost.sulfur * qty;
+                    matTotals.charcoal += cost.charcoal * qty;
+                    matTotals.metal += cost.metal * qty;
+                    matTotals.pipes += cost.pipes * qty;
+                    matTotals.tech += cost.tech * qty;
+                    matTotals.lgf += cost.lgf * qty;
+                    matTotals.cloth += cost.cloth * qty;
+                }
             }
 
-            document.getElementById('header-gather-rate').innerText = state.settings.gatherRate + 'x';
-            document.getElementById('logistics-rate').innerText = state.settings.gatherRate + 'x Server Rate';
+            document.getElementById('total-sulfur').innerText = matTotals.sulfur.toLocaleString();
 
-            document.getElementById('grand-total-sulfur').innerText = totals.sulfur.toLocaleString();
             ['sulfur','charcoal','metal','pipes','tech','lgf','cloth'].forEach(mat => {
-                document.getElementById(`mat-${mat}`).innerText = totals[mat].toLocaleString();
+                const el = document.getElementById(`mat-${mat}`);
+                const card = document.getElementById(`mat-card-${mat}`);
+                if(el && card) {
+                    el.innerText = matTotals[mat].toLocaleString();
+                    card.style.opacity = matTotals[mat] > 0 ? '1' : '0.2';
+                    card.style.background = matTotals[mat] > 0 ? 'rgba(255,255,255,0.03)' : 'transparent';
+                }
             });
 
+            // Farming
             const nodeYield = 300 * state.settings.gatherRate;
-            const nodesRequired = Math.ceil(totals.sulfur / nodeYield);
-
+            const nodesRequired = Math.ceil(matTotals.sulfur / nodeYield);
             document.getElementById('farm-nodes').innerText = nodesRequired.toLocaleString();
-            document.getElementById('farm-wood').innerText = totals.charcoal.toLocaleString();
+            
+            const woodEl = document.getElementById('mat-wood');
+            const woodCard = document.getElementById('mat-card-wood');
+            if(woodEl && woodCard) {
+                woodEl.innerText = matTotals.charcoal.toLocaleString();
+                woodCard.style.opacity = matTotals.charcoal > 0 ? '1' : '0.2';
+                woodCard.style.background = matTotals.charcoal > 0 ? 'rgba(255,255,255,0.03)' : 'transparent';
+            }
         }
 
         window.onload = init;

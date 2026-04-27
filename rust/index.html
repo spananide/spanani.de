@@ -11,6 +11,7 @@
     <style>
         :root {
             --color-primary: #f97316;
+            --color-primary-text: #ffffff; /* Dynamic text color for buttons */
             --color-bg: #000000;
             --color-panel: #0a0a0a;
             --color-border: #1f1f1f;
@@ -24,12 +25,11 @@
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             background-image: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.05) 0%, transparent 70%);
-            touch-action: manipulation; /* Smooth mobile tapping */
+            touch-action: manipulation;
         }
 
         .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-        ::-webkit-scrollbar { width: 0px; height: 0px; display: none; } /* Hidden scrollbars for clean mobile view */
+        ::-webkit-scrollbar { width: 0px; height: 0px; display: none; }
         
         .glass-panel {
             background: var(--color-panel);
@@ -38,9 +38,10 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.4);
         }
 
+        /* Target Card Hover & Active States */
         .target-card { border: 1px solid transparent; transition: all 0.2s; border-bottom: 1px solid var(--color-border); }
         .target-card:last-child { border-bottom: none; }
-        .target-card.has-qty { background: rgba(249,115,22,0.03); border-left: 2px solid var(--color-primary); padding-left: 14px; }
+        .target-card.has-qty { background: rgba(255,255,255,0.03); border-left: 2px solid var(--color-primary); padding-left: 14px; }
 
         .fade-in { animation: fadeIn 0.25s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -53,11 +54,26 @@
         .logo-btn { transition: all 0.2s; border: 1px solid var(--color-border); background: var(--color-panel); }
         .logo-btn.active { border-color: var(--color-primary); color: var(--color-primary); }
 
+        /* Dynamic Toggle Switch */
         .toggle-switch.active { background: var(--color-primary); border-color: var(--color-primary); }
-        .toggle-knob { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .toggle-switch.active .toggle-knob { transform: translateX(20px); }
+        .toggle-knob { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); background-color: white; }
+        .toggle-switch.active .toggle-knob { transform: translateX(20px); background-color: var(--color-primary-text); }
 
-        /* Tap Highlights for Mobile */
+        /* Dynamic Nav Tabs */
+        .tab-nav-btn {
+            background-color: #111111; border: 1px solid #1f1f1f; color: #888888; transition: all 0.2s;
+        }
+        .tab-nav-btn.active {
+            background-color: var(--color-primary) !important;
+            color: var(--color-primary-text) !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dynamic Save Button */
+        .btn-primary { background-color: var(--color-primary); color: var(--color-primary-text); transition: all 0.2s; }
+        .btn-primary:active { transform: scale(0.98); }
+
         .tap-active:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
     </style>
 
@@ -73,7 +89,7 @@
     <!-- Navbar -->
     <nav class="w-full max-w-[1200px] flex justify-between items-center mb-6 sm:mb-8 fade-in px-2 sm:px-0">
         <div class="flex items-center space-x-3 sm:space-x-4">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0" style="background: var(--color-primary); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0" style="background: var(--color-primary); color: var(--color-primary-text); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);">
                 <i id="nav-logo" class="fa-solid fa-crosshairs text-xl"></i>
             </div>
             <div class="flex flex-col">
@@ -101,14 +117,14 @@
             
             <!-- Side Tabs -->
             <div class="flex space-x-2 overflow-x-auto pb-3 mb-1 px-2 sm:px-0">
-                <button onclick="switchTab('targets')" id="tab-targets" class="tap-active px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-white shadow-md shrink-0" style="background: var(--color-primary);">
+                <button onclick="switchTab('targets')" id="tab-targets" class="tab-nav-btn active tap-active px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold shrink-0">
                     <i class="fa-solid fa-bullseye mr-1.5 sm:mr-2"></i>Targets
                 </button>
-                <button onclick="switchTab('arsenal')" id="tab-arsenal" class="tap-active px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all bg-dark-900 border border-dark-700 text-dark-400 shrink-0">
+                <button onclick="switchTab('arsenal')" id="tab-arsenal" class="tab-nav-btn tap-active px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold shrink-0">
                     <i class="fa-solid fa-toolbox mr-1.5 sm:mr-2"></i>Arsenal
                 </button>
                 <div class="w-px bg-dark-700 mx-1 sm:mx-2 my-1 shrink-0"></div>
-                <button onclick="switchTab('settings')" id="tab-settings" class="tap-active px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all bg-dark-900 border border-dark-700 text-dark-400 shrink-0">
+                <button onclick="switchTab('settings')" id="tab-settings" class="tab-nav-btn tap-active px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold shrink-0">
                     <i class="fa-solid fa-gear mr-1.5 sm:mr-2"></i>Settings
                 </button>
             </div>
@@ -145,7 +161,7 @@
                         <h3 class="font-bold text-white text-base sm:text-lg mb-1">Server Gather Rate</h3>
                         <p class="text-xs sm:text-sm mb-4" style="color: var(--color-muted)">Adjust to match your server for accurate farming node calculations.</p>
                         <div class="flex items-center">
-                            <input type="number" id="setting-rate" value="1" min="1" step="0.5" class="w-24 sm:w-32 bg-dark-800 border border-dark-700 rounded-lg py-2.5 sm:py-3 text-center text-white font-mono font-bold text-base sm:text-lg outline-none focus:border-orange-500 transition-all">
+                            <input type="number" id="setting-rate" value="1" min="0.1" step="0.5" class="w-24 sm:w-32 bg-dark-800 border border-dark-700 rounded-lg py-2.5 sm:py-3 text-center text-white font-mono font-bold text-base sm:text-lg outline-none focus:border-orange-500 transition-all">
                             <span class="ml-4 font-bold text-sm sm:text-lg" style="color: var(--color-muted)">x Multiplier</span>
                         </div>
                     </div>
@@ -158,6 +174,10 @@
                         <h3 class="font-bold text-white text-base sm:text-lg mb-4">Dashboard Accent Color</h3>
                         <div class="flex flex-wrap gap-4 sm:gap-5" id="theme-selector"></div>
                     </div>
+                    <!-- Save Button dynamically uses Text Color -->
+                    <button onclick="switchTab('targets')" class="btn-primary w-full py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg">
+                        Save & Return to Dashboard
+                    </button>
                 </div>
             </div>
         </div>
@@ -167,7 +187,7 @@
             
             <!-- Top Summary -->
             <div class="glass-panel p-4 sm:p-6 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" style="background: var(--color-primary); opacity: 0.1;"></div>
+                <div class="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" style="background: var(--color-primary); opacity: 0.15;"></div>
                 
                 <div class="grid grid-cols-2 gap-3 sm:gap-4">
                     <!-- Gunpowder -->
@@ -202,18 +222,16 @@
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-5 gap-3 sm:gap-0">
                     <h2 class="text-[11px] sm:text-xs uppercase tracking-widest font-bold" style="color: var(--color-muted)">Raw Materials</h2>
                     
-                    <!-- Smart Toggle (Logik umgekehrt) -->
+                    <!-- Smart Toggle (Logic Reversed for Standard Pure view) -->
                     <div class="flex items-center space-x-2 cursor-pointer self-start sm:self-auto tap-active" onclick="toggleTotalMode()">
                         <span class="text-[9px] sm:text-[10px] uppercase tracking-widest font-bold transition-colors" id="label-total-mode" style="color: var(--color-muted)">Show Total + Base Res</span>
                         <div id="switch-total-mode" class="toggle-switch w-8 sm:w-10 h-4 sm:h-5 rounded-full bg-dark-800 border border-dark-600 relative transition-all">
-                            <div class="toggle-knob w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-white absolute top-[2px] sm:top-[3px] left-[2px] sm:left-[3px]"></div>
+                            <div class="toggle-knob w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full absolute top-[2px] sm:top-[3px] left-[2px] sm:left-[3px]"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3 mb-5 sm:mb-6" id="materials-container">
-                    <!-- Materials injected here -->
-                </div>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3 mb-5 sm:mb-6" id="materials-container"></div>
 
                 <div class="pt-4 sm:pt-5 border-t border-dark-700 flex justify-between items-center">
                     <div class="flex items-center">
@@ -245,8 +263,11 @@
         };
 
         const themes = {
-            rust: { color: '#f97316' }, cyan: { color: '#06b6d4' }, green: { color: '#22c55e' },
-            purple: { color: '#a855f7' }, white: { color: '#ffffff' }
+            rust: { color: '#f97316', text: '#ffffff' },
+            cyan: { color: '#06b6d4', text: '#ffffff' },
+            green: { color: '#22c55e', text: '#ffffff' },
+            purple: { color: '#a855f7', text: '#ffffff' },
+            white: { color: '#ffffff', text: '#000000' } // White theme uses black text dynamically!
         };
 
         const logos = ['fa-crosshairs', 'fa-bomb', 'fa-radiation', 'fa-skull', 'fa-shield-halved', 'fa-rocket'];
@@ -295,13 +316,13 @@
         ];
 
         let state = {
-            targets: {}, cat: 'doors', currentTab: 'targets', showTotal: false, // Default is false = Pure Mode
+            targets: {}, cat: 'doors', currentTab: 'targets', showTotal: false, 
             settings: { gatherRate: 1, themeKey: 'rust', logo: 'fa-crosshairs', tools: {} }
         };
 
         // --- INIT ---
         function init() {
-            const ls = localStorage.getItem('spananiV13');
+            const ls = localStorage.getItem('spananiV14');
             if (ls) {
                 const parsed = JSON.parse(ls);
                 state = { ...state, ...parsed, settings: { ...state.settings, ...parsed.settings } };
@@ -330,7 +351,7 @@
             renderAll();
         }
 
-        function saveData() { localStorage.setItem('spananiV13', JSON.stringify(state)); }
+        function saveData() { localStorage.setItem('spananiV14', JSON.stringify(state)); }
 
         // --- BILDER & UI ---
         function buildImg(imgFile, fallback) {
@@ -343,6 +364,7 @@
         function applyTheme(key) {
             state.settings.themeKey = key;
             document.documentElement.style.setProperty('--color-primary', themes[key].color);
+            document.documentElement.style.setProperty('--color-primary-text', themes[key].text);
             document.getElementById('theme-selector').innerHTML = '';
             for (const [k, t] of Object.entries(themes)) {
                 document.getElementById('theme-selector').innerHTML += `<div onclick="applyTheme('${k}')" class="theme-swatch ${key === k ? 'active' : ''}" style="background-color: ${t.color}"></div>`;
@@ -358,7 +380,7 @@
             logos.forEach(logo => {
                 const active = logo === iconClass ? 'active' : '';
                 document.getElementById('logo-selector').innerHTML += `
-                    <button onclick="applyLogo('${logo}')" class="logo-btn w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex justify-center items-center text-lg sm:text-xl text-gray-400 ${active}">
+                    <button onclick="applyLogo('${logo}')" class="logo-btn tap-active w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex justify-center items-center text-lg sm:text-xl text-gray-400 ${active}">
                         <i class="fa-solid ${logo}"></i>
                     </button>
                 `;
@@ -373,15 +395,10 @@
                 const view = document.getElementById(`view-${id}`);
                 
                 if(id === tabId) {
-                    btn.style.background = 'var(--color-primary)';
-                    btn.classList.add('text-white', 'shadow-md');
-                    btn.classList.remove('bg-dark-900', 'text-dark-400', 'border-dark-700');
-                    btn.style.borderColor = 'transparent';
+                    btn.classList.add('active');
                     view.classList.remove('hidden');
                 } else {
-                    btn.style.background = '';
-                    btn.classList.remove('text-white', 'shadow-md');
-                    btn.classList.add('bg-dark-900', 'text-dark-400', 'border-dark-700');
+                    btn.classList.remove('active');
                     view.classList.add('hidden');
                 }
             });
@@ -547,10 +564,24 @@
             saveData(); renderArsenal(); calculateEngine();
         }
 
-        document.getElementById('setting-rate').addEventListener('change', (e) => {
+        // Live Rate Updates correctly instantly!
+        document.getElementById('setting-rate').addEventListener('input', (e) => {
             let val = parseFloat(e.target.value);
-            state.settings.gatherRate = val > 0 ? val : 1;
+            if (isNaN(val) || val <= 0) return; // Prevent crashes while typing empty
+            state.settings.gatherRate = val;
+            document.getElementById('nav-rate').innerText = val + 'x';
             saveData(); calculateEngine();
+        });
+
+        // Ensure it doesn't stay empty on unfocus
+        document.getElementById('setting-rate').addEventListener('blur', (e) => {
+            let val = parseFloat(e.target.value);
+            if (isNaN(val) || val <= 0) {
+                e.target.value = 1;
+                state.settings.gatherRate = 1;
+                document.getElementById('nav-rate').innerText = '1x';
+                saveData(); calculateEngine();
+            }
         });
 
         function resetData() {
@@ -641,18 +672,18 @@
                 }
             }
 
-            // Top Summary
+            // Top Summary (GP & Pure Sulfur)
             document.getElementById('total-gp').innerText = matTotals.gp.toLocaleString();
             document.getElementById('total-pure-sulfur').innerText = matTotals.pureSulfur.toLocaleString();
 
-            // LOGIK FÜR DEN TOGGLE (Standard: Pure Mode = false = Charcoal versteckt)
+            // Materials Grid
             let displaySulfur = state.showTotal ? matTotals.sulfur : matTotals.pureSulfur;
             let displayLabel = state.showTotal ? "Total Sulfur" : "Pure Sulfur";
 
             document.getElementById('mat-sulfur').innerText = displaySulfur.toLocaleString();
             document.getElementById('mat-label-sulfur').innerText = displayLabel;
             
-            const showHidden = state.showTotal; // False = versteckt
+            const hideHidden = state.showTotal;
             const totalWood = matTotals.wood + matTotals.charcoal;
 
             ['charcoal','metal','pipes','tech','lgf','cloth','wood'].forEach(mat => {
@@ -661,7 +692,7 @@
                 
                 if(el && card) {
                     if (mat === 'charcoal' || mat === 'wood') {
-                        if (!showHidden) {
+                        if (!hideHidden) { // Hide if pure mode (showTotal=false)
                             card.style.display = 'none';
                             return; 
                         } else {
@@ -684,8 +715,10 @@
                 sulfurCard.style.background = displaySulfur > 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
             }
 
+            // Node Farming
             const nodeYield = 300 * state.settings.gatherRate;
-            document.getElementById('farm-nodes').innerText = Math.ceil(matTotals.sulfur / nodeYield).toLocaleString();
+            const nodesCalculated = Math.ceil(matTotals.sulfur / nodeYield);
+            document.getElementById('farm-nodes').innerText = nodesCalculated.toLocaleString();
         }
 
         window.onload = init;

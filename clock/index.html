@@ -457,43 +457,45 @@ $('#sres').addEventListener('click',()=>{C={...DEF};try{localStorage.removeItem(
 
 let ntpOff=0,latMs=0,userTz=Intl.DateTimeFormat().resolvedOptions().timeZone,syncTimer=null;
 
-  function parseTimePayload(d){
-  if(typeof d.datetime==='string'){
-    const ts=new Date(d.datetime).getTime();
-    if(Number.isFinite(ts)) return ts;
+function parseTimePayload(d){
+  let ts = NaN;
+  if (typeof d.unixtime === 'number') {
+    ts = d.unixtime * 1000 + (d.milliSeconds || 0);
   }
-  if(typeof d.dateTime==='string'){
-    const ts=new Date(d.dateTime).getTime();
-    if(Number.isFinite(ts)) return ts;
+  if (!Number.isFinite(ts)) {
+    if (typeof d.datetime === 'string') ts = new Date(d.datetime).getTime();
+    else if (typeof d.dateTime === 'string') ts = new Date(d.dateTime + (d.dateTime.includes('Z') || d.dateTime.includes('+') ? '' : 'Z')).getTime();
+    else if (typeof d.iso8601 === 'string') {
+      const preciseIso = typeof d.time === 'string' && /^\d{2}:\d{2}:\d{2}\.\d+/.test(d.time) ? d.iso8601.replace(/T\d{2}:\d{2}:\d{2}(?:\.\d+)?/, 'T'+d.time) : d.iso8601;
+      ts = new Date(preciseIso).getTime();
+    }
+    else if (typeof d.timestamp === 'number') ts = d.timestamp * (d.timestamp > 1e11 ? 1 : 1000);
   }
-  if(typeof d.iso8601==='string'){
-    const preciseIso=typeof d.time==='string' && /^\d{2}:\d{2}:\d{2}\.\d+/.test(d.time)
-      ? d.iso8601.replace(/T\d{2}:\d{2}:\d{2}(?:\.\d+)?/,'T'+d.time)
-      : d.iso8601;
-    const ts=new Date(preciseIso).getTime();
-    if(Number.isFinite(ts)) return ts;
-  }
-  if(Number.isFinite(d.timestamp)) return d.timestamp*1000;
-  return NaN;
+  return Number.isFinite(ts) ? ts : NaN;
 }
 
 async function fetchTimeSample(url){
-  const t0=performance.now();
-  const res=await fetch(url+(url.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});
-  const t1=performance.now();
-  const d=await res.json();
-  if(!res.ok) throw new Error('Time API failed');
-  const browserRtt=t1-t0;
-  const ts=parseTimePayload(d);
+  const t0 = Date.now();
+  const p0 = performance.now();
+  const res = await fetch(url + (url.includes('?') ? '&' : '?') + '_=' + Math.random(), {cache: 'no-store'});
+  const p1 = performance.now();
+  const d = await res.json();
+  if(!res.ok) throw new Error('API failed');
+
+  const rtt = p1 - p0;
+  const ts = parseTimePayload(d);
   if(!Number.isFinite(ts)) throw new Error('Bad time payload');
-  const estimatedNow=ts+(browserRtt/2);
-  return{
-    off:Math.round(estimatedNow-Date.now()),
-    rtt:Math.round(browserRtt),
-    browserRtt:Math.round(browserRtt),
-    accuracy:Math.max(20,Math.round(browserRtt/2)),
-    server:d.timezone||d.abbr||url.replace(/^https?:\/\//,''),
-    samples:1
+
+  // Calculates exact midpoint mathematically, resolving browser-introduced JSON parsing latency delays.
+  const midpointReal = t0 + (rtt / 2);
+  const off = ts - midpointReal;
+
+  return {
+    off: Math.round(off),
+    rtt: Math.round(rtt),
+    accuracy: Math.max(10, Math.round(rtt / 2)),
+    server: new URL(url).hostname,
+    samples: 1
   };
 }
 
@@ -502,44 +504,54 @@ async function syncNTP(){
   dot.className='sdot';st.textContent='syncing web time...';sq.textContent='';
 
   const urls=[
-    'https://gettimeapi.dev/v1/time?timezone='+encodeURIComponent(userTz),
     'https://gettimeapi.dev/v1/time?timezone=UTC',
-    'https://worldtimeapi.org/api/timezone/'+encodeURIComponent(userTz),
-    'https://worldtimeapi.org/api/ip'
+    'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
+    'https://worldtimeapi.org/api/timezone/Etc/UTC'
   ];
 
   try{
-    const quick=await fetchTimeSample(urls[0]);
-    ntpOff=quick.off;latMs=quick.rtt;
+    let quick;
+    for (const url of urls) {
+        try { quick = await fetchTimeSample(url); break; } catch (e) {}
+    }
+    if (!quick) throw new Error('All APIs failed');
+
+    ntpOff = quick.off; latMs = quick.rtt;
     dot.className='sdot ok';
     st.textContent='synced - '+userTz;
     sq.textContent='· quick';
     updateSyncUI(quick);
 
-    if(C.samples>1){
-      Promise.all(urls.slice(0,Math.min(C.samples,urls.length)).map(url=>fetchTimeSample(url).catch(()=>null))).then(samples=>{
-        const valid=samples.filter(Boolean);
-        if(!valid.length) return;
-        valid.sort((a,b)=>a.rtt-b.rtt);
-        const best=Math.max(1,valid[0].rtt);
-        const good=valid.filter(v=>v.rtt<=best*2.5);
-        let totalWeight=0,totalOffset=0;
-        good.forEach(v=>{const w=1/Math.max(1,v.rtt);totalWeight+=w;totalOffset+=v.off*w;});
-        ntpOff=Math.round(totalOffset/totalWeight);
-        latMs=valid[0].rtt;
-        sq.textContent='· '+good.length+'/'+Math.min(C.samples,urls.length)+' ok';
-        updateSyncUI({
-          off:ntpOff,
-          rtt:latMs,
-          browserRtt:latMs,
-          accuracy:Math.max(20,Math.round(latMs/2)),
-          server:valid[0].server,
-          samples:good.length
+    if(C.samples > 1){
+      const otherUrls = urls.filter(u => !quick.server.includes(new URL(u).hostname));
+      const toFetch = otherUrls.slice(0, C.samples - 1);
+
+      if (toFetch.length > 0) {
+        Promise.allSettled(toFetch.map(url=>fetchTimeSample(url))).then(results=>{
+          const valid = results.filter(r=>r.status==='fulfilled').map(r=>r.value);
+          valid.push(quick);
+          valid.sort((a,b)=>a.rtt-b.rtt);
+          
+          const best = Math.max(1, valid[0].rtt);
+          const good = valid.filter(v=>v.rtt <= best * 3);
+          let totalWeight=0, totalOffset=0;
+          
+          good.forEach(v=>{const w=1/Math.max(1,v.rtt); totalWeight+=w; totalOffset+=v.off*w;});
+          ntpOff = Math.round(totalOffset/totalWeight);
+          latMs = valid[0].rtt;
+          
+          sq.textContent='· '+good.length+'/'+(toFetch.length+1)+' ok';
+          updateSyncUI({
+            off: ntpOff, rtt: latMs, accuracy: Math.max(10, Math.round(latMs/2)),
+            server: valid[0].server, samples: good.length
+          });
+          setTimeout(()=>{if(sq)sq.textContent='';}, 3500);
         });
-        setTimeout(()=>{if(sq)sq.textContent='';},3500);
-      }).catch(()=>{});
-    }else{
-      setTimeout(()=>{if(sq)sq.textContent='';},2500);
+      } else {
+        setTimeout(()=>{if(sq)sq.textContent='';}, 2500);
+      }
+    } else {
+      setTimeout(()=>{if(sq)sq.textContent='';}, 2500);
     }
   }catch(e){
     dot.className='sdot err';
@@ -550,6 +562,7 @@ async function syncNTP(){
     updateOff(0,true);
   }
 }
+
 function updateSyncUI(meta){
   updateOff(ntpOff,false,meta);
   $('#iTz').textContent=userTz;
@@ -570,18 +583,21 @@ const OSG={
 function osKey(){const ua=navigator.userAgent;if(/android/i.test(ua))return'android';if(/iphone|ipad/i.test(ua))return'ios';if(/mac/i.test(ua))return'mac';if(/win/i.test(ua))return'win';return'linux';}
 let tutOff=false;try{if(localStorage.getItem('spa-tut-off'))tutOff=true;}catch(e){}
 $('#dtcls').addEventListener('click',()=>{$('#dtut').classList.remove('on');tutOff=true;try{localStorage.setItem('spa-tut-off','1');}catch(e){}});
+
 function updateOff(ms,isError=false,meta=null){
   const ov=$('#offv'),ob=$('#offbf'),od=$('#offbd');
   if(isError){
     ov.className='offv bad';ov.textContent='offline';ob.style.width='100%';ob.style.background='#ef4444';od.textContent='No browser-accessible time API could be reached.';return;
   }
   const abs=Math.abs(ms),sign=ms>0?'+':ms<0?'-':'';
-  if(abs<30){ov.className='offv good';ov.textContent=ms===0?'±0ms':sign+abs+'ms';od.textContent='Your device clock is very close to true NTP time.';}
-  else if(abs<200){ov.className='offv warn';ov.textContent=sign+abs+'ms';od.textContent='Slightly off - common after sleep, resume, or delayed OS sync.';}
+  if(abs<30){ov.className='offv good';ov.textContent=ms===0?'±0ms':sign+abs+'ms';od.textContent='Your device clock is closely synced with real-time NTP.';}
+  else if(abs<200){ov.className='offv warn';ov.textContent=sign+abs+'ms';od.textContent='Slight drift - common after sleep, resume, or delayed OS sync.';}
   else if(abs<5000){ov.className='offv warn';ov.textContent=sign+(abs/1000).toFixed(2)+'s';od.textContent='Noticeable drift - consider syncing your system clock.';}
-  else{ov.className='offv bad';ov.textContent=sign+(abs/1000).toFixed(1)+'s';od.textContent='Significant drift - your clock is wrong.';}
+  else{ov.className='offv bad';ov.textContent=sign+(abs/1000).toFixed(1)+'s';od.textContent='Significant drift - your OS clock is incorrectly configured.';}
+  
   ob.style.width=Math.min(100,abs/20)+'%';ob.style.background=abs<30?'#3db87a':abs<200?'#f59e0b':'#ef4444';
   if(meta&&meta.samples===1&&abs<5000) od.textContent+=' Quick estimate shown first; refined samples will tighten this.';
+  
   if(abs>=5000&&!tutOff){
     const steps=OSG[osKey()]||OSG.win;
     $('#dtsteps').innerHTML=steps.map((s,i)=>`<div class="dtstep"><div class="dtnum">${i+1}</div><div class="dtcnt"><strong>${s.t}</strong><br>${s.d}</div></div>`).join('');
@@ -699,13 +715,18 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
     return[x2,y*cx-z2*sx,y*sx+z2*cx];
   }
   function lerp3(a,b,t){return[a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1]),a[2]+t*(b[2]-a[2])];}
-  function traceRing(ring,cx,cy,GR){
-    const n=ring.length;if(n<2)return;
-    const pts=ring.map(([lon,lat])=>rv(ll2v(lat,lon)));
-    let wasVis=false;
+  
+  // Re-engineered algorithm prevents 2D path tearing (fills spanning backwards over the planet) 
+  // by calculating visibility and intelligently converting to a wireframe along the horizon.
+  function traceRing(pts,cx,cy,GR){
+    const n=pts.length;if(n<2)return {fullyVis:false, completelyHidden:true};
+    let wasVis=false, fullyVis=true, completelyHidden=true;
+
     for(let i=0;i<n;i++){
       const cur=pts[i];
       const vis=cur[2]>0;
+      if(vis) completelyHidden=false; else fullyVis=false;
+
       if(i>0){
         const prev=pts[i-1];
         const prevVis=prev[2]>0;
@@ -719,11 +740,12 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
       }
       if(vis){
         const sx=cx+cur[0]*GR,sy=cy-cur[1]*GR;
-        if(!wasVis)ctx.moveTo(sx,sy);
+        if(!wasVis) ctx.moveTo(sx,sy);
         else ctx.lineTo(sx,sy);
       }
       wasVis=vis;
     }
+    return {fullyVis, completelyHidden};
   }
 
   const grat=[];
@@ -779,9 +801,24 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
     if(mapOk){
       for(let pi=0;pi<polys.length;pi++){
         ctx.beginPath();
-        for(const ring of polys[pi])traceRing(ring,cx,cy,GR);
-        ctx.fillStyle=LC[pi%LC.length];ctx.fill('evenodd');
-        ctx.strokeStyle='rgba(0,0,0,.48)';ctx.lineWidth=.55;ctx.stroke();
+        let canFill=true, drawnAnything=false;
+        for(const ring of polys[pi]){
+          const pts=ring.map(([lon,lat])=>rv(ll2v(lat,lon)));
+          const {fullyVis, completelyHidden} = traceRing(pts,cx,cy,GR);
+          if(!fullyVis) canFill=false;
+          if(!completelyHidden) drawnAnything=true;
+        }
+        if(drawnAnything){
+          // only fill if it sits fully on the hemisphere. 
+          // If a boundary wraps out of sight, fall back strictly to elegant glowing wireframe strokes to prevent polygon tears.
+          if(canFill){
+            ctx.fillStyle=LC[pi%LC.length];
+            ctx.fill('evenodd');
+          }
+          ctx.strokeStyle=`rgba(255,255,255,0.2)`; 
+          ctx.lineWidth=0.7;
+          ctx.stroke();
+        }
       }
     }
 

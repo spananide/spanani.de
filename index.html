@@ -189,6 +189,7 @@ h1.hn em { font-style: italic; color: var(--ac); }
 .pd { font-size: 12px; color: var(--mu); line-height: 1.7; }
 .ptags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .ptag { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mu); background: var(--bg2); border: 1px solid var(--border); padding: 3px 9px; border-radius: 2px; }
+.ptag.rust { color: #d4580f; background: rgba(212,88,15,0.08); border-color: rgba(212,88,15,0.2); }
 .pa { color: var(--mu); transition: all 0.3s var(--ease); flex-shrink: 0; }
 
 .cs {
@@ -287,7 +288,7 @@ footer a:hover { color: var(--text); }
 .settings-reset:hover { color: #ef4444; border-color: rgba(239,68,68,0.3); }
 
 @media (max-width: 768px) {
-  nav { padding: 0 24px; }
+  nav { padding: 0 20px; height: 56px; }
   .nr { gap: 8px; }
   .cplb, .nl { display: none; }
   .presets-wrap { display: none; }
@@ -296,7 +297,7 @@ footer a:hover { color: var(--text); }
   .sec { padding: 80px 24px; }
   .hb { flex-direction: column; align-items: flex-start; }
   .cs { flex-direction: column; align-items: flex-start; gap: 20px; padding: 28px 24px; }
-  footer { flex-wrap: wrap; gap: 12px; padding: 24px; }
+  footer { flex-wrap: wrap; gap: 12px; padding: 20px 24px; }
   .btt { bottom: 20px; right: 20px; }
   .pr { grid-template-columns: 36px 1fr 18px; gap: 14px; }
   .settings-drawer { width: 100vw; }
@@ -433,6 +434,8 @@ footer a:hover { color: var(--text); }
   <div class="slb">work</div>
   <h2 class="sti rv">projects &<br><em>experiments.</em></h2>
   <div class="pl">
+
+    <!-- 01 Atomic Clock -->
     <a href="./clock.html" class="pr rv">
       <div class="pn">01</div>
       <div>
@@ -442,16 +445,30 @@ footer a:hover { color: var(--text); }
       </div>
       <svg class="pa" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 14L14 2M14 2H6M14 2V10" stroke="currentColor" stroke-width="1.4"/></svg>
     </a>
-    <div class="pr dm rv rv-d1">
+
+    <!-- 02 Rust Raid Calculator — NEW -->
+    <a href="./raid.html" class="pr rv rv-d1">
       <div class="pn">02</div>
-      <div><div class="pt">Coming Soon</div><div class="pd">Something in the works.</div><div class="ptags"><span class="ptag">soon</span></div></div>
+      <div>
+        <div class="pt">Rust Raid Calculator</div>
+        <div class="pd">Plan raids down to the last sulfur grain. 19 structures, 6 explosive methods, soft/hard side, gather rate, CSV export, shareable links and custom backgrounds.</div>
+        <div class="ptags">
+          <span class="ptag rust">Rust</span>
+          <span class="ptag">Calculator</span>
+          <span class="ptag">Mobile-first</span>
+          <span class="ptag">JavaScript</span>
+        </div>
+      </div>
       <svg class="pa" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 14L14 2M14 2H6M14 2V10" stroke="currentColor" stroke-width="1.4"/></svg>
-    </div>
+    </a>
+
+    <!-- 03 Coming Soon -->
     <div class="pr dm rv rv-d2">
       <div class="pn">03</div>
       <div><div class="pt">Coming Soon</div><div class="pd">Experiments from the lab.</div><div class="ptags"><span class="ptag">soon</span></div></div>
       <svg class="pa" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 14L14 2M14 2H6M14 2V10" stroke="currentColor" stroke-width="1.4"/></svg>
     </div>
+
   </div>
 </section>
 
@@ -489,162 +506,198 @@ footer a:hover { color: var(--text); }
 <script>
 (function(){
 'use strict';
-const $=(s,c=document)=>c.querySelector(s);
-const $$=(s,c=document)=>[...c.querySelectorAll(s)];
-const lerp=(a,b,t)=>a+(b-a)*t;
-const root=document.documentElement;
-const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+const $  = (s, c=document) => c.querySelector(s);
+const $$ = (s, c=document) => [...c.querySelectorAll(s)];
+const lerp = (a,b,t) => a+(b-a)*t;
+const root = document.documentElement;
+const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
-const DEFAULTS={ac:'#e2e2e2',grid:true,noise:true,cursor:true,scroll:true,clock:true};
-let cfg={...DEFAULTS};
-function loadCfg(){ try{const s=localStorage.getItem('spa-cfg');if(s)cfg={...DEFAULTS,...JSON.parse(s)}}catch(e){} }
-function saveCfg(){ try{localStorage.setItem('spa-cfg',JSON.stringify(cfg))}catch(e){} }
+/* ── Config / persistence ── */
+const DEFAULTS = {ac:'#e2e2e2', grid:true, noise:true, cursor:true, scroll:true, clock:true};
+let cfg = {...DEFAULTS};
+function loadCfg(){ try{ const s=localStorage.getItem('spa-cfg'); if(s) cfg={...DEFAULTS,...JSON.parse(s)}; }catch(e){} }
+function saveCfg(){ try{ localStorage.setItem('spa-cfg', JSON.stringify(cfg)); }catch(e){} }
 loadCfg();
 
-function h2r(h){ return parseInt(h.slice(1,3),16)+','+parseInt(h.slice(3,5),16)+','+parseInt(h.slice(5,7),16) }
+function h2r(h){ return parseInt(h.slice(1,3),16)+','+parseInt(h.slice(3,5),16)+','+parseInt(h.slice(5,7),16); }
 
 function applyColor(hex){
-  root.style.setProperty('--ac',hex); root.style.setProperty('--ac-rgb',h2r(hex));
+  root.style.setProperty('--ac', hex);
+  root.style.setProperty('--ac-rgb', h2r(hex));
   const sw=$('#sw'); if(sw) sw.style.background=hex;
   const cp=$('#cp'); if(cp) cp.value=hex;
-  $$('.preset,.preset-lg').forEach(p=>p.classList.toggle('active',p.dataset.color.toLowerCase()===hex.toLowerCase()));
+  $$('.preset,.preset-lg').forEach(p=>p.classList.toggle('active', p.dataset.color && p.dataset.color.toLowerCase()===hex.toLowerCase()));
   cfg.ac=hex; saveCfg();
 }
 
 function applyAll(){
   applyColor(cfg.ac);
-  const gridEl=$('#gridBg'); if(gridEl) gridEl.style.opacity=cfg.grid?'0.02':'0';
-  const noiseEl=$('.noise'); if(noiseEl) noiseEl.style.opacity=cfg.noise?'0.02':'0';
-  const stripEl=$('#clockStrip'); if(stripEl) stripEl.style.display=cfg.clock?'':'none';
+  const gridEl=$('#gridBg');   if(gridEl)  gridEl.style.opacity  = cfg.grid  ? '0.02' : '0';
+  const noiseEl=$('.noise');   if(noiseEl) noiseEl.style.opacity = cfg.noise ? '0.02' : '0';
+  const stripEl=$('#clockStrip'); if(stripEl) stripEl.style.display = cfg.clock ? '' : 'none';
   if(!isTouch){
-    if(cfg.cursor) document.body.classList.add('has-cursor');
-    else document.body.classList.remove('has-cursor');
+    document.body.classList.toggle('has-cursor', cfg.cursor);
   }
-  document.documentElement.style.scrollBehavior=cfg.scroll?'smooth':'auto';
-  const t=(id,v)=>{const el=$(id);if(el)el.checked=v};
-  t('#toggleGrid',cfg.grid); t('#toggleNoise',cfg.noise);
-  t('#toggleCursor',cfg.cursor); t('#toggleScroll',cfg.scroll);
-  t('#toggleClock',cfg.clock);
+  document.documentElement.style.scrollBehavior = cfg.scroll ? 'smooth' : 'auto';
+  const setChk = (id,v) => { const el=$(id); if(el) el.checked=v; };
+  setChk('#toggleGrid',   cfg.grid);
+  setChk('#toggleNoise',  cfg.noise);
+  setChk('#toggleCursor', cfg.cursor);
+  setChk('#toggleScroll', cfg.scroll);
+  setChk('#toggleClock',  cfg.clock);
 }
 applyAll();
-if(!isTouch&&cfg.cursor) document.body.classList.add('has-cursor');
+if(!isTouch && cfg.cursor) document.body.classList.add('has-cursor');
 
-const overlay=$('#settingsOverlay');
-$('#settingsBtn').addEventListener('click',()=>overlay.classList.toggle('open'));
-$('#settingsClose').addEventListener('click',()=>overlay.classList.remove('open'));
-overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('open')});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')overlay.classList.remove('open');if(e.key===',')overlay.classList.toggle('open')});
+/* ── Settings panel ── */
+const overlay = $('#settingsOverlay');
+$('#settingsBtn').addEventListener('click',  () => overlay.classList.toggle('open'));
+$('#settingsClose').addEventListener('click',() => overlay.classList.remove('open'));
+overlay.addEventListener('click', e => { if(e.target===overlay) overlay.classList.remove('open'); });
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') overlay.classList.remove('open');
+  if(e.key===',')      overlay.classList.toggle('open');
+});
 
-function bindToggle(id,key){ const el=$(id);if(!el)return;el.addEventListener('change',()=>{cfg[key]=el.checked;saveCfg();applyAll()}); }
-bindToggle('#toggleGrid','grid'); bindToggle('#toggleNoise','noise');
-bindToggle('#toggleCursor','cursor'); bindToggle('#toggleScroll','scroll');
-bindToggle('#toggleClock','clock');
+function bindToggle(id,key){
+  const el=$(id); if(!el) return;
+  el.addEventListener('change', () => { cfg[key]=el.checked; saveCfg(); applyAll(); });
+}
+bindToggle('#toggleGrid',   'grid');
+bindToggle('#toggleNoise',  'noise');
+bindToggle('#toggleCursor', 'cursor');
+bindToggle('#toggleScroll', 'scroll');
+bindToggle('#toggleClock',  'clock');
 
-$$('.preset-lg').forEach(p=>p.addEventListener('click',()=>applyColor(p.dataset.color)));
-$('#settingsReset').addEventListener('click',()=>{ cfg={...DEFAULTS}; try{localStorage.removeItem('spa-cfg')}catch(e){}; applyAll(); });
+$$('.preset-lg').forEach(p => p.addEventListener('click', () => applyColor(p.dataset.color)));
+$('#settingsReset').addEventListener('click', () => {
+  cfg = {...DEFAULTS};
+  try{ localStorage.removeItem('spa-cfg'); }catch(e){}
+  applyAll();
+});
 
-const cp=$('#cp'); if(cp) cp.addEventListener('input',e=>applyColor(e.target.value));
-$$('.preset').forEach(p=>p.addEventListener('click',()=>applyColor(p.dataset.color)));
+const cp=$('#cp'); if(cp) cp.addEventListener('input', e=>applyColor(e.target.value));
+$$('.preset').forEach(p => p.addEventListener('click', () => applyColor(p.dataset.color)));
 
-const loader=$('#loader');
-window.addEventListener('load',()=>setTimeout(()=>loader.classList.add('done'),1200));
-setTimeout(()=>loader.classList.add('done'),3000);
+/* ── Loader ── */
+const loader = $('#loader');
+window.addEventListener('load', () => setTimeout(()=>loader.classList.add('done'), 1000));
+setTimeout(()=>loader.classList.add('done'), 2800);
 
+/* ── Custom cursor (desktop only) ── */
 if(!isTouch){
-  const cur=$('#cur'),ring=$('#cur-ring');
-  let mx=-100,my=-100,rx=-100,ry=-100,vis=false;
-  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';if(!vis){vis=true;cur.classList.remove('hide');ring.classList.remove('hide')}});
-  document.addEventListener('mouseleave',()=>{vis=false;cur.classList.add('hide');ring.classList.add('hide')});
-  document.addEventListener('mouseenter',()=>{vis=true;cur.classList.remove('hide');ring.classList.remove('hide')});
-  (function a(){rx=lerp(rx,mx,0.12);ry=lerp(ry,my,0.12);ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a)})();
+  const cur=$('#cur'), ring=$('#cur-ring');
+  let mx=-100, my=-100, rx=-100, ry=-100, visible=false;
+  document.addEventListener('mousemove', e=>{
+    mx=e.clientX; my=e.clientY;
+    cur.style.left=mx+'px'; cur.style.top=my+'px';
+    if(!visible){ visible=true; cur.classList.remove('hide'); ring.classList.remove('hide'); }
+  });
+  document.addEventListener('mouseleave', ()=>{ visible=false; cur.classList.add('hide'); ring.classList.add('hide'); });
+  document.addEventListener('mouseenter', ()=>{ visible=true;  cur.classList.remove('hide'); ring.classList.remove('hide'); });
+  (function raf(){ rx=lerp(rx,mx,.12); ry=lerp(ry,my,.12); ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(raf); })();
   $$('a,button,.cpw,.preset,.preset-lg').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{cur.classList.add('expand');ring.classList.add('expand')});
-    el.addEventListener('mouseleave',()=>{cur.classList.remove('expand');ring.classList.remove('expand')});
+    el.addEventListener('mouseenter', ()=>{ cur.classList.add('expand'); ring.classList.add('expand'); });
+    el.addEventListener('mouseleave', ()=>{ cur.classList.remove('expand'); ring.classList.remove('expand'); });
   });
 }
 
-const nav=$('#nav'); let lastSY=0,navHid=false,tick2=false;
+/* ── Nav hide on scroll ── */
+const nav=$('#nav'); let lastSY=0, navHid=false, tick2=false;
 function updateNav(){
-  const sy=window.scrollY; nav.classList.toggle('solid',sy>50);
-  if(sy>300){if(sy>lastSY&&!navHid){nav.classList.add('nav-hidden');navHid=true}else if(sy<lastSY&&navHid){nav.classList.remove('nav-hidden');navHid=false}}
-  else{nav.classList.remove('nav-hidden');navHid=false}
+  const sy=window.scrollY;
+  nav.classList.toggle('solid', sy>50);
+  if(sy>300){
+    if(sy>lastSY && !navHid){ nav.classList.add('nav-hidden'); navHid=true; }
+    else if(sy<lastSY && navHid){ nav.classList.remove('nav-hidden'); navHid=false; }
+  } else { nav.classList.remove('nav-hidden'); navHid=false; }
   lastSY=sy; tick2=false;
 }
-window.addEventListener('scroll',()=>{if(!tick2){requestAnimationFrame(updateNav);tick2=true}});
+window.addEventListener('scroll', ()=>{ if(!tick2){ requestAnimationFrame(updateNav); tick2=true; } });
 
+/* ── Back to top ── */
 const btt=$('#btt');
-window.addEventListener('scroll',()=>btt.classList.toggle('show',window.scrollY>600));
+window.addEventListener('scroll', ()=> btt.classList.toggle('show', window.scrollY>600));
 
-const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:0.06,rootMargin:'0px 0px -40px 0px'});
+/* ── Scroll reveal ── */
+const obs = new IntersectionObserver(
+  es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); }),
+  {threshold:0.06, rootMargin:'0px 0px -40px 0px'}
+);
 $$('.rv').forEach(el=>obs.observe(el));
 
+/* ── Smooth scroll for anchor links ── */
 $$('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click',e=>{const h=a.getAttribute('href');if(h==='#')return;const t=$(h);if(!t)return;e.preventDefault();window.scrollTo({top:t.offsetTop-80,behavior:'smooth'})});
+  a.addEventListener('click', e=>{
+    const h=a.getAttribute('href');
+    if(h==='#') return;
+    const t=$(h); if(!t) return;
+    e.preventDefault();
+    window.scrollTo({top: t.offsetTop-80, behavior:'smooth'});
+  });
 });
 
-let ntpOff=0;
-let stripSyncTimer=null;
+/* ── NTP clock strip ── */
+let ntpOff=0, stripTimer=null;
 
 async function fetchTimeSample(url){
   try{
     const t0=performance.now();
-    const res=await fetch(url+(url.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});
+    const res=await fetch(url+(url.includes('?')?'&':'?')+'_='+Date.now(), {cache:'no-store'});
     const t1=performance.now();
     const rtt=t1-t0;
-    const ts=d.datetime?new Date(d.datetime).getTime():d.dateTime?new Date(d.dateTime+(d.dateTime.endsWith('Z')?'':'Z')).getTime():NaN;
-    if(!Number.isFinite(ts)) throw new Error('Bad time payload');
-    return{
-      offset:Math.round((ts+(rtt/2))-Date.now()),
-      rtt:Math.round(rtt),
-      timezone:d.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone
-    };
-  }catch(e){
-    const label=$('#stripLabel');
-    if(label) label.textContent='ntp unavailable - backend required';
-  }
+    const d=await res.json();
+    const raw=d.datetime||d.dateTime||'';
+    const ts=new Date(raw.endsWith('Z')||raw.includes('+')||raw.includes('-',10)?raw:raw+'Z').getTime();
+    if(!Number.isFinite(ts)) throw new Error('bad ts');
+    return { offset:Math.round((ts+(rtt/2))-Date.now()), rtt:Math.round(rtt), timezone:d.timezone||'' };
+  }catch(e){ return null; }
 }
+
 function tickStrip(){
-  if(!cfg.clock)return;
-  return null;
-  }
+  if(!cfg.clock) return;
+  const el=$('#stripTime'); if(!el) return;
+  const now=new Date(Date.now()+ntpOff);
+  el.textContent=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 }
 
 async function syncNTP(samples=3){
   const urls=[
     'https://worldtimeapi.org/api/ip',
-    'https://timeapi.io/api/time/current/zone?timeZone=UTC',
-    'https://worldtimeapi.org/api/timezone/'+encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC')
+    'https://timeapi.io/api/time/current/zone?timeZone='+encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'),
+    'https://worldtimeapi.org/api/timezone/'+encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'),
   ];
-  const requests=Array.from({length:samples},(_,i)=>fetchTimeSample(urls[i%urls.length]));
-  const results=(await Promise.all(requests)).filter(Boolean);
+  const results=(await Promise.all(
+    Array.from({length:samples},(_,i)=>fetchTimeSample(urls[i%urls.length]))
+  )).filter(Boolean);
   const label=$('#stripLabel');
-  if(!results.length){
-    if(label) label.textContent='web time unavailable';
-    return;
-}
+  if(!results.length){ if(label) label.textContent='local time (web sync unavailable)'; return; }
   results.sort((a,b)=>a.rtt-b.rtt);
-  ntpOff=results[0].offset;
-  if(results.length>1){
-    const best=Math.max(1,results[0].rtt);
-    const good=results.filter(r=>r.rtt<=best*2.5);
-    let totalWeight=0,totalOffset=0;
-    good.forEach(r=>{const w=1/Math.max(1,r.rtt);totalWeight+=w;totalOffset+=r.offset*w;});
-    ntpOff=Math.round(totalOffset/totalWeight);
-  }
-  if(label) label.textContent='web-synced time - '+(results[0].timezone||'your region').replaceAll('_',' ');
+  const best=Math.max(1,results[0].rtt);
+  const good=results.filter(r=>r.rtt<=best*2.5);
+  let tw=0,to=0;
+  good.forEach(r=>{ const w=1/Math.max(1,r.rtt); tw+=w; to+=r.offset*w; });
+  ntpOff=Math.round(to/tw);
+  if(label) label.textContent='web-synced time — '+(results[0].timezone||'your region').replaceAll('_',' ');
 }
+
 async function bootStrip(){
   await syncNTP(1);
   tickStrip();
   syncNTP(3).catch(()=>{});
-  if(stripSyncTimer) clearInterval(stripSyncTimer);
-  stripSyncTimer=setInterval(()=>syncNTP(3),5*60000);
+  if(stripTimer) clearInterval(stripTimer);
+  stripTimer=setInterval(()=>syncNTP(3), 5*60000);
 }
 bootStrip();
-setInterval(tickStrip,1000);
+setInterval(tickStrip, 1000);
 
-const kc=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let ki=0;
-document.addEventListener('keydown',e=>{if(e.key===kc[ki]){ki++;if(ki===kc.length){ki=0;let h=0;const iv=setInterval(()=>{h=(h+3)%360;root.style.setProperty('--ac',`hsl(${h},70%,75%)`)},50);setTimeout(()=>{clearInterval(iv);applyColor(cfg.ac)},5000)}}else ki=0});
+/* ── Konami code easter egg ── */
+const kc=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let ki=0;
+document.addEventListener('keydown', e=>{
+  if(e.key===kc[ki]){ ki++; if(ki===kc.length){ ki=0; let h=0; const iv=setInterval(()=>{ h=(h+3)%360; root.style.setProperty('--ac',`hsl(${h},70%,75%)`); },50); setTimeout(()=>{ clearInterval(iv); applyColor(cfg.ac); },5000); } }
+  else ki=0;
+});
 })();
 </script>
 </body>

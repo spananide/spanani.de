@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rust Raid Analytics | Vanguard Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Rajdhani', 'sans-serif'], mono: ['Space Mono', 'monospace'] },
+                    colors: {
+                        rust: { 400: '#e05a3d', 500: '#cd412b', 600: '#a63422' },
+                        dark: { 950: '#0a0a0c', 900: '#121215', 800: '#1c1c21', 700: '#2a2a32', 600: '#3f3f46' }
+                    },
+                    boxShadow: { 'neon': '0 0 15px rgba(205, 65, 43, 0.4)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0a0a0c; color: #e4e4e7; background-image: radial-gradient(circle at 50% 0%, #1c1c21 0%, transparent 70%); }
+        .glass { background: rgba(28, 28, 33, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-active { border-color: #cd412b; background: rgba(205, 65, 43, 0.1); }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0c; }
+        ::-webkit-scrollbar-thumb { background: #2a2a32; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cd412b; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-6 overflow-x-hidden">
+
+    <!-- Header -->
+    <header class="w-full max-w-[1400px] mb-6 flex flex-col md:flex-row justify-between items-center glass rounded-2xl p-4 md:p-6 shadow-lg z-10">
+        <div class="flex items-center space-x-4 mb-4 md:mb-0">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rust-400 to-rust-600 flex items-center justify-center shadow-neon">
+                <i class="fa-solid fa-crosshairs text-2xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold tracking-widest text-white uppercase leading-none">Vanguard <span class="text-rust-500">Raid</span></h1>
+                <p class="text-gray-400 text-sm font-mono mt-1 tracking-wider">v4.0 // Expanded Arsenal</p>
+            </div>
+        </div>
+        <div class="flex space-x-3">
+            <div class="glass px-4 py-2 rounded-lg text-sm font-mono flex items-center space-x-2 border-rust-500/30">
+                <i class="fa-solid fa-server text-rust-500"></i>
+                <span class="text-gray-300">Gather Rate: <span class="text-white font-bold" id="header-gather-rate">1x</span></span>
+            </div>
+            <button onclick="resetCart()" class="px-4 py-2 rounded-lg bg-dark-700 hover:bg-rust-600 text-white font-semibold transition-all flex items-center shadow-md">
+                <i class="fa-solid fa-trash-can mr-2"></i> Clear
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="w-full max-w-[1400px] grid grid-cols-1 xl:grid-cols-12 gap-6">
+        
+        <!-- Left Section: Navigation & Targets (7 Columns) -->
+        <div class="xl:col-span-7 space-y-6 flex flex-col h-full">
+            
+            <!-- Tabs -->
+            <div class="glass rounded-xl p-2 flex space-x-2 overflow-x-auto custom-scrollbar">
+                <button onclick="switchTab('doors')" id="tab-doors" class="tab-btn flex-1 py-3 px-4 rounded-lg bg-rust-500 text-white font-bold tracking-wider transition-all whitespace-nowrap">
+                    <i class="fa-solid fa-door-closed mr-2"></i>Doors
+                </button>
+                <button onclick="switchTab('walls')" id="tab-walls" class="tab-btn flex-1 py-3 px-4 rounded-lg bg-transparent hover:bg-dark-700 text-gray-400 hover:text-white font-bold tracking-wider transition-all whitespace-nowrap">
+                    <i class="fa-solid fa-layer-group mr-2"></i>Walls
+                </button>
+                <button onclick="switchTab('deployables')" id="tab-deployables" class="tab-btn flex-1 py-3 px-4 rounded-lg bg-transparent hover:bg-dark-700 text-gray-400 hover:text-white font-bold tracking-wider transition-all whitespace-nowrap">
+                    <i class="fa-solid fa-shield-halved mr-2"></i>Deployables
+                </button>
+                <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn flex-1 py-3 px-4 rounded-lg bg-transparent hover:bg-dark-700 text-gray-400 hover:text-white font-bold tracking-wider transition-all whitespace-nowrap border border-dark-600">
+                    <i class="fa-solid fa-sliders mr-2"></i>Server Config
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="glass rounded-2xl p-6 flex-grow relative overflow-hidden">
+                
+                <div id="view-targets" class="block fade-in">
+                    <div class="flex justify-between items-end mb-6 border-b border-white/5 pb-4">
+                        <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-database text-rust-500 mr-2"></i>Add Targets</h2>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="targets-container">
+                        <!-- Targets Injected Here -->
+                    </div>
+                </div>
+
+                <div id="view-settings" class="hidden fade-in">
+                    <div class="flex justify-between items-end mb-6 border-b border-white/5 pb-4">
+                        <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-gear text-rust-500 mr-2"></i>Configuration</h2>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-dark-900 border border-dark-700 p-5 rounded-xl">
+                            <h3 class="text-lg font-bold text-white mb-2"><i class="fa-solid fa-server text-rust-500 mr-2"></i>Server Gather Multiplier</h3>
+                            <p class="text-gray-400 text-sm mb-4">Adjust to match your server's gather rate for accurate farming math.</p>
+                            <div class="flex items-center space-x-3">
+                                <div class="relative w-32">
+                                    <input type="number" id="setting-rate" value="1" min="1" step="0.5" class="w-full bg-dark-800 border border-dark-600 rounded-lg py-2 pl-4 pr-8 text-white font-mono outline-none focus:border-rust-500 transition-all">
+                                    <span class="absolute right-3 top-2 text-gray-500 font-bold">x</span>
+                                </div>
+                                <button onclick="saveSettings()" class="bg-rust-600 hover:bg-rust-500 text-white px-4 py-2 rounded-lg font-bold transition-all">Save Multiplier</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark-900 border border-dark-700 p-5 rounded-xl">
+                            <h3 class="text-lg font-bold text-white mb-2"><i class="fa-solid fa-toolbox text-rust-500 mr-2"></i>Active Explosives</h3>
+                            <p class="text-gray-400 text-sm mb-4">Toggle which raiding tools you want visible on your dashboard.</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="settings-explosives">
+                                <!-- Explosive Toggles Injected Here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Right Section: Explosives & Resources (5 Columns) -->
+        <div class="xl:col-span-5 space-y-6">
+            
+            <div class="glass rounded-2xl p-6 relative">
+                <h2 class="text-xl font-bold mb-4 text-white"><i class="fa-solid fa-bomb text-rust-500 mr-2"></i>Arsenal Required</h2>
+                <div class="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2" id="explosives-list">
+                    <!-- Explosives Injected Here -->
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-cubes-stacked text-rust-500 mr-2"></i>Raw Materials</h2>
+                    <span id="active-path-badge" class="px-3 py-1 rounded bg-dark-700 text-xs font-mono text-rust-400 border border-rust-500/30">Select Path</span>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2 mb-6">
+                    <div class="bg-dark-900 border border-dark-700 rounded-lg p-2 flex flex-col items-center text-center">
+                        <span class="text-yellow-500 mb-1"><i class="fa-solid fa-gem text-lg"></i></span>
+                        <span class="text-sm font-mono font-bold text-white" id="mat-sulfur">0</span>
+                        <span class="text-[9px] text-gray-500 uppercase mt-1">Sulfur</span>
+                    </div>
+                    <div class="bg-dark-900 border border-dark-700 rounded-lg p-2 flex flex-col items-center text-center">
+                        <span class="text-gray-600 mb-1"><i class="fa-solid fa-fire text-lg"></i></span>
+                        <span class="text-sm font-mono font-bold text-white" id="mat-charcoal">0</span>
+                        <span class="text-[9px] text-gray-500 uppercase mt-1">Charcoal</span>
+                    </div>
+                    <div class="bg-dark-900 border border-dark-700 rounded-lg p-2 flex flex-col items-center text-center">
+                        <span class="text-blue-400 mb-1"><i class="fa-solid fa-cubes text-lg"></i></span>
+                        <span class="text-sm font-mono font-bold text-white" id="mat-metal">0</span>
+                        <span class="text-[9px] text-gray-500 uppercase mt-1">Metal</span>
+                    </div>
+                    <div class="bg-dark-900 border border-dark-700 rounded-lg p-2 flex flex-col items-center text-center">
+                        <span class="text-red-400 mb-1"><i class="fa-solid fa-droplet text-lg"></i></span>
+                        <span class="text-sm font-mono font-bold text-white" id="mat-lgf">0</span>
+                        <span class="text-[9px] text-gray-500 uppercase mt-1">LGF</span>
+                    </div>
+                    
+                    <div class="bg-dark-900 border border-dark-700 rounded-lg p-2 flex flex-col items-center text-center">
+                        <span class="text-gray-400 mb-1"><i class="fa-solid fa-pipe-valve text-lg"></i></span>
+                        <span class="text-sm font-mono font-bold text-white" id="mat-pipes">0</span>
+                        <span class="text-[9px] text-gray-500 uppercase mt-1">Pipes</span>
+                    </div>
+                    <div class="bg-dark-900 border border-dark-700 rounded-lg p-2 flex flex-col items-center text-center">
+                        <span class="text-green-500 mb-1"><i class="fa-solid fa-microchip text-lg"></i></span>
+                        <span class="text-sm font-mono font-bold text-white" id="mat-tech">0</span>
+                        <span class="text-[9px] text-gray-500 uppercase mt-1">Tech</span>
+                    </div>
+                    <div class="bg-dark-900 border border-dark-700 rounded-lg p-2 flex flex-col items-center text-center">
+                        <span class="text-yellow-600 mb-1"><i class="fa-solid fa-scroll text-lg"></i></span>
+                        <span class="text-sm font-mono font-bold text-white" id="mat-cloth">0</span>
+                        <span class="text-[9px] text-gray-500 uppercase mt-1">Cloth</span>
+                    </div>
+                    <div class="bg-dark-900 border border-dark-700 rounded-lg p-2 flex flex-col items-center text-center">
+                        <span class="text-green-700 mb-1"><i class="fa-solid fa-tree text-lg"></i></span>
+                        <span class="text-sm font-mono font-bold text-white" id="farm-wood">0</span>
+                        <span class="text-[9px] text-gray-500 uppercase mt-1">Wood</span>
+                    </div>
+                </div>
+
+                <h3 class="text-sm font-bold text-gray-300 mb-3 border-b border-dark-700 pb-2 flex justify-between">
+                    <span>Node Farming Required</span>
+                    <span class="text-rust-500 font-mono text-xs" id="farm-rate-display">1x Multiplier</span>
+                </h3>
+                <div class="bg-dark-800 p-4 rounded-xl border border-dark-700 flex justify-between items-center shadow-inner">
+                    <div class="flex items-center text-gray-300">
+                        <i class="fa-solid fa-mountain text-yellow-600 text-2xl mr-4"></i>
+                        <span class="font-bold">Sulfur Nodes</span>
+                    </div>
+                    <span class="font-mono font-bold text-rust-500 text-3xl" id="farm-nodes">0</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // =========================================================
+        // 🔧 SET YOUR GITHUB FOLDER URL HERE
+        // Make sure it ends with a forward slash (/)
+        // Example: "https://raw.githubusercontent.com/Name/Repo/main/images/"
+        // =========================================================
+        const GITHUB_IMAGES_URL = "https://raw.githubusercontent.com/spananide/spanani.de/main/rust/images/";
+
+        // --- DATABASE ---
+        const dbItems = [
+            // Doors
+            { id: 'woodDoor', name: 'Wooden Door', cat: 'doors', hp: 200, img: 'wood_door.png', icon: 'fa-door-closed', c4: 1, rocket: 1, satchel: 2, explo: 19, beancan: 6, molotov: 2 },
+            { id: 'sheetDoor', name: 'Sheet Metal Door', cat: 'doors', hp: 250, img: 'sheet_door.png', icon: 'fa-door-open', c4: 1, rocket: 2, satchel: 4, explo: 63, beancan: 18, molotov: null },
+            { id: 'garageDoor', name: 'Garage Door', cat: 'doors', hp: 600, img: 'garage_door.png', icon: 'fa-warehouse', c4: 2, rocket: 3, satchel: 9, explo: 150, beancan: 42, molotov: null },
+            { id: 'armoredDoor', name: 'Armored Door', cat: 'doors', hp: 1000, img: 'armored_door.png', icon: 'fa-door-closed', c4: 2, rocket: 4, satchel: 12, explo: 250, beancan: 57, molotov: null },
+            { id: 'ladderHatch', name: 'Ladder Hatch', cat: 'doors', hp: 250, img: 'ladder_hatch.png', icon: 'fa-stairs', c4: 1, rocket: 2, satchel: 4, explo: 63, beancan: 18, molotov: null },
+            // Walls
+            { id: 'woodWall', name: 'Wooden Wall', cat: 'walls', hp: 250, img: 'wood_wall.png', icon: 'fa-cubes', c4: 1, rocket: 2, satchel: 3, explo: 49, beancan: 13, molotov: 4 },
+            { id: 'stoneWall', name: 'Stone Wall', cat: 'walls', hp: 500, img: 'stone_wall.png', icon: 'fa-cubes', c4: 2, rocket: 4, satchel: 10, explo: 185, beancan: 46, molotov: null },
+            { id: 'metalWall', name: 'Metal Wall', cat: 'walls', hp: 1000, img: 'metal_wall.png', icon: 'fa-layer-group', c4: 4, rocket: 8, satchel: 23, explo: 400, beancan: 112, molotov: null },
+            { id: 'armoredWall', name: 'Armored Wall', cat: 'walls', hp: 2000, img: 'armored_wall.png', icon: 'fa-shield-halved', c4: 8, rocket: 15, satchel: 46, explo: 799, beancan: 223, molotov: null },
+            { id: 'highStone', name: 'High Ext. Stone', cat: 'walls', hp: 500, img: 'high_stone.png', icon: 'fa-chess-rook', c4: 2, rocket: 4, satchel: 10, explo: 185, beancan: 46, molotov: null },
+            // Deployables
+            { id: 'tc', name: 'Tool Cupboard', cat: 'deployables', hp: 100, img: 'tc.png', icon: 'fa-box-archive', c4: 1, rocket: 1, satchel: 3, explo: 9, beancan: 5, molotov: 1 },
+            { id: 'turret', name: 'Auto Turret', cat: 'deployables', hp: 1000, img: 'turret.png', icon: 'fa-satellite-dish', c4: 1, rocket: 4, satchel: null, explo: 100, beancan: null, molotov: null },
+            { id: 'vending', name: 'Vending Machine', cat: 'deployables', hp: 2500, img: 'vending.png', icon: 'fa-cash-register', c4: 3, rocket: 10, satchel: 23, explo: null, beancan: null, molotov: null },
+            { id: 'windowGlass', name: 'Reinf. Glass', cat: 'deployables', hp: 500, img: 'glass.png', icon: 'fa-border-all', c4: 2, rocket: 4, satchel: 12, explo: 200, beancan: 54, molotov: null }
+        ];
+
+        const dbExplosives = [
+            { id: 'rocket', name: 'Rockets', img: 'rocket.png', icon: 'fa-rocket text-orange-400', mat: { sulfur: 1400, charcoal: 1950, metal: 100, pipes: 2, tech: 0, lgf: 10, cloth: 0 } },
+            { id: 'c4', name: 'Timed Charge', img: 'c4.png', icon: 'fa-box text-red-500', mat: { sulfur: 2200, charcoal: 3000, metal: 200, pipes: 0, tech: 2, lgf: 20, cloth: 0 } },
+            { id: 'satchel', name: 'Satchel Charge', img: 'satchel.png', icon: 'fa-bomb text-yellow-600', mat: { sulfur: 480, charcoal: 720, metal: 80, pipes: 0, tech: 0, lgf: 0, cloth: 0 } },
+            { id: 'explo', name: 'Explo Ammo', img: 'explo.png', icon: 'fa-capsules text-yellow-400', mat: { sulfur: 25, charcoal: 30, metal: 10, pipes: 0, tech: 0, lgf: 0, cloth: 0 } },
+            { id: 'beancan', name: 'Beancan Grenade', img: 'beancan.png', icon: 'fa-burst text-orange-500', mat: { sulfur: 120, charcoal: 160, metal: 20, pipes: 0, tech: 0, lgf: 0, cloth: 0 } },
+            { id: 'molotov', name: 'Molotov', img: 'molotov.png', icon: 'fa-fire text-red-500', mat: { sulfur: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 40, cloth: 10 } }
+        ];
+
+        // --- STATE ---
+        let state = {
+            cart: {},
+            currentTab: 'doors',
+            activePath: 'rocket',
+            settings: { gatherRate: 1, activeExp: { rocket: true, c4: true, satchel: true, explo: true, beancan: true, molotov: true } }
+        };
+
+        function loadState() {
+            const savedCart = localStorage.getItem('rustRaidCartV4');
+            const savedSettings = localStorage.getItem('rustRaidSettingsV4');
+            if (savedCart) state.cart = JSON.parse(savedCart);
+            else dbItems.forEach(item => state.cart[item.id] = 0);
+            if (savedSettings) state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
+            
+            document.getElementById('setting-rate').value = state.settings.gatherRate;
+            document.getElementById('header-gather-rate').innerText = state.settings.gatherRate + 'x';
+            document.getElementById('farm-rate-display').innerText = state.settings.gatherRate + 'x Multiplier';
+        }
+
+        function saveState() {
+            localStorage.setItem('rustRaidCartV4', JSON.stringify(state.cart));
+            localStorage.setItem('rustRaidSettingsV4', JSON.stringify(state.settings));
+        }
+
+        // --- UI ---
+        function switchTab(tabId) {
+            state.currentTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-rust-500', 'text-white');
+                btn.classList.add('bg-transparent', 'text-gray-400');
+            });
+            document.getElementById(`tab-${tabId}`).classList.add('bg-rust-500', 'text-white');
+            document.getElementById(`tab-${tabId}`).classList.remove('bg-transparent', 'text-gray-400');
+
+            if (tabId === 'settings') {
+                document.getElementById('view-targets').classList.add('hidden');
+                document.getElementById('view-settings').classList.remove('hidden');
+            } else {
+                document.getElementById('view-settings').classList.add('hidden');
+                document.getElementById('view-targets').classList.remove('hidden');
+                renderTargets();
+            }
+        }
+
+        function buildImage(imgFile, iconClasses) {
+            const fullUrl = GITHUB_IMAGES_URL + imgFile;
+            return `
+                <img src="${fullUrl}" alt="icon" class="w-8 h-8 object-contain z-10 drop-shadow-md" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <i class="fa-solid ${iconClasses} text-2xl hidden z-0 text-gray-500"></i>
+            `;
+        }
+
+        function renderTargets() {
+            const container = document.getElementById('targets-container');
+            container.innerHTML = '';
+            dbItems.filter(i => i.cat === state.currentTab).forEach(item => {
+                const qty = state.cart[item.id] || 0;
+                container.innerHTML += `
+                    <div class="flex flex-col p-4 rounded-xl bg-dark-800 border border-dark-700 hover:border-dark-500 transition-all">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 rounded-lg bg-dark-900 border border-dark-700 flex items-center justify-center relative">
+                                    ${buildImage(item.img, item.icon)}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-200 text-sm md:text-base">${item.name}</div>
+                                    <div class="text-xs text-rust-400 font-mono"><i class="fa-solid fa-heart mr-1"></i>${item.hp} HP</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between bg-dark-950 rounded-lg border border-dark-700 p-1">
+                            <button onclick="updateQty('${item.id}', -1)" class="w-10 h-8 text-gray-400 hover:text-white hover:bg-dark-700 rounded transition"><i class="fa-solid fa-minus"></i></button>
+                            <span id="qty-${item.id}" class="font-mono font-bold text-white">${qty}</span>
+                            <button onclick="updateQty('${item.id}', 1)" class="w-10 h-8 text-rust-500 hover:text-white hover:bg-rust-500 rounded transition"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderSettingsExp() {
+            const container = document.getElementById('settings-explosives');
+            container.innerHTML = '';
+            dbExplosives.forEach(exp => {
+                const isActive = state.settings.activeExp[exp.id];
+                container.innerHTML += `
+                    <label class="flex flex-col items-center p-3 bg-dark-800 border ${isActive ? 'border-rust-500 bg-rust-500/10' : 'border-dark-600'} rounded-xl cursor-pointer hover:bg-dark-700">
+                        <input type="checkbox" class="hidden" id="toggle-${exp.id}" ${isActive ? 'checked' : ''} onchange="toggleExp('${exp.id}')">
+                        <div class="mb-2 relative w-8 h-8 flex justify-center items-center">${buildImage(exp.img, exp.icon)}</div>
+                        <span class="text-[10px] font-bold text-white uppercase text-center">${exp.name}</span>
+                    </label>
+                `;
+            });
+        }
+
+        function renderExpList() {
+            const container = document.getElementById('explosives-list');
+            container.innerHTML = '';
+            if (!state.settings.activeExp[state.activePath]) {
+                const avail = dbExplosives.find(e => state.settings.activeExp[e.id]);
+                state.activePath = avail ? avail.id : null;
+            }
+
+            dbExplosives.filter(e => state.settings.activeExp[e.id]).forEach(exp => {
+                const isSelected = state.activePath === exp.id;
+                const activeClass = isSelected ? 'glass-active shadow-neon border-rust-500' : 'bg-dark-800 border-dark-700 hover:border-rust-500/50 cursor-pointer';
+                container.innerHTML += `
+                    <div onclick="setActivePath('${exp.id}')" class="flex justify-between items-center p-3 rounded-xl border transition-all ${activeClass}">
+                        <div class="flex items-center space-x-3">
+                            <div class="relative w-8 h-8 flex justify-center items-center">${buildImage(exp.img, exp.icon)}</div>
+                            <div class="font-bold text-white text-sm">${exp.name}</div>
+                        </div>
+                        <div class="text-xl font-mono font-bold ${isSelected ? 'text-rust-500' : 'text-white'}" id="req-${exp.id}">0</div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- LOGIC ---
+        function updateQty(id, change) {
+            if (state.cart[id] + change >= 0) {
+                state.cart[id] += change;
+                document.getElementById(`qty-${id}`).innerText = state.cart[id];
+                saveState(); calculate();
+            }
+        }
+
+        function setActivePath(expId) {
+            if(expId) { state.activePath = expId; renderExpList(); calculate(); }
+        }
+
+        function toggleExp(expId) {
+            state.settings.activeExp[expId] = document.getElementById(`toggle-${expId}`).checked;
+            saveState(); renderSettingsExp(); renderExpList(); calculate();
+        }
+
+        function saveSettings() {
+            let rate = parseFloat(document.getElementById('setting-rate').value);
+            state.settings.gatherRate = (rate > 0) ? rate : 1;
+            document.getElementById('header-gather-rate').innerText = state.settings.gatherRate + 'x';
+            document.getElementById('farm-rate-display').innerText = state.settings.gatherRate + 'x Multiplier';
+            saveState(); calculate();
+            alert("Server gather rate updated!");
+        }
+
+        function resetCart() {
+            if(confirm("Clear calculator?")) {
+                dbItems.forEach(i => state.cart[i.id] = 0);
+                saveState(); renderTargets(); calculate();
+            }
+        }
+
+        function calculate() {
+            let totals = { c4:0, rocket:0, satchel:0, explo:0, beancan:0, molotov:0 };
+
+            // 1. Calculate Boom
+            dbItems.forEach(item => {
+                const qty = state.cart[item.id] || 0;
+                if (qty > 0) {
+                    totals.c4 += (item.c4 || 0) * qty;
+                    totals.rocket += (item.rocket || 0) * qty;
+                    totals.satchel += (item.satchel || 0) * qty;
+                    totals.explo += (item.explo || 0) * qty;
+                    totals.beancan += (item.beancan || 0) * qty;
+                    totals.molotov += (item.molotov || 0) * qty;
+                }
+            });
+
+            dbExplosives.forEach(exp => {
+                const el = document.getElementById(`req-${exp.id}`);
+                if (el) {
+                    // Show "N/A" if the explosive physically cannot break the selected items
+                    const req = totals[exp.id];
+                    el.innerText = req;
+                }
+            });
+
+            // 2. Logistics
+            if (!state.activePath) return;
+            const exp = dbExplosives.find(e => e.id === state.activePath);
+            const amt = totals[state.activePath];
+            document.getElementById('active-path-badge').innerText = `Path: ${exp.name}`;
+
+            const m = exp.mat;
+            const res = {
+                sulfur: m.sulfur * amt, charcoal: m.charcoal * amt, metal: m.metal * amt,
+                pipes: m.pipes * amt, tech: m.tech * amt, lgf: m.lgf * amt, cloth: m.cloth * amt
+            };
+
+            ['sulfur','charcoal','metal','tech','pipes','lgf','cloth'].forEach(k => {
+                document.getElementById(`mat-${k}`).innerText = res[k].toLocaleString();
+            });
+
+            // 3. Farming (Adjusted by multiplier)
+            const nYield = 300 * state.settings.gatherRate;
+            const tYield = 500 * state.settings.gatherRate; 
+
+            document.getElementById('farm-nodes').innerText = Math.ceil(res.sulfur / nYield).toLocaleString();
+            document.getElementById('farm-wood').innerText = res.charcoal.toLocaleString();
+        }
+
+        window.onload = () => {
+            loadState(); renderSettingsExp(); renderExpList(); renderTargets(); calculate();
+        };
+    </script>
+</body>
+</html>

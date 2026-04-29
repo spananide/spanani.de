@@ -878,73 +878,88 @@ document.addEventListener('keydown',e=>{
   }
 });
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick();});
-  // --- GEHEIMER GITHUB DOWNLOAD BUTTON ---
-  const secretBtn = document.createElement('div');
-  // Macht den Knopf unsichtbar, platziert ihn unten links (30x30 Pixel)
-  secretBtn.style.position = 'fixed';
-  secretBtn.style.bottom = '0';
-  secretBtn.style.left = '0';
-  secretBtn.style.width = '30px';
-  secretBtn.style.height = '30px';
-  secretBtn.style.cursor = 'default'; // Versteckt die Tatsache, dass es ein Knopf ist
-  secretBtn.style.zIndex = '9999';
-  document.body.appendChild(secretBtn);
+// --- GEHEIMER DOWNLOAD BEREICH ---
+  // 1. CSS für das Modal im Design der Website laden
+  const secStyle = document.createElement('style');
+  secStyle.innerHTML = `
+    .sec-modal { position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.72); backdrop-filter:blur(10px); display:flex; justify-content:center; align-items:center; opacity:0; visibility:hidden; transition:opacity .3s,visibility .3s; }
+    .sec-modal.open { opacity:1; visibility:visible; }
+    .sec-box { background:var(--bg1); border:1px solid var(--border); border-radius:5px; padding:36px 32px; width:340px; text-align:center; transform:translateY(14px); transition:transform .4s var(--ease); box-shadow:0 10px 40px rgba(0,0,0,0.5); }
+    .sec-modal.open .sec-box { transform:none; }
+    .sec-title { font-family:'Instrument Serif',serif; font-size:42px; color:var(--text); margin-bottom:6px; font-weight:400; letter-spacing:-.02em; line-height:1; }
+    .sec-sub { font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--mu); margin-bottom:28px; }
+    .sec-btn-row { display:flex; gap:10px; justify-content:center; }
+  `;
+  document.head.appendChild(secStyle);
 
-  let clickCount = 0;
-  let clickTimer = null;
+  // 2. HTML für das Modal und den geheimen Trigger einfügen
+  const secHtml = `
+    <div class="sec-modal" id="secModal">
+      <div class="sec-box">
+        <div class="sec-title">QOLI_KI</div>
+        <div class="sec-sub">Restricted Download</div>
+        <div class="sec-btn-row">
+          <button class="btn" id="secCancel">Abbrechen</button>
+          <button class="btn pri" id="secGo">Download</button>
+        </div>
+      </div>
+    </div>
+    <!-- Unsichtbarer Trigger-Bereich unten links -->
+    <div id="secTrigger" style="position:fixed; bottom:0; left:0; width:50px; height:50px; z-index:9998; cursor:default;"></div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', secHtml);
 
-  // Um es noch geheimer zu machen: Man muss schnell 3x klicken!
-  secretBtn.addEventListener('click', async () => {
-    clickCount++;
-    if (clickTimer) clearTimeout(clickTimer);
-    
-    clickTimer = setTimeout(() => { clickCount = 0; }, 1000); // Reset nach 1 Sekunde
+  // 3. Logik
+  const secModal = $('#secModal');
+  const secGo = $('#secGo');
+  const secCancel = $('#secCancel');
+  const secTrigger = $('#secTrigger');
 
-    if (clickCount >= 3) {
-      clickCount = 0; // Reset
-      
-      // Hier kannst du deinen Standard-GitHub-Raw-Link eintragen
-      const defaultUrl = 'https://raw.githubusercontent.com/spananide/spanani.de/main/clock/QOLI_KI.zip';
-      
-      const fileUrl = prompt('Geheimer Download!\nGib die Raw-URL der GitHub-Datei ein:', defaultUrl);
-
-      if (fileUrl) {
-        try {
-          // Dateinamen aus der URL filtern
-          const fileName = fileUrl.split('/').pop() || 'secret_download';
-          
-          // Button-Text in der UI kurz ändern, um Ladevorgang zu zeigen (optional)
-          const oldTitle = document.title;
-          document.title = 'Downloading...';
-
-          // Datei über GitHub laden
-          const response = await fetch(fileUrl);
-          if (!response.ok) throw new Error('Netzwerk-Fehler oder Datei nicht gefunden');
-          
-          const blob = await response.blob();
-          const blobUrl = URL.createObjectURL(blob);
-          
-          // Unsichtbaren Link erstellen und Download auslösen
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = blobUrl;
-          a.download = fileName;
-          document.body.appendChild(a);
-          a.click();
-          
-          // Aufräumen
-          document.body.removeChild(a);
-          URL.revokeObjectURL(blobUrl);
-          document.title = oldTitle;
-          
-        } catch (error) {
-          alert('Fehler beim Download. Stelle sicher, dass es ein direkter "Raw"-Link von GitHub ist.');
-          document.title = 'clock - spanani.de';
-        }
-      }
+  let clks = 0, clkTmr;
+  
+  // Geheimer 3-Klick-Trigger unten links
+  secTrigger.addEventListener('click', () => {
+    clks++;
+    clearTimeout(clkTmr);
+    clkTmr = setTimeout(() => clks = 0, 1000);
+    if(clks >= 3) {
+      clks = 0;
+      secModal.classList.add('open');
     }
   });
-  // --- ENDE GEHEIMER BUTTON ---
+
+  // Modal schließen (beim Klick auf Abbrechen oder den Hintergrund)
+  secCancel.addEventListener('click', () => secModal.classList.remove('open'));
+  secModal.addEventListener('click', e => { 
+    if(e.target === secModal) secModal.classList.remove('open'); 
+  });
+
+  // Download-Aktion
+  secGo.addEventListener('click', () => {
+    // Visuelles Feedback beim Klick
+    secGo.textContent = 'Lädt...';
+    secGo.style.opacity = '0.5';
+    secGo.style.pointerEvents = 'none';
+    
+    // Unsichtbarer Download des festen Links
+    const a = document.createElement('a');
+    a.href = 'https://raw.githubusercontent.com/spananide/spanani.de/main/clock/QOLI_KI.zip';
+    a.download = 'QOLI_KI.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // Modal nach kurzer Zeit schließen und Button resetten
+    setTimeout(() => {
+      secModal.classList.remove('open');
+      setTimeout(() => {
+        secGo.textContent = 'Download';
+        secGo.style.opacity = '1';
+        secGo.style.pointerEvents = 'auto';
+      }, 300);
+    }, 800);
+  });
+  // --- ENDE GEHEIMER DOWNLOAD BEREICH ---
 })();
 </script>
 </body>

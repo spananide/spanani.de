@@ -878,86 +878,134 @@ document.addEventListener('keydown',e=>{
   }
 });
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick();});
-// --- GEHEIMER DOWNLOAD BEREICH ---
-  // 1. CSS für das Modal im Design der Website laden
+// --- GEHEIMER DOWNLOAD BEREICH (PASSWORT-GESCHÜTZT) ---
   const secStyle = document.createElement('style');
   secStyle.innerHTML = `
     .sec-modal { position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.72); backdrop-filter:blur(10px); display:flex; justify-content:center; align-items:center; opacity:0; visibility:hidden; transition:opacity .3s,visibility .3s; }
     .sec-modal.open { opacity:1; visibility:visible; }
-    .sec-box { background:var(--bg1); border:1px solid var(--border); border-radius:5px; padding:36px 32px; width:340px; text-align:center; transform:translateY(14px); transition:transform .4s var(--ease); box-shadow:0 10px 40px rgba(0,0,0,0.5); }
+    .sec-box { background:var(--bg1); border:1px solid var(--border); border-radius:5px; padding:36px 32px; width:340px; text-align:center; transform:translateY(14px); transition:transform .4s cubic-bezier(.16,1,.3,1); box-shadow:0 10px 40px rgba(0,0,0,0.5); }
     .sec-modal.open .sec-box { transform:none; }
     .sec-title { font-family:'Instrument Serif',serif; font-size:42px; color:var(--text); margin-bottom:6px; font-weight:400; letter-spacing:-.02em; line-height:1; }
-    .sec-sub { font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--mu); margin-bottom:28px; }
+    .sec-sub { font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--mu); margin-bottom:24px; }
+    .sec-in { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); color:var(--text); font-family:'DM Mono',monospace; font-size:18px; letter-spacing:0.3em; padding:12px; width:100%; margin-bottom:6px; text-align:center; outline:none; transition:border-color .2s; }
+    .sec-in:focus { border-color:rgba(var(--ac-rgb),.4); }
+    .sec-err { color:#ef4444; font-size:10px; text-transform:uppercase; letter-spacing:.1em; height:15px; margin-bottom:16px; opacity:0; transition:opacity .2s; }
+    .sec-err.show { opacity:1; }
     .sec-btn-row { display:flex; gap:10px; justify-content:center; }
   `;
   document.head.appendChild(secStyle);
 
-  // 2. HTML für das Modal und den geheimen Trigger einfügen
   const secHtml = `
     <div class="sec-modal" id="secModal">
       <div class="sec-box">
         <div class="sec-title">QOLI_KI</div>
-        <div class="sec-sub">Restricted Download</div>
+        <div class="sec-sub">Restricted Access</div>
+        <input type="password" id="secPwd" class="sec-in" placeholder="••••" autocomplete="off" spellcheck="false">
+        <div class="sec-err" id="secErr">Access denied</div>
         <div class="sec-btn-row">
           <button class="btn" id="secCancel">Abbrechen</button>
-          <button class="btn pri" id="secGo">Download</button>
+          <button class="btn pri" id="secGo">Unlock</button>
         </div>
       </div>
     </div>
-    <!-- Unsichtbarer Trigger-Bereich unten links -->
-    <div id="secTrigger" style="position:fixed; bottom:0; left:0; width:50px; height:50px; z-index:9998; cursor:default;"></div>
+    <!-- Anti-Markierung Trigger Bereich -->
+    <div id="secTrigger" style="position:fixed; bottom:0; left:0; width:60px; height:60px; z-index:9998; cursor:default; user-select:none; -webkit-user-select:none; touch-action:none;"></div>
   `;
   document.body.insertAdjacentHTML('beforeend', secHtml);
 
-  // 3. Logik
   const secModal = $('#secModal');
+  const secPwd = $('#secPwd');
+  const secErr = $('#secErr');
   const secGo = $('#secGo');
   const secCancel = $('#secCancel');
   const secTrigger = $('#secTrigger');
 
-  let clks = 0, clkTmr;
-  
-  // Geheimer 3-Klick-Trigger unten links
-  secTrigger.addEventListener('click', () => {
-    clks++;
-    clearTimeout(clkTmr);
-    clkTmr = setTimeout(() => clks = 0, 1000);
-    if(clks >= 3) {
-      clks = 0;
-      secModal.classList.add('open');
+  // HIER KANNST DU DAS PASSWORT ÄNDERN
+  const SECRET_PASSWORD = "qoli"; 
+
+  const openSecretModal = () => {
+    secModal.classList.add('open');
+    secPwd.value = '';
+    secErr.classList.remove('show');
+    setTimeout(() => secPwd.focus(), 100);
+  };
+
+  // 1. TRIGGER: Langes Drücken unten links (Ohne Markieren!)
+  let pressTmr;
+  const startPress = (e) => {
+    if(e.type === 'touchstart') e.preventDefault(); // Verhindert das Markierungs-Menü am Handy
+    pressTmr = setTimeout(openSecretModal, 1200); // 1.2 Sekunden gedrückt halten
+  };
+  const cancelPress = () => clearTimeout(pressTmr);
+
+  secTrigger.addEventListener('mousedown', startPress);
+  secTrigger.addEventListener('touchstart', startPress);
+  secTrigger.addEventListener('mouseup', cancelPress);
+  secTrigger.addEventListener('mouseleave', cancelPress);
+  secTrigger.addEventListener('touchend', cancelPress);
+
+  // 2. TRIGGER: Tastatur Cheatcode (Tippe blind "qoli" auf der Seite)
+  let kbdSeq = '';
+  document.addEventListener('keydown', e => {
+    const t = document.activeElement.tagName;
+    if(t === 'INPUT' || t === 'TEXTAREA') return; // Nicht triggern, wenn man woanders etwas schreibt
+    
+    kbdSeq += e.key.toLowerCase();
+    if(kbdSeq.length > 4) kbdSeq = kbdSeq.slice(-4);
+    if(kbdSeq === 'qoli') {
+      openSecretModal();
+      kbdSeq = '';
     }
   });
 
-  // Modal schließen (beim Klick auf Abbrechen oder den Hintergrund)
-  secCancel.addEventListener('click', () => secModal.classList.remove('open'));
-  secModal.addEventListener('click', e => { 
-    if(e.target === secModal) secModal.classList.remove('open'); 
-  });
+  // Schließen
+  const closeModal = () => {
+    secModal.classList.remove('open');
+    secPwd.value = '';
+    secErr.classList.remove('show');
+  };
+  secCancel.addEventListener('click', closeModal);
+  secModal.addEventListener('click', e => { if(e.target === secModal) closeModal(); });
 
-  // Download-Aktion
-  secGo.addEventListener('click', () => {
-    // Visuelles Feedback beim Klick
-    secGo.textContent = 'Lädt...';
-    secGo.style.opacity = '0.5';
-    secGo.style.pointerEvents = 'none';
-    
-    // Unsichtbarer Download des festen Links
-    const a = document.createElement('a');
-    a.href = 'https://raw.githubusercontent.com/spananide/spanani.de/main/clock/QOLI_KI.zip';
-    a.download = 'QOLI_KI.zip';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    // Modal nach kurzer Zeit schließen und Button resetten
-    setTimeout(() => {
-      secModal.classList.remove('open');
+  // Download Logik mit Fehler-Animation
+  const attemptDownload = () => {
+    if(secPwd.value === SECRET_PASSWORD) {
+      secErr.classList.remove('show');
+      secGo.textContent = 'Lädt...';
+      secGo.style.pointerEvents = 'none';
+      
+      const a = document.createElement('a');
+      a.href = 'https://raw.githubusercontent.com/spananide/spanani.de/main/clock/QOLI_KI.zip';
+      a.download = 'QOLI_KI.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
       setTimeout(() => {
-        secGo.textContent = 'Download';
-        secGo.style.opacity = '1';
-        secGo.style.pointerEvents = 'auto';
-      }, 300);
-    }, 800);
+        closeModal();
+        setTimeout(() => {
+          secGo.textContent = 'Unlock';
+          secGo.style.pointerEvents = 'auto';
+        }, 300);
+      }, 800);
+    } else {
+      secErr.classList.add('show');
+      secPwd.value = '';
+      secPwd.focus();
+      // Wackel-Animation (Shake) bei falschem Passwort
+      const box = secModal.querySelector('.sec-box');
+      box.style.transform = 'translateX(-10px)';
+      setTimeout(() => box.style.transform = 'translateX(10px)', 70);
+      setTimeout(() => box.style.transform = 'translateX(-8px)', 140);
+      setTimeout(() => box.style.transform = 'translateX(6px)', 210);
+      setTimeout(() => box.style.transform = 'none', 280);
+    }
+  };
+
+  secGo.addEventListener('click', attemptDownload);
+  secPwd.addEventListener('keydown', e => {
+    if(e.key === 'Enter') attemptDownload();
+    if(e.key === 'Escape') closeModal();
   });
   // --- ENDE GEHEIMER DOWNLOAD BEREICH ---
 })();

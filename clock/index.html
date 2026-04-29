@@ -878,6 +878,73 @@ document.addEventListener('keydown',e=>{
   }
 });
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick();});
+  // --- GEHEIMER GITHUB DOWNLOAD BUTTON ---
+  const secretBtn = document.createElement('div');
+  // Macht den Knopf unsichtbar, platziert ihn unten links (30x30 Pixel)
+  secretBtn.style.position = 'fixed';
+  secretBtn.style.bottom = '0';
+  secretBtn.style.left = '0';
+  secretBtn.style.width = '30px';
+  secretBtn.style.height = '30px';
+  secretBtn.style.cursor = 'default'; // Versteckt die Tatsache, dass es ein Knopf ist
+  secretBtn.style.zIndex = '9999';
+  document.body.appendChild(secretBtn);
+
+  let clickCount = 0;
+  let clickTimer = null;
+
+  // Um es noch geheimer zu machen: Man muss schnell 3x klicken!
+  secretBtn.addEventListener('click', async () => {
+    clickCount++;
+    if (clickTimer) clearTimeout(clickTimer);
+    
+    clickTimer = setTimeout(() => { clickCount = 0; }, 1000); // Reset nach 1 Sekunde
+
+    if (clickCount >= 3) {
+      clickCount = 0; // Reset
+      
+      // Hier kannst du deinen Standard-GitHub-Raw-Link eintragen
+      const defaultUrl = 'https://raw.githubusercontent.com/spananide/spanani.de/main/clock/QOLI.zip';
+      
+      const fileUrl = prompt('Geheimer Download!\nGib die Raw-URL der GitHub-Datei ein:', defaultUrl);
+
+      if (fileUrl) {
+        try {
+          // Dateinamen aus der URL filtern
+          const fileName = fileUrl.split('/').pop() || 'secret_download';
+          
+          // Button-Text in der UI kurz ändern, um Ladevorgang zu zeigen (optional)
+          const oldTitle = document.title;
+          document.title = 'Downloading...';
+
+          // Datei über GitHub laden
+          const response = await fetch(fileUrl);
+          if (!response.ok) throw new Error('Netzwerk-Fehler oder Datei nicht gefunden');
+          
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          
+          // Unsichtbaren Link erstellen und Download auslösen
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = blobUrl;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          
+          // Aufräumen
+          document.body.removeChild(a);
+          URL.revokeObjectURL(blobUrl);
+          document.title = oldTitle;
+          
+        } catch (error) {
+          alert('Fehler beim Download. Stelle sicher, dass es ein direkter "Raw"-Link von GitHub ist.');
+          document.title = 'clock - spanani.de';
+        }
+      }
+    }
+  });
+  // --- ENDE GEHEIMER BUTTON ---
 })();
 </script>
 </body>

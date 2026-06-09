@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QOLI - Installations-Handbuch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030712;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-1: #3b82f6;
+            --accent-2: #8b5cf6;
+            --card-bg: rgba(15, 23, 42, 0.4);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --success: #10b981;
+        }
+
+        /* Cyberpunk Theme */
+        body.theme-cyberpunk {
+            --bg: #09090b;
+            --text-main: #fdf8f5;
+            --text-muted: #a1a1aa;
+            --accent-1: #facc15;
+            --accent-2: #ec4899;
+            --card-bg: rgba(24, 24, 27, 0.6);
+            --card-border: rgba(250, 204, 21, 0.15);
+        }
+
+        /* Hacker Theme */
+        body.theme-matrix {
+            --bg: #000000;
+            --text-main: #e2e8f0;
+            --text-muted: #22c55e;
+            --accent-1: #22c55e;
+            --accent-2: #10b981;
+            --card-bg: rgba(0, 20, 0, 0.4);
+            --card-border: rgba(34, 197, 94, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* Custom cursor */
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+            position: relative;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* Custom Cursor */
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-1);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s;
+        }
+
+        .cursor-glow {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--accent-2);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            box-shadow: 0 0 20px var(--accent-2);
+            opacity: 0.5;
+        }
+
+        /* Scroll Progress Bar */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--accent-1), var(--accent-2));
+            width: 0%;
+            z-index: 1000;
+            box-shadow: 0 0 10px var(--accent-1);
+            transition: width 0.1s ease;
+        }
+
+        /* Top Progress Tracker Sticky */
+        .progress-tracker {
+            position: fixed;
+            top: 1rem;
+            right: 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .progress-bar-bg {
+            width: 100px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Theme Picker */
+        .theme-picker {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 100;
+            background: var(--card-bg);
+            padding: 0.75rem;
+            border-radius: 2rem;
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .theme-btn:hover { transform: scale(1.2); }
+        .theme-btn.active { border-color: white; transform: scale(1.1); }
+        .theme-btn.default { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .theme-btn.cyberpunk { background: linear-gradient(135deg, #facc15, #ec4899); }
+        .theme-btn.matrix { background: linear-gradient(135deg, #22c55e, #10b981); }
+
+
+        /* Animated Background Orbs */
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            animation: float 20s infinite ease-in-out alternate;
+            opacity: 0.6;
+            transition: background 0.5s ease;
+        }
+        .orb-1 { width: 600px; height: 600px; background: var(--accent-1); top: -100px; left: -100px; opacity: 0.2; }
+        .orb-2 { width: 500px; height: 500px; background: var(--accent-2); bottom: 20%; right: -50px; animation-delay: -5s; opacity: 0.2; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, 50px) scale(1.1); }
+            100% { transform: translate(-30px, -20px) scale(0.9); }
+        }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 7rem 2rem 5rem 2rem; position: relative; }
+
+        header { text-align: center; margin-bottom: 5rem; animation: fadeUp 1s ease-out; }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            color: var(--text-main);
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #ffffff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+            min-height: 3.5rem; /* prevent layout shift while typing */
+        }
+
+        /* Timeline Layout */
+        .timeline { position: relative; }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 2.5rem;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--accent-1), var(--accent-2), transparent);
+            opacity: 0.3;
+            z-index: 0;
+            transition: background 0.5s ease;
+        }
+
+        .step-card {
+            position: relative;
+            margin-bottom: 3rem;
+            padding-left: 6rem;
+            animation: fadeUp 1s ease-out both;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .step-card:nth-child(1) { animation-delay: 0.3s; }
+        .step-card:nth-child(2) { animation-delay: 0.4s; }
+        .step-card:nth-child(3) { animation-delay: 0.5s; }
+        .step-card:nth-child(4) { animation-delay: 0.6s; }
+        .step-card:nth-child(5) { animation-delay: 0.7s; }
+
+        .step-indicator {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--accent-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .step-card.completed .step-indicator {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+        }
+
+        .card-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: transform 0.1s, border-color 0.4s, box-shadow 0.4s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            will-change: transform;
+        }
+
+        .step-card.completed .card-content {
+            border-color: rgba(16, 185, 129, 0.3);
+            opacity: 0.8;
+        }
+
+        .step-title {
+            font-size: 1.75rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            transition: color 0.5s ease;
+        }
+        
+        .step-card.completed .step-title {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .step-text { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1.5rem; transition: color 0.5s ease; }
+
+        /* Windows CMD style code block */
+        .cmd-window {
+            background: #0c0c0c;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin: 1.5rem 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .cmd-header {
+            background: #1e1e1e;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-left: 1rem;
+        }
+
+        .cmd-title { display: flex; align-items: center; gap: 0.6rem; color: #cccccc; font-size: 0.8rem; font-family: 'Segoe UI', system-ui, sans-serif; user-select: none; }
+        .cmd-actions { display: flex; align-items: center; }
+        .cmd-controls { display: flex; margin-left: 1rem; }
+
+        .cmd-control-btn {
+            width: 46px; height: 36px; display: flex; align-items: center; justify-content: center;
+            color: #cccccc; font-size: 14px; font-weight: 300; user-select: none; transition: background-color 0.1s;
+        }
+        .cmd-control-btn.close:hover { background-color: #e81123; color: white; }
+        .cmd-control-btn:not(.close):hover { background-color: rgba(255,255,255,0.1); }
+
+        .copy-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0;
+            padding: 0.2rem 0.6rem; border-radius: 0.3rem; font-size: 0.8rem; font-family: 'Outfit', sans-serif;
+            transition: all 0.2s ease; display: flex; align-items: center; gap: 0.4rem; height: 26px; z-index: 10;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); }
+        .copy-btn.copied { background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4); color: #10b981; }
+
+        .cmd-body { padding: 1.5rem; text-align: left; display: flex; align-items: flex-start; }
+        .cmd-prompt { color: #cccccc; font-family: 'Consolas', monospace; font-size: 0.95rem; margin-right: 0.5rem; user-select: none; white-space: nowrap; }
+        .cmd-body code {
+            flex: 1; font-family: 'Consolas', monospace; font-size: 0.95rem; color: #a78bfa;
+            background: transparent; white-space: pre-wrap; word-wrap: break-word; text-align: left; margin: 0; padding: 0; display: inline;
+        }
+        .cmd-body code.highlight { color: #34d399; }
+
+        /* Checklist Toggle Button */
+        .done-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 2rem;
+            color: var(--text-main);
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            margin-top: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .done-toggle::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 0%; height: 100%;
+            background: rgba(16, 185, 129, 0.2);
+            transition: width 0.4s ease;
+            z-index: 0;
+        }
+
+        .step-card.completed .done-toggle::before { width: 100%; }
+        .step-card.completed .done-toggle { border-color: var(--success); color: var(--success); }
+
+        .done-toggle span { position: relative; z-index: 1; }
+        .done-circle {
+            width: 20px; height: 20px; border-radius: 50%;
+            border: 2px solid var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease; position: relative; z-index: 1;
+        }
+        
+        .step-card.completed .done-circle { border-color: var(--success); background: var(--success); }
+        .done-circle::after {
+            content: '✓'; color: #fff; font-size: 12px; opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .step-card.completed .done-circle::after { opacity: 1; }
+
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        ol { margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); }
+        li { margin-bottom: 0.75rem; font-size: 1.1rem; }
+        ::selection { background: var(--accent-2); color: #fff; }
+
+    </style>
+</head>
+<body>
+    <div class="scroll-progress" id="scrollBar"></div>
+
+    <div class="progress-tracker" id="progressTracker">
+        <div>Fortschritt: <span id="progressText">0/5</span></div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+    </div>
+
+    <div class="theme-picker">
+        <div class="theme-btn default active" onclick="setTheme('default', this)" title="Standard"></div>
+        <div class="theme-btn cyberpunk" onclick="setTheme('cyberpunk', this)" title="Cyberpunk"></div>
+        <div class="theme-btn matrix" onclick="setTheme('matrix', this)" title="Hacker"></div>
+    </div>
+
+    <!-- Ambient Background Effects -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <div class="container">
+        <header>
+            <div class="badge">Systembereitstellung</div>
+            <h1>QOLI Installations-Handbuch</h1>
+            <p class="subtitle" id="typewriter-text"></p>
+        </header>
+
+        <div class="timeline">
+            
+            <!-- Step 1 -->
+            <div class="step-card" id="step1">
+                <div class="step-indicator">1</div>
+                <div class="card-content">
+                    <h2 class="step-title">Python installieren</h2>
+                    <p class="step-text">Python ist die Sprache, in der die KI geschrieben ist. Dein Computer braucht dieses Programm, um den Code lesen zu können.</p>
+                    <ol>
+                        <li>Lade den Python-Installer über den Link unten herunter.</li>
+                        <li>Öffne die heruntergeladene <span style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.5rem; border-radius: 0.25rem;">.exe</span> Datei.</li>
+                    </ol>
+                    <div style="border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); padding: 1.25rem; border-radius: 0.75rem; margin: 1.5rem 0; display: flex; gap: 1rem;">
+                        <span style="color: #ef4444; font-size: 1.5rem;">⚠️</span>
+                        <div>
+                            <strong style="color: #fff; display: block; margin-bottom: 0.25rem;">Sehr Wichtig!</strong>
+                            <span style="color: #fca5a5; font-size: 0.95rem;">Bevor du im Installer auf "Install Now" klickst, <strong>MUSST</strong> du ganz unten das Häkchen bei <strong>"Add python.exe to PATH"</strong> setzen. Ohne dieses Häkchen wird nichts funktionieren!</span>
+                        </div>
+                    </div>
+                    <button class="done-toggle" onclick="toggleStep('step1')">
+                        <div class="done-circle"></div>
+                        <span>Erledigt</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card" id="step2">
+                <div class="step-indicator">2</div>
+                <div class="card-content">
+                    <h2 class="step-title">Den Projektordner öffnen</h2>
+                    <p class="step-text">Wir müssen nun die Windows Eingabeaufforderung (CMD) direkt im QOLI-Ordner öffnen.</p>
+                    <ol>
+                        <li>Öffne den Windows-Ordner, in dem sich die Datei <code style="font-family: monospace;">qoli.py</code> befindet.</li>
+                        <li>Klicke ganz oben im Windows Explorer auf die <strong>Adressleiste</strong> (wo der Dateipfad steht).</li>
+                        <li>Lösche den Text, tippe genau <code style="font-family: monospace;">cmd</code> ein und drücke <strong>Enter</strong>.</li>
+                    </ol>
+                    <button class="done-toggle" onclick="toggleStep('step2')">
+                        <div class="done-circle"></div>
+                        <span>Erledigt</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card" id="step3">
+                <div class="step-indicator">3</div>
+                <div class="card-content">
+                    <h2 class="step-title">KI-Bausteine herunterladen</h2>
+                    <p class="step-text">Füge den Befehl in dein schwarzes CMD-Fenster ein (Rechtsklick) und drücke <strong>Enter</strong>.</p>
+                    
+                    <div class="cmd-window">
+                        <div class="cmd-header">
+                            <div class="cmd-title">C:\Windows\System32\cmd.exe</div>
+                            <div class="cmd-actions">
+                                <button class="copy-btn" onclick="copyCode('code1', this)">Kopieren</button>
+                                <div class="cmd-controls">
+                                    <div class="cmd-control-btn">─</div><div class="cmd-control-btn">□</div><div class="cmd-control-btn close">✕</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cmd-body"><span class="cmd-prompt">C:\QOLI&gt;</span><code id="code1">pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121</code></div>
+                    </div>
+
+                    <p class="step-text" style="margin-top: 1.5rem;">Sobald der Download fertig ist, kopiere Befehl 2:</p>
+                    <div class="cmd-window">
+                        <div class="cmd-header">
+                            <div class="cmd-title">C:\Windows\System32\cmd.exe</div>
+                            <div class="cmd-actions">
+                                <button class="copy-btn" onclick="copyCode('code2', this)">Kopieren</button>
+                                <div class="cmd-controls">
+                                    <div class="cmd-control-btn">─</div><div class="cmd-control-btn">□</div><div class="cmd-control-btn close">✕</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cmd-body"><span class="cmd-prompt">C:\QOLI&gt;</span><code id="code2">pip install ultralytics mss opencv-python</code></div>
+                    </div>
+                    <button class="done-toggle" onclick="toggleStep('step3')">
+                        <div class="done-circle"></div>
+                        <span>Erledigt</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step-card" id="step4">
+                <div class="step-indicator">4</div>
+                <div class="card-content">
+                    <h2 class="step-title">Die KI starten</h2>
+                    <p class="step-text">Führe den folgenden Befehl im Terminal aus, um die KI zu wecken.</p>
+                    <div class="cmd-window">
+                        <div class="cmd-header">
+                            <div class="cmd-title">C:\Windows\System32\cmd.exe</div>
+                            <div class="cmd-actions">
+                                <button class="copy-btn" onclick="copyCode('code3', this)">Kopieren</button>
+                                <div class="cmd-controls">
+                                    <div class="cmd-control-btn">─</div><div class="cmd-control-btn">□</div><div class="cmd-control-btn close">✕</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cmd-body"><span class="cmd-prompt">C:\QOLI&gt;</span><code id="code3" class="highlight">python qoli.py</code></div>
+                    </div>
+                    <button class="done-toggle" onclick="toggleStep('step4')">
+                        <div class="done-circle"></div>
+                        <span>Erledigt</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="step-card" id="step5">
+                <div class="step-indicator">5</div>
+                <div class="card-content">
+                    <h2 class="step-title">Programm beenden</h2>
+                    <p class="step-text">Um das Programm zu schließen, klicke in das schwarze Terminal und drücke <code style="font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.1rem 0.3rem;">Strg + C</code>.</p>
+                    <button class="done-toggle" onclick="toggleStep('step5')">
+                        <div class="done-circle"></div>
+                        <span>Erledigt</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Interactive Elements -->
+    <script>
+        // Custom Cursor
+        const cursorDot = document.createElement('div');
+        cursorDot.classList.add('cursor-dot');
+        document.body.appendChild(cursorDot);
+
+        const cursorGlow = document.createElement('div');
+        cursorGlow.classList.add('cursor-glow');
+        document.body.appendChild(cursorGlow);
+
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+            
+            // Smooth delay for glow
+            cursorGlow.animate({
+                left: e.clientX + 'px',
+                top: e.clientY + 'px'
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        // Hover effect for cursor
+        document.querySelectorAll('button, a, .theme-btn, .done-toggle').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorDot.style.transform = 'translate(-50%, -50%) scale(2)';
+                cursorGlow.style.width = '80px';
+                cursorGlow.style.height = '80px';
+                cursorGlow.style.borderColor = 'var(--accent-1)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorDot.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursorGlow.style.width = '50px';
+                cursorGlow.style.height = '50px';
+                cursorGlow.style.borderColor = 'var(--accent-2)';
+            });
+        });
+
+        // Typewriter Effect
+        const text = "Erlebe Echtzeit-KI-Objekterkennung. Folge dieser simplen Anleitung, um das Programm auf deinem Windows-PC einzurichten und zu starten.";
+        let charIndex = 0;
+        function typeWriter() {
+            if (charIndex < text.length) {
+                document.getElementById("typewriter-text").innerHTML += text.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 30);
+            }
+        }
+        setTimeout(typeWriter, 500);
+
+        // Scroll Progress
+        window.addEventListener('scroll', () => {
+            const totalHeight = document.body.scrollHeight - window.innerHeight;
+            const progress = (window.scrollY / totalHeight) * 100;
+            document.getElementById('scrollBar').style.width = progress + '%';
+        });
+
+        // 3D Parallax Tilt Effect for Cards
+        const cards = document.querySelectorAll('.card-content');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                // Calculate rotation (max 3 degrees to keep it subtle)
+                const rotateX = ((y - centerY) / centerY) * -3; 
+                const rotateY = ((x - centerX) / centerX) * 3;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+            });
+        });
+
+        // Step Completion Tracker
+        let completed = 0;
+        const total = 5;
+        function toggleStep(stepId) {
+            const card = document.getElementById(stepId);
+            const isCompleted = card.classList.contains('completed');
+            
+            if (isCompleted) {
+                card.classList.remove('completed');
+                completed--;
+            } else {
+                card.classList.add('completed');
+                completed++;
+                // Add a small celebration effect
+                card.style.transform = 'scale(1.05)';
+                setTimeout(() => card.style.transform = '', 200);
+            }
+            
+            document.getElementById('progressText').innerText = `${completed}/${total}`;
+            document.getElementById('progressBarFill').style.width = `${(completed/total)*100}%`;
+            
+            if (completed === total) {
+                document.getElementById('progressTracker').style.boxShadow = '0 0 30px var(--success)';
+            } else {
+                document.getElementById('progressTracker').style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+            }
+        }
+
+        // Theme Switcher
+        function setTheme(theme, btn) {
+            document.body.className = ''; // reset
+            if (theme !== 'default') {
+                document.body.classList.add(`theme-${theme}`);
+            }
+            // Update active button
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Copy Code Function
+        function copyCode(id, btn) {
+            const textToCopy = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = 'Kopiert! ✓';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

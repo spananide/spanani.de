@@ -3,774 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>spanani - Developer & Designer</title>
+    <title>spanani</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #070709;
-            --surface-color: rgba(20, 20, 25, 0.6);
-            --surface-border: rgba(255, 255, 255, 0.05);
-            --surface-border-hover: rgba(255, 255, 255, 0.15);
-            
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --text-tertiary: #71717a;
-            
-            --accent-1: #8B5CF6; /* Purple */
-            --accent-2: #3B82F6; /* Blue */
-            --accent-3: #EC4899; /* Pink */
-            --accent-glow: rgba(139, 92, 246, 0.4);
-            
+            --bg: #0a0a0a;
+            --bg1: #111111;
+            --bg2: #181818;
+            --border: rgba(255,255,255,0.08);
+            --border-hover: rgba(255,255,255,0.16);
+            --text: #f0f0f0;
+            --mu: #555555;
+            --mu2: #2e2e2e;
+            --ac: #e2e2e2;
+            --ac-rgb: 226,226,226;
+            --radius: 0px; /* Brutalist sharp edges */
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        * {
+        *, *::before, *::after {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 15px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
             line-height: 1.6;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
-            cursor: none;
+            cursor: none; /* Custom cursor */
         }
 
-        ::selection {
-            background: var(--accent-glow);
-            color: #fff;
-        }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-color); }
-        ::-webkit-scrollbar-thumb { background: var(--surface-color); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
-
-        /* Background Effects */
-        .ambient-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.5;
-            animation: float 20s infinite alternate var(--ease);
-        }
-
-        .orb-1 { width: 400px; height: 400px; background: var(--accent-1); top: -10%; left: -10%; }
-        .orb-2 { width: 500px; height: 500px; background: var(--accent-2); bottom: -20%; right: -10%; animation-delay: -5s; }
-        .orb-3 { width: 300px; height: 300px; background: var(--accent-3); top: 40%; left: 40%; animation-delay: -10s; opacity: 0.3; }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(100px, 50px) scale(1.2); }
-        }
-
-        .noise-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.03;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        }
+        ::selection { background: rgba(var(--ac-rgb), 0.2); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--mu2); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--mu); }
 
         /* Custom Cursor */
-        #cursor-dot, #cursor-ring {
-            position: fixed;
-            top: 0; left: 0;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 10000;
+        #cur, #cur-ring { display: none; }
+        body.has-cursor #cur {
+            display: block; position: fixed; width: 6px; height: 6px;
+            background: var(--text); border-radius: 50%; pointer-events: none; z-index: 9999;
+            transform: translate(-50%,-50%); mix-blend-mode: difference;
+            transition: width 0.2s var(--ease), height 0.2s var(--ease), opacity 0.3s;
         }
-
-        #cursor-dot {
-            width: 8px; height: 8px;
-            background: #fff;
-            transition: width 0.2s, height 0.2s;
+        body.has-cursor #cur-ring {
+            display: block; position: fixed; width: 32px; height: 32px;
+            border: 1px solid var(--mu); border-radius: 50%;
+            pointer-events: none; z-index: 9998; transform: translate(-50%,-50%);
+            transition: width 0.25s var(--ease), height 0.25s var(--ease), border-color 0.3s, opacity 0.3s;
         }
-
-        #cursor-ring {
-            width: 40px; height: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            transition: width 0.3s var(--ease), height 0.3s var(--ease), border-color 0.3s;
+        body.has-cursor .hover-target:hover ~ #cur-ring {
+            width: 50px; height: 50px; border-color: var(--text); background: rgba(255,255,255,0.05);
         }
-
-        body:hover #cursor-dot, body:hover #cursor-ring { opacity: 1; }
-        .hover-target:hover ~ #cursor-dot { width: 0; height: 0; }
-        .hover-target:hover ~ #cursor-ring {
-            width: 60px; height: 60px;
-            border-color: var(--accent-1);
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(2px);
-        }
+        body.has-cursor .hover-target:hover ~ #cur { opacity: 0; }
 
         /* Navigation */
         nav {
             position: fixed;
-            top: 0; width: 100%;
-            padding: 24px 48px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            transition: all 0.4s var(--ease);
-        }
-
-        nav.scrolled {
-            padding: 16px 48px;
-            background: rgba(7, 7, 9, 0.8);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--surface-border);
+            top: 0; left: 0; right: 0;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 48px; height: 64px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            z-index: 500;
         }
 
         .logo {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
+            font-family: 'Instrument Serif', serif;
             font-size: 24px;
+            color: var(--text);
             text-decoration: none;
-            color: #fff;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.02em;
         }
 
-        .logo span {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .logo em { font-style: italic; color: var(--mu); }
 
         .nav-links {
-            display: flex;
-            gap: 32px;
-            align-items: center;
+            display: flex; align-items: center; gap: 24px;
         }
 
         .nav-link {
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.3s;
-            position: relative;
+            font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--mu); text-decoration: none; transition: color 0.2s;
         }
 
-        .nav-link:hover { color: #fff; }
-        .nav-link::after {
-            content: ''; position: absolute;
-            bottom: -4px; left: 0;
-            width: 0%; height: 2px;
-            background: var(--accent-1);
-            transition: width 0.3s var(--ease);
-        }
-        .nav-link:hover::after { width: 100%; }
+        .nav-link:hover { color: var(--text); }
 
         .clock-strip {
             display: flex; align-items: center; gap: 8px;
-            padding: 8px 16px;
-            background: var(--surface-color);
-            border: 1px solid var(--surface-border);
-            border-radius: 20px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 13px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: all 0.3s;
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            color: var(--mu); text-decoration: none;
+            font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+            transition: all 0.2s;
         }
-
-        .clock-strip:hover {
-            border-color: var(--surface-border-hover);
-            color: #fff;
-            transform: translateY(-2px);
-        }
+        .clock-strip:hover { border-color: var(--border-hover); color: var(--text); }
 
         .live-dot {
-            width: 6px; height: 6px;
-            background: #10B981;
-            border-radius: 50%;
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
-            animation: pulse 2s infinite;
+            width: 5px; height: 5px; background: #3db87a;
+            border-radius: 50%; animation: blink 2s infinite;
         }
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-        /* Layout */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 48px;
-        }
-
-        section { padding: 120px 0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 0 48px; }
+        section { padding: 120px 0; border-bottom: 1px solid var(--border); }
+        section:last-of-type { border-bottom: none; }
 
         /* Hero */
         .hero {
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
+            display: flex; flex-direction: column; justify-content: center;
+            border-bottom: 1px solid var(--border);
         }
 
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 16px;
-            background: var(--surface-color);
-            border: 1px solid var(--surface-border);
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 32px;
-            width: max-content;
-            opacity: 0;
-            animation: fadeUp 0.8s 0.2s forwards;
+        .hero-label {
+            font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--mu); margin-bottom: 24px; display: flex; align-items: center; gap: 8px;
         }
 
         .hero h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: clamp(60px, 8vw, 120px);
-            font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -2px;
-            margin-bottom: 24px;
-            opacity: 0;
-            animation: fadeUp 0.8s 0.4s forwards;
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(64px, 10vw, 120px);
+            font-weight: 400; line-height: 0.9;
+            letter-spacing: -0.04em;
+            margin-bottom: 32px;
         }
 
-        .hero h1 .gradient-text {
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .hero h1 .accent-text {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .hero h1 em { font-style: italic; color: var(--mu); }
 
         .hero p {
-            font-size: clamp(16px, 2vw, 20px);
-            color: var(--text-secondary);
-            max-width: 600px;
-            line-height: 1.8;
-            opacity: 0;
-            animation: fadeUp 0.8s 0.6s forwards;
+            font-size: 14px; color: var(--mu); max-width: 500px; line-height: 1.8;
         }
+        .hero p strong { color: var(--text); font-weight: 500; }
 
-        .hero p strong { color: var(--text-primary); font-weight: 600; }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 40px;
-            left: 48px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            opacity: 0;
-            animation: fadeUp 0.8s 1s forwards;
-            color: var(--text-tertiary);
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .mouse {
-            width: 24px; height: 36px;
-            border: 2px solid var(--text-tertiary);
-            border-radius: 12px;
-            position: relative;
-        }
-
-        .wheel {
-            width: 4px; height: 8px;
-            background: var(--text-tertiary);
-            border-radius: 2px;
-            position: absolute;
-            top: 6px; left: 50%;
-            transform: translateX(-50%);
-            animation: scroll 2s infinite;
-        }
-
-        @keyframes scroll { 0% { top: 6px; opacity: 1; } 100% { top: 20px; opacity: 0; } }
-
-        /* Section Titles */
+        /* Section Headers */
         .section-label {
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--accent-1);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--mu); margin-bottom: 16px;
+            display: flex; align-items: center; gap: 12px;
         }
-
-        .section-label::before {
-            content: '';
-            width: 40px; height: 2px;
-            background: var(--accent-1);
-        }
+        .section-label::before { content: ''; width: 24px; height: 1px; background: var(--mu2); }
 
         .section-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: clamp(32px, 5vw, 64px);
-            font-weight: 700;
-            line-height: 1.2;
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(38px, 6vw, 64px);
+            font-weight: 400; line-height: 1.05; letter-spacing: -0.03em;
             margin-bottom: 64px;
-            letter-spacing: -1px;
+        }
+        .section-title em { font-style: italic; color: var(--mu); }
+
+        /* Projects List (Brutalist style) */
+        .project-list {
+            display: flex; flex-direction: column;
+            border-top: 1px solid var(--border);
         }
 
-        .section-title span { color: var(--text-secondary); font-weight: 400; }
-
-        /* Projects Grid */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 32px;
+        .project-row {
+            display: grid; grid-template-columns: 48px 1fr auto;
+            padding: 32px 0; border-bottom: 1px solid var(--border);
+            text-decoration: none; color: inherit;
+            transition: padding-left 0.3s var(--ease), background 0.3s;
         }
 
-        .project-card {
-            background: var(--surface-color);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--surface-border);
-            border-radius: 24px;
-            padding: 40px;
-            text-decoration: none;
-            color: inherit;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s var(--ease);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+        .project-row:hover { background: var(--bg1); padding-left: 16px; }
 
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at top right, rgba(255,255,255,0.1), transparent 50%);
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-
-        .project-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--surface-border-hover);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
-
-        .project-card:hover::before { opacity: 1; }
-
-        .project-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .project-number {
-            font-family: 'Outfit', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--accent-1);
-        }
-
-        .project-icon {
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.05);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--text-secondary);
-            transition: all 0.4s var(--ease);
-        }
-
-        .project-card:hover .project-icon {
-            background: var(--text-primary);
-            color: var(--bg-color);
-            transform: scale(1.1) rotate(45deg);
-        }
-
-        .project-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .project-desc {
-            font-size: 15px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            flex-grow: 1;
-        }
-
-        .project-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .tag {
-            padding: 6px 14px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-tertiary);
-        }
+        .p-num { font-size: 11px; color: var(--mu2); letter-spacing: 0.08em; }
+        .p-title { font-family: 'Instrument Serif', serif; font-size: 32px; font-weight: 400; letter-spacing: -0.02em; margin-bottom: 8px; }
+        .p-desc { font-size: 13px; color: var(--mu); line-height: 1.7; max-width: 500px; }
         
-        .tag.highlight {
-            color: var(--accent-2);
-            border-color: rgba(59, 130, 246, 0.3);
-            background: rgba(59, 130, 246, 0.05);
+        .p-tags { display: flex; gap: 8px; margin-top: 16px; }
+        .p-tag { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mu); border: 1px solid var(--border); padding: 4px 8px; }
+        
+        .p-arrow { color: var(--mu); transition: transform 0.3s var(--ease); display: flex; align-items: center; }
+        .project-row:hover .p-arrow { color: var(--text); transform: translate(4px, -4px); }
+
+        /* Contact Section (Minimal Links) */
+        .contact-links {
+            display: flex; flex-direction: column; gap: 16px;
         }
 
-        /* Banner */
-        .banner {
-            margin: 80px 0;
-            padding: 60px;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
-            border: 1px solid var(--surface-border);
-            border-radius: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 40px;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
+        .c-link {
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(32px, 5vw, 48px);
+            color: var(--mu); text-decoration: none;
+            display: inline-block; width: fit-content;
+            transition: color 0.3s;
         }
-
-        .banner::after {
-            content: '';
-            position: absolute;
-            top: -50%; right: -20%;
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.2), transparent 70%);
-            border-radius: 50%;
-            filter: blur(40px);
-        }
-
-        .banner-content h3 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 40px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            letter-spacing: -1px;
-        }
-
-        .banner-content p {
-            font-size: 16px;
-            color: var(--text-secondary);
-        }
-
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            padding: 16px 32px;
-            background: #fff;
-            color: #000;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            font-size: 15px;
-            border-radius: 30px;
-            text-decoration: none;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(255,255,255,0.2);
-        }
+        .c-link:hover { color: var(--text); }
 
         /* Footer */
         footer {
-            border-top: 1px solid var(--surface-border);
-            padding: 40px 48px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            color: var(--text-tertiary);
+            padding: 32px 48px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .footer-links {
-            display: flex;
-            gap: 24px;
-        }
-
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .footer-links a:hover { color: #fff; }
+        footer span { font-size: 11px; color: var(--mu); letter-spacing: 0.04em; }
 
         /* Animations */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .rv { opacity: 0; transform: translateY(24px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+        .rv.in { opacity: 1; transform: none; }
+        .rv-d1 { transition-delay: 0.1s; }
+        .rv-d2 { transition-delay: 0.2s; }
 
-        .reveal {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
-        }
-
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            nav { padding: 20px 24px; }
+            nav { padding: 0 24px; height: 56px; }
             .nav-links { display: none; }
             .container { padding: 0 24px; }
-            .hero { padding-top: 100px; }
-            .banner { flex-direction: column; text-align: center; padding: 40px 24px; }
-            footer { flex-direction: column; gap: 20px; text-align: center; }
-            .scroll-indicator { display: none; }
+            .project-row { grid-template-columns: 32px 1fr 24px; padding: 24px 0; }
+            .project-row:hover { padding-left: 0; }
+            footer { padding: 24px; flex-direction: column; gap: 12px; align-items: flex-start; }
         }
     </style>
 </head>
-<body>
+<body class="has-cursor">
 
-    <!-- Ambient Background -->
-    <div class="ambient-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
-    <div class="noise-overlay"></div>
+    <div id="cur"></div>
+    <div id="cur-ring"></div>
 
-    <!-- Custom Cursor -->
-    <div id="cursor-dot"></div>
-    <div id="cursor-ring"></div>
-
-    <!-- Navigation -->
-    <nav id="navbar">
-        <a href="#" class="logo hover-target">span<span>ani</span></a>
+    <nav>
+        <a href="#" class="logo hover-target">span<em>ani</em></a>
         <div class="nav-links">
-            <a href="#work" class="nav-link hover-target">Work</a>
-            <a href="#about" class="nav-link hover-target">About</a>
-            <a href="./clock" class="clock-strip hover-target" id="clockBtn">
-                <span class="live-dot"></span>
-                <span id="navTime">--:--:--</span>
+            <a href="#projects" class="nav-link hover-target">projects</a>
+            <a href="#contact" class="nav-link hover-target">contact</a>
+            <a href="./clock" class="clock-strip hover-target">
+                <span class="live-dot"></span> <span id="navTime">--:--:--</span>
             </a>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero container">
-        <div class="hero-badge">
-            <span class="live-dot"></span> Available for new opportunities
+        <div class="hero-label rv in"><span class="live-dot"></span> available for work</div>
+        <h1 class="rv in rv-d1">span<em>ani</em></h1>
+        <p class="rv in rv-d2"><strong>Developer.</strong> I build things for the web - solid interfaces, reliable systems, and stark technical tools.</p>
+    </section>
+
+    <section id="projects" class="container">
+        <div class="section-label rv">selected work</div>
+        <h2 class="section-title rv">Projects &<br><em>tools.</em></h2>
+
+        <div class="project-list">
+            <!-- 01 Schulpilot App -->
+            <a href="https://schulpilot-app.de/" target="_blank" class="project-row hover-target rv">
+                <div class="p-num">01</div>
+                <div>
+                    <div class="p-title">Schulpilot App</div>
+                    <div class="p-desc">A comprehensive German school learning tool designed to streamline education and enhance the digital classroom experience.</div>
+                    <div class="p-tags"><span class="p-tag">Education</span><span class="p-tag">App</span></div>
+                </div>
+                <div class="p-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19L19 5M19 5H9M19 5V15"/></svg>
+                </div>
+            </a>
+
+            <!-- 02 Rust Invest Tracker -->
+            <a href="https://rust-invest-tracker.pages.dev/" target="_blank" class="project-row hover-target rv rv-d1">
+                <div class="p-num">02</div>
+                <div>
+                    <div class="p-title">Rust Invest Tracker</div>
+                    <div class="p-desc">Track and analyze Rust inventory values in real-time. A vital tool for traders to monitor their digital assets and market trends.</div>
+                    <div class="p-tags"><span class="p-tag">Finance</span><span class="p-tag">Rust</span></div>
+                </div>
+                <div class="p-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19L19 5M19 5H9M19 5V15"/></svg>
+                </div>
+            </a>
+
+            <!-- 03 Rust Raid Calc -->
+            <a href="./rust" class="project-row hover-target rv rv-d2">
+                <div class="p-num">03</div>
+                <div>
+                    <div class="p-title">Rust Raid Calc</div>
+                    <div class="p-desc">Plan raids down to the last sulfur grain. Supports 19 structures, 6 explosive methods, soft/hard sides, and CSV exports.</div>
+                    <div class="p-tags"><span class="p-tag">Calculator</span><span class="p-tag">Rust</span></div>
+                </div>
+                <div class="p-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19L19 5M19 5H9M19 5V15"/></svg>
+                </div>
+            </a>
+
+            <!-- 04 Atomic Clock -->
+            <a href="./clock" class="project-row hover-target rv rv-d1">
+                <div class="p-num">04</div>
+                <div>
+                    <div class="p-title">Atomic Clock</div>
+                    <div class="p-desc">Web-synced time with fast drift estimation. Because relying on your device's internal clock just wasn't accurate enough.</div>
+                    <div class="p-tags"><span class="p-tag">Time API</span><span class="p-tag">Systems</span></div>
+                </div>
+                <div class="p-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19L19 5M19 5H9M19 5V15"/></svg>
+                </div>
+            </a>
         </div>
-        <h1>
-            <span class="gradient-text">Building</span> <br>
-            <span class="accent-text">digital experiences.</span>
-        </h1>
-        <p>I'm <strong>spanani</strong>. I craft premium, high-performance web applications, weird side projects, and pixel-perfect interfaces.</p>
+    </section>
+
+    <section id="contact" class="container" style="border-bottom: none;">
+        <div class="section-label rv">get in touch</div>
+        <h2 class="section-title rv">Contact<br><em>me.</em></h2>
         
-        <div class="scroll-indicator">
-            <div class="mouse"><div class="wheel"></div></div>
-            Scroll
+        <div class="contact-links rv rv-d1">
+            <a href="mailto:webmaster@spanani.de" class="c-link hover-target">webmaster@spanani.de</a>
+            <a href="https://github.com/spananide" target="_blank" class="c-link hover-target">github</a>
+            <a href="https://twitter.com/spananidev" target="_blank" class="c-link hover-target">twitter</a>
         </div>
     </section>
 
-    <!-- Work Section -->
-    <section id="work" class="container">
-        <div class="reveal">
-            <div class="section-label">Selected Work</div>
-            <h2 class="section-title">Projects & <span>Experiments</span></h2>
-        </div>
-
-        <div class="projects-grid">
-            
-            <!-- Project 1: Schulpilot -->
-            <a href="https://schulpilot-app.de/" target="_blank" class="project-card hover-target reveal">
-                <div class="project-header">
-                    <span class="project-number">01</span>
-                    <div class="project-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="project-title">Schulpilot App</h3>
-                    <p class="project-desc">A comprehensive German school learning tool designed to streamline education and enhance the digital classroom experience.</p>
-                </div>
-                <div class="project-tags">
-                    <span class="tag highlight">Education</span>
-                    <span class="tag">Web App</span>
-                    <span class="tag">Production</span>
-                </div>
-            </a>
-
-            <!-- Project 2: Rust Invest Tracker -->
-            <a href="https://rust-invest-tracker.pages.dev/" target="_blank" class="project-card hover-target reveal" style="transition-delay: 0.1s;">
-                <div class="project-header">
-                    <span class="project-number">02</span>
-                    <div class="project-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="project-title">Rust Invest Tracker</h3>
-                    <p class="project-desc">Track and analyze Rust inventory values in real-time. A vital tool for traders to monitor their digital assets and market trends.</p>
-                </div>
-                <div class="project-tags">
-                    <span class="tag highlight">Rust</span>
-                    <span class="tag">Finance</span>
-                    <span class="tag">Tracker</span>
-                </div>
-            </a>
-
-            <!-- Project 3: Rust Raid Calculator -->
-            <a href="./rust" class="project-card hover-target reveal" style="transition-delay: 0.2s;">
-                <div class="project-header">
-                    <span class="project-number">03</span>
-                    <div class="project-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="project-title">Rust Raid Calc</h3>
-                    <p class="project-desc">Plan raids down to the last sulfur grain. Supports 19 structures, 6 explosive methods, soft/hard sides, and CSV exports.</p>
-                </div>
-                <div class="project-tags">
-                    <span class="tag highlight">Rust</span>
-                    <span class="tag">Calculator</span>
-                    <span class="tag">Utility</span>
-                </div>
-            </a>
-
-            <!-- Project 4: Atomic Clock -->
-            <a href="./clock" class="project-card hover-target reveal" style="transition-delay: 0.3s;">
-                <div class="project-header">
-                    <span class="project-number">04</span>
-                    <div class="project-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="project-title">Atomic Clock</h3>
-                    <p class="project-desc">Over-engineered web-synced time with fast drift estimation. Because relying on your device's internal clock just wasn't accurate enough.</p>
-                </div>
-                <div class="project-tags">
-                    <span class="tag">Time API</span>
-                    <span class="tag">JavaScript</span>
-                </div>
-            </a>
-
-        </div>
-    </section>
-
-    <!-- Banner Section -->
-    <section class="container" id="about">
-        <div class="banner reveal">
-            <div class="banner-content">
-                <h3>Let's build something.</h3>
-                <p>Have an idea or a project in mind? Let's turn it into reality with clean code and honest design.</p>
-            </div>
-            <a href="mailto:webmaster@spanani.de" class="btn-primary hover-target">
-                Contact Me
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </a>
-        </div>
-    </section>
-
-    <!-- Footer -->
     <footer>
-        <div>© 2026 spanani.de</div>
-        <div class="footer-links">
-            <a href="https://github.com/spananide" target="_blank" class="hover-target">GitHub</a>
-            <a href="https://twitter.com/spananidev" target="_blank" class="hover-target">Twitter</a>
-        </div>
+        <span>© 2026 spanani.de</span>
+        <span>built with clean code</span>
     </footer>
 
     <script>
-        // Custom Cursor Logic
-        const dot = document.getElementById('cursor-dot');
-        const ring = document.getElementById('cursor-ring');
-        
-        let mouseX = 0, mouseY = 0;
-        let ringX = 0, ringY = 0;
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
+        // Custom Cursor
+        const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+        if(!isTouch){
+            const cur=document.getElementById('cur'), ring=document.getElementById('cur-ring');
+            let mx=-100, my=-100, rx=-100, ry=-100, visible=false;
             
-            // Dot follows instantly
-            dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
-        });
-
-        // Ring follows with easing
-        function animateRing() {
-            ringX += (mouseX - ringX) * 0.15;
-            ringY += (mouseY - ringY) * 0.15;
-            ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
-            requestAnimationFrame(animateRing);
-        }
-        animateRing();
-
-        // Hover effect classes
-        document.querySelectorAll('a, button, .hover-target').forEach(el => {
-            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-        });
-
-        // Navbar scroll effect
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
-            if (window.scrollY > 50) {
-                nav.classList.add('scrolled');
-            } else {
-                nav.classList.remove('scrolled');
+            document.addEventListener('mousemove', e=>{
+                mx=e.clientX; my=e.clientY;
+                cur.style.left=mx+'px'; cur.style.top=my+'px';
+                if(!visible){ visible=true; cur.style.display='block'; ring.style.display='block'; }
+            });
+            
+            const lerp=(a,b,t)=>a+(b-a)*t;
+            function raf(){
+                rx=lerp(rx,mx,.15); ry=lerp(ry,my,.15);
+                ring.style.left=rx+'px'; ring.style.top=ry+'px';
+                requestAnimationFrame(raf);
             }
-        });
+            raf();
+        }
 
         // Scroll Reveal
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
-            });
-        }, { threshold: 0.1 });
+        const obs = new IntersectionObserver(es => {
+            es.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        
+        document.querySelectorAll('.rv').forEach(el => obs.observe(el));
 
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-        // Basic NTP Clock Simulation for the Nav
+        // Nav Clock
         function updateTime() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-            document.getElementById('navTime').textContent = timeString;
+            document.getElementById('navTime').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
         }
         setInterval(updateTime, 1000);
         updateTime();

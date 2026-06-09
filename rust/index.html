@@ -47,8 +47,8 @@
   --bg: #0a0a0a; --bg1: #111111; --bg2: #181818;
   --border: rgba(255,255,255,0.08); --bh: rgba(255,255,255,0.16);
   --text: #f0f0f0; --mu: #555555; --mu2: #2e2e2e;
-  --ac: #f97316; --ac-rgb: 249,115,22; /* Default Rust Orange */
-  --r: 6px; --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ac: #f97316; --ac-rgb: 249,115,22; 
+  --r: 0px; --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-font-smoothing: antialiased; }
@@ -65,9 +65,8 @@ body.hc { cursor: none; }
 ::-webkit-scrollbar-thumb { background: var(--mu2); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--mu); }
 
-/* Backgrounds & Effects */
-.noise { position: fixed; inset: 0; pointer-events: none; z-index: -1; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-.grid-bg { position: fixed; inset: 0; pointer-events: none; z-index: -2; background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size: 80px 80px; transition: opacity .4s; }
+.noise { display: none; }
+.grid-bg { display: none; }
 
 /* Custom Cursor */
 #cur, #cur-ring { display: none; }
@@ -306,7 +305,7 @@ footer a:hover { color: var(--text); }
   </div>
   
   <div class="nav-r">
-    <a href="/" class="back"><i class="fa-solid fa-arrow-left"></i><span>portfolio</span></a>
+    <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i><span>portfolio</span></a>
     
     <!-- Navbar Custom Color Picker -->
     <div class="nav-theme-btn">

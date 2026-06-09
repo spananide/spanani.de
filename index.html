@@ -5,20 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>spanani</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0a;
-            --bg1: #111111;
-            --bg2: #181818;
-            --border: rgba(255,255,255,0.08);
-            --border-hover: rgba(255,255,255,0.16);
-            --text: #f0f0f0;
-            --mu: #555555;
-            --mu2: #2e2e2e;
-            --ac: #e2e2e2;
-            --ac-rgb: 226,226,226;
-            --radius: 0px; /* Brutalist sharp edges */
+            --bg: #000000;
+            --surface: #0a0a0a;
+            --surface-hover: #141414;
+            --border: rgba(255,255,255,0.06);
+            --border-hover: rgba(255,255,255,0.12);
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --text-tertiary: #555555;
+            --accent: #ffffff;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -30,324 +32,322 @@
 
         body {
             background: var(--bg);
-            color: var(--text);
-            font-family: 'DM Mono', monospace;
-            font-size: 13px;
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 15px;
             line-height: 1.6;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
-            cursor: none; /* Custom cursor */
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        ::selection { background: rgba(var(--ac-rgb), 0.2); }
-        ::-webkit-scrollbar { width: 5px; }
+        ::selection { background: rgba(255,255,255, 0.2); }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--mu2); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--mu); }
-
-        /* Custom Cursor */
-        #cur, #cur-ring { display: none; }
-        body.has-cursor #cur {
-            display: block; position: fixed; width: 6px; height: 6px;
-            background: var(--text); border-radius: 50%; pointer-events: none; z-index: 9999;
-            transform: translate(-50%,-50%); mix-blend-mode: difference;
-            transition: width 0.2s var(--ease), height 0.2s var(--ease), opacity 0.3s;
-        }
-        body.has-cursor #cur-ring {
-            display: block; position: fixed; width: 32px; height: 32px;
-            border: 1px solid var(--mu); border-radius: 50%;
-            pointer-events: none; z-index: 9998; transform: translate(-50%,-50%);
-            transition: width 0.25s var(--ease), height 0.25s var(--ease), border-color 0.3s, opacity 0.3s;
-        }
-        body.has-cursor .hover-target:hover ~ #cur-ring {
-            width: 50px; height: 50px; border-color: var(--text); background: rgba(255,255,255,0.05);
-        }
-        body.has-cursor .hover-target:hover ~ #cur { opacity: 0; }
+        ::-webkit-scrollbar-thumb { background: var(--text-tertiary); border-radius: 4px; }
 
         /* Navigation */
         nav {
             position: fixed;
             top: 0; left: 0; right: 0;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 48px; height: 64px;
-            background: var(--bg);
+            padding: 0 48px; height: 72px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
             z-index: 500;
+            transition: all 0.3s ease;
         }
 
         .logo {
-            font-family: 'Instrument Serif', serif;
-            font-size: 24px;
-            color: var(--text);
+            font-weight: 600;
+            font-size: 20px;
+            color: var(--text-primary);
             text-decoration: none;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.5px;
         }
 
-        .logo em { font-style: italic; color: var(--mu); }
+        .logo span { color: var(--text-secondary); font-weight: 400; }
 
         .nav-links {
-            display: flex; align-items: center; gap: 24px;
+            display: flex; align-items: center; gap: 32px;
         }
 
         .nav-link {
-            font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-            color: var(--mu); text-decoration: none; transition: color 0.2s;
+            font-size: 14px; font-weight: 500;
+            color: var(--text-secondary); text-decoration: none; transition: color 0.2s;
         }
 
-        .nav-link:hover { color: var(--text); }
+        .nav-link:hover { color: var(--text-primary); }
 
         .clock-strip {
             display: flex; align-items: center; gap: 8px;
-            padding: 6px 12px;
+            padding: 8px 16px;
+            background: var(--surface);
             border: 1px solid var(--border);
-            color: var(--mu); text-decoration: none;
-            font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 13px; font-weight: 500;
             transition: all 0.2s;
         }
-        .clock-strip:hover { border-color: var(--border-hover); color: var(--text); }
+        .clock-strip:hover { border-color: var(--border-hover); color: var(--text-primary); background: var(--surface-hover); }
 
         .live-dot {
-            width: 5px; height: 5px; background: #3db87a;
-            border-radius: 50%; animation: blink 2s infinite;
+            width: 6px; height: 6px; background: #32d74b;
+            border-radius: 50%; box-shadow: 0 0 8px rgba(50, 215, 75, 0.4);
         }
 
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
-        .container { max-width: 900px; margin: 0 auto; padding: 0 48px; }
-        section { padding: 120px 0; border-bottom: 1px solid var(--border); }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 48px; }
+        section { padding: 140px 0; border-bottom: 1px solid var(--border); }
         section:last-of-type { border-bottom: none; }
 
         /* Hero */
         .hero {
-            min-height: 100vh;
+            min-height: 90vh;
             display: flex; flex-direction: column; justify-content: center;
             border-bottom: 1px solid var(--border);
+            position: relative;
         }
 
-        .hero-label {
-            font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
-            color: var(--mu); margin-bottom: 24px; display: flex; align-items: center; gap: 8px;
+        /* Subtle ambient glow behind hero */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 60%);
+            z-index: -1; pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 12px; border-radius: var(--radius-lg);
+            background: var(--surface); border: 1px solid var(--border);
+            font-size: 12px; font-weight: 500; color: var(--text-secondary);
+            margin-bottom: 32px; width: fit-content;
         }
 
         .hero h1 {
-            font-family: 'Instrument Serif', serif;
-            font-size: clamp(64px, 10vw, 120px);
-            font-weight: 400; line-height: 0.9;
-            letter-spacing: -0.04em;
-            margin-bottom: 32px;
+            font-size: clamp(48px, 8vw, 84px);
+            font-weight: 600; line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
         }
 
-        .hero h1 em { font-style: italic; color: var(--mu); }
+        .hero h1 span { color: var(--text-secondary); }
 
         .hero p {
-            font-size: 14px; color: var(--mu); max-width: 500px; line-height: 1.8;
+            font-size: clamp(16px, 2vw, 20px); color: var(--text-secondary); 
+            max-width: 600px; line-height: 1.6;
         }
-        .hero p strong { color: var(--text); font-weight: 500; }
+        .hero p strong { color: var(--text-primary); font-weight: 500; }
 
         /* Section Headers */
+        .section-header { margin-bottom: 48px; }
         .section-label {
-            font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
-            color: var(--mu); margin-bottom: 16px;
-            display: flex; align-items: center; gap: 12px;
+            font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text-tertiary); margin-bottom: 12px;
         }
-        .section-label::before { content: ''; width: 24px; height: 1px; background: var(--mu2); }
 
         .section-title {
-            font-family: 'Instrument Serif', serif;
-            font-size: clamp(38px, 6vw, 64px);
-            font-weight: 400; line-height: 1.05; letter-spacing: -0.03em;
-            margin-bottom: 64px;
-        }
-        .section-title em { font-style: italic; color: var(--mu); }
-
-        /* Projects List (Brutalist style) */
-        .project-list {
-            display: flex; flex-direction: column;
-            border-top: 1px solid var(--border);
+            font-size: 36px; font-weight: 600; letter-spacing: -1px; line-height: 1.2;
         }
 
-        .project-row {
-            display: grid; grid-template-columns: 48px 1fr auto;
-            padding: 32px 0; border-bottom: 1px solid var(--border);
+        /* Projects Grid (Apple style cards) */
+        .project-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px;
+        }
+
+        .project-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
             text-decoration: none; color: inherit;
-            transition: padding-left 0.3s var(--ease), background 0.3s;
+            transition: all 0.4s var(--ease);
+            display: flex; flex-direction: column;
+            position: relative; overflow: hidden;
         }
 
-        .project-row:hover { background: var(--bg1); padding-left: 16px; }
+        .project-card:hover {
+            transform: translateY(-4px);
+            background: var(--surface-hover);
+            border-color: var(--border-hover);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
 
-        .p-num { font-size: 11px; color: var(--mu2); letter-spacing: 0.08em; }
-        .p-title { font-family: 'Instrument Serif', serif; font-size: 32px; font-weight: 400; letter-spacing: -0.02em; margin-bottom: 8px; }
-        .p-desc { font-size: 13px; color: var(--mu); line-height: 1.7; max-width: 500px; }
+        .p-icon {
+            width: 48px; height: 48px; border-radius: var(--radius-md);
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 24px; color: var(--text-secondary);
+        }
+
+        .p-title { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 8px; }
+        .p-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; flex-grow: 1; }
         
-        .p-tags { display: flex; gap: 8px; margin-top: 16px; }
-        .p-tag { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mu); border: 1px solid var(--border); padding: 4px 8px; }
-        
-        .p-arrow { color: var(--mu); transition: transform 0.3s var(--ease); display: flex; align-items: center; }
-        .project-row:hover .p-arrow { color: var(--text); transform: translate(4px, -4px); }
-
-        /* Contact Section (Minimal Links) */
-        .contact-links {
-            display: flex; flex-direction: column; gap: 16px;
+        .p-tags { display: flex; gap: 8px; margin-top: 24px; }
+        .p-tag { 
+            font-size: 11px; font-weight: 500; color: var(--text-secondary); 
+            background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: var(--radius-sm); 
         }
 
-        .c-link {
-            font-family: 'Instrument Serif', serif;
-            font-size: clamp(32px, 5vw, 48px);
-            color: var(--mu); text-decoration: none;
-            display: inline-block; width: fit-content;
-            transition: color 0.3s;
+        /* Contact Section */
+        .contact-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 64px 48px;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
         }
-        .c-link:hover { color: var(--text); }
+
+        .contact-box h2 { font-size: 32px; font-weight: 600; letter-spacing: -1px; margin-bottom: 16px; }
+        .contact-box p { color: var(--text-secondary); margin-bottom: 32px; max-width: 400px; }
+
+        .contact-links { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 24px; border-radius: 30px;
+            font-size: 14px; font-weight: 500; text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--text-primary); color: var(--bg);
+        }
+        .btn-primary:hover { transform: scale(1.02); opacity: 0.9; }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: var(--border-hover); }
 
         /* Footer */
         footer {
-            padding: 32px 48px;
+            padding: 48px;
             display: flex; justify-content: space-between; align-items: center;
+            color: var(--text-tertiary); font-size: 13px;
         }
 
-        footer span { font-size: 11px; color: var(--mu); letter-spacing: 0.04em; }
-
         /* Animations */
-        .rv { opacity: 0; transform: translateY(24px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+        .rv { opacity: 0; transform: translateY(20px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
         .rv.in { opacity: 1; transform: none; }
         .rv-d1 { transition-delay: 0.1s; }
         .rv-d2 { transition-delay: 0.2s; }
 
         @media (max-width: 768px) {
-            nav { padding: 0 24px; height: 56px; }
+            nav { padding: 0 24px; height: 64px; }
             .nav-links { display: none; }
             .container { padding: 0 24px; }
-            .project-row { grid-template-columns: 32px 1fr 24px; padding: 24px 0; }
-            .project-row:hover { padding-left: 0; }
-            footer { padding: 24px; flex-direction: column; gap: 12px; align-items: flex-start; }
+            .contact-box { padding: 40px 24px; }
+            footer { flex-direction: column; gap: 12px; }
         }
     </style>
 </head>
-<body class="has-cursor">
+<body>
 
-    <div id="cur"></div>
-    <div id="cur-ring"></div>
-
-    <nav>
-        <a href="#" class="logo hover-target">span<em>ani</em></a>
+    <nav id="nav">
+        <a href="#" class="logo">span<span>ani</span></a>
         <div class="nav-links">
-            <a href="#projects" class="nav-link hover-target">projects</a>
-            <a href="#contact" class="nav-link hover-target">contact</a>
-            <a href="./clock" class="clock-strip hover-target">
+            <a href="#projects" class="nav-link">Projects</a>
+            <a href="#contact" class="nav-link">Contact</a>
+            <a href="./clock" class="clock-strip">
                 <span class="live-dot"></span> <span id="navTime">--:--:--</span>
             </a>
         </div>
     </nav>
 
     <section class="hero container">
-        <div class="hero-label rv in"><span class="live-dot"></span> available for work</div>
-        <h1 class="rv in rv-d1">span<em>ani</em></h1>
-        <p class="rv in rv-d2"><strong>Developer.</strong> I build things for the web - solid interfaces, reliable systems, and stark technical tools.</p>
+        <div class="hero-badge rv in"><span class="live-dot"></span> Available for work</div>
+        <h1 class="rv in rv-d1">Engineering<br><span>refined tools.</span></h1>
+        <p class="rv in rv-d2">I'm <strong>spanani</strong>. I build highly polished web applications, reliable systems, and clean technical utilities focused on performance and design.</p>
     </section>
 
     <section id="projects" class="container">
-        <div class="section-label rv">selected work</div>
-        <h2 class="section-title rv">Projects &<br><em>tools.</em></h2>
+        <div class="section-header rv">
+            <div class="section-label">Portfolio</div>
+            <h2 class="section-title">Selected Projects</h2>
+        </div>
 
-        <div class="project-list">
+        <div class="project-grid">
             <!-- 01 Schulpilot App -->
-            <a href="https://schulpilot-app.de/" target="_blank" class="project-row hover-target rv">
-                <div class="p-num">01</div>
-                <div>
-                    <div class="p-title">Schulpilot App</div>
-                    <div class="p-desc">A comprehensive German school learning tool designed to streamline education and enhance the digital classroom experience.</div>
-                    <div class="p-tags"><span class="p-tag">Education</span><span class="p-tag">App</span></div>
+            <a href="https://schulpilot-app.de/" target="_blank" class="project-card rv">
+                <div class="p-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                 </div>
-                <div class="p-arrow">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19L19 5M19 5H9M19 5V15"/></svg>
-                </div>
+                <div class="p-title">Schulpilot App</div>
+                <div class="p-desc">A comprehensive German school learning tool designed to streamline education and enhance the digital classroom experience.</div>
+                <div class="p-tags"><span class="p-tag">Education</span><span class="p-tag">App</span></div>
             </a>
 
             <!-- 02 Rust Invest Tracker -->
-            <a href="https://rust-invest-tracker.pages.dev/" target="_blank" class="project-row hover-target rv rv-d1">
-                <div class="p-num">02</div>
-                <div>
-                    <div class="p-title">Rust Invest Tracker</div>
-                    <div class="p-desc">Track and analyze Rust inventory values in real-time. A vital tool for traders to monitor their digital assets and market trends.</div>
-                    <div class="p-tags"><span class="p-tag">Finance</span><span class="p-tag">Rust</span></div>
+            <a href="https://rust-invest-tracker.pages.dev/" target="_blank" class="project-card rv rv-d1">
+                <div class="p-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
                 </div>
-                <div class="p-arrow">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19L19 5M19 5H9M19 5V15"/></svg>
-                </div>
+                <div class="p-title">Rust Invest Tracker</div>
+                <div class="p-desc">Track and analyze Rust inventory values in real-time. A vital tool for traders to monitor their digital assets and market trends.</div>
+                <div class="p-tags"><span class="p-tag">Finance</span><span class="p-tag">Rust</span></div>
             </a>
 
             <!-- 03 Rust Raid Calc -->
-            <a href="./rust" class="project-row hover-target rv rv-d2">
-                <div class="p-num">03</div>
-                <div>
-                    <div class="p-title">Rust Raid Calc</div>
-                    <div class="p-desc">Plan raids down to the last sulfur grain. Supports 19 structures, 6 explosive methods, soft/hard sides, and CSV exports.</div>
-                    <div class="p-tags"><span class="p-tag">Calculator</span><span class="p-tag">Rust</span></div>
+            <a href="./rust" class="project-card rv">
+                <div class="p-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h4l3-9 5 18 3-9h5"/></svg>
                 </div>
-                <div class="p-arrow">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19L19 5M19 5H9M19 5V15"/></svg>
-                </div>
+                <div class="p-title">Rust Raid Calc</div>
+                <div class="p-desc">Plan raids down to the last sulfur grain. Supports 19 structures, 6 explosive methods, soft/hard sides, and CSV exports.</div>
+                <div class="p-tags"><span class="p-tag">Calculator</span><span class="p-tag">Rust</span></div>
             </a>
 
             <!-- 04 Atomic Clock -->
-            <a href="./clock" class="project-row hover-target rv rv-d1">
-                <div class="p-num">04</div>
-                <div>
-                    <div class="p-title">Atomic Clock</div>
-                    <div class="p-desc">Web-synced time with fast drift estimation. Because relying on your device's internal clock just wasn't accurate enough.</div>
-                    <div class="p-tags"><span class="p-tag">Time API</span><span class="p-tag">Systems</span></div>
+            <a href="./clock" class="project-card rv rv-d1">
+                <div class="p-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
-                <div class="p-arrow">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19L19 5M19 5H9M19 5V15"/></svg>
-                </div>
+                <div class="p-title">Atomic Clock</div>
+                <div class="p-desc">Web-synced time with fast drift estimation. Because relying on your device's internal clock just wasn't accurate enough.</div>
+                <div class="p-tags"><span class="p-tag">Time API</span><span class="p-tag">Systems</span></div>
             </a>
         </div>
     </section>
 
-    <section id="contact" class="container" style="border-bottom: none;">
-        <div class="section-label rv">get in touch</div>
-        <h2 class="section-title rv">Contact<br><em>me.</em></h2>
-        
-        <div class="contact-links rv rv-d1">
-            <a href="mailto:webmaster@spanani.de" class="c-link hover-target">webmaster@spanani.de</a>
-            <a href="https://github.com/spananide" target="_blank" class="c-link hover-target">github</a>
-            <a href="https://twitter.com/spananidev" target="_blank" class="c-link hover-target">twitter</a>
+    <section id="contact" class="container">
+        <div class="contact-box rv">
+            <h2>Let's build something.</h2>
+            <p>I'm currently open for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!</p>
+            <div class="contact-links">
+                <a href="mailto:webmaster@spanani.de" class="btn btn-primary">Say Hello</a>
+                <a href="https://github.com/spananide" target="_blank" class="btn btn-secondary">GitHub</a>
+                <a href="https://twitter.com/spananidev" target="_blank" class="btn btn-secondary">Twitter</a>
+            </div>
         </div>
     </section>
 
     <footer>
         <span>© 2026 spanani.de</span>
-        <span>built with clean code</span>
+        <span>Designed with precision</span>
     </footer>
 
     <script>
-        // Custom Cursor
-        const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-        if(!isTouch){
-            const cur=document.getElementById('cur'), ring=document.getElementById('cur-ring');
-            let mx=-100, my=-100, rx=-100, ry=-100, visible=false;
-            
-            document.addEventListener('mousemove', e=>{
-                mx=e.clientX; my=e.clientY;
-                cur.style.left=mx+'px'; cur.style.top=my+'px';
-                if(!visible){ visible=true; cur.style.display='block'; ring.style.display='block'; }
-            });
-            
-            const lerp=(a,b,t)=>a+(b-a)*t;
-            function raf(){
-                rx=lerp(rx,mx,.15); ry=lerp(ry,my,.15);
-                ring.style.left=rx+'px'; ring.style.top=ry+'px';
-                requestAnimationFrame(raf);
-            }
-            raf();
-        }
-
         // Scroll Reveal
         const obs = new IntersectionObserver(es => {
             es.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
         }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
         
         document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+
+        // Nav Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('nav');
+            if (window.scrollY > 20) {
+                nav.style.background = 'rgba(10, 10, 10, 0.8)';
+            } else {
+                nav.style.background = 'rgba(0, 0, 0, 0.7)';
+            }
+        });
 
         // Nav Clock
         function updateTime() {

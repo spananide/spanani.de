@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>clock - spanani.de</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0a0a0a;--bg1:#111;--bg2:#181818;
-  --border:rgba(255,255,255,.08);--bh:rgba(255,255,255,.15);
-  --text:#f0f0f0;--mu:#555;--mu2:#2e2e2e;
-  --ac:#e2e2e2;--ac-rgb:226,226,226;
-  --r:0px;--ease:cubic-bezier(.16,1,.3,1);--fs:1;
+  --bg:#000000;--bg1:#0a0a0a;--bg2:#141414;
+  --border:rgba(255,255,255,.06);--bh:rgba(255,255,255,.12);
+  --text:#ffffff;--mu:#888888;--mu2:#555555;
+  --ac:#ffffff;--ac-rgb:255,255,255;
+  --r:16px;--ease:cubic-bezier(.16,1,.3,1);--fs:1;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-font-smoothing:antialiased}
-body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.6;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;line-height:1.6;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
 body.hc{cursor:none}
 ::selection{background:rgba(var(--ac-rgb),.2)}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--mu2);border-radius:3px}
@@ -26,13 +26,9 @@ body.hc{cursor:none}
 .ambient{display:none;}
 
 #cur,#cur-ring{display:none}
-body.hc #cur{display:block;position:fixed;width:6px;height:6px;background:var(--ac);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;transition:width .18s var(--ease),height .18s var(--ease),opacity .3s}
-body.hc #cur.hide{opacity:0}body.hc #cur.big{width:12px;height:12px}
-body.hc #cur-ring{display:block;position:fixed;width:32px;height:32px;border:1px solid rgba(var(--ac-rgb),.22);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .24s var(--ease),height .24s var(--ease),opacity .3s}
-body.hc #cur-ring.hide{opacity:0}body.hc #cur-ring.big{width:50px;height:50px;border-color:rgba(var(--ac-rgb),.38)}
 
 nav{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;border-bottom:1px solid var(--border);position:relative;z-index:50;flex-shrink:0}
-.logo{font-family:'Instrument Serif',serif;font-size:20px;color:var(--text);text-decoration:none;transition:opacity .2s}
+.logo{font-weight:600;font-size:20px;color:var(--text);text-decoration:none;transition:opacity .2s;letter-spacing:-0.5px}
 .logo:hover{opacity:.7}.logo em{font-style:italic;color:var(--ac)}
 .nav-r{display:flex;align-items:center;gap:12px}
 .back{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .2s}
@@ -45,7 +41,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 48px
 .cpsw{width:10px;height:10px;border-radius:0;background:var(--ac);flex-shrink:0;transition:background .2s}
 .cplb{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
 input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none}
-.setbtn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);border-radius:var(--r);background:transparent;cursor:pointer;transition:all .2s}
+.setbtn{font-weight:500;font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);border-radius:30px;background:var(--bg1);cursor:pointer;transition:all .2s}
 .setbtn:hover{color:var(--text);border-color:var(--bh)}
 
 .sov{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;display:flex;justify-content:flex-end}
@@ -67,7 +63,7 @@ input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;
 .ts2::after{content:'';position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .3s var(--ease)}
 .tog input:checked+.ts2{background:var(--ac)}
 .tog input:checked+.ts2::after{transform:translateX(16px)}
-.ssel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:5px 8px;cursor:pointer;outline:none;transition:border-color .2s}
+.ssel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:6px 10px;cursor:pointer;outline:none;transition:border-color .2s}
 .ssel:focus{border-color:rgba(var(--ac-rgb),.4)}
 .srng{display:flex;flex-direction:column;gap:5px}
 .srng input[type=range]{width:100%;accent-color:var(--ac);cursor:pointer}
@@ -76,7 +72,7 @@ input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;
 .dot2{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:border-color .2s,transform .2s}
 .dot2:hover{transform:scale(1.15)}.dot2.on{border-color:var(--text)}
 .sftr{padding:16px 24px;border-top:1px solid var(--border);flex-shrink:0}
-.sres{width:100%;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);border:1px solid var(--border);border-radius:var(--r);background:transparent;padding:9px;cursor:pointer;transition:all .2s}
+.sres{width:100%;font-weight:500;font-size:12px;color:var(--mu);border:1px solid var(--border);border-radius:var(--r);background:transparent;padding:10px;cursor:pointer;transition:all .2s}
 .sres:hover{color:#ef4444;border-color:rgba(239,68,68,.3)}
 
 main{flex:1;display:flex;flex-direction:column;align-items:center;padding:36px 48px 56px;position:relative}
@@ -94,11 +90,11 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;padding:36px 4
 .dr-f{fill:none;stroke:var(--ac);stroke-width:1.8;stroke-linecap:round;transition:stroke-dashoffset .5s var(--ease);opacity:.18}
 .dr-l{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu2);white-space:nowrap}
 .tblock{text-align:center;opacity:0;animation:up .7s .35s both;position:relative;z-index:2}
-.tmain{font-family:'Instrument Serif',serif;font-size:calc(clamp(72px,17vw,192px)*var(--fs));font-weight:400;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums}
+.tmain{font-size:calc(clamp(64px,15vw,160px)*var(--fs));font-weight:600;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums}
 .col{color:var(--ac);display:inline-block;animation:cf 1s ease-in-out infinite}
 @keyframes cf{0%,100%{opacity:1}50%{opacity:.15}}
-.msr{font-size:clamp(16px,2.8vw,30px);color:var(--ac);font-variant-numeric:tabular-nums;letter-spacing:.08em;margin-top:4px;opacity:.35;font-family:'DM Mono',monospace;display:inline-block;min-width:4.5ch;text-align:center}
-.ampm{font-family:'DM Mono',monospace;font-size:13px;color:var(--mu);letter-spacing:.1em;margin-left:4px;vertical-align:super}
+.msr{font-size:clamp(16px,2.8vw,30px);color:var(--ac);font-variant-numeric:tabular-nums;opacity:.35;font-weight:500;display:inline-block;min-width:4.5ch;text-align:center}
+.ampm{font-weight:500;font-size:13px;color:var(--mu);margin-left:4px;vertical-align:super}
 .drow{font-size:12px;color:var(--mu);letter-spacing:.14em;text-transform:uppercase;text-align:center;margin-bottom:36px;opacity:0;animation:up .5s .55s both}
 
 .istrip{display:flex;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:5px;overflow:hidden;margin-bottom:20px;width:100%;max-width:720px;opacity:0;animation:up .5s .8s both}
@@ -112,7 +108,7 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;padding:36px 4
 .offl{display:flex;align-items:center;gap:11px}
 .offic{color:var(--mu);flex-shrink:0}
 .offlb{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:3px}
-.offv{font-family:'Instrument Serif',serif;font-size:26px;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--text);transition:color .4s}
+.offv{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-0.5px;color:var(--text);transition:color .4s}
 .offv.good{color:#3db87a}.offv.warn{color:#f59e0b}.offv.bad{color:#ef4444}
 .offbw{flex:1;min-width:110px;max-width:250px}
 .offbt{height:3px;background:var(--mu2);border-radius:2px;overflow:hidden}
@@ -133,17 +129,17 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;padding:36px 4
 .dtcnt strong{color:var(--text)}
 
 .tabs{display:flex;gap:6px;margin-bottom:20px;width:100%;max-width:720px;opacity:0;animation:up .5s .95s both}
-.tab{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);padding:7px 15px;border:1px solid var(--border);border-radius:var(--r);background:transparent;cursor:pointer;transition:all .2s}
+.tab{font-weight:500;font-size:12px;color:var(--mu);padding:8px 18px;border:1px solid var(--border);border-radius:30px;background:transparent;cursor:pointer;transition:all .2s}
 .tab:hover{color:var(--text);border-color:var(--bh)}
 .tab.on{color:var(--ac);border-color:rgba(var(--ac-rgb),.3);background:rgba(var(--ac-rgb),.04)}
 .panel{width:100%;max-width:720px;display:none;border:1px solid var(--border);padding:24px;background:var(--bg1)}
 .panel.on{display:block;animation:up .35s both}
 
 .sw-d{text-align:center;margin-bottom:16px}
-.sw-t{font-family:'Instrument Serif',serif;font-size:clamp(34px,7.5vw,60px);font-weight:400;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.sw-t{font-size:clamp(34px,7.5vw,60px);font-weight:600;letter-spacing:-1px;font-variant-numeric:tabular-nums}
 .sw-ms{font-size:clamp(15px,2.5vw,26px);color:var(--ac);opacity:.45;font-variant-numeric:tabular-nums}
 .sw-c{display:flex;gap:7px;justify-content:center;margin-bottom:13px}
-.btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:9px 17px;border-radius:var(--r);border:1px solid var(--border);background:transparent;color:var(--mu);cursor:pointer;transition:all .2s}
+.btn{font-weight:500;font-size:13px;padding:10px 20px;border-radius:30px;border:1px solid var(--border);background:var(--bg1);color:var(--text);cursor:pointer;transition:all .2s}
 .btn:hover{color:var(--text);border-color:var(--bh)}
 .btn.pri{color:var(--ac);border-color:rgba(var(--ac-rgb),.3)}
 .btn.dan{color:#ef4444;border-color:rgba(239,68,68,.22)}
@@ -158,12 +154,12 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;padding:36px 4
 .t-setup{display:flex;gap:9px;justify-content:center;align-items:center;margin-bottom:16px}
 .tig{display:flex;flex-direction:column;align-items:center;gap:4px}
 .tig label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
-.ti{width:60px;text-align:center;font-family:'Instrument Serif',serif;font-size:30px;background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);color:var(--text);padding:6px 4px;outline:none;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+.ti{width:60px;text-align:center;font-size:30px;font-weight:600;background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);color:var(--text);padding:6px 4px;outline:none;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
 .ti::-webkit-inner-spin-button,.ti::-webkit-outer-spin-button{-webkit-appearance:none}
 .ti:focus{border-color:rgba(var(--ac-rgb),.4)}
-.tsep{font-family:'Instrument Serif',serif;font-size:30px;color:var(--mu2);margin-top:13px}
+.tsep{font-size:30px;font-weight:600;color:var(--mu2);margin-top:13px}
 .t-disp{text-align:center;margin-bottom:16px;display:none}
-.t-time{font-family:'Instrument Serif',serif;font-size:clamp(34px,7.5vw,60px);font-weight:400;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.t-time{font-size:clamp(34px,7.5vw,60px);font-weight:600;letter-spacing:-1px;font-variant-numeric:tabular-nums}
 .t-time.urg{color:#ef4444;animation:pulse .5s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
 .t-ctrl{display:flex;gap:7px;justify-content:center}
@@ -186,11 +182,11 @@ canvas#globe:active{cursor:grabbing}
 .wc{background:var(--bg1);padding:12px 14px;transition:background .2s}
 .wc:hover{background:var(--bg2)}
 .wc-city{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:3px}
-.wc-time{font-family:'Instrument Serif',serif;font-size:20px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.wc-time{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-0.5px}
 .wc-off{font-size:10px;color:var(--mu2);margin-top:1px}
 
 .kbdrow{font-size:10px;color:var(--mu2);text-align:center;margin-top:4px;opacity:0;animation:up .4s 2s both;letter-spacing:.06em}
-kbd{font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border:1px solid var(--mu2);border-radius:3px;color:var(--mu2)}
+kbd{font-family:'Inter',monospace;font-size:10px;padding:2px 6px;border:1px solid var(--mu2);border-radius:4px;color:var(--mu2)}
 
 footer{border-top:1px solid var(--border);padding:20px 48px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;z-index:50;position:relative}
 footer span,footer a{font-size:11px;color:var(--mu);text-decoration:none;transition:color .2s}
@@ -268,7 +264,6 @@ footer a:hover{color:var(--text)}
         <div class="sgl">Appearance</div>
         <div class="sr"><span class="sl">Grid background</span><label class="tog"><input type="checkbox" id="tgrid" checked><div class="ts2"></div></label></div>
         <div class="sr"><span class="sl">Ambient glow</span><label class="tog"><input type="checkbox" id="tamb" checked><div class="ts2"></div></label></div>
-        <div class="sr"><span class="sl">Custom cursor</span><label class="tog"><input type="checkbox" id="tcur" checked><div class="ts2"></div></label></div>
       </div>
     </div>
     <div class="sftr"><button class="sres" id="sres">Reset all settings</button></div>
@@ -428,18 +423,7 @@ function applyAll(){
 }
 applyAll();
 
-if(!isT){
-  const cr=$('#cur'),cr2=$('#cur-ring');
-  let mx=-99,my=-99,rx=-99,ry=-99,v=false;
-  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cr.style.left=mx+'px';cr.style.top=my+'px';if(!v){v=true;cr.classList.remove('hide');cr2.classList.remove('hide');}});
-  document.addEventListener('mouseleave',()=>{v=false;cr.classList.add('hide');cr2.classList.add('hide');});
-  document.addEventListener('mouseenter',()=>{v=true;cr.classList.remove('hide');cr2.classList.remove('hide');});
-  (function raf(){rx=lerp(rx,mx,.13);ry=lerp(ry,my,.13);cr2.style.left=rx+'px';cr2.style.top=ry+'px';requestAnimationFrame(raf);})();
-  $$('a,button,.cpw,.dot,.dot2').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{cr.classList.add('big');cr2.classList.add('big');});
-    el.addEventListener('mouseleave',()=>{cr.classList.remove('big');cr2.classList.remove('big');});
-  });
-}
+
 
 const sov=$('#sov');
 $('#setbtn').addEventListener('click',()=>sov.classList.toggle('open'));

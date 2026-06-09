@@ -40,21 +40,21 @@
 <!-- ==================================================== -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root {
-  --bg: #0a0a0a; --bg1: #111111; --bg2: #181818;
-  --border: rgba(255,255,255,0.08); --bh: rgba(255,255,255,0.16);
-  --text: #f0f0f0; --mu: #555555; --mu2: #2e2e2e;
+  --bg: #000000; --bg1: #0a0a0a; --bg2: #141414;
+  --border: rgba(255,255,255,0.06); --bh: rgba(255,255,255,0.12);
+  --text: #ffffff; --mu: #888888; --mu2: #555555;
   --ac: #f97316; --ac-rgb: 249,115,22; 
-  --r: 0px; --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --r: 16px; --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-font-smoothing: antialiased; }
 body {
   background: var(--bg); color: var(--text);
-  font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.6;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1.6;
   min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden;
   touch-action: manipulation;
 }
@@ -77,7 +77,7 @@ body.hc #cur-ring.hide { opacity: 0; } body.hc #cur-ring.big { width: 50px; heig
 
 /* Navigation */
 nav { display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 64px; border-bottom: 1px solid var(--border); position: relative; z-index: 50; flex-shrink: 0; background: var(--bg); }
-.logo { font-family: 'Instrument Serif', serif; font-size: 24px; color: var(--text); text-decoration: none; transition: opacity .2s; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+.logo { font-weight: 600; font-size: 20px; color: var(--text); text-decoration: none; transition: opacity .2s; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
 .logo i { color: var(--ac); font-size: 20px; transition: color .3s; }
 .logo em { font-style: italic; color: var(--ac); transition: color .3s; }
 .nav-r { display: flex; align-items: center; gap: 12px; }
@@ -91,8 +91,8 @@ nav { display: flex; align-items: center; justify-content: space-between; paddin
 .nav-theme-label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); }
 .nav-theme-btn input[type="color"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
-.setbtn { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--r); background: transparent; cursor: pointer; transition: all .2s; }
-.setbtn:hover { color: var(--text); border-color: var(--bh); }
+.btn { font-weight: 500; font-size: 13px; padding: 10px 20px; border-radius: 30px; border: 1px solid var(--border); background: var(--bg1); color: var(--text); cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+.btn:hover { color: var(--text); border-color: var(--bh); }
 
 /* Settings Drawer */
 .sov { position: fixed; inset: 0; z-index: 800; background: rgba(0,0,0,.72); backdrop-filter: blur(10px); opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; display: flex; justify-content: flex-end; }
@@ -118,12 +118,12 @@ nav { display: flex; align-items: center; justify-content: space-between; paddin
 .tog input:checked + .ts2::after { transform: translateX(16px); }
 
 /* Custom Inputs */
-.ssel { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; padding: 6px 10px; cursor: text; outline: none; transition: border-color .2s; width: 80px; text-align: center; }
+.ssel { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); color: var(--text); font-family: 'Inter', monospace; font-size: 12px; padding: 6px 10px; cursor: text; outline: none; transition: border-color .2s; width: 80px; text-align: center; }
 .ssel:focus { border-color: rgba(var(--ac-rgb), .5); }
 .ssel::-webkit-inner-spin-button, .ssel::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
 .sftr { padding: 16px 24px; border-top: 1px solid var(--border); flex-shrink: 0; display: flex; gap: 8px; }
-.sres { width: 100%; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); border: 1px solid var(--border); border-radius: var(--r); background: transparent; padding: 9px; cursor: pointer; transition: all .2s; }
+.sres { width: 100%; font-family: 'Inter', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); border: 1px solid var(--border); border-radius: var(--r); background: transparent; padding: 9px; cursor: pointer; transition: all .2s; }
 .sres:hover { color: #ef4444; border-color: rgba(239,68,68,.3); }
 
 /* Beautiful Color Cards (Settings) */
@@ -139,18 +139,18 @@ nav { display: flex; align-items: center; justify-content: space-between; paddin
 main { flex: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; padding: 48px; max-width: 1400px; width: 100%; margin: 0 auto; align-items: start; }
 
 /* Panels */
-.c-panel { background: var(--bg1); border: 1px solid var(--border); border-radius: 8px; padding: 24px; display: flex; flex-direction: column; }
+.card { background: var(--bg1); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: all 0.2s var(--ease); position: relative; overflow: hidden; }
 .p-title { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--mu); border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
 
 /* Main Navigation Tabs */
 .main-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
-.m-tab { flex: 1; text-align: center; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg1); cursor: pointer; transition: all .3s; }
+.m-tab { flex: 1; text-align: center; font-family: 'Inter', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg1); cursor: pointer; transition: all .3s; }
 .m-tab:hover { color: var(--text); border-color: var(--bh); }
 .m-tab.on { color: var(--bg); background: var(--ac); border-color: var(--ac); font-weight: 500; }
 
 /* Sub Tabs */
 .sub-tabs { display: flex; gap: 4px; background: var(--bg2); padding: 4px; border-radius: 6px; border: 1px solid var(--border); }
-.s-tab { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); padding: 6px 12px; border: none; border-radius: 4px; background: transparent; cursor: pointer; transition: all .2s; }
+.s-tab { font-family: 'Inter', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); padding: 6px 12px; border: none; border-radius: 4px; background: transparent; cursor: pointer; transition: all .2s; }
 .s-tab.on { color: var(--text); background: var(--bg1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid var(--border); }
 
 /* Target Cards */
@@ -182,8 +182,10 @@ main { flex: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; pa
 /* Right Panel Typography & Layout */
 .sum-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 8px; }
 .sum-box { display: flex; flex-direction: column; }
-.r-huge { font-family: 'Instrument Serif', serif; font-size: clamp(42px, 5vw, 64px); font-weight: 400; letter-spacing: -0.02em; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; display: flex; align-items: center; gap: 16px; }
+.page-title { font-size: clamp(34px, 5vw, 48px); font-weight: 600; letter-spacing: -1px; text-align: center; margin-bottom: 8px; }
+.r-huge { font-family: 'Inter', serif; font-size: clamp(42px, 5vw, 64px); font-weight: 400; letter-spacing: -0.02em; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; display: flex; align-items: center; gap: 16px; }
 .r-huge img { width: 36px; height: 36px; object-fit: contain; }
+.item-name { font-size: 14px; font-weight: 500; color: var(--text); }
 .r-label { font-size: 10px; color: var(--mu); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 12px; }
 
 /* Material Grid */
@@ -199,13 +201,13 @@ main { flex: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; pa
 .bp-left { display: flex; align-items: center; gap: 16px; }
 .bp-left img { width: 24px; height: 24px; object-fit: contain; }
 .bp-name { font-size: 12px; color: var(--text); }
-.bp-val { font-family: 'Instrument Serif', serif; font-size: 28px; color: var(--ac); line-height: 1; font-variant-numeric: tabular-nums; }
+.res-val { font-size: 16px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
 
 /* Node Box */
 .node-box { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; background: var(--bg1); border: 1px solid var(--border); border-radius: 6px; margin-top: 24px; }
 .node-left { display: flex; align-items: center; gap: 16px; }
 .node-left img { width: 28px; height: 28px; }
-.node-val { font-family: 'Instrument Serif', serif; font-size: 42px; color: var(--ac); line-height: 1; font-variant-numeric: tabular-nums; }
+.node-val { font-family: 'Inter', serif; font-size: 42px; color: var(--ac); line-height: 1; font-variant-numeric: tabular-nums; }
 
 footer { border-top: 1px solid var(--border); padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 50; position: relative; margin-top: auto; background: var(--bg); }
 footer span, footer a { font-size: 11px; color: var(--mu); text-decoration: none; transition: color .2s; letter-spacing: 0.05em; }
@@ -314,7 +316,7 @@ footer a:hover { color: var(--text); }
       <input type="color" id="cpi" value="#e2e2e2">
     </div>
 
-    <button class="setbtn" id="setbtn">
+    <button class="btn" id="setbtn">
       <i class="fa-solid fa-sliders"></i>
       <span>Settings</span>
     </button>
@@ -331,7 +333,7 @@ footer a:hover { color: var(--text); }
     </div>
 
     <!-- TARGETS VIEW -->
-    <div class="c-panel fade-in" id="view-targets">
+    <div class="card fade-in" id="view-targets">
       <div class="p-title">
         <span>Select Structures</span>
         <div class="sub-tabs">
@@ -344,7 +346,7 @@ footer a:hover { color: var(--text); }
     </div>
 
     <!-- ARSENAL VIEW -->
-    <div class="c-panel hidden fade-in" id="view-arsenal">
+    <div class="card hidden fade-in" id="view-arsenal">
       <div class="p-title">
         <span>Allowed Explosives</span>
         <span style="font-size: 9px; text-transform: none; color: var(--mu2);">Click category to toggle</span>
@@ -377,7 +379,7 @@ footer a:hover { color: var(--text); }
   <!-- RIGHT COLUMN -->
   <div style="display:flex; flex-direction: column; gap: 24px;">
     
-    <div class="c-panel fade-in">
+    <div class="card fade-in">
       <div class="sum-row">
         <div class="sum-box">
           <div class="r-huge"><img src="https://raw.githubusercontent.com/spananide/spanani.de/main/rust/images/gp.png" alt="GP"><span id="total-gp">0</span></div>
@@ -390,14 +392,14 @@ footer a:hover { color: var(--text); }
       </div>
     </div>
 
-    <div class="c-panel fade-in">
+    <div class="card fade-in">
       <div class="p-title">Crafting Blueprint</div>
       <div class="bp-list" id="crafting-list">
         <div style="text-align:center; color:var(--mu); padding: 20px 0;">Add targets to generate layout.</div>
       </div>
     </div>
 
-    <div class="c-panel fade-in">
+    <div class="card fade-in">
       <div class="p-title">
         <span>Raw Materials</span>
         <div style="display:flex; align-items:center; gap:8px; cursor:pointer;" onclick="toggleRawMode()">

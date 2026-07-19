@@ -488,48 +488,52 @@ async function syncNTP(){
   dot.className='sdot';st.textContent='syncing web time...';sq.textContent='';
 
   const urls=[
-    'https://gettimeapi.dev/v1/time?timezone=UTC',
     'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
-    'https://worldtimeapi.org/api/timezone/Etc/UTC'
+    'https://worldtimeapi.org/api/timezone/Etc/UTC',
+    'https://gettimeapi.dev/v1/time?timezone=UTC'
   ];
 
-  try{
-    let quick;
-    for (const url of urls) {
-        try { quick = await fetchTimeSample(url); break; } catch (e) {}
-    }
-    if (!quick) throw new Error('All APIs failed');
+  // Immer ALLE Quellen parallel abfragen statt "erste Antwort gewinnt" -
+  // eine einzelne veraltete/gecachte Antwort (z.B. von worldtimeapi.org)
+  // kann so nicht mehr unbemerkt die ganze Uhr verstellen.
+  const settled = await Promise.allSettled(urls.map(u=>fetchTimeSample(u)));
+  const valid = settled.filter(r=>r.status==='fulfilled').map(r=>r.value);
 
-    ntpOff = quick.off; latMs = quick.rtt;
-    dot.className='sdot ok';
-    st.textContent='synced - '+userTz;
-    sq.textContent='· quick';
-    updateSyncUI(quick);
+  if(!valid.length){
+    dot.className='sdot err';
+    st.textContent='web time unavailable';
+    sq.textContent='';
+    $('#iLat').textContent='-';
+    $('#iAcc').textContent='-';
+    updateOff(0,true);
+    return;
+  }
 
-    if(C.samples > 1){
-      const otherUrls = urls.filter(u => !quick.server.includes(new URL(u).hostname));
-      const toFetch = otherUrls.slice(0, C.samples - 1);
+  // Ausreißer verwerfen: eine Quelle, die mehr als 1.5s vom Median
+  // abweicht, ist fast sicher fehlerhaft/veraltet - nicht echte Drift.
+  const offsets = valid.map(v=>v.off).sort((a,b)=>a-b);
+  const median = offsets[Math.floor(offsets.length/2)];
+  let good = valid.filter(v=>Math.abs(v.off-median) < 1500);
+  if(!good.length) good = valid;
 
-      if (toFetch.length > 0) {
-        Promise.allSettled(toFetch.map(url=>fetchTimeSample(url))).then(results=>{
-          const valid = results.filter(r=>r.status==='fulfilled').map(r=>r.value);
-          valid.push(quick);
-          valid.sort((a,b)=>a.rtt-b.rtt);
-          
-          const best = Math.max(1, valid[0].rtt);
-          const good = valid.filter(v=>v.rtt <= best * 3);
-          let totalWeight=0, totalOffset=0;
-          
-          good.forEach(v=>{const w=1/Math.max(1,v.rtt); totalWeight+=w; totalOffset+=v.off*w;});
-          ntpOff = Math.round(totalOffset/totalWeight);
-          latMs = valid[0].rtt;
-          
-          sq.textContent='· '+good.length+'/'+(toFetch.length+1)+' ok';
-          updateSyncUI({
-            off: ntpOff, rtt: latMs, accuracy: Math.max(10, Math.round(latMs/2)),
-            server: valid[0].server, samples: good.length
-          });
-          setTimeout(()=>{if(sq)sq.textContent='';}, 3500);
+  good.sort((a,b)=>a.rtt-b.rtt);
+  const best = Math.max(1, good[0].rtt);
+  const agree = good.filter(v=>v.rtt <= best*3);
+
+  let totalWeight=0, totalOffset=0;
+  agree.forEach(v=>{const w=1/Math.max(1,v.rtt); totalWeight+=w; totalOffset+=v.off*w;});
+  ntpOff = Math.round(totalOffset/totalWeight);
+  latMs = good[0].rtt;
+
+  dot.className='sdot ok';
+  st.textContent='synced - '+userTz;
+  sq.textContent='· '+agree.length+'/'+urls.length+' ok';
+  updateSyncUI({
+    off: ntpOff, rtt: latMs, accuracy: Math.max(10, Math.round(latMs/2)),
+    server: good[0].server, samples: agree.length
+  });
+  setTimeout(()=>{if(sq)sq.textContent='';}, 3500);
+}
         });
       } else {
         setTimeout(()=>{if(sq)sq.textContent='';}, 2500);

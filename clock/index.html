@@ -459,29 +459,29 @@ function parseTimePayload(d){
 }
 
 async function fetchTimeSample(url){
+  const controller = new AbortController();
+  const killer = setTimeout(()=>controller.abort(), 6000);
   const t0 = Date.now();
   const p0 = performance.now();
-  const res = await fetch(url + (url.includes('?') ? '&' : '?') + '_=' + Math.random(), {cache: 'no-store'});
-  const p1 = performance.now();
-  const d = await res.json();
-  if(!res.ok) throw new Error('API failed');
+  try{
+    const res = await fetch(url + (url.includes('?') ? '&' : '?') + '_=' + Math.random(), {cache: 'no-store', signal: controller.signal});
+    const p1 = performance.now();
+    const d = await res.json();
+    if(!res.ok) throw new Error('API failed');
 
-  const rtt = p1 - p0;
-  const ts = parseTimePayload(d);
-  if(!Number.isFinite(ts)) throw new Error('Bad time payload');
+    const rtt = p1 - p0;
+    const ts = parseTimePayload(d);
+    if(!Number.isFinite(ts)) throw new Error('Bad time payload');
 
-  // Calculates exact midpoint mathematically, resolving browser-introduced JSON parsing latency delays.
-  const midpointReal = t0 + (rtt / 2);
-  const off = ts - midpointReal;
+    const midpointReal = t0 + (rtt / 2);
+    const off = ts - midpointReal;
 
-  return {
-    off: Math.round(off),
-    rtt: Math.round(rtt),
-    accuracy: Math.max(10, Math.round(rtt / 2)),
-    server: new URL(url).hostname,
-    samples: 1
-  };
+    return { off: Math.round(off), rtt: Math.round(rtt), accuracy: Math.max(10, Math.round(rtt/2)), server: new URL(url).hostname, samples: 1 };
+  } finally {
+    clearTimeout(killer);
+  }
 }
+
 
 async function syncNTP(){
   const dot=$('#sdot'),st=$('#syncst'),sq=$('#syncq');
@@ -643,7 +643,11 @@ function tick(){
   if(C.ms)$('#msr').textContent='.'+pad(ms,3);
 }
 
-syncNTP().then(()=>{tick();setInterval(tick,16);reschedSync();});
+tick();
+setInterval(tick, 16);
+reschedSync();
+syncNTP();
+
 
 const tabs=$$('.tab'),pSw=$('#pSw'),pTm=$('#pTimer');
 function setTab(p){tabs.forEach(t=>t.classList.toggle('on',t.dataset.p===p));pSw.classList.toggle('on',p==='sw');pTm.classList.toggle('on',p==='timer');}

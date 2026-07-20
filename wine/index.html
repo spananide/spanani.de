@@ -1,1 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Art of Oenology | Wine Evaluation Guide</title>
+    
+    <!-- Professional Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* Base Styles & Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Lato', sans-serif;
+            color: #333333;
+            background-color: #F9F9F9;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+
+        /* Color Palette */
+        :root {
+            --burgundy: #581845;
+            --gold: #CBA135;
+            --light-grey: #f4f4f4;
+            --dark-grey: #222222;
+        }
+
+        /* Animations */
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slowZoom {
+            from { transform: scale(1); }
+            to { transform: scale(1.15); }
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url('https://as1.ftcdn.net/v2/jpg/04/83/83/40/1000_F_483834066_y0rRvh5kAfRfXDsG4YMc6LZMyrGUnqeg.jpg') center/cover;
+            animation: slowZoom 25s infinite alternate ease-in-out;
+            z-index: 1;
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(88, 24, 69, 0.4));
+            z-index: 2;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 800px;
+            padding: 20px;
+            animation: fadeDown 1.5s ease-out;
+        }
+        .hero-content h1 {
+            font-size: 4.5rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .hero-content p {
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* Sections */
+        .section {
+            padding: 100px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .section-header h2 {
+            font-size: 3rem;
+            color: var(--burgundy);
+            margin-bottom: 15px;
+        }
+        .section-header p {
+            color: #666;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* BLIC Framework (How good is the wine?) */
+        .quality-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .quality-item {
+            background: white;
+            padding: 40px 30px;
+            border-top: 4px solid var(--gold);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            opacity: 0; /* Hidden for scroll animation */
+        }
+        .quality-item h3 {
+            color: var(--burgundy);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        /* Tasting Steps (The 5 S's) */
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 80px;
+        }
+        .step-row {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            opacity: 0; /* Hidden for scroll animation */
+        }
+        .step-row:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        .step-image {
+            flex: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transition: transform 0.5s ease;
+        }
+        .step-image img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        .step-row:hover .step-image img {
+            transform: scale(1.05);
+        }
+        .step-content {
+            flex: 1;
+        }
+        .step-content h3 {
+            font-size: 2.5rem;
+            color: var(--burgundy);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .step-number {
+            background: var(--gold);
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-family: 'Lato', sans-serif;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-grey);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Scroll Animation Classes */
+        .animate-on-scroll {
+            animation: slideUp 0.8s ease-out forwards;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 3rem; }
+            .step-row, .step-row:nth-child(even) { flex-direction: column; }
+            .step-image img { height: 300px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO SECTION -->
+    <header class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>The Art of Tasting</h1>
+            <p>Elevate your palate. Learn to evaluate wine like a true sommelier.</p>
+        </div>
+    </header>
+
+    <!-- WHAT MAKES A WINE GOOD? (BLIC) -->
+    <section class="section" id="quality">
+        <div class="section-header">
+            <h2>Evaluating Quality</h2>
+            <p>Professionals use the B.L.I.C. framework to objectively rate a wine's quality, regardless of personal preference.</p>
+        </div>
+        
+        <div class="quality-grid">
+            <div class="quality-item scroll-trigger">
+                <h3>Balance</h3>
+                <p>The harmony between sweetness, acidity, tannin, and alcohol. No single element should stick out aggressively.</p>
+            </div>
+            <div class="quality-item scroll-trigger" style="transition-delay: 0.2s;">
+                <h3>Length</h3>
+                <p>Also known as the "finish." How long does the flavor linger on your palate after swallowing? The longer, the better.</p>
+            </div>
+            <div class="quality-item scroll-trigger" style="transition-delay: 0.4s;">
+                <h3>Intensity</h3>
+                <p>How concentrated are the flavors? A high-quality wine will have rich, clearly defined aromas that jump out of the glass.</p>
+            </div>
+            <div class="quality-item scroll-trigger" style="transition-delay: 0.6s;">
+                <h3>Complexity</h3>
+                <p>Does the wine have multiple layers? A great wine evolves in the glass, offering primary fruit, secondary oak, and tertiary age notes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- THE TASTING PROCESS -->
+    <section class="section" style="background-color: white;" id="process">
+        <div class="section-header">
+            <h2>The Standard Tasting Process</h2>
+            <p>Master the essential steps of wine evaluation.</p>
+        </div>
+
+        <div class="steps-container">
+            <!-- Step 1: See & Swirl -->
+            <div class="step-row scroll-trigger">
+                <div class="step-image">
+                    <!-- Image retrieved for swirling wine -->
+                    <img src="https://tourdevinebyheli.com/wp-content/uploads/2021/02/Swirling-Wine-Stoller-Winery-Oregon.jpg" alt="Professional swirling red wine in a glass">
+                </div>
+                <div class="step-content">
+                    <h3><span class="step-number">1</span> See & Swirl</h3>
+                    <p>First, tilt the glass over a white background to check the color and clarity. Is it pale ruby or deep garnet? Then, place the glass on a table and swirl it gently. This coats the sides of the glass, increasing the surface area and allowing oxygen to release the wine's volatile aromatic compounds.</p>
+                </div>
+            </div>
+
+            <!-- Step 2: Sniff -->
+            <div class="step-row scroll-trigger">
+                <div class="step-image">
+                    <!-- Image retrieved for smelling wine -->
+                    <img src="https://professionaldrinking.com/wp-content/uploads/sites/2/2017/05/Smellign-Wine.jpg" alt="Woman professionally smelling a glass of red wine">
+                </div>
+                <div class="step-content">
+                    <h3><span class="step-number">2</span> Sniff</h3>
+                    <p>Don't be shy—stick your nose directly into the glass and take a short, deep sniff. Look for primary aromas (fruit, floral notes), secondary aromas (vanilla, toast from oak barrels), and tertiary aromas (leather, mushroom from aging). Trust your first instinct.</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Sip & Savor -->
+            <div class="step-row scroll-trigger">
+                <div class="step-image">
+                    <img src="https://as1.ftcdn.net/v2/jpg/04/83/83/40/1000_F_483834066_y0rRvh5kAfRfXDsG4YMc6LZMyrGUnqeg.jpg" alt="Close up pouring wine">
+                </div>
+                <div class="step-content">
+                    <h3><span class="step-number">3</span> Sip & Savor</h3>
+                    <p>Take a slightly larger sip than normal and swish it around to coat your entire mouth. Draw in a little air over the wine to further aerate it on your palate. Pay attention to the texture (tannin), the mouth-watering effect (acidity), and finally, evaluate the length of the finish.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 The Art of Oenology. Crafted for Wine Enthusiasts.</p>
+    </footer>
+
+    <!-- JavaScript for Scroll Animations -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Add the animation class when the element enters the viewport
+                        entry.target.classList.add('animate-on-scroll');
+                        // Optional: Stop observing once animated
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, { 
+                threshold: 0.15, // Triggers when 15% of the element is visible
+                rootMargin: "0px 0px -50px 0px"
+            });
+
+            // Target all elements with the 'scroll-trigger' class
+            const triggerElements = document.querySelectorAll('.scroll-trigger');
+            triggerElements.forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>
 

@@ -1,57 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Art of Oenology | Wine Evaluation Guide</title>
+    <title>Masterclass Önologie | Die Kunst der Weindegustation</title>
     
-    <!-- Professional Google Fonts -->
+    <!-- Premium Google Fonts: Cormorant Garamond für Eleganz, Montserrat für moderne Lesbarkeit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,700;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
 
     <style>
-        /* Base Styles & Reset */
+        /* ==========================================
+           1. BASE STYLES & VARIABLES
+           ========================================== */
+        :root {
+            --bg-dark: #0a0a0a;
+            --surface-dark: #141414;
+            --surface-light: #1f1f1f;
+            --gold: #D4AF37;
+            --gold-hover: #F3E5AB;
+            --burgundy: #58111A; /* Tiefes Weinrot */
+            --text-main: #E0E0E0;
+            --text-muted: #A0A0A0;
+            --font-heading: 'Cormorant Garamond', serif;
+            --font-body: 'Montserrat', sans-serif;
+            --transition-slow: 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: 'Lato', sans-serif;
-            color: #333333;
-            background-color: #F9F9F9;
+            font-family: var(--font-body);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.8;
             overflow-x: hidden;
-            line-height: 1.6;
         }
+
         h1, h2, h3, h4 {
-            font-family: 'Playfair Display', serif;
-            font-weight: 600;
+            font-family: var(--font-heading);
+            font-weight: 500;
+            color: #ffffff;
         }
 
-        /* Color Palette */
-        :root {
-            --burgundy: #581845;
-            --gold: #CBA135;
-            --light-grey: #f4f4f4;
-            --dark-grey: #222222;
-        }
+        .gold-text { color: var(--gold); }
+        .burgundy-text { color: var(--burgundy); }
 
-        /* Animations */
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* ==========================================
+           2. ANIMATIONS & REVEALS
+           ========================================== */
+        .reveal {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 1s cubic-bezier(0.5, 0, 0, 1);
         }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
+        .reveal.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(0, 0) scale(1);
         }
-        @keyframes slowZoom {
-            from { transform: scale(1); }
-            to { transform: scale(1.15); }
-        }
+        .fade-up { transform: translateY(60px); }
+        .fade-left { transform: translateX(60px); }
+        .fade-right { transform: translateX(-60px); }
+        .zoom-in { transform: scale(0.9); }
 
-        /* Hero Section */
+        /* ==========================================
+           3. HERO SECTION (PARALLAX)
+           ========================================== */
         .hero {
             position: relative;
             height: 100vh;
@@ -59,160 +79,319 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            color: white;
-            overflow: hidden;
+            background-attachment: fixed;
+            background-image: url('https://as1.ftcdn.net/v2/jpg/04/83/83/40/1000_F_483834066_y0rRvh5kAfRfXDsG4YMc6LZMyrGUnqeg.jpg');
+            background-position: center;
+            background-size: cover;
         }
-        .hero-bg {
+
+        .hero::before {
+            content: '';
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: url('https://as1.ftcdn.net/v2/jpg/04/83/83/40/1000_F_483834066_y0rRvh5kAfRfXDsG4YMc6LZMyrGUnqeg.jpg') center/cover;
-            animation: slowZoom 25s infinite alternate ease-in-out;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.95) 100%);
             z-index: 1;
         }
-        .hero-overlay {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(88, 24, 69, 0.4));
-            z-index: 2;
-        }
+
         .hero-content {
             position: relative;
-            z-index: 3;
-            max-width: 800px;
-            padding: 20px;
-            animation: fadeDown 1.5s ease-out;
+            z-index: 2;
+            max-width: 900px;
+            padding: 0 20px;
         }
-        .hero-content h1 {
-            font-size: 4.5rem;
+
+        .hero-subtitle {
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
             color: var(--gold);
             margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .hero-content p {
-            font-size: 1.2rem;
-            font-weight: 300;
-            letter-spacing: 1px;
+            display: block;
+            animation: fadeIn 2s ease-out;
         }
 
-        /* Sections */
-        .section {
-            padding: 100px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+        .hero-title {
+            font-size: 5.5rem;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 20px rgba(0,0,0,0.8);
+            animation: fadeIn 2.5s ease-out;
         }
-        .section-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        .section-header h2 {
-            font-size: 3rem;
-            color: var(--burgundy);
-            margin-bottom: 15px;
-        }
-        .section-header p {
-            color: #666;
-            font-size: 1.1rem;
+
+        .hero-desc {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            font-weight: 300;
             max-width: 600px;
             margin: 0 auto;
+            animation: fadeIn 3s ease-out;
         }
 
-        /* BLIC Framework (How good is the wine?) */
-        .quality-grid {
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================
+           4. LAYOUT & SECTIONS
+           ========================================== */
+        .section {
+            padding: 120px 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background-color: var(--gold);
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ==========================================
+           5. PREPARATION (VORBEREITUNG)
+           ========================================== */
+        .prep-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
         }
-        .quality-item {
-            background: white;
-            padding: 40px 30px;
-            border-top: 4px solid var(--gold);
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            opacity: 0; /* Hidden for scroll animation */
+
+        .prep-card {
+            background: var(--surface-dark);
+            padding: 50px 30px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 4px;
+            text-align: center;
+            transition: var(--transition-slow);
+            position: relative;
+            overflow: hidden;
         }
-        .quality-item h3 {
-            color: var(--burgundy);
-            font-size: 1.5rem;
+
+        .prep-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 3px;
+            background: var(--burgundy);
+            transform: scaleX(0);
+            transition: var(--transition-slow);
+            transform-origin: left;
+        }
+
+        .prep-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .prep-card:hover::before { transform: scaleX(1); }
+
+        .prep-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+        }
+
+        .prep-card h3 {
+            font-size: 1.8rem;
             margin-bottom: 15px;
         }
 
-        /* Tasting Steps (The 5 S's) */
-        .steps-container {
-            display: flex;
-            flex-direction: column;
-            gap: 80px;
+        /* ==========================================
+           6. BLIC FRAMEWORK
+           ========================================== */
+        .blic-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
         }
-        .step-row {
-            display: flex;
-            align-items: center;
-            gap: 50px;
-            opacity: 0; /* Hidden for scroll animation */
+
+        .blic-box {
+            background: linear-gradient(145deg, var(--surface-light), var(--surface-dark));
+            padding: 40px;
+            border-left: 4px solid var(--gold);
+            position: relative;
         }
-        .step-row:nth-child(even) {
-            flex-direction: row-reverse;
-        }
-        .step-image {
-            flex: 1;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            transition: transform 0.5s ease;
-        }
-        .step-image img {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.5s ease;
-        }
-        .step-row:hover .step-image img {
-            transform: scale(1.05);
-        }
-        .step-content {
-            flex: 1;
-        }
-        .step-content h3 {
-            font-size: 2.5rem;
-            color: var(--burgundy);
-            margin-bottom: 20px;
+
+        .blic-box h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        .step-number {
-            background: var(--gold);
-            color: white;
-            width: 40px;
-            height: 40px;
+
+        .blic-letter {
+            font-size: 3.5rem;
+            color: rgba(212, 175, 55, 0.15);
+            font-family: var(--font-heading);
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            line-height: 1;
+        }
+
+        /* ==========================================
+           7. THE 4 PHASES (SENSORIK)
+           ========================================== */
+        .phase-row {
             display: flex;
             align-items: center;
-            justify-content: center;
-            border-radius: 50%;
+            gap: 80px;
+            margin-bottom: 120px;
+        }
+
+        .phase-row:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .phase-image {
+            flex: 1;
+            position: relative;
+        }
+
+        .phase-image::after {
+            content: '';
+            position: absolute;
+            top: 20px; left: 20px;
+            width: 100%; height: 100%;
+            border: 2px solid var(--gold);
+            z-index: -1;
+            transition: var(--transition-slow);
+        }
+
+        .phase-row:hover .phase-image::after {
+            top: 10px; left: 10px;
+        }
+
+        .phase-image img {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            filter: grayscale(20%) contrast(110%);
+            transition: var(--transition-slow);
+        }
+
+        .phase-row:hover .phase-image img {
+            filter: grayscale(0%) contrast(120%);
+        }
+
+        .phase-content {
+            flex: 1;
+        }
+
+        .phase-number {
             font-size: 1.2rem;
-            font-family: 'Lato', sans-serif;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
         }
 
-        /* Footer */
+        .phase-content h3 {
+            font-size: 3rem;
+            margin-bottom: 25px;
+        }
+
+        .phase-content p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .expert-tip {
+            background: rgba(88, 17, 26, 0.2);
+            border-left: 2px solid var(--burgundy);
+            padding: 15px 20px;
+            font-style: italic;
+            font-size: 0.95rem;
+            color: #ccc;
+        }
+
+        /* ==========================================
+           8. EXPERT VOCABULARY
+           ========================================== */
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .vocab-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .vocab-term {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--gold);
+            width: 30%;
+        }
+
+        .vocab-def {
+            width: 65%;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* ==========================================
+           9. FOOTER
+           ========================================== */
         footer {
-            background: var(--dark-grey);
-            color: white;
+            background-color: #050505;
+            padding: 60px 20px;
             text-align: center;
-            padding: 40px 20px;
-            font-family: 'Playfair Display', serif;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
         }
 
-        /* Scroll Animation Classes */
-        .animate-on-scroll {
-            animation: slideUp 0.8s ease-out forwards;
+        .footer-logo {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 10px;
         }
 
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero-title { font-size: 4rem; }
+            .blic-container { grid-template-columns: 1fr; }
+            .phase-row, .phase-row:nth-child(even) { flex-direction: column; gap: 40px; margin-bottom: 80px; }
+            .phase-image img { height: 400px; }
+            .phase-image::after { display: none; }
+        }
         @media (max-width: 768px) {
-            .hero-content h1 { font-size: 3rem; }
-            .step-row, .step-row:nth-child(even) { flex-direction: column; }
-            .step-image img { height: 300px; }
+            .hero-title { font-size: 3rem; }
+            .vocab-item { flex-direction: column; gap: 10px; }
+            .vocab-term, .vocab-def { width: 100%; }
         }
     </style>
 </head>
@@ -220,112 +399,181 @@
 
     <!-- HERO SECTION -->
     <header class="hero">
-        <div class="hero-bg"></div>
-        <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1>The Art of Tasting</h1>
-            <p>Elevate your palate. Learn to evaluate wine like a true sommelier.</p>
+            <span class="hero-subtitle">Exzellenz im Glas</span>
+            <h1 class="hero-title">Die Kunst der <span class="gold-text">Önologie</span></h1>
+            <p class="hero-desc">Erheben Sie Ihren Gaumen. Lernen Sie die präzise Methodik der Master Sommeliers, um Weine nicht nur zu trinken, sondern ihre Seele zu verstehen.</p>
         </div>
     </header>
 
-    <!-- WHAT MAKES A WINE GOOD? (BLIC) -->
-    <section class="section" id="quality">
-        <div class="section-header">
-            <h2>Evaluating Quality</h2>
-            <p>Professionals use the B.L.I.C. framework to objectively rate a wine's quality, regardless of personal preference.</p>
+    <!-- VORBEREITUNG (PREPARATION) -->
+    <section class="section">
+        <div class="section-header reveal fade-up">
+            <h2>Die Perfekte Kulisse</h2>
+            <p>Eine professionelle Degustation erfordert ein kontrolliertes Umfeld. Äußere Einflüsse verfälschen das Urteil.</p>
         </div>
-        
-        <div class="quality-grid">
-            <div class="quality-item scroll-trigger">
-                <h3>Balance</h3>
-                <p>The harmony between sweetness, acidity, tannin, and alcohol. No single element should stick out aggressively.</p>
+        <div class="prep-grid">
+            <div class="prep-card reveal fade-up">
+                <div class="prep-icon">🌡️</div>
+                <h3>Temperatur</h3>
+                <p>Zu kalter Wein verschließt seine Aromen, zu warmer betont den Alkohol. Komplexe Rotweine erfordern 16-18°C, edle Weißweine 10-12°C. Champagner serviert man bei 8-10°C.</p>
             </div>
-            <div class="quality-item scroll-trigger" style="transition-delay: 0.2s;">
-                <h3>Length</h3>
-                <p>Also known as the "finish." How long does the flavor linger on your palate after swallowing? The longer, the better.</p>
+            <div class="prep-card reveal fade-up" style="transition-delay: 0.2s;">
+                <div class="prep-icon">🍷</div>
+                <h3>Das Glas</h3>
+                <p>Verwenden Sie ausschließlich dünnwandige, tulpenförmige Gläser (z.B. Zalto oder Riedel). Die Verjüngung nach oben bündelt die volatilen Aromastoffe direkt zur Nase.</p>
             </div>
-            <div class="quality-item scroll-trigger" style="transition-delay: 0.4s;">
-                <h3>Intensity</h3>
-                <p>How concentrated are the flavors? A high-quality wine will have rich, clearly defined aromas that jump out of the glass.</p>
-            </div>
-            <div class="quality-item scroll-trigger" style="transition-delay: 0.6s;">
-                <h3>Complexity</h3>
-                <p>Does the wine have multiple layers? A great wine evolves in the glass, offering primary fruit, secondary oak, and tertiary age notes.</p>
+            <div class="prep-card reveal fade-up" style="transition-delay: 0.4s;">
+                <div class="prep-icon">✨</div>
+                <h3>Das Umfeld</h3>
+                <p>Bewerten Sie Wein bei neutralem Tageslicht über einem weißen Hintergrund (Papier). Vermeiden Sie Parfüm, Essensgerüche oder laute Hintergrundgeräusche, die die Konzentration stören.</p>
             </div>
         </div>
     </section>
 
-    <!-- THE TASTING PROCESS -->
-    <section class="section" style="background-color: white;" id="process">
-        <div class="section-header">
-            <h2>The Standard Tasting Process</h2>
-            <p>Master the essential steps of wine evaluation.</p>
+    <!-- DIE 4 PHASEN DER SENSORIK -->
+    <section class="section" style="background-color: var(--surface-dark);">
+        <div class="section-header reveal fade-up">
+            <h2>Die Phasen der Sensorik</h2>
+            <p>Die professionelle Verkostung folgt einem strengen, analytischen Ablauf, um alle Schichten eines Weines freizulegen.</p>
         </div>
 
-        <div class="steps-container">
-            <!-- Step 1: See & Swirl -->
-            <div class="step-row scroll-trigger">
-                <div class="step-image">
-                    <!-- Image retrieved for swirling wine -->
-                    <img src="https://tourdevinebyheli.com/wp-content/uploads/2021/02/Swirling-Wine-Stoller-Winery-Oregon.jpg" alt="Professional swirling red wine in a glass">
-                </div>
-                <div class="step-content">
-                    <h3><span class="step-number">1</span> See & Swirl</h3>
-                    <p>First, tilt the glass over a white background to check the color and clarity. Is it pale ruby or deep garnet? Then, place the glass on a table and swirl it gently. This coats the sides of the glass, increasing the surface area and allowing oxygen to release the wine's volatile aromatic compounds.</p>
+        <!-- Phase 1: Auge -->
+        <div class="phase-row">
+            <div class="phase-image reveal fade-right">
+                <img src="https://tourdevinebyheli.com/wp-content/uploads/2021/02/Swirling-Wine-Stoller-Winery-Oregon.jpg" alt="Wein schwenken für die Viskositätsprüfung">
+            </div>
+            <div class="phase-content reveal fade-left">
+                <span class="phase-number">Phase 01</span>
+                <h3>Visuelle Prüfung</h3>
+                <p>Das Auge liefert die ersten Indizien über Alter, Rebsorte und Alkoholgehalt. Neigen Sie das Glas um 45 Grad vor einem weißen Hintergrund. Achten Sie auf die Tiefe der Farbe im Kern und die Aufhellung am Rand (Wasserrand).</p>
+                <p>Betrachten Sie nach dem Schwenken die "Kirchenfenster" oder "Tränen", die an der Glaswand herablaufen (Marangoni-Effekt) – je langsamer und dichter sie fallen, desto höher der Alkohol- oder Restzuckergehalt.</p>
+                <div class="expert-tip">
+                    <strong>Sommelier-Tipp:</strong> Ein junger Rotwein zeigt oft violette Reflexe am Rand, während ein gereifter Wein granatrote bis ziegelrote (braune) Töne annimmt.
                 </div>
             </div>
+        </div>
 
-            <!-- Step 2: Sniff -->
-            <div class="step-row scroll-trigger">
-                <div class="step-image">
-                    <!-- Image retrieved for smelling wine -->
-                    <img src="https://professionaldrinking.com/wp-content/uploads/sites/2/2017/05/Smellign-Wine.jpg" alt="Woman professionally smelling a glass of red wine">
-                </div>
-                <div class="step-content">
-                    <h3><span class="step-number">2</span> Sniff</h3>
-                    <p>Don't be shy—stick your nose directly into the glass and take a short, deep sniff. Look for primary aromas (fruit, floral notes), secondary aromas (vanilla, toast from oak barrels), and tertiary aromas (leather, mushroom from aging). Trust your first instinct.</p>
-                </div>
+        <!-- Phase 2: Nase -->
+        <div class="phase-row">
+            <div class="phase-image reveal fade-left">
+                <img src="https://professionaldrinking.com/wp-content/uploads/sites/2/2017/05/Smellign-Wine.jpg" alt="Professionelles Riechen am Wein">
             </div>
+            <div class="phase-content reveal fade-right">
+                <span class="phase-number">Phase 02</span>
+                <h3>Olfaktorische Prüfung</h3>
+                <p>Der wichtigste Teil der Degustation. Riechen Sie zuerst am ruhenden Glas. Schwenken Sie den Wein dann kräftig, um Sauerstoff einzuarbeiten und die flüchtigen Aromen freizusetzen. Tauchen Sie Ihre Nase tief in das Glas.</p>
+                <p>Wir suchen nach drei Ebenen: Primäraromen (Frucht & Blumen, direkt aus der Traube), Sekundäraromen (Hefe, Butter, Vanille aus der Gärung und dem Eichenfass) und Tertiäraromen (Leder, Tabak, Pilze durch Flaschenreife).</p>
+            </div>
+        </div>
 
-            <!-- Step 3: Sip & Savor -->
-            <div class="step-row scroll-trigger">
-                <div class="step-image">
-                    <img src="https://as1.ftcdn.net/v2/jpg/04/83/83/40/1000_F_483834066_y0rRvh5kAfRfXDsG4YMc6LZMyrGUnqeg.jpg" alt="Close up pouring wine">
-                </div>
-                <div class="step-content">
-                    <h3><span class="step-number">3</span> Sip & Savor</h3>
-                    <p>Take a slightly larger sip than normal and swish it around to coat your entire mouth. Draw in a little air over the wine to further aerate it on your palate. Pay attention to the texture (tannin), the mouth-watering effect (acidity), and finally, evaluate the length of the finish.</p>
-                </div>
+        <!-- Phase 3 & 4: Gaumen & Abgang -->
+        <div class="phase-row">
+            <div class="phase-image reveal fade-right">
+                <img src="https://as1.ftcdn.net/v2/jpg/04/83/83/40/1000_F_483834066_y0rRvh5kAfRfXDsG4YMc6LZMyrGUnqeg.jpg" alt="Einschenken und Verkosten von Rotwein">
+            </div>
+            <div class="phase-content reveal fade-left">
+                <span class="phase-number">Phase 03 & 04</span>
+                <h3>Gaumen & Abgang</h3>
+                <p>Nehmen Sie einen großzügigen Schluck und "kauen" Sie den Wein, sodass er alle Bereiche der Zunge und Mundhöhle berührt. Ziehen Sie leicht Luft durch die Lippen ein (Schlürfen), um den Wein im Mund zu belüften (retronasales Riechen).</p>
+                <p>Bewerten Sie die Struktur: Ist die Säure spitz oder eingebunden? Sind die Tannine (Gerbstoffe) grün und pelzig oder seidig und reif? Achten Sie nach dem Ausspucken/Schlucken auf den Abgang – die wahre Signatur eines großen Weines.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLIC FRAMEWORK -->
+    <section class="section">
+        <div class="section-header reveal fade-up">
+            <h2>Das BLIC-System</h2>
+            <p>Die objektive Matrix der Master of Wine zur qualitativen Einordnung, völlig unabhängig vom persönlichen Geschmack.</p>
+        </div>
+        
+        <div class="blic-container">
+            <div class="blic-box reveal fade-up">
+                <span class="blic-letter">B</span>
+                <h3>Balance (Ausgewogenheit)</h3>
+                <p>Ein herausragender Wein ist wie ein Sinfonieorchester. Säure, Süße, Tannin, Alkohol und Frucht müssen perfekt harmonieren. Kein Element darf die anderen dominant überlagern oder aggressiv hervortreten.</p>
+            </div>
+            <div class="blic-box reveal fade-up" style="transition-delay: 0.2s;">
+                <span class="blic-letter">L</span>
+                <h3>Length (Länge / Abgang)</h3>
+                <p>Wie lange bleibt der reine, aromatische Geschmack (nicht nur die Säure oder Bitterkeit) nach dem Schlucken am Gaumen bestehen? Gemessen wird dies in "Caudalies" (Sekunden). Über 8 Sekunden sprechen für enorme Qualität.</p>
+            </div>
+            <div class="blic-box reveal fade-up" style="transition-delay: 0.4s;">
+                <span class="blic-letter">I</span>
+                <h3>Intensity (Intensität)</h3>
+                <p>Die Dichte und Kraft der Aromen, sowohl in der Nase als auch am Gaumen. Ein hochklassiger Wein hat eine präzise, konzentrierte Aromatik, die sofort erkennbar ist und nicht verwässert wirkt.</p>
+            </div>
+            <div class="blic-box reveal fade-up" style="transition-delay: 0.6s;">
+                <span class="blic-letter">C</span>
+                <h3>Complexity (Komplexität)</h3>
+                <p>Eindimensionale Weine schmecken nur nach einer Frucht. Komplexe Weine offenbaren mit jedem Schwenken und jedem Schluck neue Facetten – ein ständiges Wechselspiel aus Frucht, Gewürzen, Mineralität und Reife.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPERT VOCABULARY -->
+    <section class="section" style="background-color: var(--surface-dark);">
+        <div class="section-header reveal fade-up">
+            <h2>Das Lexikon des Sommeliers</h2>
+            <p>Sprechen Sie die Sprache der Weinexperten.</p>
+        </div>
+        
+        <div class="vocab-grid reveal fade-up">
+            <div class="vocab-item">
+                <div class="vocab-term">Terroir</div>
+                <div class="vocab-def">Das komplexe Zusammenspiel aus Bodenbeschaffenheit, Klima, Topografie und Mikroklima, das dem Wein seinen einzigartigen, unverwechselbaren Ursprungscharakter verleiht.</div>
+            </div>
+            <div class="vocab-item">
+                <div class="vocab-term">Tannin</div>
+                <div class="vocab-def">Pflanzliche Gerbstoffe aus Traubenhäuten, Kernen und Stielen (oder Eichenholz). Sie verleihen dem Wein Struktur und Alterungspotenzial, verursachen aber auch ein adstringierendes (pelziges, austrocknendes) Gefühl im Mund.</div>
+            </div>
+            <div class="vocab-item">
+                <div class="vocab-term">Caudalie</div>
+                <div class="vocab-def">Maßeinheit für die Dauer des Abgangs eines Weines (1 Caudalie = 1 Sekunde). Je mehr Caudalies, desto hochwertiger wird der Wein im Allgemeinen eingestuft.</div>
+            </div>
+            <div class="vocab-item">
+                <div class="vocab-term">Adstringenz</div>
+                <div class="vocab-def">Das zusammenziehende, trockene Mundgefühl, das durch die Reaktion von Tanninen mit den Proteinen im Speichel entsteht. Ein wichtiges Merkmal bei jungen, extraktreichen Rotweinen.</div>
+            </div>
+            <div class="vocab-item">
+                <div class="vocab-term">Körper</div>
+                <div class="vocab-def">Das Gewicht und die Fülle des Weines im Mund (Mundgefühl). Wird meist als leicht, mittel oder voll (schwer) beschrieben und stark vom Alkoholgehalt und Extrakt beeinflusst.</div>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>&copy; 2026 The Art of Oenology. Crafted for Wine Enthusiasts.</p>
+        <div class="footer-logo">L'Önologie</div>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">&copy; 2026 Masterclass der Weindegustation. Konzipiert für anspruchsvolle Gaumen.</p>
     </footer>
 
-    <!-- JavaScript for Scroll Animations -->
+    <!-- INTERSECTION OBSERVER FÜR ANIMATIONEN -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const observer = new IntersectionObserver((entries) => {
+            const revealElements = document.querySelectorAll('.reveal');
+
+            const revealOptions = {
+                threshold: 0.15, // Auslösen, wenn 15% sichtbar sind
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const revealOnScroll = new IntersectionObserver(function(entries, observer) {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        // Add the animation class when the element enters the viewport
-                        entry.target.classList.add('animate-on-scroll');
-                        // Optional: Stop observing once animated
-                        observer.unobserve(entry.target); 
+                    if (!entry.isIntersecting) {
+                        return;
+                    } else {
+                        entry.target.classList.add('active');
+                        // Element stoppen zu beobachten, nachdem es einmal animiert wurde
+                        observer.unobserve(entry.target);
                     }
                 });
-            }, { 
-                threshold: 0.15, // Triggers when 15% of the element is visible
-                rootMargin: "0px 0px -50px 0px"
-            });
+            }, revealOptions);
 
-            // Target all elements with the 'scroll-trigger' class
-            const triggerElements = document.querySelectorAll('.scroll-trigger');
-            triggerElements.forEach(el => observer.observe(el));
+            revealElements.forEach(el => {
+                revealOnScroll.observe(el);
+            });
         });
     </script>
 </body>
 </html>
-

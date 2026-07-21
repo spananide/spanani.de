@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bernd Sonnenschein | Consulting & Management | Bad Kissingen</title>
+    <meta name="description" content="Professionelle Beratung und Management durch Bernd Sonnenschein in Bad Kissingen.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome für Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ==========================================================================
+           CSS VARIABLEN & RESET
+           ========================================================================== */
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #d69e2e;
+            --text-dark: #2d3748;
+            --text-light: #f7fafc;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --transition-fast: 0.3s ease;
+            --transition-slow: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary-color);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* ==========================================================================
+           ANIMATIONEN (Keyframes)
+           ========================================================================== */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(214, 158, 46, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(214, 158, 46, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(214, 158, 46, 0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ==========================================================================
+           NAVIGATION
+           ========================================================================== */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            transition: var(--transition-fast);
+            padding: 20px 0;
+        }
+
+        header.scrolled {
+            padding: 10px 0;
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--secondary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links li a {
+            font-size: 1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            transition: var(--transition-fast);
+        }
+
+        .nav-links li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--secondary-color);
+            transition: var(--transition-fast);
+        }
+
+        .nav-links li a:hover {
+            color: var(--secondary-color);
+        }
+
+        .nav-links li a:hover::after {
+            width: 100%;
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            background: linear-gradient(-45deg, #1a365d, #2c5282, #2b6cb0, #1a365d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-light);
+            overflow: hidden;
+            padding: 0 20px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('https://picsum.photos/1920/1080?random=1') center/cover;
+            opacity: 0.2;
+            mix-blend-mode: overlay;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            animation: slideInLeft 1s var(--transition-slow);
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+            animation: slideInRight 1s var(--transition-slow) 0.2s backwards;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-radius: 50px;
+            transition: var(--transition-fast);
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: var(--bg-white);
+            animation: fadeInUp 1s var(--transition-slow) 0.4s backwards, pulseGlow 2s infinite;
+        }
+
+        .btn-primary:hover {
+            background-color: #b7791f;
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ==========================================================================
+           ÜBER MICH SECTION
+           ========================================================================== */
+        .section-padding {
+            padding: 100px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background-color: var(--secondary-color);
+            margin: 20px auto 0;
+            border-radius: 2px;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .about-img {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .about-img img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .about-img:hover img {
+            transform: scale(1.05);
+        }
+
+        .about-text h3 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .about-text p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #4a5568;
+        }
+
+        .signature {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--secondary-color);
+            font-style: italic;
+            margin-top: 30px;
+        }
+
+        /* ==========================================================================
+           LEISTUNGEN SECTION
+           ========================================================================== */
+        .services {
+            background-color: var(--bg-white);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .service-card {
+            background: var(--bg-light);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            transition: var(--transition-fast);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 0;
+            background-color: var(--primary-color);
+            transition: var(--transition-fast);
+            z-index: -1;
+            border-radius: var(--border-radius);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .service-card:hover::before {
+            height: 100%;
+        }
+
+        .service-card:hover h4, 
+        .service-card:hover p,
+        .service-card:hover i {
+            color: var(--bg-white);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            transition: var(--transition-fast);
+        }
+
+        .service-card h4 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            transition: var(--transition-fast);
+        }
+
+        .service-card p {
+            transition: var(--transition-fast);
+        }
+
+        /* ==========================================================================
+           GALERIE SECTION (Fotos Bad Kissingen & Business)
+           ========================================================================== */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: 250px;
+            gap: 20px;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .gallery-item:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+        .gallery-item:nth-child(4) { grid-column: span 2; }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(26, 54, 93, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition-fast);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .gallery-overlay span {
+            color: white;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            transform: translateY(20px);
+            transition: var(--transition-fast);
+        }
+
+        .gallery-item:hover .gallery-overlay span {
+            transform: translateY(0);
+        }
+
+        /* ==========================================================================
+           KONTAKT SECTION
+           ========================================================================== */
+        .contact {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .contact .section-title {
+            color: var(--bg-white);
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 60px;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .info-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .info-box i {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+
+        .info-box h5 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: var(--bg-white);
+        }
+
+        .contact-form {
+            background: var(--bg-white);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group input, 
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            background: var(--bg-light);
+            transition: var(--transition-fast);
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: none;
+        }
+
+        .form-group input:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(214, 158, 46, 0.2);
+        }
+
+        .form-btn {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            animation: none;
+        }
+
+        .form-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        footer {
+            background-color: #0d1b2f;
+            color: #a0aec0;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .social-links {
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transition: var(--transition-fast);
+        }
+
+        .social-links a:hover {
+            background: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        /* ==========================================================================
+           UTILITY CLASSES FÜR SCROLL-ANIMATIONEN
+           ========================================================================== */
+        .hidden-element {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .show-element {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+
+        /* ==========================================================================
+           RESPONSIVE DESIGN (Media Queries)
+           ========================================================================== */
+        @media screen and (max-width: 992px) {
+            .about-grid, .contact-content {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 { font-size: 3.5rem; }
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .gallery-item:nth-child(1), .gallery-item:nth-child(4) {
+                grid-column: span 1;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .navbar { flex-direction: column; gap: 15px; }
+            .nav-links { gap: 15px; }
+            .hero h1 { font-size: 2.5rem; }
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                grid-auto-rows: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER / NAVIGATION -->
+    <header id="header">
+        <nav class="navbar">
+            <a href="#" class="logo">Bernd<span>Sonnenschein</span></a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">Über mich</a></li>
+                <li><a href="#services">Leistungen</a></li>
+                <li><a href="#gallery">Referenzen</a></li>
+                <li><a href="#contact">Kontakt</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Visionen formen.<br>Erfolge sichern.</h1>
+            <p>Ihr Experte für strategisches Management und Consulting direkt aus dem Herzen von Bad Kissingen.</p>
+            <a href="#contact" class="btn btn-primary">Jetzt Erstgespräch sichern</a>
+        </div>
+    </section>
+
+    <!-- ÜBER MICH SECTION -->
+    <section id="about" class="section-padding">
+        <div class="container about-grid">
+            <div class="about-img hidden-element">
+                <!-- Platzhalter Bild für Bernd -->
+                <img src="https://picsum.photos/600/800?random=2" alt="Bernd Sonnenschein Portrait">
+            </div>
+            <div class="about-text hidden-element delay-1">
+                <h2 class="section-title" style="text-align: left;">Über Bernd Sonnenschein</h2>
+                <h3>Regional verwurzelt. Global denkend.</h3>
+                <p>Seit über 20 Jahren stehe ich Unternehmen in Bad Kissingen und der gesamten Region Main-Rhön als strategischer Partner zur Seite. Meine Expertise liegt in der Neuausrichtung von Geschäftsmodellen, der Optimierung von Prozessen und der Begleitung von Change-Management-Projekten.</p>
+                <p>Als stolzer Bürger von Bad Kissingen kenne ich den lokalen Markt, verstehe aber auch die Anforderungen der globalisierten Wirtschaft. Gemeinsam verwandeln wir Ihre Herausforderungen in messbare Erfolge.</p>
+                <div class="signature">Bernd Sonnenschein</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LEISTUNGEN SECTION -->
+    <section id="services" class="section-padding services">
+        <div class="container">
+            <h2 class="section-title hidden-element">Meine Leistungen</h2>
+            <div class="services-grid">
+                
+                <div class="service-card hidden-element delay-1">
+                    <i class="fa-solid fa-chart-line service-icon"></i>
+                    <h4>Strategieberatung</h4>
+                    <p>Entwicklung langfristiger Visionen und operativer Pläne zur Sicherung Ihrer Marktpositionierung.</p>
+                </div>
+
+                <div class="service-card hidden-element delay-2">
+                    <i class="fa-solid fa-users-gear service-icon"></i>
+                    <h4>Change Management</h4>
+                    <p>Professionelle Begleitung Ihres Teams durch tiefgreifende Unternehmensumstrukturierungen.</p>
+                </div>
+
+                <div class="service-card hidden-element delay-3">
+                    <i class="fa-solid fa-magnifying-glass-chart service-icon"></i>
+                    <h4>Prozessoptimierung</h4>
+                    <p>Analyse und Digitalisierung bestehender Workflows für maximale Effizienz und Kostenersparnis.</p>
+                </div>
+
+                <div class="service-card hidden-element delay-1">
+                    <i class="fa-solid fa-handshake-angle service-icon"></i>
+                    <h4>Interim Management</h4>
+                    <p>Übernahme von Führungspositionen auf Zeit zur Überbrückung von Vakanzen oder für Sonderprojekte.</p>
+                </div>
+
+                <div class="service-card hidden-element delay-2">
+                    <i class="fa-solid fa-leaf service-icon"></i>
+                    <h4>Nachhaltigkeits-Consulting</h4>
+                    <p>Integration von ESG-Kriterien in Ihr Geschäftsmodell für eine grüne und zukunftssichere Ausrichtung.</p>
+                </div>
+
+                <div class="service-card hidden-element delay-3">
+                    <i class="fa-solid fa-lightbulb service-icon"></i>
+                    <h4>Gründungsberatung</h4>
+                    <p>Von der Idee bis zum Businessplan: Unterstützung für Start-ups in Bad Kissingen und Umgebung.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- GALERIE SECTION -->
+    <section id="gallery" class="section-padding">
+        <div class="container">
+            <h2 class="section-title hidden-element">Einblicke & Referenzen</h2>
+            <div class="gallery-grid">
+                <!-- Bild 1 -->
+                <div class="gallery-item hidden-element">
+                    <img src="https://picsum.photos/800/800?random=3" alt="Business Meeting">
+                    <div class="gallery-overlay"><span>Strategische Meetings</span></div>
+                </div>
+                <!-- Bild 2 -->
+                <div class="gallery-item hidden-element delay-1">
+                    <img src="https://picsum.photos/400/400?random=4" alt="Bad Kissingen Kurpark">
+                    <div class="gallery-overlay"><span>Standort Bad Kissingen</span></div>
+                </div>
+                <!-- Bild 3 -->
+                <div class="gallery-item hidden-element delay-2">
+                    <img src="https://picsum.photos/400/400?random=5" alt="Analyse">
+                    <div class="gallery-overlay"><span>Datenanalyse</span></div>
+                </div>
+                <!-- Bild 4 -->
+                <div class="gallery-item hidden-element">
+                    <img src="https://picsum.photos/800/400?random=6" alt="Teamwork">
+                    <div class="gallery-overlay"><span>Teamentwicklung</span></div>
+                </div>
+                <!-- Bild 5 -->
+                <div class="gallery-item hidden-element delay-1">
+                    <img src="https://picsum.photos/400/400?random=7" alt="Consulting">
+                    <div class="gallery-overlay"><span>Workshops</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KONTAKT SECTION -->
+    <section id="contact" class="section-padding contact">
+        <div class="container">
+            <h2 class="section-title hidden-element">Lassen Sie uns sprechen</h2>
+            <div class="contact-content">
+                
+                <div class="contact-info hidden-element">
+                    <p style="margin-bottom: 20px; font-size: 1.1rem;">Bereit für den nächsten Schritt? Kontaktieren Sie mein Büro im Herzen von Bad Kissingen für eine unverbindliche Ersteinschätzung Ihres Projekts.</p>
+                    
+                    <div class="info-box">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <div>
+                            <h5>Adresse</h5>
+                            <p>Kurhausstraße 12<br>97688 Bad Kissingen</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <i class="fa-solid fa-phone"></i>
+                        <div>
+                            <h5>Telefon</h5>
+                            <p>+49 (0) 971 123 456 78</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <i class="fa-solid fa-envelope"></i>
+                        <div>
+                            <h5>E-Mail</h5>
+                            <p>kontakt@sonnenschein-consulting.de</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form hidden-element delay-2">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" id="name" placeholder="Ihr vollständiger Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" placeholder="Ihre E-Mail-Adresse" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="subject" placeholder="Betreff" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="message" placeholder="Wie kann ich Ihnen helfen?" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary form-btn">Nachricht senden</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="social-links">
+                <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="#"><i class="fa-brands fa-xing"></i></a>
+                <a href="#"><i class="fa-solid fa-globe"></i></a>
+            </div>
+            <p>&copy; <span id="currentYear"></span> Bernd Sonnenschein Consulting, Bad Kissingen. Alle Rechte vorbehalten.</p>
+            <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">Impressum | Datenschutz</p>
+        </div>
+    </footer>
+
+    <!-- ==========================================================================
+         JAVASCRIPT FÜR INTERAKTIVITÄT & ANIMATIONEN
+         ========================================================================== -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // 1. Dynamisches Jahr im Footer
+            const yearSpan = document.getElementById("currentYear");
+            yearSpan.textContent = new Date().getFullYear();
+
+            // 2. Sticky Navbar beim Scrollen animieren
+            const header = document.getElementById("header");
+            window.addEventListener("scroll", () => {
+                if (window.scrollY > 50) {
+                    header.classList.add("scrolled");
+                } else {
+                    header.classList.remove("scrolled");
+                }
+            });
+
+            // 3. Scroll-Animationen (Intersection Observer)
+            // Elemente, die beim Herunterscrollen weich eingeblendet werden
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15 // Startet, wenn 15% des Elements sichtbar sind
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show-element');
+                        // Optional: Unobserve nach dem ersten Auslösen, damit es sichtbar bleibt
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            const hiddenElements = document.querySelectorAll('.hidden-element');
+            hiddenElements.forEach((el) => observer.observe(el));
+
+            // 4. Formular-Verhalten simulieren
+            const form = document.getElementById('contactForm');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault(); // Verhindert das Neuladen der Seite
+                
+                const btn = form.querySelector('button');
+                const originalText = btn.textContent;
+                
+                // Lade-Animation
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Wird gesendet...';
+                btn.style.backgroundColor = "#4a5568";
+                
+                // Simuliere Server-Anfrage
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Nachricht erfolgreich gesendet!';
+                    btn.style.backgroundColor = "#48bb78"; // Grün für Erfolg
+                    
+                    form.reset();
+                    
+                    // Reset Button nach 3 Sekunden
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.backgroundColor = ""; // Zurück zum Original
+                    }, 3000);
+                    
+                }, 1500);
+            });
+            
+            // 5. Parallax Effekt für den Hero Bereich (Simuliert komplexe Features)
+            document.addEventListener("mousemove", (e) => {
+                const hero = document.querySelector('.hero');
+                const x = (window.innerWidth - e.pageX * 2) / 100;
+                const y = (window.innerHeight - e.pageY * 2) / 100;
+                
+                hero.style.backgroundPosition = `calc(50% + ${x}px) calc(50% + ${y}px)`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bernd Sonnenschein | Moderne Enzyklopädie</title>
+    
+    <!-- Google Fonts: Inter für den modernen Wiki-Look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Merriweather:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ==========================================================================
+           1. VARIABLEN & THEME (Dark/Modern Wiki Style)
+           ========================================================================== */
+        :root {
+            --bg-main: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --wiki-link: #60a5fa;
+            --radius: 16px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ==========================================================================
+           2. RESET & BASIS
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--bg-main);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.8;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        h1, h2, h3, h4 {
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        a {
+            color: var(--wiki-link);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        /* Hintergrund-Animation (Subtile Partikel/Glows) */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08), transparent 25%),
+                        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+        }
+
+        /* ==========================================================================
+           3. UI ELEMENTE: SCROLL BAR & PROGRESS
+           ========================================================================== */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-secondary); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        #scroll-progress {
+            position: fixed;
+            top: 0; left: 0;
+            width: 0%; height: 4px;
+            background: linear-gradient(90deg, var(--accent), #8b5cf6);
+            z-index: 9999;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: width 0.1s ease;
+        }
+
+        /* ==========================================================================
+           4. LAYOUT: WIKIPEDIA GRID (Sidebar + Content)
+           ========================================================================== */
+        .wiki-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 350px;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px;
+            gap: 40px;
+            position: relative;
+        }
+
+        /* ==========================================================================
+           5. LINKS: INHALTSVERZEICHNIS (Sticky Table of Contents)
+           ========================================================================== */
+        .toc-sidebar {
+            position: sticky;
+            top: 40px;
+            height: calc(100vh - 80px);
+            padding-right: 20px;
+            border-right: 1px solid var(--glass-border);
+        }
+
+        .toc-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-list li {
+            margin-bottom: 12px;
+        }
+
+        .toc-list a {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .toc-list a::before {
+            content: '';
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .toc-list a:hover, .toc-list a.active {
+            color: var(--text-main);
+            background: var(--glass-bg);
+            text-decoration: none;
+        }
+
+        .toc-list a:hover::before, .toc-list a.active::before {
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        /* ==========================================================================
+           6. MITTE: HAUPTINHALT (Biografie)
+           ========================================================================== */
+        .main-content {
+            padding-bottom: 100px;
+        }
+
+        .wiki-header h1 {
+            font-size: 4rem;
+            font-family: 'Merriweather', serif;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .wiki-header p.subtitle {
+            font-size: 1.2rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 20px;
+        }
+
+        /* Text Abschnitte */
+        .wiki-section {
+            margin-bottom: 60px;
+            scroll-margin-top: 40px;
+        }
+
+        .wiki-section h2 {
+            font-size: 2rem;
+            font-family: 'Merriweather', serif;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .wiki-section h2 i {
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .lead-text {
+            font-size: 1.25rem;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+        /* ==========================================================================
+           7. RECHTS: INFOBOX (Das klassische Wiki-Profilbild)
+           ========================================================================== */
+        .infobox-sidebar {
+            position: sticky;
+            top: 40px;
+            height: max-content;
+        }
+
+        .infobox {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .infobox-img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--glass-border);
+            filter: grayscale(20%);
+            transition: var(--transition);
+        }
+
+        .infobox:hover .infobox-img {
+            filter: grayscale(0%);
+            transform: scale(1.02);
+        }
+
+        .infobox-header {
+            padding: 20px;
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .infobox-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .infobox-data {
+            padding: 20px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .data-value {
+            text-align: right;
+            color: var(--text-muted);
+        }
+
+        /* ==========================================================================
+           8. KOMPLEXE KOMPONENTEN: TIMELINE
+           ========================================================================== */
+        .timeline {
+            position: relative;
+            max-width: 100%;
+            margin: 40px 0;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background: var(--glass-border);
+            top: 0; bottom: 0; left: 20px;
+            margin-left: -1px;
+        }
+
+        .timeline-item {
+            padding: 20px 0 20px 60px;
+            position: relative;
+            background: inherit;
+            width: 100%;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 16px; height: 16px;
+            right: auto; left: 12px; top: 24px;
+            background: var(--bg-main);
+            border: 3px solid var(--accent);
+            border-radius: 50%;
+            z-index: 1;
+            transition: var(--transition);
+        }
+
+        .timeline-item:hover::after {
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .timeline-content {
+            padding: 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .timeline-content:hover {
+            transform: translateX(10px);
+            border-color: var(--accent);
+        }
+
+        .timeline-date {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* ==========================================================================
+           9. KOMPLEXE KOMPONENTEN: FAKTEN-GRID (Trivia)
+           ========================================================================== */
+        .facts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .fact-card {
+            background: var(--bg-secondary);
+            padding: 25px;
+            border-radius: var(--radius);
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fact-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .fact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .fact-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .fact-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        /* ==========================================================================
+           10. ANIMATIONEN (Keyframes & Utilities)
+           ========================================================================== */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reveal {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* ==========================================================================
+           11. RESPONSIVE DESIGN (Mobile & Tablet)
+           ========================================================================== */
+        @media screen and (max-width: 1200px) {
+            .wiki-container { grid-template-columns: 250px 1fr; }
+            .infobox-sidebar { display: none; /* Auf kleineren Screens nach unten schieben oder ausblenden */ }
+        }
+
+        @media screen and (max-width: 900px) {
+            .wiki-container { grid-template-columns: 1fr; padding: 20px; }
+            .toc-sidebar { 
+                position: relative; 
+                height: auto; 
+                border-right: none; 
+                border-bottom: 1px solid var(--glass-border); 
+                padding-bottom: 20px;
+                margin-bottom: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dynamischer Ladebalken -->
+    <div id="scroll-progress"></div>
+
+    <!-- Hintergrund Effekte -->
+    <div class="ambient-bg"></div>
+
+    <div class="wiki-container">
+        
+        <!-- LINKE SPALTE: INHALTSVERZEICHNIS -->
+        <aside class="toc-sidebar">
+            <h3 class="toc-title"><i class="fa-solid fa-list-ul" style="margin-right: 8px;"></i> Inhaltsverzeichnis</h3>
+            <ul class="toc-list">
+                <li><a href="#intro" class="toc-link active">Zusammenfassung</a></li>
+                <li><a href="#leben" class="toc-link">Frühes Leben & Ausbildung</a></li>
+                <li><a href="#karriere" class="toc-link">Werdegang in Bad Kissingen</a></li>
+                <li><a href="#bedeutung" class="toc-link">Lokale Bedeutung & Einfluss</a></li>
+                <li><a href="#trivia" class="toc-link">Trivia & Persönliches</a></li>
+                <li><a href="#quellen" class="toc-link">Einzelnachweise</a></li>
+            </ul>
+        </aside>
+
+        <!-- MITTLERE SPALTE: WIKIPEDIA CONTENT -->
+        <main class="main-content">
+            
+            <header class="wiki-header" id="intro">
+                <h1>Bernd Sonnenschein</h1>
+                <p class="subtitle">Persönlichkeit aus Bad Kissingen • Biografie</p>
+                <p class="lead-text reveal">
+                    <b>Bernd Sonnenschein</b> (* [Geburtsdatum], in [Geburtsort, ggf. Bad Kissingen]) ist eine lokal bekannte Persönlichkeit, die durch ihr Wirken in der Region Main-Rhön, insbesondere in der Kurstadt Bad Kissingen, an Bekanntheit erlangte. 
+                </p>
+                <p class="reveal">
+                    Dieser Artikel beleuchtet sein Leben, seinen Werdegang und die Spuren, die er in der lokalen Gemeinschaft hinterlassen hat. Wie viele prägende Figuren der Stadtgeschichte zeichnet sich sein Lebenslauf durch eine tiefe Verwurzelung mit der fränkischen Kultur aus.
+                </p>
+            </header>
+
+            <!-- Abschnitt: Leben -->
+            <section class="wiki-section reveal" id="leben">
+                <h2><i class="fa-solid fa-seedling"></i> Frühes Leben & Ausbildung</h2>
+                <p>Sonnenschein wuchs in der Region um Bad Kissingen auf. Bereits in jungen Jahren zeigte er ein ausgeprägtes Interesse an [Hier sein Interesse einfügen, z.B. lokaler Geschichte, Handwerk, Kultur]. Er besuchte die lokalen Schulen und absolvierte anschließend eine Ausbildung im Bereich [Bereich einfügen].</p>
+                <p>Zeitgenossen beschreiben ihn während seiner Jugend als engagiert und wissbegierig. Die Einflüsse der Kurstadt mit ihrer historischen Bäderarchitektur prägten seine spätere Entwicklung maßgeblich.</p>
+            </section>
+
+            <!-- Abschnitt: Werdegang (Timeline) -->
+            <section class="wiki-section reveal" id="karriere">
+                <h2><i class="fa-solid fa-route"></i> Werdegang in Bad Kissingen</h2>
+                <p>Sein Lebensweg ist von mehreren prägnanten Stationen gekennzeichnet, die ihn fest in das Gedächtnis der Stadt Bad Kissingen integrierten.</p>
+                
+                <div class="timeline">
+                    <!-- Timeline Item 1 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-content">
+                            <span class="timeline-date">1980er / 1990er Jahre</span>
+                            <h4>Die Anfänge</h4>
+                            <p>Beginn seiner prägenden Tätigkeiten in Bad Kissingen. Erste Projekte, die ihn mit der lokalen Bevölkerung in tiefen Kontakt brachten.</p>
+                        </div>
+                    </div>
+                    <!-- Timeline Item 2 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-content">
+                            <span class="timeline-date">Frühe 2000er</span>
+                            <h4>Etablierung in der Stadtgesellschaft</h4>
+                            <p>Durch [spezifisches Ereignis einfügen] erlangte er überregionale Aufmerksamkeit innerhalb des Landkreises. Er etablierte sich als feste Größe in seinem Metier.</p>
+                        </div>
+                    </div>
+                    <!-- Timeline Item 3 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-content">
+                            <span class="timeline-date">Gegenwart</span>
+                            <h4>Aktuelles Wirken</h4>
+                            <p>Heute gilt er als Zeitzeuge und aktiver Gestalter [oder ruhender Pol] der Bad Kissinger Szene. Sein Name ist untrennbar mit [seinem Thema] verbunden.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Abschnitt: Bedeutung -->
+            <section class="wiki-section reveal" id="bedeutung">
+                <h2><i class="fa-solid fa-monument"></i> Lokale Bedeutung & Einfluss</h2>
+                <p>Die Bedeutung von Bernd Sonnenschein für Bad Kissingen lässt sich nicht nur an harten Fakten messen, sondern vor allem an der <a href="#">Anekdotenkultur</a> der Stadt. Ob bei Festlichkeiten im Luitpoldpark, im Kurhaus oder bei Diskussionen über die Stadtentwicklung – sein Name fällt häufig als Referenz für [seine Charaktereigenschaft, z.B. Zuverlässigkeit, Humor, Expertise].</p>
+                <blockquote style="border-left: 4px solid var(--accent); padding-left: 20px; font-style: italic; margin: 30px 0; background: var(--glass-bg); padding: 20px; border-radius: 0 var(--radius) var(--radius) 0;">
+                    "Menschen wie Bernd sind das unsichtbare Rückgrat unserer fränkischen Kurstadt-Identität." <br>
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">- Ein lokaler Weggefährte (Beispielzitat)</span>
+                </blockquote>
+            </section>
+
+            <!-- Abschnitt: Trivia -->
+            <section class="wiki-section reveal" id="trivia">
+                <h2><i class="fa-solid fa-lightbulb"></i> Trivia & Persönliches</h2>
+                <div class="facts-grid">
+                    <div class="fact-card">
+                        <i class="fa-solid fa-map-location-dot fact-icon"></i>
+                        <h4>Lieblingsort</h4>
+                        <p>Man munkelt, sein bevorzugter Aufenthaltsort in Bad Kissingen sei der Rosengarten oder die historische Wandelhalle.</p>
+                    </div>
+                    <div class="fact-card">
+                        <i class="fa-solid fa-mug-hot fact-icon"></i>
+                        <h4>Rituale</h4>
+                        <p>Bekannt für seine Konstanz und bestimmte alltägliche Routinen, die ihn zu einem bekannten Gesicht in den Straßen der Stadt machen.</p>
+                    </div>
+                    <div class="fact-card">
+                        <i class="fa-solid fa-quote-left fact-icon"></i>
+                        <h4>Lebensmotto</h4>
+                        <p>"[Hier persönliches Zitat oder Motto von Bernd einfügen]."</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Abschnitt: Quellen -->
+            <section class="wiki-section reveal" id="quellen">
+                <h2><i class="fa-solid fa-book-bookmark"></i> Einzelnachweise</h2>
+                <ol style="padding-left: 20px; color: var(--text-muted); font-size: 0.9rem;">
+                    <li>↑ <a href="#">Archiv der Stadt Bad Kissingen</a>: Registereintrag Sonnenschein.</li>
+                    <li>↑ <a href="#">Main-Post (Regionalausgabe)</a>: Artikel über lokale Persönlichkeiten (Datum einfügen).</li>
+                    <li>↑ Mündliche Überlieferungen von Anwohnern aus Bad Kissingen.</li>
+                </ol>
+            </section>
+
+        </main>
+
+        <!-- RECHTE SPALTE: INFOBOX WIKIPEDIA STYLE -->
+        <aside class="infobox-sidebar">
+            <div class="infobox reveal">
+                <!-- Platzhalter Bild (graustufe, modern) -->
+                <img src="https://picsum.photos/400/500?random=8" alt="Portrait Bernd Sonnenschein" class="infobox-img">
+                
+                <div class="infobox-header">
+                    <h3>Bernd Sonnenschein</h3>
+                </div>
+                
+                <div class="infobox-data">
+                    <div class="data-row">
+                        <span class="data-label">Vollständiger Name</span>
+                        <span class="data-value">Bernd [Zweitname] Sonnenschein</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Geboren</span>
+                        <span class="data-value">[Datum]<br>[Ort, z.B. Bayern]</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Wohnort</span>
+                        <span class="data-value">Bad Kissingen</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Bekannt für</span>
+                        <span class="data-value">Lokales Wirken, [Tätigkeit einfügen]</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Staatsangehörigkeit</span>
+                        <span class="data-value">Deutsch</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- ==========================================================================
+         JAVASCRIPT FÜR INTERAKTIVITÄT
+         ========================================================================== -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            /* 1. SCROLL PROGRESS BAR UPDATE */
+            const progressBar = document.getElementById('scroll-progress');
+            
+            window.addEventListener('scroll', () => {
+                // Berechne wie weit gescrollt wurde
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                progressBar.style.width = scrolled + '%';
+            });
+
+            /* 2. SCROLL REVEAL ANIMATION (Intersection Observer) */
+            // Lässt Elemente sanft einfliegen, wenn sie in den sichtbaren Bereich kommen
+            const revealElements = document.querySelectorAll('.reveal');
+            
+            const revealOptions = {
+                threshold: 0.15,
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    } else {
+                        entry.target.classList.add('active');
+                        // Element wird nicht mehr beobachtet, sobald es einmal sichtbar war
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, revealOptions);
+
+            revealElements.forEach(el => {
+                revealOnScroll.observe(el);
+            });
+
+            /* 3. SCROLL-SPY FÜR INHALTSVERZEICHNIS */
+            // Hebt den aktuellen Link im Inhaltsverzeichnis hervor
+            const sections = document.querySelectorAll('section.wiki-section, header.wiki-header');
+            const navLinks = document.querySelectorAll('.toc-list a');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    // Wenn wir in diesem Bereich sind (-150px für etwas Puffer beim Header)
+                    if (scrollY >= (sectionTop - 150)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            /* 4. OPTIONAL: 3D TILT EFFEKT FÜR DIE INFOBOX (Für den ultimativen modernen Touch) */
+            const infobox = document.querySelector('.infobox');
+            
+            if(infobox) {
+                infobox.addEventListener('mousemove', (e) => {
+                    const rect = infobox.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = ((y - centerY) / centerY) * -5; // Max 5 Grad
+                    const rotateY = ((x - centerX) / centerX) * 5;
+                    
+                    infobox.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+                
+                infobox.addEventListener('mouseleave', () => {
+                    infobox.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                    infobox.style.transition = 'transform 0.5s ease';
+                });
+                
+                infobox.addEventListener('mouseenter', () => {
+                    infobox.style.transition = 'none'; // Sofortiges reagieren auf die Maus
+                });
+            }
+        });
+    </script>
+</body>
+</html>

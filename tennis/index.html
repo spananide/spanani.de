@@ -17,6 +17,7 @@
       --opp-dim: rgba(245, 158, 11, 0.15);
       --text: #f8fafc;
       --text-muted: #94a3b8;
+      --danger: #ef4444;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -53,7 +54,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: transform 0.1s;
     }
     .match-card:active { transform: scale(0.98); }
 
@@ -95,7 +95,7 @@
       padding: 14px;
       margin-bottom: 14px;
     }
-    .card-title { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; }
+    .card-title { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
 
     input, select {
       width: 100%;
@@ -118,8 +118,22 @@
       font-weight: 800;
       font-size: 0.9rem;
       cursor: pointer;
+      margin-bottom: 8px;
     }
 
+    .btn-secondary {
+      background-color: var(--surface-light);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-danger {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    /* Point Tracker Controls */
     .point-tracker-box {
       background-color: var(--bg);
       border: 1px solid var(--border);
@@ -136,6 +150,28 @@
     .btn-point-you { flex: 1; padding: 12px; background: var(--player-dim); border: 1px solid var(--player); color: var(--player); font-weight: bold; border-radius: 8px; cursor: pointer; }
     .btn-point-opp { flex: 1; padding: 12px; background: var(--opp-dim); border: 1px solid var(--opp); color: var(--opp); font-weight: bold; border-radius: 8px; cursor: pointer; }
 
+    /* Counter Bar for Aces & DF */
+    .counter-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .counter-card {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .counter-card label { display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; font-weight: bold; }
+    .counter-card .val { font-size: 1.1rem; font-weight: bold; color: var(--text); }
+    .counter-card-btns { display: flex; gap: 4px; justify-content: center; margin-top: 4px; }
+    .btn-mini { width: 28px; height: 28px; background: var(--surface-light); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-weight: bold; cursor: pointer; }
+
     /* Timeline Grid */
     .timeline-grid { display: flex; gap: 4px; overflow-x: auto; padding: 8px 0; }
     .timeline-col { flex: 0 0 36px; text-align: center; cursor: pointer; }
@@ -144,6 +180,27 @@
     .game-bar.you { background: var(--player); }
     .game-bar.opp { background: var(--opp); }
     .game-num { font-size: 0.7rem; color: var(--text-muted); }
+
+    /* Detail Drawer Popover */
+    .detail-drawer {
+      background: var(--bg);
+      border: 1px solid var(--player);
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 10px;
+      position: relative;
+    }
+
+    .close-drawer-btn {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
 
     /* Stats Comparison Bars */
     .stat-row { margin-bottom: 12px; }
@@ -173,10 +230,12 @@
 
   <!-- MATCH DETAILS VIEW -->
   <div id="viewDetail" class="view hidden">
+    <button class="btn" style="margin-bottom:12px;" onclick="startNewGameForCurrentMatch()">+ NÄCHSTES SPIEL EINTRAGEN</button>
+
     <div class="card">
       <div class="card-title">Satzverlauf (Spiel anklicken)</div>
       <div class="timeline-grid" id="timelineGrid"></div>
-      <div id="selectedGameDetail" style="margin-top: 10px;"></div>
+      <div id="selectedGameDetail"></div>
     </div>
 
     <div class="card">
@@ -197,6 +256,7 @@
         <option value="Teppich">Teppich</option>
       </select>
       <button class="btn" onclick="createNewMatch()">Match Starten</button>
+      <button class="btn btn-secondary" onclick="showHome()">Abbrechen</button>
     </div>
   </div>
 
@@ -205,6 +265,27 @@
     <div class="card">
       <div class="card-title" id="trackerTitle">Spiel eintragen</div>
       
+      <!-- Asse / Doppelfehler Zähler -->
+      <div class="counter-bar">
+        <div class="counter-card">
+          <label>ASSE (DU)</label>
+          <div class="val" id="valAces">0</div>
+          <div class="counter-card-btns">
+            <button class="btn-mini" onclick="addAce(-1)">-</button>
+            <button class="btn-mini" onclick="addAce(1)">+</button>
+          </div>
+        </div>
+        <div class="counter-card">
+          <label>DOPPELFEHLER (DU)</label>
+          <div class="val" id="valDF">0</div>
+          <div class="counter-card-btns">
+            <button class="btn-mini" onclick="addDF(-1)">-</button>
+            <button class="btn-mini" onclick="addDF(1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Punkte-Tracker Live -->
       <div class="point-tracker-box">
         <div style="font-size:0.75rem; color:var(--text-muted);">AKTUELLER PUNKTESTAND:</div>
         <div class="live-score" id="liveScoreText">0 : 0</div>
@@ -217,7 +298,8 @@
         </div>
       </div>
 
-      <button class="btn" onclick="saveCurrentGame()">Spiel Speichern & Weiter</button>
+      <button class="btn" onclick="saveCurrentGame()">SPIEL SPEICHERN & ZURÜCK</button>
+      <button class="btn btn-secondary" onclick="cancelCurrentGame()">Abbrechen</button>
     </div>
   </div>
 
@@ -237,9 +319,12 @@
 
   let matches = JSON.parse(localStorage.getItem('tennis_matches_data')) || [];
   let currentMatch = null;
+  let currentMatchIdx = null;
   let currentPoints = [];
   let scoreYou = 0;
   let scoreOpp = 0;
+  let gameAces = 0;
+  let gameDF = 0;
 
   function showHome() {
     document.getElementById('viewHome').classList.remove('hidden');
@@ -272,7 +357,7 @@
           <div class="match-opp">vs. ${m.opponent}</div>
         </div>
         <div class="match-score-badge ${m.won ? 'badge-win' : 'badge-loss'}">
-          ${m.won ? 'SIEG' : 'NIEDERLAGE'} (${m.scoreStr || '6:4'})
+          ${m.won ? 'SIEG' : 'NIEDERLAGE'} (${m.scoreStr || 'Aktiv'})
         </div>
       `;
       container.appendChild(card);
@@ -296,13 +381,26 @@
       opponent: opp,
       surface: surface,
       won: true,
-      scoreStr: "0:0",
+      scoreStr: "Aktiv",
       games: []
     };
 
+    matches.unshift(currentMatch);
+    currentMatchIdx = 0;
+    saveMatchesToStorage();
+
+    startNewGameForCurrentMatch();
+  }
+
+  function startNewGameForCurrentMatch() {
     resetPointTracker();
+    document.getElementById('viewHome').classList.add('hidden');
+    document.getElementById('viewDetail').classList.add('hidden');
     document.getElementById('viewNewMatch').classList.add('hidden');
     document.getElementById('viewTracker').classList.remove('hidden');
+    document.getElementById('backBtn').classList.remove('hidden');
+    document.getElementById('fabBtn').classList.add('hidden');
+    document.getElementById('trackerTitle').innerText = `Spiel ${currentMatch.games.length + 1} eintragen`;
   }
 
   const tennisScores = ["0", "15", "30", "40"];
@@ -329,6 +427,16 @@
     updateTrackerUI(displayScore);
   }
 
+  function addAce(delta) {
+    gameAces = Math.max(0, gameAces + delta);
+    document.getElementById('valAces').innerText = gameAces;
+  }
+
+  function addDF(delta) {
+    gameDF = Math.max(0, gameDF + delta);
+    document.getElementById('valDF').innerText = gameDF;
+  }
+
   function updateTrackerUI(currentScoreText) {
     document.getElementById('liveScoreText').innerText = currentScoreText;
     const pills = document.getElementById('pointPills');
@@ -338,48 +446,65 @@
   function resetPointTracker() {
     scoreYou = 0;
     scoreOpp = 0;
+    gameAces = 0;
+    gameDF = 0;
     currentPoints = [];
+    document.getElementById('valAces').innerText = "0";
+    document.getElementById('valDF').innerText = "0";
     updateTrackerUI("0 : 0");
   }
 
   function saveCurrentGame() {
-    if (currentPoints.length === 0) return;
+    if (currentPoints.length === 0) {
+      alert("Trage zuerst Punkte für das Spiel ein.");
+      return;
+    }
 
     const gameWinner = scoreYou > scoreOpp ? 'you' : 'opp';
     currentMatch.games.push({
       gameNum: currentMatch.games.length + 1,
       winner: gameWinner,
+      aces: gameAces,
+      df: gameDF,
       points: [...currentPoints]
     });
 
-    const existingIdx = matches.findIndex(m => m.id === currentMatch.id);
-    if (existingIdx >= 0) matches[existingIdx] = currentMatch;
-    else matches.unshift(currentMatch);
+    saveMatchesToStorage();
+    openMatchDetail(currentMatchIdx);
+  }
 
+  function cancelCurrentGame() {
+    if (currentMatch && currentMatch.games.length > 0) {
+      openMatchDetail(currentMatchIdx);
+    } else {
+      showHome();
+    }
+  }
+
+  function saveMatchesToStorage() {
     localStorage.setItem('tennis_matches_data', JSON.stringify(matches));
-    
-    if (db) {
+    if (db && currentMatch) {
       db.from('matches').upsert([currentMatch]).then();
     }
-
-    alert(`Spiel ${currentMatch.games.length} gespeichert!`);
-    resetPointTracker();
   }
 
   function openMatchDetail(idx) {
-    const m = matches[idx];
+    currentMatchIdx = idx;
+    currentMatch = matches[idx];
+
     document.getElementById('viewHome').classList.add('hidden');
+    document.getElementById('viewTracker').classList.add('hidden');
     document.getElementById('viewDetail').classList.remove('hidden');
     document.getElementById('backBtn').classList.remove('hidden');
     document.getElementById('fabBtn').classList.add('hidden');
     
-    document.getElementById('headerTitle').innerText = `vs. ${m.opponent}`;
-    document.getElementById('headerSub').innerText = `${m.date} • ${m.surface}`;
+    document.getElementById('headerTitle').innerText = `vs. ${currentMatch.opponent}`;
+    document.getElementById('headerSub').innerText = `${currentMatch.date} • ${currentMatch.surface}`;
 
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '';
     
-    m.games.forEach((g) => {
+    currentMatch.games.forEach((g) => {
       const col = document.createElement('div');
       col.className = 'timeline-col';
       col.onclick = () => showGamePoints(g);
@@ -392,24 +517,39 @@
       grid.appendChild(col);
     });
 
-    const gamesYou = m.games.filter(g => g.winner === 'you').length;
-    const gamesOpp = m.games.filter(g => g.winner === 'opp').length;
+    closeGamePoints();
+
+    // Calculate Stats
+    const gamesYou = currentMatch.games.filter(g => g.winner === 'you').length;
+    const gamesOpp = currentMatch.games.filter(g => g.winner === 'opp').length;
+    const totalAces = currentMatch.games.reduce((acc, g) => acc + (g.aces || 0), 0);
+    const totalDF = currentMatch.games.reduce((acc, g) => acc + (g.df || 0), 0);
     
     document.getElementById('statsBars').innerHTML = `
       ${renderStatRow('Gewonnene Spiele', gamesYou, gamesOpp)}
+      ${renderStatRow('Asse (DU)', totalAces, 0)}
+      ${renderStatRow('Doppelfehler (DU)', totalDF, 0)}
     `;
   }
 
   function showGamePoints(game) {
     const detail = document.getElementById('selectedGameDetail');
     detail.innerHTML = `
-      <div style="background:var(--bg); padding:10px; border-radius:8px; font-size:0.8rem;">
-        <b>Spiel ${game.gameNum} Punkteverlauf:</b><br/>
+      <div class="detail-drawer">
+        <button class="close-drawer-btn" onclick="closeGamePoints()">✕ Schließen</button>
+        <b>Spiel ${game.gameNum} (${game.winner === 'you' ? 'Gewonnen' : 'Verloren'}):</b><br/>
+        <span style="font-size:0.75rem; color:var(--text-muted);">
+          Asse: ${game.aces || 0} | Doppelfehler: ${game.df || 0}
+        </span>
         <div style="display:flex; gap:4px; overflow-x:auto; margin-top:6px;">
           ${game.points.map(p => `<span class="pill">${p.scoreText}</span>`).join('')}
         </div>
       </div>
     `;
+  }
+
+  function closeGamePoints() {
+    document.getElementById('selectedGameDetail').innerHTML = '';
   }
 
   function renderStatRow(title, valYou, valOpp) {

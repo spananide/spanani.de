@@ -3,107 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tennis Match Tracker</title>
+  <title>Tennis Match Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #0b0e14;
-      --surface: #151c28;
+      --bg: #090d16;
+      --surface: #131b2e;
       --surface-light: #1e293b;
-      --border: #2a364f;
-      --player: #22c55e; /* Tennis Green / Accent */
+      --border: #243148;
+      --player: #22c55e;
       --player-dim: rgba(34, 197, 94, 0.15);
-      --opp: #f59e0b; /* Opponent Amber */
+      --opp: #f59e0b;
       --opp-dim: rgba(245, 158, 11, 0.15);
       --text: #f8fafc;
       --text-muted: #94a3b8;
-      --danger: #ef4444;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-    }
+    .app { width: 100%; max-width: 480px; padding-bottom: 90px; }
 
-    .app-container {
-      width: 100%;
-      max-width: 480px; /* Mobile Viewport Lock */
-      background-color: var(--bg);
-      display: flex;
-      flex-direction: column;
-      padding-bottom: 80px;
-    }
-
-    /* Top Bar */
-    .top-bar {
+    .header {
       background-color: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 12px 16px;
+      padding: 14px 18px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 10;
     }
+    .header h1 { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+    .header p { font-size: 0.75rem; color: var(--text-muted); }
 
-    .match-info h1 { font-size: 1.05rem; font-weight: 700; color: var(--text); }
-    .match-info p { font-size: 0.75rem; color: var(--text-muted); }
+    .back-btn { background: none; border: none; color: var(--player); font-weight: bold; cursor: pointer; font-size: 0.9rem; }
 
-    .reset-btn {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid var(--danger);
-      color: var(--danger);
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    /* Views Container */
-    .view-content { padding: 14px; }
+    .view { padding: 14px; }
     .hidden { display: none !important; }
 
-    /* View Switcher Tabs (Bottom Fixed Nav) */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 480px;
+    .match-card {
       background-color: var(--surface);
-      border-top: 1px solid var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.1s;
+    }
+    .match-card:active { transform: scale(0.98); }
+
+    .match-meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+    .match-opp { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .match-score-badge {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+    .badge-win { background-color: var(--player-dim); color: var(--player); border: 1px solid var(--player); }
+    .badge-loss { background-color: var(--opp-dim); color: var(--opp); border: 1px solid var(--opp); }
+
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: calc(50% - 220px);
+      width: 56px;
+      height: 56px;
+      background-color: var(--player);
+      color: #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      box-shadow: 0 4px 16px rgba(34, 197, 94, 0.4);
+      cursor: pointer;
       z-index: 100;
     }
+    @media (max-width: 480px) { .fab { right: 20px; } }
 
-    .nav-btn {
-      flex: 1;
-      padding: 12px 0;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      font-weight: 700;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-    }
-
-    .nav-btn.active {
-      color: var(--player);
-      border-top: 2px solid var(--player);
-    }
-
-    /* Form UI (Live Eingabe) */
     .card {
       background-color: var(--surface);
       border: 1px solid var(--border);
@@ -111,599 +95,348 @@
       padding: 14px;
       margin-bottom: 14px;
     }
+    .card-title { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; }
 
-    .card-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 12px;
-    }
-
-    .form-group { margin-bottom: 14px; }
-    .form-label { font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 6px; display: block; }
-
-    .btn-toggle-group { display: flex; gap: 8px; }
-    .toggle-btn {
-      flex: 1;
+    input, select {
+      width: 100%;
       padding: 12px;
       background-color: var(--surface-light);
       border: 1px solid var(--border);
       color: var(--text);
-      font-weight: 600;
-      font-size: 0.85rem;
       border-radius: 8px;
-      cursor: pointer;
-      text-align: center;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
     }
 
-    .toggle-btn.selected-you {
-      background-color: var(--player-dim);
-      border-color: var(--player);
-      color: var(--player);
-    }
-
-    .toggle-btn.selected-opp {
-      background-color: var(--opp-dim);
-      border-color: var(--opp);
-      color: var(--opp);
-    }
-
-    .grid-options {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-    }
-
-    .grid-btn {
-      padding: 10px;
-      background-color: var(--surface-light);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .grid-btn.active {
-      background-color: var(--player);
-      color: #000;
-      border-color: var(--player);
-    }
-
-    /* Counter Controls */
-    .counter-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: var(--surface-light);
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-    }
-
-    .counter-btn {
-      width: 32px;
-      height: 32px;
-      background-color: var(--border);
-      color: var(--text);
-      border: none;
-      border-radius: 6px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .submit-btn {
+    .btn {
       width: 100%;
-      padding: 14px;
+      padding: 12px;
       background-color: var(--player);
       color: #000;
       border: none;
-      border-radius: 10px;
-      font-size: 0.95rem;
+      border-radius: 8px;
       font-weight: 800;
+      font-size: 0.9rem;
       cursor: pointer;
-      margin-top: 8px;
     }
 
-    /* CS-Style Timeline Grid */
-    .set-selector {
-      display: flex;
-      gap: 6px;
+    .point-tracker-box {
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
       margin-bottom: 12px;
     }
+    .live-score { font-size: 1.8rem; font-weight: 800; color: var(--player); margin: 8px 0; }
+    .point-history-pills { display: flex; gap: 4px; overflow-x: auto; padding: 6px 0; }
+    .pill { background: var(--surface-light); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; white-space: nowrap; }
 
-    .set-tab {
-      flex: 1;
-      padding: 8px;
-      background-color: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-    }
+    .point-btns { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-point-you { flex: 1; padding: 12px; background: var(--player-dim); border: 1px solid var(--player); color: var(--player); font-weight: bold; border-radius: 8px; cursor: pointer; }
+    .btn-point-opp { flex: 1; padding: 12px; background: var(--opp-dim); border: 1px solid var(--opp); color: var(--opp); font-weight: bold; border-radius: 8px; cursor: pointer; }
 
-    .set-tab.active {
-      background-color: var(--surface-light);
-      color: var(--player);
-      border-color: var(--player);
-    }
+    /* Timeline Grid */
+    .timeline-grid { display: flex; gap: 4px; overflow-x: auto; padding: 8px 0; }
+    .timeline-col { flex: 0 0 36px; text-align: center; cursor: pointer; }
+    .ball-slot { height: 24px; font-size: 0.9rem; }
+    .game-bar { height: 3px; background: var(--border); margin: 2px 0; }
+    .game-bar.you { background: var(--player); }
+    .game-bar.opp { background: var(--opp); }
+    .game-num { font-size: 0.7rem; color: var(--text-muted); }
 
-    .cs-timeline-grid {
-      display: flex;
-      gap: 4px;
-      overflow-x: auto;
-      padding: 10px 4px;
-      background-color: #080b10;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-
-    .cs-game-col {
-      flex: 0 0 38px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      padding: 4px 0;
-      border-radius: 6px;
-    }
-
-    .cs-game-col.selected {
-      background-color: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border);
-    }
-
-    .cs-slot {
-      height: 26px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-    }
-
-    .cs-bar {
-      width: 100%;
-      height: 3px;
-      background-color: var(--border);
-      margin: 2px 0;
-    }
-
-    .cs-bar.won-you { background-color: var(--player); box-shadow: 0 0 4px var(--player); }
-    .cs-bar.won-opp { background-color: var(--opp); box-shadow: 0 0 4px var(--opp); }
-
-    .cs-game-num { font-size: 0.7rem; color: var(--text-muted); font-weight: bold; }
-
-    /* Game Detail Popup Box */
-    .game-detail-card {
-      background-color: var(--surface-light);
-      border: 1px solid var(--player);
-      border-radius: 8px;
-      padding: 12px;
-      margin-top: 10px;
-      font-size: 0.85rem;
-    }
-
-    /* SofaScore Football Style Stats Bars */
-    .stat-item { margin-bottom: 12px; }
-    .stat-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .stat-val-you { color: var(--player); width: 30px; }
-    .stat-val-opp { color: var(--opp); width: 30px; text-align: right; }
-    .stat-title { color: var(--text-muted); text-align: center; flex: 1; font-weight: 500; }
-
-    .stat-bar-bg {
-      height: 6px;
-      background-color: var(--surface-light);
-      border-radius: 3px;
-      display: flex;
-      overflow: hidden;
-      gap: 2px;
-    }
-
-    .stat-bar-you-wrap, .stat-bar-opp-wrap { flex: 1; display: flex; }
-    .stat-bar-you-wrap { justify-content: flex-end; }
-    .stat-bar-opp-wrap { justify-content: flex-start; }
-
-    .stat-fill-you { height: 100%; background-color: var(--player); border-radius: 3px 0 0 3px; }
-    .stat-fill-opp { height: 100%; background-color: var(--opp); border-radius: 0 3px 3px 0; }
+    /* Stats Comparison Bars */
+    .stat-row { margin-bottom: 12px; }
+    .stat-header { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px; }
+    .stat-bar { height: 6px; background: var(--surface-light); border-radius: 3px; display: flex; overflow: hidden; }
+    .fill-you { height: 100%; background: var(--player); }
+    .fill-opp { height: 100%; background: var(--opp); }
   </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="app">
 
   <!-- Header -->
-  <div class="top-bar">
-    <div class="match-info">
-      <h1 id="headerScore">DU vs. GEGNER (0:0)</h1>
-      <p id="headerSub">Tennis Match Tracker</p>
+  <div class="header">
+    <div>
+      <h1 id="headerTitle">Tennis Match Hub</h1>
+      <p id="headerSub">Alle Spiele & Statistiken</p>
     </div>
-    <button class="reset-btn" onclick="resetMatchData()">Reset</button>
+    <button id="backBtn" class="back-btn hidden" onclick="showHome()">← Übersicht</button>
   </div>
 
-  <!-- VIEW 1: EINGABE (Seitenwechsel Formular) -->
-  <div id="viewEingabe" class="view-content">
+  <!-- MAIN PAGE: MATCH HISTORIE -->
+  <div id="viewHome" class="view">
+    <div id="matchList"></div>
+  </div>
+
+  <!-- MATCH DETAILS VIEW -->
+  <div id="viewDetail" class="view hidden">
     <div class="card">
-      <div class="card-title">🎾 Spiel eintragen (Seitenwechsel)</div>
-      
-      <!-- Satz Auswahl -->
-      <div class="form-group">
-        <label class="form-label">Aktueller Satz</label>
-        <div class="btn-toggle-group">
-          <button class="toggle-btn selected-you" id="setBtn1" onclick="setFormSet(1)">Satz 1</button>
-          <button class="toggle-btn" id="setBtn2" onclick="setFormSet(2)">Satz 2</button>
-          <button class="toggle-btn" id="setBtn3" onclick="setFormSet(3)">Satz 3</button>
-        </div>
-      </div>
-
-      <!-- Aufschläger -->
-      <div class="form-group">
-        <label class="form-label">Aufschlag hatte</label>
-        <div class="btn-toggle-group">
-          <button class="toggle-btn selected-you" id="serverYouBtn" onclick="setFormServer('you')">DU</button>
-          <button class="toggle-btn" id="serverOppBtn" onclick="setFormServer('opp')">GEGNER</button>
-        </div>
-      </div>
-
-      <!-- Gewinner -->
-      <div class="form-group">
-        <label class="form-label">Spiel Gewonnen von</label>
-        <div class="btn-toggle-group">
-          <button class="toggle-btn selected-you" id="winnerYouBtn" onclick="setFormWinner('you')">DU</button>
-          <button class="toggle-btn" id="winnerOppBtn" onclick="setFormWinner('opp')">GEGNER</button>
-        </div>
-      </div>
-
-      <!-- Ausgang -->
-      <div class="form-group">
-        <label class="form-label">Spiel-Ausgang (Score)</label>
-        <div class="grid-options">
-          <button class="grid-btn active" onclick="setFormMargin('zu 0', this)">zu 0</button>
-          <button class="grid-btn" onclick="setFormMargin('zu 15', this)">zu 15</button>
-          <button class="grid-btn" onclick="setFormMargin('zu 30', this)">zu 30</button>
-          <button class="grid-btn" onclick="setFormMargin('zu 40', this)">zu 40</button>
-          <button class="grid-btn" onclick="setFormMargin('Deuce', this)">Deuce</button>
-        </div>
-      </div>
-
-      <!-- Asse / DF Counter -->
-      <div class="form-group">
-        <div class="counter-row">
-          <span style="font-size: 0.85rem; font-weight: 600;">Deine Asse:</span>
-          <div>
-            <button class="counter-btn" onclick="updateCounter('aces', -1)">-</button>
-            <span id="acesCount" style="font-weight: bold; margin: 0 10px;">0</span>
-            <button class="counter-btn" onclick="updateCounter('aces', 1)">+</button>
-          </div>
-        </div>
-        <div class="counter-row">
-          <span style="font-size: 0.85rem; font-weight: 600;">Deine Doppelfehler:</span>
-          <div>
-            <button class="counter-btn" onclick="updateCounter('df', -1)">-</button>
-            <span id="dfCount" style="font-weight: bold; margin: 0 10px;">0</span>
-            <button class="counter-btn" onclick="updateCounter('df', 1)">+</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 0:40 Comeback Toggle -->
-      <div class="form-group">
-        <div class="counter-row">
-          <span style="font-size: 0.85rem; font-weight: 600;">0:40 Rückstand gedreht?</span>
-          <input type="checkbox" id="comebackCheck" style="width:20px; height:20px; accent-color: var(--player);">
-        </div>
-      </div>
-
-      <button class="submit-btn" onclick="submitGameForm()">SPIEL SPEICHERN 💾</button>
+      <div class="card-title">Satzverlauf (Spiel anklicken)</div>
+      <div class="timeline-grid" id="timelineGrid"></div>
+      <div id="selectedGameDetail" style="margin-top: 10px;"></div>
     </div>
-  </div>
 
-  <!-- VIEW 2: STATS & CS TIMELINE -->
-  <div id="viewStats" class="view-content hidden">
-    
-    <!-- CS-Style Timeline Card -->
     <div class="card">
-      <div class="card-title">CS-Style Satz-Verlauf (Klicken für Details)</div>
-      
-      <div class="set-selector">
-        <button class="set-tab active" id="tabSet1" onclick="selectStatsSet(1)">Satz 1</button>
-        <button class="set-tab" id="tabSet2" onclick="selectStatsSet(2)">Satz 2</button>
-        <button class="set-tab" id="tabSet3" onclick="selectStatsSet(3)">Satz 3</button>
-      </div>
-
-      <!-- CS Horizontal Tennisball Grid -->
-      <div class="cs-timeline-grid" id="csTimelineGrid">
-        <!-- JS rendered -->
-      </div>
-
-      <!-- Detail Box for clicked game -->
-      <div id="gameDetailContainer"></div>
+      <div class="card-title">Match Statistiken</div>
+      <div id="statsBars"></div>
     </div>
+  </div>
 
-    <!-- Football/SofaScore Style Match Stats -->
+  <!-- NEUES MATCH VIEW -->
+  <div id="viewNewMatch" class="view hidden">
     <div class="card">
-      <div class="card-title">Match-Statistiken (Gesamt)</div>
-      
-      <div id="statsContainer">
-        <!-- Dynamic SofaScore bars rendered by JS -->
-      </div>
+      <div class="card-title">Neues Match anlegen</div>
+      <input type="text" id="oppNameInput" placeholder="Gegner Name (z. B. Alex)">
+      <select id="surfaceInput">
+        <option value="Sandplatz">Sandplatz</option>
+        <option value="Hartplatz">Hartplatz</option>
+        <option value="Rasen">Rasen</option>
+        <option value="Teppich">Teppich</option>
+      </select>
+      <button class="btn" onclick="createNewMatch()">Match Starten</button>
     </div>
-
   </div>
 
-  <!-- Fixed Bottom Navigation -->
-  <div class="bottom-nav">
-    <button class="nav-btn active" id="navEingabe" onclick="switchView('eingabe')">
-      <span>📝</span> Live-Eingabe
-    </button>
-    <button class="nav-btn" id="navStats" onclick="switchView('stats')">
-      <span>📊</span> Match-Stats
-    </button>
+  <!-- LIVE SPIEL & PUNKTE EINTRAGEN VIEW -->
+  <div id="viewTracker" class="view hidden">
+    <div class="card">
+      <div class="card-title" id="trackerTitle">Spiel eintragen</div>
+      
+      <div class="point-tracker-box">
+        <div style="font-size:0.75rem; color:var(--text-muted);">AKTUELLER PUNKTESTAND:</div>
+        <div class="live-score" id="liveScoreText">0 : 0</div>
+        
+        <div class="point-history-pills" id="pointPills"></div>
+
+        <div class="point-btns">
+          <button class="btn-point-you" onclick="addPoint('you')">+ Punkt DU</button>
+          <button class="btn-point-opp" onclick="addPoint('opp')">+ Punkt GEGNER</button>
+        </div>
+      </div>
+
+      <button class="btn" onclick="saveCurrentGame()">Spiel Speichern & Weiter</button>
+    </div>
   </div>
+
+  <!-- Floating Action Button -->
+  <div class="fab" id="fabBtn" onclick="openNewMatchView()">+</div>
 
 </div>
 
 <script>
-  // STATE MANAGEMENT WITH LOCALSTORAGE
-  const STORAGE_KEY = 'tennis_tracker_data_v1';
-
-  let matchState = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-    sets: {
-      1: [],
-      2: [],
-      3: []
-    }
-  };
-
-  // Form State
-  let formSet = 1;
-  let formServer = 'you';
-  let formWinner = 'you';
-  let formMargin = 'zu 0';
-  let formAces = 0;
-  let formDF = 0;
-
-  // Stats View State
-  let selectedStatsSet = 1;
-  let selectedGameIdx = null;
-
-  function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(matchState));
-    updateHeaderScore();
+  const SUPABASE_URL = "https://DEIN-PROJECT.supabase.co";
+  const SUPABASE_KEY = "DEIN-ANON-KEY";
+  
+  let db = null;
+  if (!SUPABASE_URL.includes("DEIN-PROJECT")) {
+    db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   }
 
-  function updateHeaderScore() {
-    let s1You = matchState.sets[1].filter(g => g.winner === 'you').length;
-    let s1Opp = matchState.sets[1].filter(g => g.winner === 'opp').length;
-    let s2You = matchState.sets[2].filter(g => g.winner === 'you').length;
-    let s2Opp = matchState.sets[2].filter(g => g.winner === 'opp').length;
-    let s3You = matchState.sets[3].filter(g => g.winner === 'you').length;
-    let s3Opp = matchState.sets[3].filter(g => g.winner === 'opp').length;
+  let matches = JSON.parse(localStorage.getItem('tennis_matches_data')) || [];
+  let currentMatch = null;
+  let currentPoints = [];
+  let scoreYou = 0;
+  let scoreOpp = 0;
 
-    let scoreStr = `(${s1You}:${s1Opp}`;
-    if (matchState.sets[2].length > 0) scoreStr += `, ${s2You}:${s2Opp}`;
-    if (matchState.sets[3].length > 0) scoreStr += `, ${s3You}:${s3Opp}`;
-    scoreStr += `)`;
-
-    document.getElementById('headerScore').innerText = `DU vs. GEGNER ${scoreStr}`;
+  function showHome() {
+    document.getElementById('viewHome').classList.remove('hidden');
+    document.getElementById('viewDetail').classList.add('hidden');
+    document.getElementById('viewNewMatch').classList.add('hidden');
+    document.getElementById('viewTracker').classList.add('hidden');
+    document.getElementById('backBtn').classList.add('hidden');
+    document.getElementById('fabBtn').classList.remove('hidden');
+    document.getElementById('headerTitle').innerText = "Tennis Match Hub";
+    document.getElementById('headerSub').innerText = "Alle Spiele & Statistiken";
+    renderMatchList();
   }
 
-  // View Navigation
-  function switchView(viewName) {
-    document.getElementById('viewEingabe').classList.toggle('hidden', viewName !== 'eingabe');
-    document.getElementById('viewStats').classList.toggle('hidden', viewName !== 'stats');
-    
-    document.getElementById('navEingabe').classList.toggle('active', viewName === 'eingabe');
-    document.getElementById('navStats').classList.toggle('active', viewName === 'stats');
+  function renderMatchList() {
+    const container = document.getElementById('matchList');
+    container.innerHTML = '';
 
-    if (viewName === 'stats') {
-      renderStatsView();
-    }
-  }
-
-  // Form Controls
-  function setFormSet(num) {
-    formSet = num;
-    [1,2,3].forEach(n => {
-      document.getElementById(`setBtn${n}`).className = `toggle-btn ${n === num ? 'selected-you' : ''}`;
-    });
-  }
-
-  function setFormServer(role) {
-    formServer = role;
-    document.getElementById('serverYouBtn').className = `toggle-btn ${role === 'you' ? 'selected-you' : ''}`;
-    document.getElementById('serverOppBtn').className = `toggle-btn ${role === 'opp' ? 'selected-opp' : ''}`;
-  }
-
-  function setFormWinner(role) {
-    formWinner = role;
-    document.getElementById('winnerYouBtn').className = `toggle-btn ${role === 'you' ? 'selected-you' : ''}`;
-    document.getElementById('winnerOppBtn').className = `toggle-btn ${role === 'opp' ? 'selected-opp' : ''}`;
-  }
-
-  function setFormMargin(margin, btn) {
-    formMargin = margin;
-    document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-
-  function updateCounter(type, delta) {
-    if (type === 'aces') {
-      formAces = Math.max(0, formAces + delta);
-      document.getElementById('acesCount').innerText = formAces;
-    } else if (type === 'df') {
-      formDF = Math.max(0, formDF + delta);
-      document.getElementById('dfCount').innerText = formDF;
-    }
-  }
-
-  function submitGameForm() {
-    const isComeback = document.getElementById('comebackCheck').checked;
-    const gameNum = matchState.sets[formSet].length + 1;
-
-    const gameEntry = {
-      gameNum: gameNum,
-      server: formServer,
-      winner: formWinner,
-      margin: formMargin,
-      aces: formAces,
-      df: formDF,
-      comeback040: isComeback
-    };
-
-    matchState.sets[formSet].push(gameEntry);
-    saveState();
-
-    // Reset Form counters
-    formAces = 0;
-    formDF = 0;
-    document.getElementById('acesCount').innerText = 0;
-    document.getElementById('dfCount').innerText = 0;
-    document.getElementById('comebackCheck').checked = false;
-
-    alert(`Spiel ${gameNum} in Satz ${formSet} gespeichert!`);
-  }
-
-  function resetMatchData() {
-    if (confirm("Möchtest du das gesamte Match zurücksetzen?")) {
-      matchState = { sets: { 1: [], 2: [], 3: [] } };
-      saveState();
-      renderStatsView();
-    }
-  }
-
-  // CS Timeline & Stats Rendering
-  function selectStatsSet(setNum) {
-    selectedStatsSet = setNum;
-    selectedGameIdx = null;
-    [1,2,3].forEach(n => {
-      document.getElementById(`tabSet${n}`).classList.toggle('active', n === setNum);
-    });
-    renderCSTimeline();
-  }
-
-  function renderCSTimeline() {
-    const grid = document.getElementById('csTimelineGrid');
-    const games = matchState.sets[selectedStatsSet];
-    grid.innerHTML = '';
-
-    if (games.length === 0) {
-      grid.innerHTML = '<div style="color:var(--text-muted); font-size:0.8rem; padding:10px;">Noch keine Spiele in diesem Satz eingetragen.</div>';
-      document.getElementById('gameDetailContainer').innerHTML = '';
+    if (matches.length === 0) {
+      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:40px;">Noch keine Spiele eingetragen.<br/>Klicke auf <b>+</b> um ein Match zu erstellen!</p>';
       return;
     }
 
-    games.forEach((game, idx) => {
-      const isSelected = idx === selectedGameIdx;
+    matches.forEach((m, idx) => {
+      const card = document.createElement('div');
+      card.className = 'match-card';
+      card.onclick = () => openMatchDetail(idx);
+      card.innerHTML = `
+        <div>
+          <div class="match-meta">${m.date} • ${m.surface}</div>
+          <div class="match-opp">vs. ${m.opponent}</div>
+        </div>
+        <div class="match-score-badge ${m.won ? 'badge-win' : 'badge-loss'}">
+          ${m.won ? 'SIEG' : 'NIEDERLAGE'} (${m.scoreStr || '6:4'})
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function openNewMatchView() {
+    document.getElementById('viewHome').classList.add('hidden');
+    document.getElementById('viewNewMatch').classList.remove('hidden');
+    document.getElementById('backBtn').classList.remove('hidden');
+    document.getElementById('fabBtn').classList.add('hidden');
+  }
+
+  function createNewMatch() {
+    const opp = document.getElementById('oppNameInput').value || 'Unbekannt';
+    const surface = document.getElementById('surfaceInput').value;
+
+    currentMatch = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString('de-DE'),
+      opponent: opp,
+      surface: surface,
+      won: true,
+      scoreStr: "0:0",
+      games: []
+    };
+
+    resetPointTracker();
+    document.getElementById('viewNewMatch').classList.add('hidden');
+    document.getElementById('viewTracker').classList.remove('hidden');
+  }
+
+  const tennisScores = ["0", "15", "30", "40"];
+
+  function addPoint(winner) {
+    if (winner === 'you') scoreYou++;
+    else scoreOpp++;
+
+    let displayScore = "";
+
+    if (scoreYou >= 3 && scoreOpp >= 3) {
+      if (scoreYou === scoreOpp) displayScore = "40 : 40 (Einstand)";
+      else if (scoreYou === scoreOpp + 1) displayScore = "Vorteil DU";
+      else if (scoreOpp === scoreYou + 1) displayScore = "Vorteil GEGNER";
+      else if (scoreYou >= scoreOpp + 2) displayScore = "SPIEL DU";
+      else if (scoreOpp >= scoreYou + 2) displayScore = "SPIEL GEGNER";
+    } else {
+      if (scoreYou >= 4) displayScore = "SPIEL DU";
+      else if (scoreOpp >= 4) displayScore = "SPIEL GEGNER";
+      else displayScore = `${tennisScores[scoreYou]} : ${tennisScores[scoreOpp]}`;
+    }
+
+    currentPoints.push({ winner, scoreText: displayScore });
+    updateTrackerUI(displayScore);
+  }
+
+  function updateTrackerUI(currentScoreText) {
+    document.getElementById('liveScoreText').innerText = currentScoreText;
+    const pills = document.getElementById('pointPills');
+    pills.innerHTML = currentPoints.map(p => `<span class="pill">${p.scoreText}</span>`).join('');
+  }
+
+  function resetPointTracker() {
+    scoreYou = 0;
+    scoreOpp = 0;
+    currentPoints = [];
+    updateTrackerUI("0 : 0");
+  }
+
+  function saveCurrentGame() {
+    if (currentPoints.length === 0) return;
+
+    const gameWinner = scoreYou > scoreOpp ? 'you' : 'opp';
+    currentMatch.games.push({
+      gameNum: currentMatch.games.length + 1,
+      winner: gameWinner,
+      points: [...currentPoints]
+    });
+
+    const existingIdx = matches.findIndex(m => m.id === currentMatch.id);
+    if (existingIdx >= 0) matches[existingIdx] = currentMatch;
+    else matches.unshift(currentMatch);
+
+    localStorage.setItem('tennis_matches_data', JSON.stringify(matches));
+    
+    if (db) {
+      db.from('matches').upsert([currentMatch]).then();
+    }
+
+    alert(`Spiel ${currentMatch.games.length} gespeichert!`);
+    resetPointTracker();
+  }
+
+  function openMatchDetail(idx) {
+    const m = matches[idx];
+    document.getElementById('viewHome').classList.add('hidden');
+    document.getElementById('viewDetail').classList.remove('hidden');
+    document.getElementById('backBtn').classList.remove('hidden');
+    document.getElementById('fabBtn').classList.add('hidden');
+    
+    document.getElementById('headerTitle').innerText = `vs. ${m.opponent}`;
+    document.getElementById('headerSub').innerText = `${m.date} • ${m.surface}`;
+
+    const grid = document.getElementById('timelineGrid');
+    grid.innerHTML = '';
+    
+    m.games.forEach((g) => {
       const col = document.createElement('div');
-      col.className = `cs-game-col ${isSelected ? 'selected' : ''}`;
-      col.onclick = () => { selectedGameIdx = idx; renderCSTimeline(); };
-
-      const topBall = game.winner === 'you' ? '🎾' : '';
-      const bottomBall = game.winner === 'opp' ? '🎾' : '';
-      const barClass = game.winner === 'you' ? 'won-you' : 'won-opp';
-
+      col.className = 'timeline-col';
+      col.onclick = () => showGamePoints(g);
       col.innerHTML = `
-        <div class="cs-slot">${topBall}</div>
-        <div class="cs-bar ${barClass}"></div>
-        <div class="cs-game-num">${game.gameNum}</div>
-        <div class="cs-slot">${bottomBall}</div>
+        <div class="ball-slot">${g.winner === 'you' ? '🎾' : ''}</div>
+        <div class="game-bar ${g.winner}"></div>
+        <div class="game-num">${g.gameNum}</div>
+        <div class="ball-slot">${g.winner === 'opp' ? '🎾' : ''}</div>
       `;
       grid.appendChild(col);
     });
 
-    renderGameDetail();
+    const gamesYou = m.games.filter(g => g.winner === 'you').length;
+    const gamesOpp = m.games.filter(g => g.winner === 'opp').length;
+    
+    document.getElementById('statsBars').innerHTML = `
+      ${renderStatRow('Gewonnene Spiele', gamesYou, gamesOpp)}
+    `;
   }
 
-  function renderGameDetail() {
-    const container = document.getElementById('gameDetailContainer');
-    const games = matchState.sets[selectedStatsSet];
-    
-    if (selectedGameIdx === null || !games[selectedGameIdx]) {
-      container.innerHTML = '';
-      return;
-    }
-
-    const g = games[selectedGameIdx];
-    const isBreak = g.server !== g.winner;
-
-    container.innerHTML = `
-      <div class="game-detail-card">
-        <div style="font-weight:bold; color:var(--text); margin-bottom:4px;">
-          🎮 Spiel ${g.gameNum} Details (${g.winner === 'you' ? 'Gewonnen von DU' : 'Gewonnen von GEGNER'})
-        </div>
-        <div style="color:var(--text-muted);">
-          • Aufschlag: <strong>${g.server === 'you' ? 'DU' : 'GEGNER'}</strong> (${isBreak ? '⚡ Break' : '🛡️ Hold'})<br/>
-          • Spielausgang: <strong>${g.margin}</strong><br/>
-          ${g.aces > 0 ? `• Asse: <strong>${g.aces}</strong><br/>` : ''}
-          ${g.df > 0 ? `• Doppelfehler: <strong>${g.df}</strong><br/>` : ''}
-          ${g.comeback040 ? `<span style="color:var(--player); font-weight:bold;">🔥 0:40 Comeback geschafft!</span>` : ''}
+  function showGamePoints(game) {
+    const detail = document.getElementById('selectedGameDetail');
+    detail.innerHTML = `
+      <div style="background:var(--bg); padding:10px; border-radius:8px; font-size:0.8rem;">
+        <b>Spiel ${game.gameNum} Punkteverlauf:</b><br/>
+        <div style="display:flex; gap:4px; overflow-x:auto; margin-top:6px;">
+          ${game.points.map(p => `<span class="pill">${p.scoreText}</span>`).join('')}
         </div>
       </div>
     `;
   }
 
-  function renderStatsView() {
-    renderCSTimeline();
-
-    // Aggregate All Games across all sets
-    let allGames = [...matchState.sets[1], ...matchState.sets[2], ...matchState.sets[3]];
-    
-    let totalAces = allGames.reduce((acc, g) => acc + g.aces, 0);
-    let totalDF = allGames.reduce((acc, g) => acc + g.df, 0);
-    let comebacksYou = allGames.filter(g => g.winner === 'you' && g.comeback040).length;
-    let breaksYou = allGames.filter(g => g.winner === 'you' && g.server === 'opp').length;
-    let breaksOpp = allGames.filter(g => g.winner === 'opp' && g.server === 'you').length;
-    let gamesYou = allGames.filter(g => g.winner === 'you').length;
-    let gamesOpp = allGames.filter(g => g.winner === 'opp').length;
-
-    const statsContainer = document.getElementById('statsContainer');
-    statsContainer.innerHTML = `
-      ${renderSofaStatBar('Gewonnene Spiele', gamesYou, gamesOpp)}
-      ${renderSofaStatBar('Break-Spiele', breaksYou, breaksOpp)}
-      ${renderSofaStatBar('0:40 Comeback Siege', comebacksYou, 0)}
-      ${renderSofaStatBar('Asse', totalAces, 0)}
-      ${renderSofaStatBar('Doppelfehler', totalDF, 0)}
-    `;
-  }
-
-  function renderSofaStatBar(title, valYou, valOpp) {
-    let total = valYou + valOpp;
-    let pctYou = total > 0 ? Math.round((valYou / total) * 100) : 50;
-    let pctOpp = total > 0 ? Math.round((valOpp / total) * 100) : 50;
-
-    if (valYou === 0 && valOpp === 0) { pctYou = 0; pctOpp = 0; }
-
+  function renderStatRow(title, valYou, valOpp) {
+    const total = valYou + valOpp || 1;
+    const pctYou = Math.round((valYou / total) * 100);
+    const pctOpp = Math.round((valOpp / total) * 100);
     return `
-      <div class="stat-item">
-        <div class="stat-header">
-          <span class="stat-val-you">${valYou}</span>
-          <span class="stat-title">${title}</span>
-          <span class="stat-val-opp">${valOpp}</span>
-        </div>
-        <div class="stat-bar-bg">
-          <div class="stat-bar-you-wrap"><div class="stat-fill-you" style="width:${pctYou}%;"></div></div>
-          <div class="stat-bar-opp-wrap"><div class="stat-fill-opp" style="width:${pctOpp}%;"></div></div>
+      <div class="stat-row">
+        <div class="stat-header"><span>${valYou}</span><span>${title}</span><span>${valOpp}</span></div>
+        <div class="stat-bar">
+          <div class="fill-you" style="width:${pctYou}%"></div>
+          <div class="fill-opp" style="width:${pctOpp}%"></div>
         </div>
       </div>
     `;
   }
 
-  // Initial Load
-  updateHeaderScore();
+  if (db) {
+    db.from('matches').select('*').then(res => {
+      if (res.data && res.data.length > 0) {
+        matches = res.data;
+        renderMatchList();
+      }
+    });
+  } else {
+    renderMatchList();
+  }
 </script>
 
 </body>

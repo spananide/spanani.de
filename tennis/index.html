@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tennis Match Tracker & Analytics</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --player-color: #38bdf8;
+      --player-bg: rgba(56, 189, 248, 0.15);
+      --opp-color: #f59e0b;
+      --opp-bg: rgba(245, 158, 11, 0.15);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-green: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      padding: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .match-header {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .match-title h1 { font-size: 1.4rem; color: var(--text-main); }
+    .match-title p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+    
+    .match-score { text-align: right; }
+    .score-badge {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      display: inline-block;
+    }
+    .sets-summary { font-size: 1.1rem; font-weight: bold; margin-top: 6px; letter-spacing: 1px; }
+
+    /* Set Navigation Tabs */
+    .set-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background-color: var(--player-color);
+      color: #0f172a;
+      border-color: var(--player-color);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* CS-Style Games Timeline Box */
+    .timeline-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 6px;
+      background-color: #0b1120;
+      padding: 12px 8px;
+      border-radius: 10px;
+      border: 1px solid #1e293b;
+    }
+
+    .game-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      padding: 6px 2px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .game-col:hover { background-color: rgba(255, 255, 255, 0.05); }
+    .game-col.selected { background-color: rgba(56, 189, 248, 0.15); border: 1px solid var(--player-color); }
+
+    .slot-top, .slot-bottom {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .bar-indicator {
+      width: 100%;
+      height: 4px;
+      background-color: #334155;
+      margin: 4px 0;
+      border-radius: 2px;
+    }
+
+    .bar-indicator.won-you { background-color: var(--player-color); box-shadow: 0 0 6px var(--player-color); }
+    .bar-indicator.won-opp { background-color: var(--opp-color); box-shadow: 0 0 6px var(--opp-color); }
+
+    .game-number { font-size: 0.75rem; color: var(--text-muted); font-weight: bold; }
+
+    /* Interactive Game Detail Drawer */
+    .game-detail-box {
+      background-color: #0b1120;
+      border: 1px solid var(--player-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 14px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+    }
+
+    /* Point-by-Point Timeline inside Game Detail */
+    .points-timeline {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .point-step {
+      flex: 1;
+      min-width: 55px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 8px 4px;
+      text-align: center;
+    }
+
+    .point-ball { font-size: 0.85rem; height: 20px; }
+    .point-score { font-size: 0.8rem; font-weight: bold; margin-top: 4px; color: var(--text-main); }
+    .point-winner { font-size: 0.7rem; color: var(--text-muted); }
+
+    /* Football-Style Stats Comparison Bars */
+    .stats-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .stat-row {
+      margin-bottom: 14px;
+    }
+
+    .stat-row:last-child { margin-bottom: 0; }
+
+    .stat-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .stat-name { color: var(--text-muted); text-align: center; flex: 1; font-weight: normal; }
+    .stat-val-left { color: var(--player-color); width: 40px; text-align: left; }
+    .stat-val-right { color: var(--opp-color); width: 40px; text-align: right; }
+
+    .stat-bar-container {
+      display: flex;
+      height: 8px;
+      background-color: #0b1120;
+      border-radius: 4px;
+      overflow: hidden;
+      gap: 2px;
+    }
+
+    .bar-left-wrapper, .bar-right-wrapper {
+      flex: 1;
+      display: flex;
+      background-color: #1e293b;
+    }
+
+    .bar-left-wrapper { justify-content: flex-end; }
+    .bar-right-wrapper { justify-content: flex-start; }
+
+    .bar-fill-left {
+      height: 100%;
+      background-color: var(--player-color);
+      border-radius: 4px 0 0 4px;
+    }
+
+    .bar-fill-right {
+      height: 100%;
+      background-color: var(--opp-color);
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Legend */
+    .legend-bar {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Match Header -->
+  <div class="match-header">
+    <div class="match-title">
+      <h1>DU vs. Alex Gegner</h1>
+      <p>12. August 2026 • Sandplatz • 2h 12m</p>
+    </div>
+    <div class="match-score">
+      <div class="score-badge">SIEG</div>
+      <div class="sets-summary">6:4, 3:6, 7:5</div>
+    </div>
+  </div>
+
+  <!-- Set Selection Tabs -->
+  <div class="set-tabs">
+    <button class="tab-btn active" onclick="selectSet(0)">1. Satz (6:4)</button>
+    <button class="tab-btn" onclick="selectSet(1)">2. Satz (3:6)</button>
+    <button class="tab-btn" onclick="selectSet(2)">3. Satz (7:5)</button>
+  </div>
+
+  <!-- CS-Style Set Timeline Card -->
+  <div class="timeline-card">
+    <div class="section-title">
+      <span>🎾 CS-Style Satz-Verlauf (Spiele anklicken)</span>
+      <span style="font-size:0.8rem; color:var(--player-color);">■ DU &nbsp; <span style="color:var(--opp-color);">■ GEGNER</span></span>
+    </div>
+
+    <div class="timeline-grid" id="timelineGrid">
+      <!-- Dynamic Games inserted by JS -->
+    </div>
+
+    <!-- Clicked Game Point-by-Point Drawer -->
+    <div id="gameDetailContainer"></div>
+  </div>
+
+  <!-- Football-Style Stats Comparison -->
+  <div class="stats-card">
+    <div class="section-title">
+      <span>📊 Match-Statistiken (Gesamt)</span>
+    </div>
+
+    <!-- Stat Item: Doppelfehler -->
+    <div class="stat-row">
+      <div class="stat-labels">
+        <span class="stat-val-left">2</span>
+        <span class="stat-name">Doppelfehler</span>
+        <span class="stat-val-right">5</span>
+      </div>
+      <div class="stat-bar-container">
+        <div class="bar-left-wrapper"><div class="bar-fill-left" style="width: 28%;"></div></div>
+        <div class="bar-right-wrapper"><div class="bar-fill-right" style="width: 71%;"></div></div>
+      </div>
+    </div>
+
+    <!-- Stat Item: 0:40 Comeback Siege -->
+    <div class="stat-row">
+      <div class="stat-labels">
+        <span class="stat-val-left">2</span>
+        <span class="stat-name">Gedrehte Spiele nach 0:40</span>
+        <span class="stat-val-right">0</span>
+      </div>
+      <div class="stat-bar-container">
+        <div class="bar-left-wrapper"><div class="bar-fill-left" style="width: 100%;"></div></div>
+        <div class="bar-right-wrapper"><div class="bar-fill-right" style="width: 0%;"></div></div>
+      </div>
+    </div>
+
+    <!-- Stat Item: Asse -->
+    <div class="stat-row">
+      <div class="stat-labels">
+        <span class="stat-val-left">5</span>
+        <span class="stat-name">Asse</span>
+        <span class="stat-val-right">3</span>
+      </div>
+      <div class="stat-bar-container">
+        <div class="bar-left-wrapper"><div class="bar-fill-left" style="width: 62%;"></div></div>
+        <div class="bar-right-wrapper"><div class="bar-fill-right" style="width: 38%;"></div></div>
+      </div>
+    </div>
+
+    <!-- Stat Item: Break-Punkte verwertet -->
+    <div class="stat-row">
+      <div class="stat-labels">
+        <span class="stat-val-left">4/7 (57%)</span>
+        <span class="stat-name">Break-Punkte verwertet</span>
+        <span class="stat-val-right">3/8 (37%)</span>
+      </div>
+      <div class="stat-bar-container">
+        <div class="bar-left-wrapper"><div class="bar-fill-left" style="width: 60%;"></div></div>
+        <div class="bar-right-wrapper"><div class="bar-fill-right" style="width: 40%;"></div></div>
+      </div>
+    </div>
+
+    <!-- Stat Item: Gewonnene Punkte -->
+    <div class="stat-row">
+      <div class="stat-labels">
+        <span class="stat-val-left">98</span>
+        <span class="stat-name">Gewonnene Punkte Gesamt</span>
+        <span class="stat-val-right">86</span>
+      </div>
+      <div class="stat-bar-container">
+        <div class="bar-left-wrapper"><div class="bar-fill-left" style="width: 53%;"></div></div>
+        <div class="bar-right-wrapper"><div class="bar-fill-right" style="width: 47%;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Match Data Structure (Sets -> Games -> Points History)
+    const matchData = [
+      // SET 1 (6:4)
+      {
+        setNum: 1,
+        score: "6:4",
+        games: [
+          { num: 1, winner: "you", server: "you", desc: "Hold (zu 15)", points: [
+            { score: "15:0", win: "you" }, { score: "30:0", win: "you" }, { score: "30:15", win: "opp" }, { score: "40:15", win: "you" }, { score: "GAME", win: "you" }
+          ]},
+          { num: 2, winner: "you", server: "opp", desc: "Break! (zu 30)", points: [
+            { score: "0:15", win: "you" }, { score: "15:15", win: "opp" }, { score: "15:30", win: "you" }, { score: "15:40", win: "you" }, { score: "30:40", win: "opp" }, { score: "GAME", win: "you" }
+          ]},
+          { num: 3, winner: "opp", server: "you", desc: "Break kassiert (zu 40)", points: [
+            { score: "0:15", win: "opp" }, { score: "15:15", win: "you" }, { score: "15:30", win: "opp" }, { score: "30:30", win: "you" }, { score: "30:40", win: "opp" }, { score: "GAME", win: "opp" }
+          ]},
+          { num: 4, winner: "you", server: "opp", desc: "🔥 BREAK nach 0:40 Rückstand!", points: [
+            { score: "15:0", win: "opp" }, { score: "30:0", win: "opp" }, { score: "40:0", win: "opp" }, { score: "40:15", win: "you" }, { score: "40:30", win: "you" }, { score: "40:40", win: "you" }, { score: "Adv", win: "you" }, { score: "GAME", win: "you" }
+          ]},
+          { num: 5, winner: "opp", server: "you", desc: "Hold Gegner (zu 15)", points: [
+            { score: "0:15", win: "opp" }, { score: "0:30", win: "opp" }, { score: "15:30", win: "you" }, { score: "15:40", win: "opp" }, { score: "GAME", win: "opp" }
+          ]},
+          { num: 6, winner: "you", server: "opp", desc: "Hold (zu 0)", points: [
+            { score: "15:0", win: "you" }, { score: "30:0", win: "you" }, { score: "40:0", win: "you" }, { score: "GAME", win: "you" }
+          ]},
+          { num: 7, winner: "opp", server: "you", desc: "Hold Gegner (zu 30)", points: [
+            { score: "15:0", win: "opp" }, { score: "15:15", win: "you" }, { score: "30:15", win: "opp" }, { score: "30:30", win: "you" }, { score: "40:30", win: "opp" }, { score: "GAME", win: "opp" }
+          ]},
+          { num: 8, winner: "you", server: "opp", desc: "Hold (zu 15)", points: [
+            { score: "15:0", win: "you" }, { score: "30:0", win: "you" }, { score: "30:15", win: "opp" }, { score: "40:15", win: "you" }, { score: "GAME", win: "you" }
+          ]},
+          { num: 9, winner: "opp", server: "you", desc: "Hold Gegner (zu 0)", points: [
+            { score: "0:15", win: "opp" }, { score: "0:30", win: "opp" }, { score: "0:40", win: "opp" }, { score: "GAME", win: "opp" }
+          ]},
+          { num: 10, winner: "you", server: "opp", desc: "🏆 Satzgewinn Hold (zu 30)", points: [
+            { score: "15:0", win: "you" }, { score: "15:15", win: "opp" }, { score: "30:15", win: "you" }, { score: "40:15", win: "you" }, { score: "40:30", win: "opp" }, { score: "GAME", win: "you" }
+          ]}
+        ]
+      },
+      // SET 2 (3:6)
+      {
+        setNum: 2,
+        score: "3:6",
+        games: [
+          { num: 1, winner: "opp", server: "you", desc: "Break Gegner (zu 15)", points: [{ score: "0:15", win: "opp" }, { score: "0:30", win: "opp" }, { score: "15:30", win: "you" }, { score: "GAME", win: "opp" }] },
+          { num: 2, winner: "opp", server: "opp", desc: "Hold Gegner (zu 0)", points: [{ score: "GAME", win: "opp" }] },
+          { num: 3, winner: "you", server: "you", desc: "Hold (zu 15)", points: [{ score: "GAME", win: "you" }] },
+          { num: 4, winner: "opp", server: "opp", desc: "Hold Gegner (zu 30)", points: [{ score: "GAME", win: "opp" }] },
+          { num: 5, winner: "you", server: "you", desc: "Hold (zu 0)", points: [{ score: "GAME", win: "you" }] },
+          { num: 6, winner: "opp", server: "opp", desc: "Hold Gegner (zu 15)", points: [{ score: "GAME", win: "opp" }] },
+          { num: 7, winner: "you", server: "you", desc: "Hold (zu 30)", points: [{ score: "GAME", win: "you" }] },
+          { num: 8, winner: "opp", server: "opp", desc: "Hold Gegner (zu 0)", points: [{ score: "GAME", win: "opp" }] },
+          { num: 9, winner: "opp", server: "you", desc: "Satzverlust Break (zu 15)", points: [{ score: "GAME", win: "opp" }] }
+        ]
+      },
+      // SET 3 (7:5)
+      {
+        setNum: 3,
+        score: "7:5",
+        games: [
+          { num: 1, winner: "you", server: "you", desc: "Hold (zu 15)", points: [{ score: "GAME", win: "you" }] },
+          { num: 2, winner: "opp", server: "opp", desc: "Hold Gegner (zu 30)", points: [{ score: "GAME", win: "opp" }] },
+          { num: 3, winner: "you", server: "you", desc: "Hold (zu 0)", points: [{ score: "GAME", win: "you" }] },
+          { num: 4, winner: "opp", server: "opp", desc: "Hold Gegner (zu 15)", points: [{ score: "GAME", win: "opp" }] },
+          { num: 5, winner: "you", server: "you", desc: "Break! (zu 30)", points: [{ score: "GAME", win: "you" }] },
+          { num: 6, winner: "opp", server: "opp", desc: "Re-Break Gegner (zu 40)", points: [{ score: "GAME", win: "opp" }] },
+          { num: 7, winner: "you", server: "you", desc: "Hold (zu 15)", points: [{ score: "GAME", win: "you" }] },
+          { num: 8, winner: "opp", server: "opp", desc: "Hold Gegner (zu 30)", points: [{ score: "GAME", win: "opp" }] },
+          { num: 9, winner: "you", server: "you", desc: "Hold (zu 0)", points: [{ score: "GAME", win: "you" }] },
+          { num: 10, winner: "opp", server: "opp", desc: "Hold Gegner (zu 15)", points: [{ score: "GAME", win: "opp" }] },
+          { num: 11, winner: "you", server: "opp", desc: "⚡ ENTSCHEIDENDES BREAK!", points: [{ score: "GAME", win: "you" }] },
+          { num: 12, winner: "you", server: "you", desc: "🏆 MATCH-HOLD (zu 0)", points: [{ score: "GAME", win: "you" }] }
+        ]
+      }
+    ];
+
+    let currentSetIndex = 0;
+    let selectedGameIndex = 3; // Game 4 selected by default in Set 1
+
+    function selectSet(setIdx) {
+      currentSetIndex = setIdx;
+      selectedGameIndex = 0;
+      
+      // Update Tabs UI
+      const tabs = document.querySelectorAll('.tab-btn');
+      tabs.forEach((tab, i) => {
+        tab.classList.toggle('active', i === setIdx);
+      });
+
+      renderTimeline();
+    }
+
+    function selectGame(gameIdx) {
+      selectedGameIndex = gameIdx;
+      renderTimeline();
+    }
+
+    function renderTimeline() {
+      const setData = matchData[currentSetIndex];
+      const grid = document.getElementById('timelineGrid');
+      grid.innerHTML = '';
+
+      setData.games.forEach((game, idx) => {
+        const isSelected = idx === selectedGameIndex;
+        const col = document.createElement('div');
+        col.className = `game-col ${isSelected ? 'selected' : ''}`;
+        col.onclick = () => selectGame(idx);
+
+        const topBall = game.winner === 'you' ? '🎾' : '';
+        const bottomBall = game.winner === 'opp' ? '🎾' : '';
+        const barClass = game.winner === 'you' ? 'won-you' : 'won-opp';
+
+        col.innerHTML = `
+          <div class="slot-top">${topBall}</div>
+          <div class="bar-indicator ${barClass}"></div>
+          <div class="game-number">${game.num}</div>
+          <div class="slot-bottom">${bottomBall}</div>
+        `;
+
+        grid.appendChild(col);
+      });
+
+      renderGameDetail();
+    }
+
+    function renderGameDetail() {
+      const setData = matchData[currentSetIndex];
+      const game = setData.games[selectedGameIndex];
+      const container = document.getElementById('gameDetailContainer');
+
+      if (!game) {
+        container.innerHTML = '';
+        return;
+      }
+
+      let pointsHtml = '';
+      if (game.points && game.points.length > 0) {
+        pointsHtml = game.points.map(pt => `
+          <div class="point-step">
+            <div class="point-ball">${pt.win === 'you' ? '🎾' : '⚪'}</div>
+            <div class="point-score">${pt.score}</div>
+            <div class="point-winner" style="color: ${pt.win === 'you' ? 'var(--player-color)' : 'var(--opp-color)'}">
+              ${pt.win === 'you' ? 'Du' : 'Gegner'}
+            </div>
+          </div>
+        `).join('');
+      } else {
+        pointsHtml = '<div style="color:var(--text-muted); font-size:0.85rem;">Standard-Punkteverlauf.</div>';
+      }
+
+      container.innerHTML = `
+        <div class="game-detail-box">
+          <div class="detail-header">
+            <span>🎮 Spiel ${game.num}: ${game.desc}</span>
+            <span style="color:${game.winner === 'you' ? 'var(--player-color)' : 'var(--opp-color)'}">
+              ${game.winner === 'you' ? 'Gewonnen von DU' : 'Gewonnen von GEGNER'}
+            </span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">PUNKTEVERLAUF IM CS-STYLE:</div>
+          <div class="points-timeline">
+            ${pointsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    // Initial Render
+    renderTimeline();
+  </script>
+</body>
+</html>

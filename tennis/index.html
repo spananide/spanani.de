@@ -25,7 +25,7 @@
 
     .app { width: 100%; max-width: 480px; padding-bottom: 90px; }
 
-    /* Top Navigation Header */
+    /* Top Header */
     .header {
       background-color: rgba(20, 28, 46, 0.85);
       backdrop-filter: blur(12px);
@@ -41,7 +41,6 @@
     .header-title-wrap h1 { font-size: 1.1rem; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
     .header-title-wrap p { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
     .back-btn { background: none; border: none; color: var(--player); font-weight: 700; cursor: pointer; font-size: 0.9rem; padding: 4px 8px; border-radius: 6px; }
-    .back-btn:active { background: var(--player-glow); }
 
     .view { padding: 16px; }
     .hidden { display: none !important; }
@@ -58,7 +57,7 @@
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      transition: border-color 0.2s, transform 0.1s;
+      transition: transform 0.1s;
     }
     .match-card:active { transform: scale(0.985); }
 
@@ -88,7 +87,7 @@
       color: var(--text-muted);
     }
 
-    /* Floating Action Button (+) */
+    /* Floating Button (+) */
     .fab {
       position: fixed;
       bottom: 24px;
@@ -175,36 +174,50 @@
     .toggle-btn.active-you { background: var(--player-glow); border-color: var(--player); color: var(--player); }
     .toggle-btn.active-opp { background: var(--opp-glow); border-color: var(--opp); color: var(--opp); }
 
-    /* Asse & DF Matrix */
-    .stat-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .matrix-box { background: var(--card-inner); border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
-    .matrix-title { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; }
-    .matrix-title.you { color: var(--player); }
-    .matrix-title.opp { color: var(--opp); }
+    /* Dynamische Aufschlag-Statistik-Box (Nur für Aufschläger) */
+    .server-stat-card {
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+    .server-stat-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .server-stat-title.you { color: var(--player); }
+    .server-stat-title.opp { color: var(--opp); }
 
+    .counter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
     .counter-control {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 6px;
       background: var(--bg);
-      border-radius: 6px;
-      padding: 4px 6px;
+      border-radius: 8px;
+      padding: 6px 8px;
     }
-    .counter-control:last-child { margin-bottom: 0; }
-    .counter-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
-    .counter-val { font-size: 0.95rem; font-weight: 800; min-width: 20px; text-align: center; }
+    .counter-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+    .counter-val { font-size: 1rem; font-weight: 800; min-width: 24px; text-align: center; }
     .counter-val.is-null { color: #475569; }
 
     .btn-step {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       background: var(--card-inner);
       border: 1px solid var(--border);
       color: var(--text);
-      border-radius: 4px;
+      border-radius: 6px;
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       cursor: pointer;
     }
 
@@ -300,7 +313,7 @@
       margin: 12px 0;
     }
     .point-col {
-      flex: 0 0 44px;
+      flex: 0 0 46px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -414,40 +427,8 @@
         <div class="toggle-btn" id="srvOpp" onclick="setServer('opp')">🎾 Aufschlag: GEGNER</div>
       </div>
 
-      <!-- Asse & Doppelfehler Matrix -->
-      <div class="stat-matrix">
-        <div class="matrix-box">
-          <div class="matrix-title you">DU</div>
-          <div class="counter-control">
-            <span class="counter-label">Asse</span>
-            <button class="btn-step" onclick="updateStat('acesYou', -1)">-</button>
-            <span class="counter-val is-null" id="valAcesYou">-</span>
-            <button class="btn-step" onclick="updateStat('acesYou', 1)">+</button>
-          </div>
-          <div class="counter-control">
-            <span class="counter-label">DF</span>
-            <button class="btn-step" onclick="updateStat('dfYou', -1)">-</button>
-            <span class="counter-val is-null" id="valDfYou">-</span>
-            <button class="btn-step" onclick="updateStat('dfYou', 1)">+</button>
-          </div>
-        </div>
-
-        <div class="matrix-box">
-          <div class="matrix-title opp">GEGNER</div>
-          <div class="counter-control">
-            <span class="counter-label">Asse</span>
-            <button class="btn-step" onclick="updateStat('acesOpp', -1)">-</button>
-            <span class="counter-val is-null" id="valAcesOpp">-</span>
-            <button class="btn-step" onclick="updateStat('acesOpp', 1)">+</button>
-          </div>
-          <div class="counter-control">
-            <span class="counter-label">DF</span>
-            <button class="btn-step" onclick="updateStat('dfOpp', -1)">-</button>
-            <span class="counter-val is-null" id="valDfOpp">-</span>
-            <button class="btn-step" onclick="updateStat('dfOpp', 1)">+</button>
-          </div>
-        </div>
-      </div>
+      <!-- Dynamischer Aufschlag-Statistik-Container (Nur für Aufschläger) -->
+      <div id="serverStatWrapper"></div>
 
       <!-- Live Punktestand & Buttons -->
       <div class="point-box">
@@ -489,12 +470,12 @@
           <div class="val" id="modalResultBadge">HOLD</div>
         </div>
         <div class="modal-stat-box">
-          <div class="lbl">Asse (Du / Geg)</div>
-          <div class="val" id="modalAces">- / -</div>
+          <div class="lbl">Asse (Aufschläger)</div>
+          <div class="val" id="modalAces">-</div>
         </div>
         <div class="modal-stat-box">
-          <div class="lbl">DF (Du / Geg)</div>
-          <div class="val" id="modalDF">- / -</div>
+          <div class="lbl">DF (Aufschläger)</div>
+          <div class="val" id="modalDF">-</div>
         </div>
       </div>
 
@@ -514,13 +495,13 @@
 </div>
 
 <script>
-  // SUPABASE CONFIG
+  // SUPABASE CONFIG (Optional)
   const SUPABASE_URL = "https://DEIN-PROJECT.supabase.co";
   const SUPABASE_KEY = "DEIN-ANON-KEY";
   let db = (!SUPABASE_URL.includes("DEIN-PROJECT")) ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
   // App State
-  let matches = JSON.parse(localStorage.getItem('tennis_matches_data_v3')) || [];
+  let matches = JSON.parse(localStorage.getItem('tennis_matches_data_v4')) || [];
   let currentMatch = null;
   let currentMatchIdx = null;
 
@@ -529,7 +510,8 @@
   let scoreYou = 0;
   let scoreOpp = 0;
   let pointHistory = [];
-  let statsTracker = { acesYou: null, dfYou: null, acesOpp: null, dfOpp: null };
+  let serverAces = null;
+  let serverDF = null;
 
   function showHome() {
     document.getElementById('viewHome').classList.remove('hidden');
@@ -600,15 +582,14 @@
     startNewGameForCurrentMatch();
   }
 
-  // AUTOMATISCHER AUFSCHLAGWECHSEL
   function startNewGameForCurrentMatch() {
     resetTracker();
 
     if (currentMatch.games.length === 0) {
-      setServer('you'); // Erstes Spiel: Standard Du
+      setServer('you');
     } else {
       const lastServer = currentMatch.games[currentMatch.games.length - 1].server;
-      setServer(lastServer === 'you' ? 'opp' : 'you'); // Wechselt automatisch ab
+      setServer(lastServer === 'you' ? 'opp' : 'you');
     }
 
     document.getElementById('viewHome').classList.add('hidden');
@@ -626,31 +607,51 @@
     server = role;
     document.getElementById('srvYou').className = `toggle-btn ${role === 'you' ? 'active-you' : ''}`;
     document.getElementById('srvOpp').className = `toggle-btn ${role === 'opp' ? 'active-opp' : ''}`;
+    renderServerStatUI();
   }
 
-  function updateStat(key, delta) {
-    if (statsTracker[key] === null) {
-      statsTracker[key] = delta > 0 ? 1 : 0;
-    } else {
-      statsTracker[key] += delta;
-      if (statsTracker[key] < 0) statsTracker[key] = null;
-    }
-    renderStatMatrixUI();
+  function renderServerStatUI() {
+    const wrapper = document.getElementById('serverStatWrapper');
+    const isYou = server === 'you';
+    const serverName = isYou ? 'DU' : 'GEGNER';
+    const colorClass = isYou ? 'you' : 'opp';
+
+    wrapper.innerHTML = `
+      <div class="server-stat-card">
+        <div class="server-stat-title ${colorClass}">Aufschlag-Statistiken (${serverName})</div>
+        <div class="counter-grid">
+          <div class="counter-control">
+            <span class="counter-label">Asse</span>
+            <button class="btn-step" onclick="updateServerStat('aces', -1)">-</button>
+            <span class="counter-val ${serverAces === null ? 'is-null' : ''}" id="valServerAces">${serverAces === null ? '-' : serverAces}</span>
+            <button class="btn-step" onclick="updateServerStat('aces', 1)">+</button>
+          </div>
+          <div class="counter-control">
+            <span class="counter-label">DF</span>
+            <button class="btn-step" onclick="updateServerStat('df', -1)">-</button>
+            <span class="counter-val ${serverDF === null ? 'is-null' : ''}" id="valServerDF">${serverDF === null ? '-' : serverDF}</span>
+            <button class="btn-step" onclick="updateServerStat('df', 1)">+</button>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
-  function renderStatMatrixUI() {
-    ['acesYou', 'dfYou', 'acesOpp', 'dfOpp'].forEach(key => {
-      const elId = 'val' + key.charAt(0).toUpperCase() + key.slice(1);
-      const val = statsTracker[key];
-      const el = document.getElementById(elId);
-      if (val === null) {
-        el.innerText = '-';
-        el.classList.add('is-null');
-      } else {
-        el.innerText = val;
-        el.classList.remove('is-null');
+  function updateServerStat(type, delta) {
+    if (type === 'aces') {
+      if (serverAces === null) serverAces = delta > 0 ? 1 : 0;
+      else {
+        serverAces += delta;
+        if (serverAces < 0) serverAces = null;
       }
-    });
+    } else if (type === 'df') {
+      if (serverDF === null) serverDF = delta > 0 ? 1 : 0;
+      else {
+        serverDF += delta;
+        if (serverDF < 0) serverDF = null;
+      }
+    }
+    renderServerStatUI();
   }
 
   const scores = ["0", "15", "30", "40"];
@@ -701,8 +702,8 @@
     scoreYou = 0;
     scoreOpp = 0;
     pointHistory = [];
-    statsTracker = { acesYou: null, dfYou: null, acesOpp: null, dfOpp: null };
-    renderStatMatrixUI();
+    serverAces = null;
+    serverDF = null;
     updatePointUI("0 : 0");
   }
 
@@ -717,10 +718,8 @@
       gameNum: currentMatch.games.length + 1,
       server: server,
       winner: winner,
-      acesYou: statsTracker.acesYou,
-      dfYou: statsTracker.dfYou,
-      acesOpp: statsTracker.acesOpp,
-      dfOpp: statsTracker.dfOpp,
+      aces: serverAces,
+      df: serverDF,
       points: [...pointHistory]
     });
 
@@ -734,7 +733,7 @@
   }
 
   function saveMatches() {
-    localStorage.setItem('tennis_matches_data_v3', JSON.stringify(matches));
+    localStorage.setItem('tennis_matches_data_v4', JSON.stringify(matches));
     if (db && currentMatch) db.from('matches').upsert([currentMatch]).then();
   }
 
@@ -779,7 +778,6 @@
     });
   }
 
-  // MODAL LOGIC (Großes Detail-Popup)
   function openGameModal(game) {
     const isBreak = game.server !== game.winner;
     const modal = document.getElementById('gameModal');
@@ -792,10 +790,9 @@
     resultBadge.innerText = isBreak ? 'BREAK' : 'HOLD';
     resultBadge.className = `val ${isBreak ? 'badge-break' : 'badge-hold'}`;
 
-    document.getElementById('modalAces').innerText = `${game.acesYou ?? '-'} / ${game.acesOpp ?? '-'}`;
-    document.getElementById('modalDF').innerText = `${game.dfYou ?? '-'} / ${game.dfOpp ?? '-'}`;
+    document.getElementById('modalAces').innerText = game.aces !== null && game.aces !== undefined ? game.aces : '-';
+    document.getElementById('modalDF').innerText = game.df !== null && game.df !== undefined ? game.df : '-';
 
-    // Render Point-by-Point Timeline in Modal
     const ptGrid = document.getElementById('modalPointTimeline');
     ptGrid.innerHTML = '';
 
@@ -836,13 +833,13 @@
     const breaksYou = games.filter(g => g.winner === 'you' && g.server === 'opp').length;
     const breaksOpp = games.filter(g => g.winner === 'opp' && g.server === 'you').length;
 
-    const acesYou = games.reduce((a, g) => a + (g.acesYou || 0), 0);
-    const acesOpp = games.reduce((a, g) => a + (g.acesOpp || 0), 0);
-    const hasAcesData = games.some(g => g.acesYou !== null || g.acesOpp !== null);
+    const acesYou = games.filter(g => g.server === 'you').reduce((a, g) => a + (g.aces || 0), 0);
+    const acesOpp = games.filter(g => g.server === 'opp').reduce((a, g) => a + (g.aces || 0), 0);
+    const hasAcesData = games.some(g => g.aces !== null && g.aces !== undefined);
 
-    const dfYou = games.reduce((a, g) => a + (g.dfYou || 0), 0);
-    const dfOpp = games.reduce((a, g) => a + (g.dfOpp || 0), 0);
-    const hasDfData = games.some(g => g.dfYou !== null || g.dfOpp !== null);
+    const dfYou = games.filter(g => g.server === 'you').reduce((a, g) => a + (g.df || 0), 0);
+    const dfOpp = games.filter(g => g.server === 'opp').reduce((a, g) => a + (g.df || 0), 0);
+    const hasDfData = games.some(g => g.df !== null && g.df !== undefined);
 
     document.getElementById('statsBars').innerHTML = `
       ${renderStatBar('Gewonnene Spiele', wonYou, wonOpp)}

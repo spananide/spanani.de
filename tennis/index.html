@@ -3,568 +3,574 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tennis Match Hub</title>
+  <title>Tennis Match Tracker</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #0b0f19;
-      --card-bg: #141c2e;
-      --card-inner: #1b263d;
-      --border: rgba(255, 255, 255, 0.08);
-      --player: #22c55e;
-      --player-glow: rgba(34, 197, 94, 0.2);
-      --opp: #f59e0b;
-      --opp-glow: rgba(245, 158, 11, 0.2);
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --danger: #ef4444;
+      --bg: #000000;
+      --card: #121214;
+      --card-elevated: #1c1c1e;
+      --border: #2c2c2e;
+      --border-subtle: #1f1f22;
+      --accent: #ccff00; /* Tennis Volt */
+      --accent-dim: rgba(204, 255, 0, 0.12);
+      --accent-opp: #ff9500;
+      --accent-opp-dim: rgba(255, 149, 0, 0.12);
+      --text: #ffffff;
+      --text-muted: #8e8e93;
+      --text-dim: #636366;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; font-variant-numeric: tabular-nums; }
 
-    .app { width: 100%; max-width: 480px; padding-bottom: 90px; }
+    .app { width: 100%; max-width: 440px; min-height: 100vh; display: flex; flex-direction: column; }
 
-    /* Top Header */
-    .header {
-      background-color: rgba(20, 28, 46, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 18px;
+    /* Navigation Bar */
+    .nav {
+      height: 52px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(18, 18, 20, 0.85);
+      backdrop-filter: blur(20px);
       position: sticky;
       top: 0;
-      z-index: 30;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      z-index: 20;
     }
-    .header-title-wrap h1 { font-size: 1.1rem; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
-    .header-title-wrap p { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
-    .back-btn { background: none; border: none; color: var(--player); font-weight: 700; cursor: pointer; font-size: 0.9rem; padding: 4px 8px; border-radius: 6px; }
+    .nav-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+    .nav-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+    .btn-nav { background: none; border: none; color: var(--accent); font-size: 14px; font-weight: 600; cursor: pointer; padding: 6px 0; }
 
-    .view { padding: 16px; }
+    .view { padding: 16px; flex: 1; }
     .hidden { display: none !important; }
 
-    /* Match List & Cards */
-    .match-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 12px;
-      cursor: pointer;
+    /* Match List (Home) */
+    .match-row {
+      background: var(--card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      transition: transform 0.1s;
+      justify-content: space-between;
+      cursor: pointer;
     }
-    .match-card:active { transform: scale(0.985); }
-
-    .match-meta { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .match-opp { font-size: 1.05rem; font-weight: 700; color: var(--text); }
-    .badge {
+    .match-row:active { background: var(--card-elevated); }
+    .match-meta { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 2px; }
+    .match-players { font-size: 15px; font-weight: 600; }
+    .match-score {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--accent);
+      background: var(--accent-dim);
       padding: 6px 12px;
       border-radius: 8px;
-      font-weight: 800;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .badge-win { background: var(--player-glow); color: var(--player); border: 1px solid var(--player); }
-    .badge-loss { background: var(--opp-glow); color: var(--opp); border: 1px solid var(--opp); }
-    .badge-break { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid #ef4444; }
-    .badge-hold { background: var(--player-glow); color: var(--player); border: 1px solid var(--player); }
-
-    .surface-tag {
-      display: inline-block;
-      font-size: 0.65rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 700;
-      margin-left: 6px;
-      background: var(--card-inner);
-      color: var(--text-muted);
     }
 
-    /* Floating Button (+) */
-    .fab {
+    /* Floating New Button */
+    .btn-fab {
       position: fixed;
       bottom: 24px;
-      right: calc(50% - 220px);
-      width: 58px;
-      height: 58px;
-      background: var(--player);
+      right: calc(50% - 200px);
+      width: 52px;
+      height: 52px;
+      border-radius: 26px;
+      background: var(--accent);
       color: #000;
-      border-radius: 50%;
+      font-size: 24px;
+      font-weight: 700;
+      border: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.8rem;
-      font-weight: 800;
-      box-shadow: 0 8px 24px rgba(34, 197, 94, 0.35);
-      cursor: pointer;
-      z-index: 100;
-      border: none;
+      z-index: 10;
     }
-    @media (max-width: 480px) { .fab { right: 20px; } }
+    @media (max-width: 440px) { .btn-fab { right: 20px; } }
 
-    /* Cards */
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
+    /* Cards & Containers */
+    .section-box {
+      background: var(--card);
+      border: 1px solid var(--border-subtle);
       border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .card-title {
-      font-size: 0.8rem;
-      font-weight: 800;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
+      padding: 14px;
       margin-bottom: 14px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
     }
 
-    /* Inputs & Buttons */
-    input, select {
+    /* Form Fields */
+    .field { margin-bottom: 12px; }
+    .input {
       width: 100%;
-      padding: 14px;
-      background: var(--card-inner);
+      height: 44px;
+      background: var(--card-elevated);
       border: 1px solid var(--border);
-      color: var(--text);
       border-radius: 10px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 14px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 0 12px;
       outline: none;
     }
+    .input:focus { border-color: var(--accent); }
 
-    .btn {
+    /* Buttons */
+    .btn-primary {
       width: 100%;
-      padding: 14px;
-      background: var(--player);
-      color: #05140a;
+      height: 48px;
+      background: var(--accent);
+      color: #000;
       border: none;
       border-radius: 10px;
-      font-weight: 800;
-      font-size: 0.95rem;
-      cursor: pointer;
-      margin-bottom: 10px;
-    }
-    .btn-secondary { background: var(--card-inner); color: var(--text); border: 1px solid var(--border); }
-
-    /* Serve Toggle */
-    .toggle-row { display: flex; gap: 8px; margin-bottom: 14px; }
-    .toggle-btn {
-      flex: 1;
-      padding: 10px;
-      background: var(--card-inner);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-muted);
+      font-size: 14px;
       font-weight: 700;
-      font-size: 0.8rem;
       cursor: pointer;
-      text-align: center;
     }
-    .toggle-btn.active-you { background: var(--player-glow); border-color: var(--player); color: var(--player); }
-    .toggle-btn.active-opp { background: var(--opp-glow); border-color: var(--opp); color: var(--opp); }
-
-    /* Aufschlag-Statistik-Box (Dynamisch für Aufschläger) */
-    .server-stat-card {
-      background: var(--card-inner);
+    .btn-primary:active { opacity: 0.85; }
+    .btn-ghost {
+      width: 100%;
+      height: 40px;
+      background: transparent;
       border: 1px solid var(--border);
+      color: var(--text-muted);
       border-radius: 10px;
-      padding: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* Segmented Control (Server Selection) */
+    .seg-control {
+      display: flex;
+      background: var(--card-elevated);
+      padding: 3px;
+      border-radius: 9px;
       margin-bottom: 14px;
     }
-    .server-stat-title {
-      font-size: 0.75rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
+    .seg-btn {
+      flex: 1;
+      height: 32px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 7px;
+      cursor: pointer;
     }
-    .server-stat-title.you { color: var(--player); }
-    .server-stat-title.opp { color: var(--opp); }
+    .seg-btn.active-you { background: var(--card); color: var(--accent); }
+    .seg-btn.active-opp { background: var(--card); color: var(--accent-opp); }
 
-    .counter-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    /* Live Score Display */
+    .live-card {
+      background: var(--card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 20px 14px;
+      text-align: center;
+      margin-bottom: 12px;
     }
-    .counter-control {
+    .live-score {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: #fff;
+      margin: 4px 0 12px 0;
+    }
+    .score-pills {
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      justify-content: center;
+      padding: 4px 0;
+      min-height: 28px;
+    }
+    .pill {
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--card-elevated);
+      color: var(--text-muted);
+      padding: 3px 8px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+
+    /* Point Touch Targets */
+    .point-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 48px;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .btn-point {
+      height: 64px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .btn-point.you { background: var(--accent); color: #000; }
+    .btn-point.opp { background: var(--card-elevated); color: #fff; border: 1px solid var(--border); }
+    .btn-point span { font-size: 11px; font-weight: 500; opacity: 0.8; }
+    .btn-undo {
+      height: 64px;
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Server Stats Counter */
+    .stepper-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .stepper-card {
+      flex: 1;
+      background: var(--card-elevated);
+      border-radius: 10px;
+      padding: 8px 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 6px 8px;
     }
-    .counter-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-    .counter-val { font-size: 1rem; font-weight: 800; min-width: 24px; text-align: center; }
-    .counter-val.is-null { color: #475569; }
-
-    .btn-step {
-      width: 28px;
-      height: 28px;
-      background: var(--card-inner);
+    .stepper-label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+    .stepper-controls { display: flex; align-items: center; gap: 8px; }
+    .stepper-val { font-size: 14px; font-weight: 700; min-width: 14px; text-align: center; }
+    .stepper-btn {
+      width: 26px;
+      height: 26px;
+      background: var(--card);
       border: 1px solid var(--border);
-      color: var(--text);
+      color: #fff;
       border-radius: 6px;
-      font-weight: bold;
-      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
     }
 
-    /* Live Point Tracker Box */
-    .point-box {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      margin-bottom: 14px;
+    /* Timeline Bar Grid */
+    .timeline {
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      padding: 6px 0;
     }
-    .point-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
-    .point-score { font-size: 2.2rem; font-weight: 900; color: var(--player); margin: 6px 0; letter-spacing: 1px; }
-    .point-pills-row { display: flex; gap: 4px; overflow-x: auto; padding: 6px 0; margin-top: 4px; }
-    .point-pill { background: var(--card-inner); border: 1px solid var(--border); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
-
-    .point-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .btn-point { flex: 1; padding: 14px 8px; border-radius: 10px; font-weight: 800; font-size: 0.9rem; cursor: pointer; border: none; }
-    .btn-point.you { background: var(--player); color: #05140a; }
-    .btn-point.opp { background: var(--opp); color: #1c1002; }
-    .btn-undo { width: 44px; background: var(--card-inner); border: 1px solid var(--border); color: var(--text-muted); border-radius: 10px; font-size: 1rem; cursor: pointer; }
-
-    /* Timeline Bar */
-    .timeline-container { display: flex; gap: 6px; overflow-x: auto; padding: 8px 0; }
-    .timeline-col {
-      flex: 0 0 38px;
+    .game-node {
+      flex: 0 0 36px;
       display: flex;
       flex-direction: column;
       align-items: center;
       cursor: pointer;
-      border-radius: 8px;
-      padding: 4px 0;
+      border-radius: 6px;
+      padding: 2px 0;
     }
-    .ball-slot { height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; }
-    .game-bar { width: 100%; height: 3px; background: var(--border); margin: 2px 0; border-radius: 2px; }
-    .game-bar.you { background: var(--player); box-shadow: 0 0 6px var(--player-glow); }
-    .game-bar.opp { background: var(--opp); box-shadow: 0 0 6px var(--opp-glow); }
-    .game-num { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
+    .node-slot { height: 20px; font-size: 10px; font-weight: 800; display: flex; align-items: center; }
+    .node-bar { width: 100%; height: 3px; background: var(--border); border-radius: 1px; margin: 3px 0; }
+    .node-bar.you { background: var(--accent); }
+    .node-bar.opp { background: var(--accent-opp); }
+    .node-num { font-size: 10px; color: var(--text-dim); font-weight: 700; }
 
-    /* Modal / Pop-up Overlay */
-    .modal-overlay {
+    /* Comparison Bars */
+    .h2h-row { margin-bottom: 12px; }
+    .h2h-meta { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+    .h2h-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+    .h2h-track { height: 4px; background: var(--card-elevated); border-radius: 2px; display: flex; overflow: hidden; gap: 1px; }
+    .h2h-fill-you { background: var(--accent); height: 100%; }
+    .h2h-fill-opp { background: var(--accent-opp); height: 100%; }
+
+    /* Clean Detail Modal */
+    .modal-backdrop {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
+      inset: 0;
+      background: rgba(0,0,0,0.8);
       backdrop-filter: blur(8px);
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
-      z-index: 200;
-      padding: 16px;
+      z-index: 100;
     }
-    .modal-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 18px;
+    .modal-sheet {
       width: 100%;
       max-width: 440px;
-      max-height: 88vh;
+      background: #18181b;
+      border-top: 1px solid var(--border);
+      border-radius: 18px 18px 0 0;
+      padding: 20px 16px 32px 16px;
+      max-height: 85vh;
       overflow-y: auto;
-      padding: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      position: relative;
     }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .modal-title { font-size: 16px; font-weight: 700; }
+    .modal-close { background: var(--card-elevated); border: none; color: #fff; width: 28px; height: 28px; border-radius: 14px; font-size: 12px; cursor: pointer; }
+
+    .modal-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
       margin-bottom: 14px;
     }
-    .modal-close {
-      background: var(--card-inner);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      font-size: 0.9rem;
-      font-weight: bold;
-      cursor: pointer;
-    }
+    .stat-chip { background: var(--card); border: 1px solid var(--border-subtle); padding: 8px 10px; border-radius: 8px; font-size: 12px; }
+    .stat-chip-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+    .stat-chip-val { font-size: 13px; font-weight: 700; margin-top: 2px; }
 
-    /* Point-by-Point Timeline inside Modal */
-    .point-timeline-grid {
+    .point-feed {
       display: flex;
       gap: 6px;
       overflow-x: auto;
-      padding: 12px 6px;
-      background: var(--bg);
-      border: 1px solid var(--border);
+      padding: 10px 4px;
+      background: var(--card);
+      border: 1px solid var(--border-subtle);
       border-radius: 10px;
-      margin: 12px 0;
     }
-    .point-col {
-      flex: 0 0 52px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-    .point-slot { height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
-    .point-bar { width: 100%; height: 3px; background: var(--border); margin: 2px 0; border-radius: 2px; }
-    .point-bar.you { background: var(--player); box-shadow: 0 0 6px var(--player-glow); }
-    .point-bar.opp { background: var(--opp); box-shadow: 0 0 6px var(--opp-glow); }
-    .point-score-tag {
-      font-size: 0.7rem;
-      font-weight: 800;
-      color: var(--text);
-      background: var(--card-inner);
-      padding: 2px 4px;
-      border-radius: 4px;
-      margin: 2px 0;
-      white-space: nowrap;
-    }
-    .point-index { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
-
-    /* Modal Stat Badges */
-    .modal-stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin: 12px 0;
-    }
-    .modal-stat-box {
-      background: var(--card-inner);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 10px;
-      text-align: center;
-    }
-    .modal-stat-box .lbl { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-    .modal-stat-box .val { font-size: 0.95rem; font-weight: 800; color: var(--text); margin-top: 2px; }
-
-    /* Stats Comparison Bars */
-    .stat-row { margin-bottom: 14px; }
-    .stat-row:last-child { margin-bottom: 0; }
-    .stat-header { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 800; margin-bottom: 6px; }
-    .stat-title { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; }
-    .stat-val-you { color: var(--player); }
-    .stat-val-opp { color: var(--opp); }
-    .stat-bar-track { height: 6px; background: var(--bg); border-radius: 4px; display: flex; overflow: hidden; gap: 2px; }
-    .fill-you { height: 100%; background: var(--player); border-radius: 4px 0 0 4px; }
-    .fill-opp { height: 100%; background: var(--opp); border-radius: 0 4px 4px 0; }
+    .point-node { flex: 0 0 54px; text-align: center; }
+    .point-node-slot { height: 18px; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .point-node-bar { height: 3px; background: var(--border); border-radius: 1px; margin: 3px 0; }
+    .point-node-tag { font-size: 11px; font-weight: 800; background: var(--card-elevated); padding: 2px 4px; border-radius: 4px; margin: 2px 0; }
   </style>
 </head>
 <body>
 
 <div class="app">
 
-  <!-- Header -->
-  <div class="header">
-    <div class="header-title-wrap">
-      <h1 id="headerTitle">Tennis Match Hub</h1>
-      <p id="headerSub">Match & Performance Tracker</p>
+  <!-- Header Navigation -->
+  <header class="nav">
+    <div>
+      <div class="nav-title" id="navTitle">Matches</div>
+      <div class="nav-sub" id="navSub">Übersicht</div>
     </div>
-    <button id="backBtn" class="back-btn hidden" onclick="showHome()">← Übersicht</button>
-  </div>
+    <button class="btn-nav hidden" id="btnBack" onclick="navigate('home')">Zurück</button>
+  </header>
 
   <!-- VIEW 1: MATCH-LISTE -->
-  <div id="viewHome" class="view">
+  <main id="viewHome" class="view">
     <div id="matchList"></div>
-  </div>
+    <button class="btn-fab" onclick="navigate('new-match')">+</button>
+  </main>
 
   <!-- VIEW 2: MATCH-DETAILS -->
-  <div id="viewDetail" class="view hidden">
-    <button class="btn" onclick="startNewGameForCurrentMatch()">+ SPIEL EINTRAGEN (SEITENWECHSEL)</button>
+  <main id="viewDetail" class="view hidden">
+    <button class="btn-primary" style="margin-bottom: 14px;" onclick="startNewGame()">+ Nächstes Spiel erfassen</button>
 
-    <div class="card">
-      <div class="card-title">
-        <span>Satzverlauf (Klicken für Details)</span>
-        <span style="font-size:0.7rem; color:var(--text-muted);">■ DU &nbsp; <span style="color:var(--opp);">■ GEGNER</span></span>
+    <div class="section-box">
+      <div class="section-label">
+        <span>Satzverlauf</span>
+        <span style="color: var(--accent);">■ DU &nbsp; <span style="color: var(--accent-opp);">■ GEGNER</span></span>
       </div>
-      <div class="timeline-container" id="timelineGrid"></div>
+      <div class="timeline" id="matchTimeline"></div>
     </div>
 
-    <div class="card">
-      <div class="card-title">Head-to-Head Statistiken</div>
-      <div id="statsBars"></div>
+    <div class="section-box">
+      <div class="section-label">Statistiken</div>
+      <div id="h2hStats"></div>
     </div>
-  </div>
+  </main>
 
-  <!-- VIEW 3: NEUES MATCH ERSTELLEN -->
-  <div id="viewNewMatch" class="view hidden">
-    <div class="card">
-      <div class="card-title">Neues Match anlegen</div>
-      <input type="text" id="oppNameInput" placeholder="Name des Gegners (z. B. Alex)">
-      <select id="surfaceInput">
-        <option value="Sandplatz">Sandplatz</option>
-        <option value="Hartplatz">Hartplatz</option>
-        <option value="Rasen">Rasen</option>
-        <option value="Teppich">Teppich</option>
-      </select>
-      <button class="btn" onclick="createNewMatch()">Match Starten</button>
-      <button class="btn btn-secondary" onclick="showHome()">Abbrechen</button>
+  <!-- VIEW 3: NEUES MATCH -->
+  <main id="viewNewMatch" class="view hidden">
+    <div class="section-box">
+      <div class="section-label">Neues Spiel anlegen</div>
+      <div class="field">
+        <input class="input" id="inputOpp" type="text" placeholder="Gegner Name (z. B. Alex)">
+      </div>
+      <div class="field">
+        <select class="input" id="inputSurface">
+          <option value="Sandplatz">Sandplatz</option>
+          <option value="Hartplatz">Hartplatz</option>
+          <option value="Rasen">Rasen</option>
+          <option value="Teppich">Teppich</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="createMatch()">Match Starten</button>
+      <button class="btn-ghost" onclick="navigate('home')">Abbrechen</button>
     </div>
-  </div>
+  </main>
 
   <!-- VIEW 4: LIVE GAME TRACKER -->
-  <div id="viewTracker" class="view hidden">
-    <div class="card">
-      <div class="card-title" id="trackerTitle">Spiel erfassen</div>
+  <main id="viewTracker" class="view hidden">
+    <!-- Server Segmented Control -->
+    <div class="seg-control">
+      <button class="seg-btn active-you" id="srvBtnYou" onclick="setServer('you')">Aufschlag: DU</button>
+      <button class="seg-btn" id="srvBtnOpp" onclick="setServer('opp')">Aufschlag: GEGNER</button>
+    </div>
 
-      <!-- Aufschlag Toggle -->
-      <div class="toggle-row">
-        <div class="toggle-btn active-you" id="srvYou" onclick="setServer('you')">🎾 Aufschlag: DU</div>
-        <div class="toggle-btn" id="srvOpp" onclick="setServer('opp')">🎾 Aufschlag: GEGNER</div>
-      </div>
-
-      <!-- Dynamischer Aufschlag-Statistik-Container -->
-      <div id="serverStatWrapper"></div>
-
-      <!-- Live Punktestand & Buttons -->
-      <div class="point-box">
-        <div class="point-label">PUNKTESTAND IM SPIEL</div>
-        <div class="point-score" id="liveScoreText">0:0</div>
-        <div class="point-pills-row" id="pointPills"></div>
-
-        <div class="point-actions">
-          <button class="btn-undo" onclick="undoPoint()" title="Letzten Punkt zurücknehmen">↩</button>
-          <button class="btn-point you" onclick="addPoint('you')">+ Punkt DU</button>
-          <button class="btn-point opp" onclick="addPoint('opp')">+ Punkt GEGNER</button>
+    <!-- Dynamic Server Stats -->
+    <div class="stepper-row">
+      <div class="stepper-card">
+        <span class="stepper-label">Asse</span>
+        <div class="stepper-controls">
+          <button class="stepper-btn" onclick="updateCounter('aces', -1)">-</button>
+          <span class="stepper-val" id="valAces">-</span>
+          <button class="stepper-btn" onclick="updateCounter('aces', 1)">+</button>
         </div>
       </div>
-
-      <button class="btn" onclick="saveCurrentGame()">SPIEL SPEICHERN 💾</button>
-      <button class="btn btn-secondary" onclick="cancelCurrentGame()">Abbrechen</button>
+      <div class="stepper-card">
+        <span class="stepper-label">Doppelfehler</span>
+        <div class="stepper-controls">
+          <button class="stepper-btn" onclick="updateCounter('df', -1)">-</button>
+          <span class="stepper-val" id="valDf">-</span>
+          <button class="stepper-btn" onclick="updateCounter('df', 1)">+</button>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- POPUP / MODAL: GAME DETAIL VIEW -->
-  <div id="gameModal" class="modal-overlay hidden" onclick="handleModalBgClick(event)">
-    <div class="modal-card">
+    <!-- Live Score Center -->
+    <div class="live-card">
+      <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Punktestand</div>
+      <div class="live-score" id="liveScore">0 - 0</div>
+      <div class="score-pills" id="scorePills"></div>
+    </div>
+
+    <!-- Touch Actions -->
+    <div class="point-grid">
+      <button class="btn-point you" onclick="addPoint('you')">
+        DU <span>+ Punkt</span>
+      </button>
+      <button class="btn-point opp" onclick="addPoint('opp')">
+        GEGNER <span>+ Punkt</span>
+      </button>
+      <button class="btn-undo" onclick="undoPoint()" title="Punkt zurück">↩</button>
+    </div>
+
+    <button class="btn-primary" onclick="saveGame()">Spiel Speichern</button>
+    <button class="btn-ghost" onclick="cancelTracker()">Abbrechen</button>
+  </main>
+
+  <!-- MODAL: GAME DETAIL -->
+  <div class="modal-backdrop hidden" id="gameModal" onclick="if(event.target === this) closeModal();">
+    <div class="modal-sheet">
       <div class="modal-header">
-        <div>
-          <h2 id="modalGameTitle" style="font-size: 1.15rem; font-weight:800;">Spiel Details</h2>
-          <p id="modalGameSub" style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Aufschlag & Verlauf</p>
-        </div>
-        <button class="modal-close" onclick="closeGameModal()">✕</button>
+        <div class="modal-title" id="modalTitle">Spiel 1</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
 
-      <!-- Badges Grid -->
-      <div class="modal-stats-grid">
-        <div class="modal-stat-box">
-          <div class="lbl">Aufschläger</div>
-          <div class="val" id="modalServer">DU</div>
+      <div class="modal-stats">
+        <div class="stat-chip">
+          <div class="stat-chip-label">Aufschlag</div>
+          <div class="stat-chip-val" id="modalServer">DU</div>
         </div>
-        <div class="modal-stat-box">
-          <div class="lbl">Ausgang</div>
-          <div class="val" id="modalResultBadge">HOLD</div>
+        <div class="stat-chip">
+          <div class="stat-chip-label">Ergebnis</div>
+          <div class="stat-chip-val" id="modalResult">HOLD</div>
         </div>
-        <div class="modal-stat-box">
-          <div class="lbl">Asse (Aufschläger)</div>
-          <div class="val" id="modalAces">-</div>
+        <div class="stat-chip">
+          <div class="stat-chip-label">Asse</div>
+          <div class="stat-chip-val" id="modalAces">-</div>
         </div>
-        <div class="modal-stat-box">
-          <div class="lbl">DF (Aufschläger)</div>
-          <div class="val" id="modalDF">-</div>
+        <div class="stat-chip">
+          <div class="stat-chip-label">Doppelfehler</div>
+          <div class="stat-chip-val" id="modalDf">-</div>
         </div>
       </div>
 
-      <!-- Point-by-Point Timeline -->
-      <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-top:14px;">
-        Punkteverlauf im Spiel
-      </div>
-      <div class="point-timeline-grid" id="modalPointTimeline"></div>
-
-      <button class="btn btn-secondary" style="margin-top:10px; margin-bottom:0;" onclick="closeGameModal()">Schließen</button>
+      <div class="section-label" style="margin-top: 16px;">Ballwechsel Verlauf</div>
+      <div class="point-feed" id="modalFeed"></div>
     </div>
   </div>
-
-  <!-- Floating Action Button -->
-  <button class="fab" id="fabBtn" onclick="openNewMatchView()">+</button>
 
 </div>
 
 <script>
-  // SUPABASE CONFIG (Optional)
+  // SUPABASE CONFIG
   const SUPABASE_URL = "https://DEIN-PROJECT.supabase.co";
   const SUPABASE_KEY = "DEIN-ANON-KEY";
   let db = (!SUPABASE_URL.includes("DEIN-PROJECT")) ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-  // App State
-  let matches = JSON.parse(localStorage.getItem('tennis_matches_data_v5')) || [];
+  // Global State
+  let matches = JSON.parse(localStorage.getItem('tennis_app_v6')) || [];
   let currentMatch = null;
   let currentMatchIdx = null;
 
-  // Live Tracker State
-  let server = 'you';
+  // Tracker State
+  let currentServer = 'you';
   let scoreYou = 0;
   let scoreOpp = 0;
-  let pointHistory = [];
-  let serverAces = null;
-  let serverDF = null;
+  let pointsList = [];
+  let statAces = null;
+  let statDf = null;
 
-  function showHome() {
-    document.getElementById('viewHome').classList.remove('hidden');
-    document.getElementById('viewDetail').classList.add('hidden');
-    document.getElementById('viewNewMatch').classList.add('hidden');
-    document.getElementById('viewTracker').classList.add('hidden');
-    document.getElementById('backBtn').classList.add('hidden');
-    document.getElementById('fabBtn').classList.remove('hidden');
-    document.getElementById('headerTitle').innerText = "Tennis Match Hub";
-    document.getElementById('headerSub').innerText = "Match & Performance Tracker";
-    renderMatchList();
+  function navigate(view) {
+    document.querySelectorAll('main').forEach(el => el.classList.add('hidden'));
+    document.getElementById('btnBack').classList.toggle('hidden', view === 'home');
+
+    if (view === 'home') {
+      document.getElementById('viewHome').classList.remove('hidden');
+      document.getElementById('navTitle').innerText = 'Matches';
+      document.getElementById('navSub').innerText = `${matches.length} Gespeichert`;
+      renderMatchList();
+    } else if (view === 'detail') {
+      document.getElementById('viewDetail').classList.remove('hidden');
+      document.getElementById('navTitle').innerText = `vs. ${currentMatch.opponent}`;
+      document.getElementById('navSub').innerText = `${currentMatch.date} • ${currentMatch.surface}`;
+      renderDetailView();
+    } else if (view === 'new-match') {
+      document.getElementById('viewNewMatch').classList.remove('hidden');
+      document.getElementById('navTitle').innerText = 'Neues Match';
+      document.getElementById('navSub').innerText = 'Setup';
+    } else if (view === 'tracker') {
+      document.getElementById('viewTracker').classList.remove('hidden');
+      document.getElementById('navTitle').innerText = `Spiel ${currentMatch.games.length + 1}`;
+      document.getElementById('navSub').innerText = 'Live Erfassung';
+    }
   }
 
   function renderMatchList() {
-    const container = document.getElementById('matchList');
-    container.innerHTML = '';
+    const list = document.getElementById('matchList');
+    list.innerHTML = '';
 
     if (matches.length === 0) {
-      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:40px; font-size:0.9rem;">Noch keine Matches eingetragen.<br/>Tippe auf <b>+</b> um ein neues Spiel zu starten!</p>';
+      list.innerHTML = '<div style="text-align:center; color:var(--text-dim); padding:40px 0; font-size:13px;">Keine Matches vorhanden.<br/>Tippe auf +, um ein neues Spiel zu starten.</div>';
       return;
     }
 
     matches.forEach((m, idx) => {
-      const card = document.createElement('div');
-      card.className = 'match-card';
-      card.onclick = () => openMatchDetail(idx);
+      const won = m.games.filter(g => g.winner === 'you').length;
+      const lost = m.games.filter(g => g.winner === 'opp').length;
       
-      const gamesWon = m.games.filter(g => g.winner === 'you').length;
-      const gamesLost = m.games.filter(g => g.winner === 'opp').length;
-      const isWinning = gamesWon >= gamesLost;
-
-      card.innerHTML = `
+      const row = document.createElement('div');
+      row.className = 'match-row';
+      row.onclick = () => {
+        currentMatchIdx = idx;
+        currentMatch = matches[idx];
+        navigate('detail');
+      };
+      row.innerHTML = `
         <div>
-          <div class="match-meta">${m.date} <span class="surface-tag">${m.surface}</span></div>
-          <div class="match-opp">vs. ${m.opponent}</div>
+          <div class="match-meta">${m.date} • ${m.surface}</div>
+          <div class="match-players">vs. ${m.opponent}</div>
         </div>
-        <div class="badge ${isWinning ? 'badge-win' : 'badge-loss'}">
-          ${gamesWon} : ${gamesLost}
-        </div>
+        <div class="match-score">${won} : ${lost}</div>
       `;
-      container.appendChild(card);
+      list.appendChild(row);
     });
   }
 
-  function openNewMatchView() {
-    document.getElementById('viewHome').classList.add('hidden');
-    document.getElementById('viewNewMatch').classList.remove('hidden');
-    document.getElementById('backBtn').classList.remove('hidden');
-    document.getElementById('fabBtn').classList.add('hidden');
-  }
-
-  function createNewMatch() {
-    const opp = document.getElementById('oppNameInput').value.trim() || 'Gegner';
-    const surface = document.getElementById('surfaceInput').value;
+  function createMatch() {
+    const opp = document.getElementById('inputOpp').value.trim() || 'Gegner';
+    const surface = document.getElementById('inputSurface').value;
 
     currentMatch = {
       id: Date.now(),
@@ -577,305 +583,221 @@
     matches.unshift(currentMatch);
     currentMatchIdx = 0;
     saveMatches();
-
-    startNewGameForCurrentMatch();
+    startNewGame();
   }
 
-  function startNewGameForCurrentMatch() {
-    resetTracker();
+  function startNewGame() {
+    scoreYou = 0;
+    scoreOpp = 0;
+    pointsList = [];
+    statAces = null;
+    statDf = null;
+    updateCounterUI();
+    updateScoreUI('0 - 0');
 
+    // Alternating server logic
     if (currentMatch.games.length === 0) {
       setServer('you');
     } else {
-      const lastServer = currentMatch.games[currentMatch.games.length - 1].server;
-      setServer(lastServer === 'you' ? 'opp' : 'you');
+      const prev = currentMatch.games[currentMatch.games.length - 1].server;
+      setServer(prev === 'you' ? 'opp' : 'you');
     }
 
-    document.getElementById('viewHome').classList.add('hidden');
-    document.getElementById('viewDetail').classList.add('hidden');
-    document.getElementById('viewNewMatch').classList.add('hidden');
-    document.getElementById('viewTracker').classList.remove('hidden');
-    document.getElementById('backBtn').classList.remove('hidden');
-    document.getElementById('fabBtn').classList.add('hidden');
-
-    const nextGameNum = currentMatch.games.length + 1;
-    document.getElementById('trackerTitle').innerText = `Spiel ${nextGameNum} erfassen`;
+    navigate('tracker');
   }
 
   function setServer(role) {
-    server = role;
-    document.getElementById('srvYou').className = `toggle-btn ${role === 'you' ? 'active-you' : ''}`;
-    document.getElementById('srvOpp').className = `toggle-btn ${role === 'opp' ? 'active-opp' : ''}`;
-    renderServerStatUI();
+    currentServer = role;
+    document.getElementById('srvBtnYou').className = `seg-btn ${role === 'you' ? 'active-you' : ''}`;
+    document.getElementById('srvBtnOpp').className = `seg-btn ${role === 'opp' ? 'active-opp' : ''}`;
   }
 
-  function renderServerStatUI() {
-    const wrapper = document.getElementById('serverStatWrapper');
-    const isYou = server === 'you';
-    const serverName = isYou ? 'DU' : 'GEGNER';
-    const colorClass = isYou ? 'you' : 'opp';
-
-    wrapper.innerHTML = `
-      <div class="server-stat-card">
-        <div class="server-stat-title ${colorClass}">Aufschlag-Statistiken (${serverName})</div>
-        <div class="counter-grid">
-          <div class="counter-control">
-            <span class="counter-label">Asse</span>
-            <button class="btn-step" onclick="updateServerStat('aces', -1)">-</button>
-            <span class="counter-val ${serverAces === null ? 'is-null' : ''}" id="valServerAces">${serverAces === null ? '-' : serverAces}</span>
-            <button class="btn-step" onclick="updateServerStat('aces', 1)">+</button>
-          </div>
-          <div class="counter-control">
-            <span class="counter-label">DF</span>
-            <button class="btn-step" onclick="updateServerStat('df', -1)">-</button>
-            <span class="counter-val ${serverDF === null ? 'is-null' : ''}" id="valServerDF">${serverDF === null ? '-' : serverDF}</span>
-            <button class="btn-step" onclick="updateServerStat('df', 1)">+</button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function updateServerStat(type, delta) {
+  function updateCounter(type, delta) {
     if (type === 'aces') {
-      if (serverAces === null) serverAces = delta > 0 ? 1 : 0;
-      else {
-        serverAces += delta;
-        if (serverAces < 0) serverAces = null;
-      }
-    } else if (type === 'df') {
-      if (serverDF === null) serverDF = delta > 0 ? 1 : 0;
-      else {
-        serverDF += delta;
-        if (serverDF < 0) serverDF = null;
-      }
+      if (statAces === null) statAces = delta > 0 ? 1 : 0;
+      else statAces = Math.max(0, statAces + delta);
+    } else {
+      if (statDf === null) statDf = delta > 0 ? 1 : 0;
+      else statDf = Math.max(0, statDf + delta);
     }
-    renderServerStatUI();
+    updateCounterUI();
+  }
+
+  function updateCounterUI() {
+    document.getElementById('valAces').innerText = statAces === null ? '-' : statAces;
+    document.getElementById('valDf').innerText = statDf === null ? '-' : statDf;
   }
 
   const scores = ["0", "15", "30", "40"];
 
-  function addPoint(winner) {
-    if (winner === 'you') scoreYou++;
+  function addPoint(win) {
+    if (win === 'you') scoreYou++;
     else scoreOpp++;
 
-    let displayScore = "";
+    let display = "";
     if (scoreYou >= 3 && scoreOpp >= 3) {
-      if (scoreYou === scoreOpp) displayScore = "40:40";
-      else if (scoreYou === scoreOpp + 1) displayScore = "Adv:40";
-      else if (scoreOpp === scoreYou + 1) displayScore = "40:Adv";
-      else if (scoreYou >= scoreOpp + 2) displayScore = "GAME";
-      else if (scoreOpp >= scoreYou + 2) displayScore = "GAME";
+      if (scoreYou === scoreOpp) display = "40 - 40";
+      else if (scoreYou === scoreOpp + 1) display = "AD - 40";
+      else if (scoreOpp === scoreYou + 1) display = "40 - AD";
+      else display = "GAME";
     } else {
-      if (scoreYou >= 4 || scoreOpp >= 4) displayScore = "GAME";
-      else displayScore = `${scores[scoreYou]}:${scores[scoreOpp]}`;
+      if (scoreYou >= 4 || scoreOpp >= 4) display = "GAME";
+      else display = `${scores[scoreYou]} - ${scores[scoreOpp]}`;
     }
 
-    pointHistory.push({ winner, scoreText: displayScore, sYou: scoreYou, sOpp: scoreOpp });
-    updatePointUI(displayScore);
+    pointsList.push({ winner: win, tag: display, sy: scoreYou, so: scoreOpp });
+    updateScoreUI(display);
   }
 
   function undoPoint() {
-    if (pointHistory.length === 0) return;
-    pointHistory.pop();
-    if (pointHistory.length > 0) {
-      const prev = pointHistory[pointHistory.length - 1];
-      scoreYou = prev.sYou;
-      scoreOpp = prev.sOpp;
-      updatePointUI(prev.scoreText);
+    if (pointsList.length === 0) return;
+    pointsList.pop();
+    if (pointsList.length > 0) {
+      const prev = pointsList[pointsList.length - 1];
+      scoreYou = prev.sy;
+      scoreOpp = prev.so;
+      updateScoreUI(prev.tag);
     } else {
       scoreYou = 0;
       scoreOpp = 0;
-      updatePointUI("0:0");
+      updateScoreUI('0 - 0');
     }
   }
 
-  function updatePointUI(text) {
-    document.getElementById('liveScoreText').innerText = text;
-    const pills = document.getElementById('pointPills');
-    pills.innerHTML = pointHistory.map(p => `<span class="point-pill">${p.scoreText}</span>`).join('');
+  function updateScoreUI(scoreText) {
+    document.getElementById('liveScore').innerText = scoreText;
+    const pills = document.getElementById('scorePills');
+    pills.innerHTML = pointsList.map(p => `<span class="pill">${p.tag}</span>`).join('');
   }
 
-  function resetTracker() {
-    scoreYou = 0;
-    scoreOpp = 0;
-    pointHistory = [];
-    serverAces = null;
-    serverDF = null;
-    updatePointUI("0:0");
-  }
+  function saveGame() {
+    if (pointsList.length === 0) return alert("Erfasse zuerst mindestens einen Punkt.");
 
-  function saveCurrentGame() {
-    if (pointHistory.length === 0) {
-      alert("Erfasse zuerst mindestens einen Punkt für das Spiel.");
-      return;
-    }
-
-    const winner = scoreYou > scoreOpp ? 'you' : 'opp';
+    const win = scoreYou > scoreOpp ? 'you' : 'opp';
     currentMatch.games.push({
       gameNum: currentMatch.games.length + 1,
-      server: server,
-      winner: winner,
-      aces: serverAces,
-      df: serverDF,
-      points: [...pointHistory]
+      server: currentServer,
+      winner: win,
+      aces: statAces,
+      df: statDf,
+      points: [...pointsList]
     });
 
     saveMatches();
-    openMatchDetail(currentMatchIdx);
+    navigate('detail');
   }
 
-  function cancelCurrentGame() {
-    if (currentMatch.games.length > 0) openMatchDetail(currentMatchIdx);
-    else showHome();
+  function cancelTracker() {
+    if (currentMatch.games.length > 0) navigate('detail');
+    else navigate('home');
   }
 
-  function saveMatches() {
-    localStorage.setItem('tennis_matches_data_v5', JSON.stringify(matches));
-    if (db && currentMatch) db.from('matches').upsert([currentMatch]).then();
-  }
-
-  function openMatchDetail(idx) {
-    currentMatchIdx = idx;
-    currentMatch = matches[idx];
-
-    document.getElementById('viewHome').classList.add('hidden');
-    document.getElementById('viewTracker').classList.add('hidden');
-    document.getElementById('viewDetail').classList.remove('hidden');
-    document.getElementById('backBtn').classList.remove('hidden');
-    document.getElementById('fabBtn').classList.add('hidden');
-
-    document.getElementById('headerTitle').innerText = `vs. ${currentMatch.opponent}`;
-    document.getElementById('headerSub').innerText = `${currentMatch.date} • ${currentMatch.surface}`;
-
-    renderTimeline();
-    renderStatsBars();
-  }
-
-  function renderTimeline() {
-    const grid = document.getElementById('timelineGrid');
-    grid.innerHTML = '';
+  function renderDetailView() {
+    const timeline = document.getElementById('matchTimeline');
+    timeline.innerHTML = '';
 
     if (currentMatch.games.length === 0) {
-      grid.innerHTML = '<p style="font-size:0.75rem; color:var(--text-muted); padding:8px 0;">Noch keine Spiele in diesem Match erfasst.</p>';
-      return;
+      timeline.innerHTML = '<div style="font-size:12px; color:var(--text-dim); padding:10px 0;">Keine Spiele erfasst.</div>';
+    } else {
+      currentMatch.games.forEach((g) => {
+        const node = document.createElement('div');
+        node.className = 'game-node';
+        node.onclick = () => openModal(g);
+        node.innerHTML = `
+          <div class="node-slot">${g.winner === 'you' ? '●' : ''}</div>
+          <div class="node-bar ${g.winner}"></div>
+          <div class="node-num">${g.gameNum}</div>
+          <div class="node-slot">${g.winner === 'opp' ? '●' : ''}</div>
+        `;
+        timeline.appendChild(node);
+      });
     }
 
-    currentMatch.games.forEach((g) => {
-      const col = document.createElement('div');
-      col.className = 'timeline-col';
-      col.onclick = () => openGameModal(g);
-
-      col.innerHTML = `
-        <div class="ball-slot">${g.winner === 'you' ? '🎾' : ''}</div>
-        <div class="game-bar ${g.winner}"></div>
-        <div class="game-num">${g.gameNum}</div>
-        <div class="ball-slot">${g.winner === 'opp' ? '🎾' : ''}</div>
-      `;
-      grid.appendChild(col);
-    });
+    renderH2H();
   }
 
-  function openGameModal(game) {
-    const isBreak = game.server !== game.winner;
-    const modal = document.getElementById('gameModal');
+  function renderH2H() {
+    const g = currentMatch.games;
+    const wonY = g.filter(x => x.winner === 'you').length;
+    const wonO = g.filter(x => x.winner === 'opp').length;
+    const brkY = g.filter(x => x.winner === 'you' && x.server === 'opp').length;
+    const brkO = g.filter(x => x.winner === 'opp' && x.server === 'you').length;
+    const aceY = g.filter(x => x.server === 'you').reduce((a, x) => a + (x.aces || 0), 0);
+    const aceO = g.filter(x => x.server === 'opp').reduce((a, x) => a + (x.aces || 0), 0);
+    const dfY = g.filter(x => x.server === 'you').reduce((a, x) => a + (x.df || 0), 0);
+    const dfO = g.filter(x => x.server === 'opp').reduce((a, x) => a + (x.df || 0), 0);
 
-    document.getElementById('modalGameTitle').innerText = `Spiel ${game.gameNum} (${game.winner === 'you' ? 'Gewonnen von DU' : 'Gewonnen von GEGNER'})`;
-    document.getElementById('modalGameSub').innerText = `Ausgang: ${isBreak ? '⚡ Break' : '🛡️ Hold'}`;
-    document.getElementById('modalServer').innerText = game.server === 'you' ? 'DU' : 'GEGNER';
-    
-    const resultBadge = document.getElementById('modalResultBadge');
-    resultBadge.innerText = isBreak ? 'BREAK' : 'HOLD';
-    resultBadge.className = `val ${isBreak ? 'badge-break' : 'badge-hold'}`;
-
-    document.getElementById('modalAces').innerText = game.aces !== null && game.aces !== undefined ? game.aces : '-';
-    document.getElementById('modalDF').innerText = game.df !== null && game.df !== undefined ? game.df : '-';
-
-    const ptGrid = document.getElementById('modalPointTimeline');
-    ptGrid.innerHTML = '';
-
-    game.points.forEach((pt, pIdx) => {
-      const pCol = document.createElement('div');
-      pCol.className = 'point-col';
-
-      const topBall = pt.winner === 'you' ? '🎾' : '';
-      const bottomBall = pt.winner === 'opp' ? '🎾' : '';
-      const barClass = pt.winner === 'you' ? 'you' : 'opp';
-
-      pCol.innerHTML = `
-        <div class="point-slot">${topBall}</div>
-        <div class="point-bar ${barClass}"></div>
-        <div class="point-score-tag">${pt.scoreText}</div>
-        <div class="point-index">#${pIdx + 1}</div>
-        <div class="point-slot">${bottomBall}</div>
-      `;
-      ptGrid.appendChild(pCol);
-    });
-
-    modal.classList.remove('hidden');
-  }
-
-  function closeGameModal() {
-    document.getElementById('gameModal').classList.add('hidden');
-  }
-
-  function handleModalBgClick(e) {
-    if (e.target.id === 'gameModal') closeGameModal();
-  }
-
-  function renderStatsBars() {
-    const games = currentMatch.games;
-    const wonYou = games.filter(g => g.winner === 'you').length;
-    const wonOpp = games.filter(g => g.winner === 'opp').length;
-
-    const breaksYou = games.filter(g => g.winner === 'you' && g.server === 'opp').length;
-    const breaksOpp = games.filter(g => g.winner === 'opp' && g.server === 'you').length;
-
-    const acesYou = games.filter(g => g.server === 'you').reduce((a, g) => a + (g.aces || 0), 0);
-    const acesOpp = games.filter(g => g.server === 'opp').reduce((a, g) => a + (g.aces || 0), 0);
-    const hasAcesData = games.some(g => g.aces !== null && g.aces !== undefined);
-
-    const dfYou = games.filter(g => g.server === 'you').reduce((a, g) => a + (g.df || 0), 0);
-    const dfOpp = games.filter(g => g.server === 'opp').reduce((a, g) => a + (g.df || 0), 0);
-    const hasDfData = games.some(g => g.df !== null && g.df !== undefined);
-
-    document.getElementById('statsBars').innerHTML = `
-      ${renderStatBar('Gewonnene Spiele', wonYou, wonOpp)}
-      ${renderStatBar('Breaks erzielt', breaksYou, breaksOpp)}
-      ${hasAcesData ? renderStatBar('Asse', acesYou, acesOpp) : ''}
-      ${hasDfData ? renderStatBar('Doppelfehler', dfYou, dfOpp) : ''}
+    const stats = document.getElementById('h2hStats');
+    stats.innerHTML = `
+      ${renderH2HRow('Spiele', wonY, wonO)}
+      ${renderH2HRow('Breaks', brkY, brkO)}
+      ${renderH2HRow('Asse', aceY, aceO)}
+      ${renderH2HRow('Doppelfehler', dfY, dfO)}
     `;
   }
 
-  function renderStatBar(title, valYou, valOpp) {
-    const total = valYou + valOpp || 1;
-    const pctYou = Math.round((valYou / total) * 100);
-    const pctOpp = Math.round((valOpp / total) * 100);
-
+  function renderH2HRow(label, vy, vo) {
+    const tot = vy + vo || 1;
+    const py = Math.round((vy / tot) * 100);
+    const po = Math.round((vo / tot) * 100);
     return `
-      <div class="stat-row">
-        <div class="stat-header">
-          <span class="stat-val-you">${valYou}</span>
-          <span class="stat-title">${title}</span>
-          <span class="stat-val-opp">${valOpp}</span>
+      <div class="h2h-row">
+        <div class="h2h-meta">
+          <span style="color: var(--accent);">${vy}</span>
+          <span class="h2h-label">${label}</span>
+          <span style="color: var(--accent-opp);">${vo}</span>
         </div>
-        <div class="stat-bar-track">
-          <div class="fill-you" style="width:${pctYou}%"></div>
-          <div class="fill-opp" style="width:${pctOpp}%"></div>
+        <div class="h2h-track">
+          <div class="h2h-fill-you" style="width: ${py}%;"></div>
+          <div class="h2h-fill-opp" style="width: ${po}%;"></div>
         </div>
       </div>
     `;
   }
 
+  function openModal(game) {
+    const isBreak = game.server !== game.winner;
+    document.getElementById('modalTitle').innerText = `Spiel ${game.gameNum}`;
+    document.getElementById('modalServer').innerText = game.server === 'you' ? 'DU' : 'GEGNER';
+    document.getElementById('modalResult').innerText = isBreak ? 'BREAK' : 'HOLD';
+    document.getElementById('modalAces').innerText = game.aces ?? '-';
+    document.getElementById('modalDf').innerText = game.df ?? '-';
+
+    const feed = document.getElementById('modalFeed');
+    feed.innerHTML = '';
+
+    game.points.forEach((pt) => {
+      const node = document.createElement('div');
+      node.className = 'point-node';
+      node.innerHTML = `
+        <div class="point-node-slot">${pt.winner === 'you' ? '●' : ''}</div>
+        <div class="point-node-bar" style="background:${pt.winner === 'you' ? 'var(--accent)' : 'var(--accent-opp)'}"></div>
+        <div class="point-node-tag">${pt.tag}</div>
+        <div class="point-node-slot">${pt.winner === 'opp' ? '●' : ''}</div>
+      `;
+      feed.appendChild(node);
+    });
+
+    document.getElementById('gameModal').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('gameModal').classList.add('hidden');
+  }
+
+  function saveMatches() {
+    localStorage.setItem('tennis_app_v6', JSON.stringify(matches));
+    if (db && currentMatch) db.from('matches').upsert([currentMatch]).then();
+  }
+
+  // Init
   if (db) {
     db.from('matches').select('*').then(res => {
-      if (res.data && res.data.length > 0) {
-        matches = res.data;
-        renderMatchList();
-      }
+      if (res.data && res.data.length > 0) matches = res.data;
+      navigate('home');
     });
   } else {
-    renderMatchList();
+    navigate('home');
   }
 </script>
 

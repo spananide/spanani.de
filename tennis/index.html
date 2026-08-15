@@ -174,7 +174,7 @@
     .toggle-btn.active-you { background: var(--player-glow); border-color: var(--player); color: var(--player); }
     .toggle-btn.active-opp { background: var(--opp-glow); border-color: var(--opp); color: var(--opp); }
 
-    /* Dynamische Aufschlag-Statistik-Box (Nur für Aufschläger) */
+    /* Aufschlag-Statistik-Box (Dynamisch für Aufschläger) */
     .server-stat-card {
       background: var(--card-inner);
       border: 1px solid var(--border);
@@ -252,7 +252,6 @@
       border-radius: 8px;
       padding: 4px 0;
     }
-    .timeline-col:active { background: var(--card-inner); }
     .ball-slot { height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; }
     .game-bar { width: 100%; height: 3px; background: var(--border); margin: 2px 0; border-radius: 2px; }
     .game-bar.you { background: var(--player); box-shadow: 0 0 6px var(--player-glow); }
@@ -313,7 +312,7 @@
       margin: 12px 0;
     }
     .point-col {
-      flex: 0 0 46px;
+      flex: 0 0 52px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -324,7 +323,7 @@
     .point-bar.you { background: var(--player); box-shadow: 0 0 6px var(--player-glow); }
     .point-bar.opp { background: var(--opp); box-shadow: 0 0 6px var(--opp-glow); }
     .point-score-tag {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       font-weight: 800;
       color: var(--text);
       background: var(--card-inner);
@@ -421,19 +420,19 @@
     <div class="card">
       <div class="card-title" id="trackerTitle">Spiel erfassen</div>
 
-      <!-- Aufschlag Toggle (Automatisch wechselnd) -->
+      <!-- Aufschlag Toggle -->
       <div class="toggle-row">
         <div class="toggle-btn active-you" id="srvYou" onclick="setServer('you')">🎾 Aufschlag: DU</div>
         <div class="toggle-btn" id="srvOpp" onclick="setServer('opp')">🎾 Aufschlag: GEGNER</div>
       </div>
 
-      <!-- Dynamischer Aufschlag-Statistik-Container (Nur für Aufschläger) -->
+      <!-- Dynamischer Aufschlag-Statistik-Container -->
       <div id="serverStatWrapper"></div>
 
       <!-- Live Punktestand & Buttons -->
       <div class="point-box">
         <div class="point-label">PUNKTESTAND IM SPIEL</div>
-        <div class="point-score" id="liveScoreText">0 : 0</div>
+        <div class="point-score" id="liveScoreText">0:0</div>
         <div class="point-pills-row" id="pointPills"></div>
 
         <div class="point-actions">
@@ -501,7 +500,7 @@
   let db = (!SUPABASE_URL.includes("DEIN-PROJECT")) ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
   // App State
-  let matches = JSON.parse(localStorage.getItem('tennis_matches_data_v4')) || [];
+  let matches = JSON.parse(localStorage.getItem('tennis_matches_data_v5')) || [];
   let currentMatch = null;
   let currentMatchIdx = null;
 
@@ -662,15 +661,14 @@
 
     let displayScore = "";
     if (scoreYou >= 3 && scoreOpp >= 3) {
-      if (scoreYou === scoreOpp) displayScore = "40 : 40";
-      else if (scoreYou === scoreOpp + 1) displayScore = "Adv. DU";
-      else if (scoreOpp === scoreYou + 1) displayScore = "Adv. GEG";
-      else if (scoreYou >= scoreOpp + 2) displayScore = "GAME DU";
-      else if (scoreOpp >= scoreYou + 2) displayScore = "GAME GEG";
+      if (scoreYou === scoreOpp) displayScore = "40:40";
+      else if (scoreYou === scoreOpp + 1) displayScore = "Adv:40";
+      else if (scoreOpp === scoreYou + 1) displayScore = "40:Adv";
+      else if (scoreYou >= scoreOpp + 2) displayScore = "GAME";
+      else if (scoreOpp >= scoreYou + 2) displayScore = "GAME";
     } else {
-      if (scoreYou >= 4) displayScore = "GAME DU";
-      else if (scoreOpp >= 4) displayScore = "GAME GEG";
-      else displayScore = `${scores[scoreYou]} : ${scores[scoreOpp]}`;
+      if (scoreYou >= 4 || scoreOpp >= 4) displayScore = "GAME";
+      else displayScore = `${scores[scoreYou]}:${scores[scoreOpp]}`;
     }
 
     pointHistory.push({ winner, scoreText: displayScore, sYou: scoreYou, sOpp: scoreOpp });
@@ -688,7 +686,7 @@
     } else {
       scoreYou = 0;
       scoreOpp = 0;
-      updatePointUI("0 : 0");
+      updatePointUI("0:0");
     }
   }
 
@@ -704,7 +702,7 @@
     pointHistory = [];
     serverAces = null;
     serverDF = null;
-    updatePointUI("0 : 0");
+    updatePointUI("0:0");
   }
 
   function saveCurrentGame() {
@@ -733,7 +731,7 @@
   }
 
   function saveMatches() {
-    localStorage.setItem('tennis_matches_data_v4', JSON.stringify(matches));
+    localStorage.setItem('tennis_matches_data_v5', JSON.stringify(matches));
     if (db && currentMatch) db.from('matches').upsert([currentMatch]).then();
   }
 
@@ -807,7 +805,7 @@
       pCol.innerHTML = `
         <div class="point-slot">${topBall}</div>
         <div class="point-bar ${barClass}"></div>
-        <div class="point-score-tag">${pt.scoreText.split(' ')[0]}</div>
+        <div class="point-score-tag">${pt.scoreText}</div>
         <div class="point-index">#${pIdx + 1}</div>
         <div class="point-slot">${bottomBall}</div>
       `;

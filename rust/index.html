@@ -212,6 +212,19 @@ main { flex: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; pa
 footer { border-top: 1px solid var(--border); padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 50; position: relative; margin-top: auto; background: var(--bg); }
 footer span, footer a { font-size: 11px; color: var(--mu); text-decoration: none; transition: color .2s; letter-spacing: 0.05em; }
 footer a:hover { color: var(--text); }
+.egg {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mu2);
+  transition: all 0.3s;
+  display: inline-block;
+  cursor: pointer;
+}
+.egg:hover {
+  background: var(--text);
+  transform: scale(1.4);
+}
 
 /* Mobile */
 @media(max-width: 900px) {
@@ -307,7 +320,7 @@ footer a:hover { color: var(--text); }
   </div>
   
   <div class="nav-r">
-    <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i><span>portfolio</span></a>
+    <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i><span>spanani.de</span></a>
     
     <!-- Navbar Custom Color Picker -->
     <div class="nav-theme-btn">
@@ -425,8 +438,9 @@ footer a:hover { color: var(--text); }
 </main>
 
 <footer>
-  <span>© 2026 spanani.de</span>
-  <span>rust logistics engine</span>
+  <a href="../index.html">spanani.de</a>
+  <span>rust logistics engine · 2026</span>
+  <a href="https://lambacher.netlify.net" target="_blank" class="egg" title="easter egg" aria-label="Easter Egg"></a>
 </footer>
 
 <script>

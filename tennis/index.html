@@ -351,6 +351,36 @@
     .point-node-slot { height: 18px; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
     .point-node-bar { height: 3px; background: var(--border); border-radius: 1px; margin: 3px 0; }
     .point-node-tag { font-size: 11px; font-weight: 800; background: var(--card-elevated); padding: 2px 4px; border-radius: 4px; margin: 2px 0; }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 16px;
+      font-size: 11px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border-subtle);
+      margin-top: auto;
+    }
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer a:hover { color: #fff; }
+    .egg {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      transition: all 0.3s;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .egg:hover {
+      background: #fff;
+      transform: scale(1.4);
+    }
   </style>
 </head>
 <body>
@@ -360,13 +390,7 @@
   <!-- Header Navigation -->
   <header class="nav">
     <div style="display:flex;align-items:center;gap:10px;">
-      <a href="../index.html" style="color:var(--text-muted);text-decoration:none;font-size:12px;display:flex;align-items:center;gap:4px;" title="Zurück zu spanani.de">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      </a>
-      <div>
-        <div class="nav-title" id="navTitle">Matches</div>
-        <div class="nav-sub" id="navSub">Übersicht</div>
-      </div>
+      <a href="../index.html" style="font-weight:600;font-size:16px;color:#fff;text-decoration:none;letter-spacing:-0.4px;">spanani <span style="font-weight:400;color:var(--text-muted);font-size:12px;">/ tennis</span></a>
     </div>
     <button class="btn-nav hidden" id="btnBack" onclick="navigate('home')">Zurück</button>
   </header>
@@ -496,6 +520,13 @@
       <div class="point-feed" id="modalFeed"></div>
     </div>
   </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="../index.html">spanani.de</a>
+    <span>tennis match tracker</span>
+    <a href="https://lambacher.netlify.net" target="_blank" class="egg" title="easter egg" aria-label="Easter Egg"></a>
+  </footer>
 
 </div>
 

@@ -365,20 +365,82 @@
         }
 
         /* ==========================================
-           9. FOOTER
+           9. HEADER NAV & FOOTER
            ========================================== */
+        .site-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 52px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 1000;
+        }
+        .nav-brand {
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-brand span {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 13px;
+        }
+        .nav-right {
+            display: flex;
+            gap: 16px;
+        }
+        .nav-right a {
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .nav-right a:hover { color: #fff; }
+
         footer {
             background-color: #050505;
-            padding: 60px 20px;
-            text-align: center;
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 30px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+            font-size: 12px;
+            color: #666666;
         }
-
-        .footer-logo {
-            font-family: var(--font-heading);
-            font-size: 2rem;
-            color: var(--gold);
-            margin-bottom: 10px;
+        footer a {
+            color: #888888;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        footer a:hover { color: #fff; }
+        .egg {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #444444;
+            transition: all 0.3s;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .egg:hover {
+            background: #ffffff;
+            transform: scale(1.4);
         }
 
         /* Responsive Design */
@@ -397,13 +459,15 @@
     </style>
 </head>
 <body>
-    <!-- BACK NAVIGATION -->
-    <div style="position:fixed;top:18px;left:20px;z-index:1000;">
-        <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;background:rgba(10,10,10,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(212,175,55,0.3);padding:8px 16px;border-radius:30px;color:#D4AF37;text-decoration:none;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-family:'Montserrat',sans-serif;font-weight:500;transition:all .3s;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            <span>spanani.de</span>
-        </a>
-    </div>
+    <!-- HEADER NAVIGATION -->
+    <nav class="site-nav">
+        <a href="../index.html" class="nav-brand">spanani <span>/ wine</span></a>
+        <div class="nav-right">
+            <a href="../clock">clock</a>
+            <a href="../rust">rust</a>
+            <a href="../tennis">tennis</a>
+        </div>
+    </nav>
 
     <!-- HERO SECTION -->
     <header class="hero">
@@ -552,8 +616,9 @@
     </section>
 
     <footer>
-        <div class="footer-logo">L'Önologie</div>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">&copy; 2026 Masterclass der Weindegustation. Konzipiert für anspruchsvolle Gaumen.</p>
+        <a href="../index.html">spanani.de</a>
+        <span>masterclass önologie · 2026</span>
+        <a href="https://lambacher.netlify.net" target="_blank" class="egg" title="easter egg" aria-label="Easter Egg"></a>
     </footer>
 
     <!-- INTERSECTION OBSERVER FÜR ANIMATIONEN -->

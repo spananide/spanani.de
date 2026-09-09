@@ -231,6 +231,15 @@
             color: var(--text-tertiary); font-size: 13px;
         }
 
+        .egg {
+            width: 7px; height: 7px; background: var(--text-tertiary);
+            border-radius: 50%; transition: all 0.3s; cursor: pointer; display: inline-block;
+        }
+        .egg:hover {
+            background: var(--text-primary); transform: scale(1.6);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+        }
+
         /* Animations */
         .rv { opacity: 0; transform: translateY(20px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
         .rv.in { opacity: 1; transform: none; }
@@ -328,7 +337,10 @@
 
     <footer>
         <span>© 2026 spanani.de</span>
-        <span>Designed with precision</span>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <span>Designed with precision</span>
+            <a href="https://lambacher.netlify.net" target="_blank" class="egg" title="easter egg"></a>
+        </div>
     </footer>
 
     <script>

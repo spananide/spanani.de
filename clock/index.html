@@ -196,6 +196,80 @@ footer a:hover{color:var(--text)}
 
 @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
+/* --- WARNTAG SPECIAL COUNTDOWN --- */
+.wt-card{width:100%;max-width:720px;margin-bottom:24px;background:linear-gradient(180deg,rgba(245,158,11,.07) 0%,rgba(18,14,8,.45) 60%,var(--bg1) 100%);border:1px solid rgba(245,158,11,.28);border-radius:6px;position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(245,158,11,.06);opacity:0;animation:up .5s .65s both;transition:border-color .3s,box-shadow .3s,background .3s}
+.wt-card.active-alert{background:linear-gradient(180deg,rgba(239,68,68,.14) 0%,rgba(28,10,10,.5) 60%,var(--bg1) 100%);border-color:rgba(239,68,68,.55);box-shadow:0 0 35px rgba(239,68,68,.25);animation:wt-alert-pulse 1.8s infinite ease-in-out}
+.wt-card.all-clear{background:linear-gradient(180deg,rgba(61,184,122,.08) 0%,rgba(10,24,16,.45) 60%,var(--bg1) 100%);border-color:rgba(61,184,122,.35);box-shadow:0 4px 20px rgba(61,184,122,.08)}
+@keyframes wt-alert-pulse{0%,100%{border-color:rgba(239,68,68,.35);box-shadow:0 0 15px rgba(239,68,68,.15)}50%{border-color:rgba(239,68,68,.85);box-shadow:0 0 32px rgba(239,68,68,.35)}}
+
+.wt-header{padding:13px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:rgba(0,0,0,.28)}
+.wt-badge-wrap{display:flex;align-items:center;gap:11px}
+.wt-siren-icon{width:28px;height:28px;border-radius:6px;background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.32);display:flex;align-items:center;justify-content:center;color:#f59e0b;flex-shrink:0;transition:all .3s;animation:wt-siren-glow 2.4s infinite ease-in-out}
+.wt-card.active-alert .wt-siren-icon{background:rgba(239,68,68,.22);border-color:rgba(239,68,68,.65);color:#ef4444;animation:wt-siren-pulse 1s infinite ease-in-out}
+.wt-card.all-clear .wt-siren-icon{background:rgba(61,184,122,.15);border-color:rgba(61,184,122,.4);color:#3db87a;animation:none}
+@keyframes wt-siren-glow{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 12px 2px rgba(245,158,11,.3)}}
+@keyframes wt-siren-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12);filter:brightness(1.3)}}
+
+.wt-title-block{display:flex;flex-direction:column;gap:1px}
+.wt-title{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f59e0b;display:flex;align-items:center;gap:6px}
+.wt-card.active-alert .wt-title{color:#ef4444}
+.wt-card.all-clear .wt-title{color:#3db87a}
+.wt-subtitle{font-size:11px;color:var(--mu)}
+
+.wt-header-right{display:flex;align-items:center;gap:8px}
+.wt-status-pill{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:4px 10px;border-radius:20px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#f59e0b}
+.wt-status-dot{width:6px;height:6px;border-radius:50%;background:#f59e0b;animation:blink 1.2s infinite}
+.wt-card.active-alert .wt-status-pill{background:rgba(239,68,68,.16);border-color:rgba(239,68,68,.45);color:#ef4444}
+.wt-card.active-alert .wt-status-dot{background:#ef4444;animation:blink .6s infinite}
+.wt-card.all-clear .wt-status-pill{background:rgba(61,184,122,.15);border-color:rgba(61,184,122,.4);color:#3db87a}
+.wt-card.all-clear .wt-status-dot{background:#3db87a;animation:none}
+
+.wt-min-btn{background:none;border:1px solid rgba(255,255,255,.08);border-radius:4px;color:var(--mu);cursor:pointer;padding:4px 6px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.wt-min-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+.wt-card.minimized .wt-content{display:none}
+
+.wt-body{padding:22px 20px 18px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.wt-countdown-wrap{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:12px;user-select:none}
+.wt-num-unit{display:flex;flex-direction:column;align-items:center;min-width:62px}
+.wt-num{font-size:clamp(34px,7vw,54px);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.6)}
+.wt-num-unit.ms .wt-num{font-size:clamp(20px,4.2vw,32px);color:#f59e0b;opacity:.9}
+.wt-card.active-alert .wt-num-unit.ms .wt-num{color:#ef4444}
+.wt-sep{font-size:clamp(26px,5.5vw,42px);font-weight:300;color:var(--mu2);line-height:1;transform:translateY(-6px)}
+.wt-lbl{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--mu);margin-top:5px}
+
+.wt-indep-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--mu);margin-top:-4px;margin-bottom:12px;letter-spacing:.04em;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:3px 9px;border-radius:12px}
+
+.wt-message{font-size:13px;font-weight:500;color:var(--text);margin-bottom:16px;letter-spacing:-.2px;line-height:1.4}
+.wt-card.active-alert .wt-message{color:#fca5a5}
+
+.wt-progress-wrap{width:100%;max-width:580px;margin-bottom:18px}
+.wt-progress-bar{height:4px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;position:relative}
+.wt-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:3px;transition:width .3s ease}
+.wt-card.all-clear .wt-progress-fill{background:#3db87a}
+.wt-timeline{display:flex;justify-content:space-between;margin-top:7px;font-size:10px;color:var(--mu2);letter-spacing:.06em}
+.wt-tl-pt.active{color:#f59e0b;font-weight:600}
+.wt-card.active-alert .wt-tl-pt.active{color:#ef4444}
+.wt-tl-pt.done{color:#3db87a}
+
+.wt-controls{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.wt-btn{font-size:11px;font-weight:500;letter-spacing:.04em;padding:7px 15px;border-radius:30px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .2s ease;text-decoration:none}
+.wt-btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2)}
+.wt-btn.siren-btn{border-color:rgba(245,158,11,.3);color:#f59e0b;background:rgba(245,158,11,.08)}
+.wt-btn.siren-btn:hover{background:rgba(245,158,11,.18);border-color:rgba(245,158,11,.5)}
+.wt-btn.siren-btn.playing{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.6);color:#ef4444;animation:pulse 1s infinite}
+
+.wt-details{width:100%;max-height:0;overflow:hidden;transition:max-height .35s var(--ease),padding .3s;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.22)}
+.wt-details.open{max-height:450px;padding:16px 20px 18px}
+.wt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;text-align:left}
+.wt-item{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:5px;padding:9px 11px}
+.wt-item-icon{font-size:15px;margin-bottom:3px}
+.wt-item-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px}
+.wt-item-desc{font-size:10px;color:var(--mu);line-height:1.4}
+.wt-demo-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:var(--mu)}
+.wt-demo-btn{font-size:10px;padding:4px 9px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--mu);cursor:pointer;transition:all .2s}
+.wt-demo-btn:hover{color:var(--text);border-color:var(--bh)}
+.wt-demo-btn.on{color:#f59e0b;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.08)}
+
 @media(max-width:768px){
   nav{padding:0 18px}
   .prW,.cplb{display:none}
@@ -209,6 +283,11 @@ footer a:hover{color:var(--text)}
   .istrip{flex-wrap:wrap}.ic{flex:1 1 45%}
   .kbdrow{display:none}
   .sdr{width:100vw}
+  .wt-card{margin-bottom:18px}
+  .wt-header{padding:10px 14px}
+  .wt-body{padding:16px 12px 14px}
+  .wt-num-unit{min-width:44px}
+  .wt-grid{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -308,6 +387,135 @@ footer a:hover{color:var(--text)}
     </div>
   </div>
   <div class="drow" id="drow">- - -</div>
+
+  <!-- WARNTAG 2026 SPECIAL COUNTDOWN -->
+  <div class="wt-card" id="wtCard">
+    <div class="wt-header">
+      <div class="wt-badge-wrap">
+        <div class="wt-siren-icon" id="wtSirenIcon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div class="wt-title-block">
+          <div class="wt-title">Bundesweiter Warntag 2026</div>
+          <div class="wt-subtitle">Deutschland · Do., 10. September · 11:00 Uhr MESZ (Atomzeit)</div>
+        </div>
+      </div>
+      <div class="wt-header-right">
+        <div class="wt-status-pill" id="wtStatusPill">
+          <span class="wt-status-dot" id="wtStatusDot"></span>
+          <span id="wtStatusText">Probealarm in Kürze</span>
+        </div>
+        <button class="wt-min-btn" id="wtMinBtn" title="Minimieren / Ausklappen" aria-label="Toggle Warntag Card">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 6h8"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="wt-content" id="wtContent">
+      <div class="wt-body">
+        <div class="wt-countdown-wrap" id="wtCountdownWrap">
+          <div class="wt-num-unit" id="wtUnitD" style="display:none">
+            <span class="wt-num" id="wtD">00</span>
+            <span class="wt-lbl">Tage</span>
+          </div>
+          <span class="wt-sep" id="wtSepD" style="display:none">:</span>
+          <div class="wt-num-unit">
+            <span class="wt-num" id="wtH">--</span>
+            <span class="wt-lbl">Stunden</span>
+          </div>
+          <span class="wt-sep">:</span>
+          <div class="wt-num-unit">
+            <span class="wt-num" id="wtM">--</span>
+            <span class="wt-lbl">Minuten</span>
+          </div>
+          <span class="wt-sep">:</span>
+          <div class="wt-num-unit">
+            <span class="wt-num" id="wtS">--</span>
+            <span class="wt-lbl">Sekunden</span>
+          </div>
+          <span class="wt-sep">.</span>
+          <div class="wt-num-unit ms">
+            <span class="wt-num" id="wtMs">--</span>
+            <span class="wt-lbl">1/100s</span>
+          </div>
+        </div>
+
+        <div class="wt-indep-badge">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
+          <span>100% unabhängig von lokaler Gerätezeit · Atomzeit-synchronisiert</span>
+        </div>
+
+        <div class="wt-message" id="wtMessage">
+          Offizielle Probewarnung über Cell Broadcast, Sirenennetz &amp; Warn-Apps
+        </div>
+
+        <div class="wt-progress-wrap">
+          <div class="wt-progress-bar">
+            <div class="wt-progress-fill" id="wtProgressFill"></div>
+          </div>
+          <div class="wt-timeline">
+            <span class="wt-tl-pt active" id="wtTl1">11:00 Uhr · Alarm (Heulton)</span>
+            <span class="wt-tl-pt" id="wtTl2">11:45 Uhr · Entwarnung (Dauerton)</span>
+          </div>
+        </div>
+
+        <div class="wt-controls">
+          <button class="wt-btn siren-btn" id="wtSirenBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="wtSirenSvg">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <span id="wtSirenBtnText">Sirene testen (Heulton)</span>
+          </button>
+          <button class="wt-btn" id="wtDetailsBtn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>Kanäle &amp; Info</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="wt-details" id="wtDetails">
+        <div class="wt-grid">
+          <div class="wt-item">
+            <div class="wt-item-icon">📱</div>
+            <div class="wt-item-title">Cell Broadcast</div>
+            <div class="wt-item-desc">Schriller Warnton auf fast jedem Smartphone, auch bei Stummschaltung. Keine Installation nötig.</div>
+          </div>
+          <div class="wt-item">
+            <div class="wt-item-icon">📢</div>
+            <div class="wt-item-title">Sirenennetz</div>
+            <div class="wt-item-desc">1 Min. auf- und abschwellender Heulton (Warnung). 1 Min. durchgehender Dauerton (Entwarnung).</div>
+          </div>
+          <div class="wt-item">
+            <div class="wt-item-icon">📲</div>
+            <div class="wt-item-title">Warn-Apps</div>
+            <div class="wt-item-desc">Push-Mitteilung über NINA, KATWARN &amp; BIWAPP mit detaillierten Gefahrenhinweisen.</div>
+          </div>
+          <div class="wt-item">
+            <div class="wt-item-icon">📻</div>
+            <div class="wt-item-title">Radio &amp; TV</div>
+            <div class="wt-item-desc">Laufbänder und Warnmeldungen im öffentlich-rechtlichen und privaten Rundfunk.</div>
+          </div>
+        </div>
+        <div class="wt-demo-row">
+          <span>Live-Vorschau testen:</span>
+          <div style="display:flex;gap:6px">
+            <button class="wt-demo-btn" id="wtDemoAlarm">Probealarm 11:00 simulieren</button>
+            <button class="wt-demo-btn" id="wtDemoEntwarnung">Entwarnung 11:45 simulieren</button>
+            <button class="wt-demo-btn on" id="wtDemoReset">Live-Uhrzeit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="istrip">
     <div class="ic"><div class="icl">Timezone</div><div class="icv ac" id="iTz">-</div></div>
@@ -440,6 +648,14 @@ $('#cpi').addEventListener('input',e=>applyCol(e.target.value));
 $('#sres').addEventListener('click',()=>{C={...DEF};try{localStorage.removeItem('spa-cfg');}catch(e){}applyAll();reschedSync();});
 
 let ntpOff=0,latMs=0,userTz=Intl.DateTimeFormat().resolvedOptions().timeZone,syncTimer=null;
+let atomicAnchorTime=null,atomicAnchorPerf=null,isAtomicSynced=false;
+
+function getAtomicTime(){
+  if(isAtomicSynced && atomicAnchorTime!==null && atomicAnchorPerf!==null){
+    return Math.round(atomicAnchorTime + (performance.now() - atomicAnchorPerf));
+  }
+  return Date.now() + ntpOff;
+}
 
 function parseTimePayload(d){
   let ts = NaN;
@@ -473,10 +689,19 @@ async function fetchTimeSample(url){
     const ts = parseTimePayload(d);
     if(!Number.isFinite(ts)) throw new Error('Bad time payload');
 
+    const midpointPerf = p0 + (rtt / 2);
     const midpointReal = t0 + (rtt / 2);
     const off = ts - midpointReal;
 
-    return { off: Math.round(off), rtt: Math.round(rtt), accuracy: Math.max(10, Math.round(rtt/2)), server: new URL(url).hostname, samples: 1 };
+    return {
+      ts,
+      perf: midpointPerf,
+      off: Math.round(off),
+      rtt: Math.round(rtt),
+      accuracy: Math.max(10, Math.round(rtt / 2)),
+      server: new URL(url).hostname,
+      samples: 1
+    };
   } finally {
     clearTimeout(killer);
   }
@@ -484,7 +709,9 @@ async function fetchTimeSample(url){
 
 async function syncNTP(){
   const dot=$('#sdot'),st=$('#syncst'),sq=$('#syncq');
-  dot.className='sdot';st.textContent='syncing web time...';sq.textContent='';
+  if(!isAtomicSynced){
+    dot.className='sdot';st.textContent='connecting to atomic ntp...';sq.textContent='';
+  }
 
   const urls=[
     'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
@@ -492,24 +719,21 @@ async function syncNTP(){
     'https://gettimeapi.dev/v1/time?timezone=UTC'
   ];
 
-  // Immer ALLE Quellen parallel abfragen statt "erste Antwort gewinnt" -
-  // eine einzelne veraltete/gecachte Antwort (z.B. von worldtimeapi.org)
-  // kann so nicht mehr unbemerkt die ganze Uhr verstellen.
   const settled = await Promise.allSettled(urls.map(u=>fetchTimeSample(u)));
   const valid = settled.filter(r=>r.status==='fulfilled').map(r=>r.value);
 
   if(!valid.length){
-    dot.className='sdot err';
-    st.textContent='web time unavailable';
-    sq.textContent='';
-    $('#iLat').textContent='-';
-    $('#iAcc').textContent='-';
-    updateOff(0,true);
+    if(!isAtomicSynced){
+      dot.className='sdot err';
+      st.textContent='web time unavailable';
+      sq.textContent='';
+      $('#iLat').textContent='-';
+      $('#iAcc').textContent='-';
+      updateOff(0,true);
+    }
     return;
   }
 
-  // Ausreißer verwerfen: eine Quelle, die mehr als 1.5s vom Median
-  // abweicht, ist fast sicher fehlerhaft/veraltet - nicht echte Drift.
   const offsets = valid.map(v=>v.off).sort((a,b)=>a-b);
   const median = offsets[Math.floor(offsets.length/2)];
   let good = valid.filter(v=>Math.abs(v.off-median) < 1500);
@@ -524,8 +748,13 @@ async function syncNTP(){
   ntpOff = Math.round(totalOffset/totalWeight);
   latMs = good[0].rtt;
 
+  const nowPerf = performance.now();
+  atomicAnchorTime = Date.now() + ntpOff;
+  atomicAnchorPerf = nowPerf;
+  isAtomicSynced = true;
+
   dot.className='sdot ok';
-  st.textContent='synced - '+userTz;
+  st.textContent='atomic synced - '+userTz;
   sq.textContent='· '+agree.length+'/'+urls.length+' ok';
   updateSyncUI({
     off: ntpOff, rtt: latMs, accuracy: Math.max(10, Math.round(latMs/2)),
@@ -535,7 +764,7 @@ async function syncNTP(){
 }
 
 function updateSyncUI(meta){
-  updateOff(ntpOff,false,meta);
+  updateOff(Math.round(Date.now() - getAtomicTime()),false,meta);
   $('#iTz').textContent=userTz;
   const ro=new Date().getTimezoneOffset();
   $('#iOff').textContent='UTC'+(ro<=0?'+':'-')+pad(Math.abs(Math.floor(ro/60)))+':'+pad(Math.abs(ro%60));
@@ -601,7 +830,7 @@ function buildWCT(){
 buildWCT();
 
 function tick(){
-  const ts=Date.now()+ntpOff,now=new Date(ts);
+  const ts=getAtomicTime(),now=new Date(ts);
   const h=now.getHours(),m=now.getMinutes(),s=now.getSeconds(),ms=now.getMilliseconds();
   if(s!==lastSec){
     lastSec=s;
@@ -611,6 +840,7 @@ function tick(){
     $('#drow').textContent=DAYS[now.getDay()]+', '+now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
     if(C.ring){const p=(h*3600+m*60+s)/86400;$('#drArc').style.strokeDashoffset=CIRC*(1-p);$('#drLbl').textContent=Math.round(p*100)+'% of day';}
     $('#iUnix').textContent=Math.floor(ts/1000);
+    if(isAtomicSynced){updateOff(Math.round(Date.now()-ts));}
     CITIES.forEach(c=>{
       const key=c.tz.replace(/[\/\-]/g,'_');
       const el=$('#wc_'+key);if(!el)return;
@@ -624,6 +854,7 @@ function tick(){
     });
   }
   if(C.ms)$('#msr').textContent='.'+pad(ms,3);
+  updWarntag(ts);
 }
 
 tick();
@@ -801,7 +1032,7 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
       ctx.stroke();
     }
 
-    const now=new Date(Date.now()+ntpOff);
+    const now=new Date(getAtomicTime());
     const df=(now.getUTCHours()*3600+now.getUTCMinutes()*60+now.getUTCSeconds())/86400;
     const sun=rv(ll2v(0,(0.5-df)*360));
     const ng=ctx.createRadialGradient(cx+sun[0]*GR,cy-sun[1]*GR,GR*.04,cx,cy,GR*1.04);
@@ -816,7 +1047,7 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
     ctx.beginPath();ctx.arc(cx,cy,GR,0,Math.PI*2);ctx.strokeStyle=`${acs},.16)`;ctx.lineWidth=1.5;ctx.stroke();
 
     const pins=$('#gpins');if(pins)pins.innerHTML='';
-    const nd=new Date(Date.now()+ntpOff);
+    const nd=new Date(getAtomicTime());
     for(const city of CITIES){
       const[rx,ry,rz]=rv(ll2v(city.lat,city.lon));if(rz<.06)continue;
       const alpha=Math.min(1,(rz-.06)*7);
@@ -836,6 +1067,230 @@ $('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRa
   }
   requestAnimationFrame(frame);
 })();
+
+// --- BUNDESWEITER WARNTAG 2026 LOGIC ---
+const WT_TARGET = 1789030800000; // 2026-09-10T11:00:00+02:00
+const WT_EXPIRE = 1789032600000; // 2026-09-10T11:30:00+02:00
+const WT_ENTWARN = 1789033500000; // 2026-09-10T11:45:00+02:00
+let wtSimTime = null;
+
+function updWarntag(realTs) {
+  const card = $('#wtCard');
+  if (!card) return;
+
+  // Auto-remove at 11:30 MESZ
+  if (realTs >= WT_EXPIRE && wtSimTime === null) {
+    card.style.transition = 'opacity 0.4s ease, max-height 0.4s ease';
+    card.style.opacity = '0';
+    setTimeout(() => { if (card.parentNode) card.parentNode.removeChild(card); }, 400);
+    return;
+  }
+
+  const ts = wtSimTime !== null ? wtSimTime : realTs;
+  const diff = WT_TARGET - ts;
+
+  const dEl = $('#wtD'), hEl = $('#wtH'), mEl = $('#wtM'), sEl = $('#wtS'), msEl = $('#wtMs');
+  const dUnit = $('#wtUnitD'), dSep = $('#wtSepD');
+  const fill = $('#wtProgressFill');
+  const pill = $('#wtStatusPill'), pillTxt = $('#wtStatusText');
+  const msg = $('#wtMessage');
+  const tl1 = $('#wtTl1'), tl2 = $('#wtTl2');
+
+  if (diff > 0) {
+    // Before 11:00 CEST: Countdown phase
+    const totalSec = Math.floor(diff / 1000);
+    const days = Math.floor(totalSec / 86400);
+    const hrs = Math.floor((totalSec % 86400) / 3600);
+    const mins = Math.floor((totalSec % 3600) / 60);
+    const secs = totalSec % 60;
+    const cs = Math.floor((diff % 1000) / 10);
+
+    if (days > 0) {
+      if (dUnit) dUnit.style.display = 'flex';
+      if (dSep) dSep.style.display = 'inline';
+      if (dEl) dEl.textContent = pad(days);
+    } else {
+      if (dUnit) dUnit.style.display = 'none';
+      if (dSep) dSep.style.display = 'none';
+    }
+
+    if (hEl) hEl.textContent = pad(hrs);
+    if (mEl) mEl.textContent = pad(mins);
+    if (sEl) sEl.textContent = pad(secs);
+    if (msEl) msEl.textContent = pad(cs);
+
+    card.classList.remove('active-alert', 'all-clear');
+    if (pillTxt) pillTxt.textContent = 'Probealarm in Kürze';
+    if (msg) msg.textContent = 'Offizielle Probewarnung über Cell Broadcast, Sirenennetz & Warn-Apps';
+
+    // Progress towards 11:00 (window of last 24 hours)
+    const windowStart = WT_TARGET - 86400000;
+    const prog = Math.min(100, Math.max(0, ((ts - windowStart) / 86400000) * 100));
+    if (fill) fill.style.width = prog.toFixed(1) + '%';
+    if (tl1) tl1.className = 'wt-tl-pt active';
+    if (tl2) tl2.className = 'wt-tl-pt';
+
+  } else if (ts < WT_EXPIRE) {
+    // 11:00:00 to 11:30:00 CEST: Active Probealarm
+    const elapsed = Math.floor(Math.abs(diff) / 1000);
+    const em = Math.floor(elapsed / 60);
+    const es = elapsed % 60;
+    const ecs = Math.floor((Math.abs(diff) % 1000) / 10);
+
+    if (dUnit) dUnit.style.display = 'none';
+    if (dSep) dSep.style.display = 'none';
+    if (hEl) hEl.textContent = '00';
+    if (mEl) mEl.textContent = pad(em);
+    if (sEl) sEl.textContent = pad(es);
+    if (msEl) msEl.textContent = pad(ecs);
+
+    card.classList.remove('all-clear');
+    card.classList.add('active-alert');
+    if (pillTxt) pillTxt.textContent = 'Probealarm Aktiv';
+    if (msg) msg.textContent = '⚠️ Bundesweiter Probealarm läuft! Cell Broadcast, Sirenen (Heulton) & Warn-Apps aktiv.';
+
+    // Progress of active phase (11:00 to 11:45 = 45 min)
+    const prog = Math.min(100, Math.max(0, ((ts - WT_TARGET) / (45 * 60000)) * 100));
+    if (fill) fill.style.width = prog.toFixed(1) + '%';
+    if (tl1) tl1.className = 'wt-tl-pt done';
+    if (tl2) tl2.className = 'wt-tl-pt active';
+
+  } else {
+    // >= 11:30 (or sim Entwarnung)
+    card.classList.remove('active-alert');
+    card.classList.add('all-clear');
+    if (pillTxt) pillTxt.textContent = 'Entwarnung / Beendet';
+    if (msg) msg.textContent = 'Entwarnung gegeben (Dauerton). Der bundesweite Warntag ist abgeschlossen.';
+    if (fill) fill.style.width = '100%';
+    if (tl1) tl1.className = 'wt-tl-pt done';
+    if (tl2) tl2.className = 'wt-tl-pt done';
+  }
+}
+
+// Siren Audio Synthesizer
+let wtAudioCtx = null, wtOsc = null, wtLfo = null, wtGain = null, wtIsSirenPlaying = false;
+
+function toggleSiren() {
+  const btn = $('#wtSirenBtn'), btnTxt = $('#wtSirenBtnText');
+  if (wtIsSirenPlaying) {
+    stopSiren();
+    if (btn) btn.classList.remove('playing');
+    if (btnTxt) btnTxt.textContent = 'Sirene testen (Heulton)';
+    return;
+  }
+
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    if (!wtAudioCtx) wtAudioCtx = new AudioCtx();
+    if (wtAudioCtx.state === 'suspended') wtAudioCtx.resume();
+
+    const now = wtAudioCtx.currentTime;
+
+    wtOsc = wtAudioCtx.createOscillator();
+    wtOsc.type = 'sawtooth';
+    wtOsc.frequency.setValueAtTime(440, now);
+
+    const filter = wtAudioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1200, now);
+
+    wtLfo = wtAudioCtx.createOscillator();
+    wtLfo.type = 'sine';
+    wtLfo.frequency.setValueAtTime(0.22, now);
+
+    const lfoGain = wtAudioCtx.createGain();
+    lfoGain.gain.setValueAtTime(220, now);
+
+    wtLfo.connect(lfoGain);
+    lfoGain.connect(wtOsc.frequency);
+
+    wtGain = wtAudioCtx.createGain();
+    wtGain.gain.setValueAtTime(0.001, now);
+    wtGain.gain.exponentialRampToValueAtTime(0.18, now + 1.2);
+
+    wtOsc.connect(filter);
+    filter.connect(wtGain);
+    wtGain.connect(wtAudioCtx.destination);
+
+    wtOsc.start(now);
+    wtLfo.start(now);
+
+    wtIsSirenPlaying = true;
+    if (btn) btn.classList.add('playing');
+    if (btnTxt) btnTxt.textContent = 'Sirene stoppen';
+
+    setTimeout(() => {
+      if (wtIsSirenPlaying) toggleSiren();
+    }, 18000);
+  } catch (err) {
+    console.error('Audio error:', err);
+  }
+}
+
+function stopSiren() {
+  if (!wtIsSirenPlaying) return;
+  wtIsSirenPlaying = false;
+  try {
+    if (wtGain && wtAudioCtx) {
+      const now = wtAudioCtx.currentTime;
+      wtGain.gain.setValueAtTime(wtGain.gain.value, now);
+      wtGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+    }
+    setTimeout(() => {
+      try { if (wtOsc) wtOsc.stop(); } catch (e) {}
+      try { if (wtLfo) wtLfo.stop(); } catch (e) {}
+      try { if (wtOsc) wtOsc.disconnect(); } catch (e) {}
+      try { if (wtLfo) wtLfo.disconnect(); } catch (e) {}
+    }, 650);
+  } catch (e) {}
+}
+
+const sBtn = $('#wtSirenBtn');
+if (sBtn) sBtn.addEventListener('click', toggleSiren);
+
+const dBtn = $('#wtDetailsBtn'), dBox = $('#wtDetails');
+if (dBtn && dBox) {
+  dBtn.addEventListener('click', () => {
+    dBox.classList.toggle('open');
+  });
+}
+
+const mBtn = $('#wtMinBtn'), cardEl = $('#wtCard');
+if (mBtn && cardEl) {
+  mBtn.addEventListener('click', () => {
+    cardEl.classList.toggle('minimized');
+  });
+}
+
+const dAlarm = $('#wtDemoAlarm'), dEntw = $('#wtDemoEntwarnung'), dReset = $('#wtDemoReset');
+if (dAlarm) {
+  dAlarm.addEventListener('click', () => {
+    wtSimTime = WT_TARGET + 154000;
+    if (dAlarm) dAlarm.classList.add('on');
+    if (dEntw) dEntw.classList.remove('on');
+    if (dReset) dReset.classList.remove('on');
+    updWarntag(getAtomicTime());
+  });
+}
+if (dEntw) {
+  dEntw.addEventListener('click', () => {
+    wtSimTime = WT_ENTWARN + 60000;
+    if (dAlarm) dAlarm.classList.remove('on');
+    if (dEntw) dEntw.classList.add('on');
+    if (dReset) dReset.classList.remove('on');
+    updWarntag(getAtomicTime());
+  });
+}
+if (dReset) {
+  dReset.addEventListener('click', () => {
+    wtSimTime = null;
+    if (dAlarm) dAlarm.classList.remove('on');
+    if (dEntw) dEntw.classList.remove('on');
+    if (dReset) dReset.classList.add('on');
+    updWarntag(getAtomicTime());
+  });
+}
 
 document.addEventListener('keydown',e=>{
   const t=document.activeElement.tagName;if(t==='INPUT'||t==='TEXTAREA')return;

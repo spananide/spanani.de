@@ -1,0 +1,32 @@
+name: Auto-Cleanup Warntag Countdown
+
+on:
+  schedule:
+    # 09:30 UTC is 11:30 CEST (Berlin time) on September 10
+    - cron: '30 9 10 9 *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run cleanup script
+        run: node scripts/cleanup-warntag.js
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add clock/index.html
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: auto-remove warntag countdown after 11:30" && git push)

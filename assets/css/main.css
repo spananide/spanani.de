@@ -11,7 +11,7 @@ html,body{height:100%;font-family:'Space Grotesk',sans-serif;overflow:hidden;bac
 
 #stars{
     position:fixed;top:0;left:0;right:0;bottom:0;
- background:ur[](https://assets.codepen.io/1538479/stars.png);
+ background:url("https://assets.codepen.io/1538479/stars.png");
  opacity:0.4;
  animation:drift 160s linear infinite;
  z-index:-1;

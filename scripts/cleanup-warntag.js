@@ -26,8 +26,7 @@ content = content.replace(/\s*<!-- WARNTAG 2026 SPECIAL COUNTDOWN -->[\s\S]*?<\/
 content = content.replace(/\s*updWarntag\(ts\);/, '');
 
 // 4. Remove Warntag JS logic
-content = content.replace(/\/\/ --- BUNDESWEITER WARNTAG 2026 LOGIC ---[\s\S]*?(?=\/\/ Siren Audio Synthesizer)/, '');
-content = content.replace(/\/\/ Siren Audio Synthesizer[\s\S]*?(?=\ndocument\.addEventListener\('keydown')/, '');
+content = content.replace(/\s*\/\/ --- BUNDESWEITER WARNTAG 2026 LOGIC ---[\s\S]*?\/\/ --- END BUNDESWEITER WARNTAG 2026 LOGIC ---\s*/, '\n\n');
 
 fs.writeFileSync(clockFile, content, 'utf8');
 console.log('Successfully cleaned up Warntag code from ' + clockFile);

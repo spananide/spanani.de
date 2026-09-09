@@ -62,7 +62,7 @@ body {
   background: var(--bg); color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1.6;
   min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden;
-  touch-action: manipulation;
+  touch-action: manipulation; padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 body.hc { cursor: none; }
 ::selection { background: rgba(var(--ac-rgb), .2); }

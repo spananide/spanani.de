@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Precision Atomic Clock // spanani.de</title>
-  <meta name="description" content="Precision network-synced atomic clock with monotonic drift compensation, live Bundesweiter Warntag 2026 countdown, 3D rotating globe, stopwatch and timer.">
+  <title>Precision Time // spanani.de</title>
+  <meta name="description" content="Precision network-synced atomic clock. Swiss analog dial and digital typography, Bundesweiter Warntag 2026 countdown, 3D rotating globe, stopwatch and timer.">
   
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23000000'/%3E%3Ccircle cx='16' cy='16' r='12' stroke='%23ffffff' stroke-width='2' fill='none'/%3E%3Cpath d='M16 8v8l5 3' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <script>
     if (typeof window !== 'undefined' && window.location && window.location.pathname && window.location.pathname.endsWith('/index.html')) {
@@ -22,18 +22,17 @@
   <style>
     :root {
       --bg: #000000;
-      --bg-card: #08080a;
-      --bg-elevated: #0f0f14;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-hover: rgba(255, 255, 255, 0.2);
+      --card-bg: rgba(18, 18, 22, 0.7);
+      --card-border: rgba(255, 255, 255, 0.09);
       --text: #ffffff;
       --mu: #8e8e93;
       --mu-dim: #48484a;
       --ac: #ffffff;
       --ac-rgb: 255, 255, 255;
-      --r-card: 14px;
-      --r-sm: 6px;
-      --fs: 1;
+      --accent-warn: #ff9f0a;
+      --accent-live: #30d158;
+      --r-card: 16px;
+      --r-pill: 30px;
       --ease: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -42,40 +41,42 @@
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
       position: relative;
+      padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
     }
 
-    /* Ambient Background Glow */
-    .ambient-glow {
+    /* Subtle Atmospheric Backlight */
+    .ambient {
       position: fixed;
-      top: 15%;
+      top: 25%;
       left: 50%;
-      transform: translateX(-50%);
-      width: 700px;
-      height: 450px;
-      background: radial-gradient(ellipse at center, rgba(var(--ac-rgb), 0.04) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      width: clamp(320px, 70vw, 850px);
+      height: clamp(320px, 70vw, 850px);
+      background: radial-gradient(circle, rgba(var(--ac-rgb), 0.035) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
-      transition: background 0.5s ease;
+      transition: background 0.6s ease;
     }
 
-    /* Top Navigation */
+    /* Header Nav */
     nav {
       height: 56px;
-      padding: 0 28px;
+      padding: 0 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--card-border);
       background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 50;
     }
     .brand {
       display: flex;
@@ -87,520 +88,512 @@
       font-size: 15px;
       letter-spacing: -0.4px;
     }
-    .brand-sub {
-      color: var(--mu);
-      font-weight: 400;
-      font-size: 13px;
-    }
+    .brand-sub { color: var(--mu); font-weight: 400; font-size: 13px; }
 
-    .nav-center {
+    .ntp-pill {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       font-family: 'DM Mono', monospace;
       font-size: 11px;
       color: var(--mu);
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
       padding: 4px 10px;
-      border-radius: 20px;
+      border-radius: var(--r-pill);
     }
-    .sync-dot {
+    .s-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #30d158;
-      box-shadow: 0 0 6px #30d158;
+      background: var(--accent-live);
+      box-shadow: 0 0 8px var(--accent-live);
     }
-    .sync-dot.warn { background: #ff9f0a; box-shadow: 0 0 6px #ff9f0a; }
-    .sync-dot.err { background: #ff453a; box-shadow: 0 0 6px #ff453a; }
+    .s-dot.warn { background: var(--accent-warn); box-shadow: 0 0 8px var(--accent-warn); }
 
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    /* Mode Switcher: Digital vs Swiss Analog */
+    .mode-switch {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 3px;
+      border-radius: var(--r-pill);
+      gap: 2px;
     }
-    .palette-quick {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .swatch {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 1px solid transparent;
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--mu);
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 12px;
+      border-radius: var(--r-pill);
       cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .swatch:hover { transform: scale(1.2); }
-    .swatch.active { border-color: #ffffff; }
-
-    .btn-nav-icon {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      color: var(--text);
-      width: 32px;
-      height: 32px;
-      border-radius: var(--r-sm);
       display: flex;
       align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      gap: 6px;
       transition: all 0.2s;
     }
-    .btn-nav-icon:hover {
-      background: rgba(255, 255, 255, 0.09);
-      border-color: var(--border-hover);
+    .mode-btn:hover { color: #ffffff; }
+    .mode-btn.active {
+      color: #000000;
+      background: #ffffff;
+      font-weight: 700;
     }
 
-    /* Main Container */
+    /* Main Stage */
     main {
-      width: 100%;
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 36px 24px 70px;
-      position: relative;
-      z-index: 10;
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-
-    /* Studio Mode Switcher Tabs */
-    .studio-tabs {
-      display: flex;
-      gap: 4px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      padding: 4px;
-      border-radius: 30px;
-      margin-bottom: 36px;
-      flex-wrap: wrap;
       justify-content: center;
-    }
-    .s-tab {
-      padding: 6px 14px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      font-family: 'DM Mono', monospace;
-      color: var(--mu);
-      background: transparent;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.2s var(--ease);
-    }
-    .s-tab:hover { color: #ffffff; }
-    .s-tab.active {
-      color: #000000;
-      background: #ffffff;
-    }
-
-    /* Panels */
-    .studio-panel {
-      width: 100%;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      animation: fadeIn 0.25s var(--ease);
-    }
-    .studio-panel.active { display: flex; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* ==========================================================================
-       1. CLOCK STUDIO
-       ========================================================================== */
-    .clock-display-wrap {
+      padding: 24px 20px 40px;
       position: relative;
+      z-index: 10;
       width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 30px 20px;
-      margin-bottom: 24px;
-    }
-
-    .clock-time {
-      font-size: calc(clamp(58px, 14vw, 136px) * var(--fs));
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: -2px;
-      line-height: 1;
-      color: var(--text);
-      display: flex;
-      align-items: baseline;
-      justify-content: center;
-      text-shadow: 0 0 32px rgba(var(--ac-rgb), 0.15);
-    }
-    .clock-colon {
-      color: var(--ac);
-      animation: blinkColon 1s infinite;
-      display: inline-block;
-      margin: 0 -2px;
-    }
-    @keyframes blinkColon {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.15; }
-    }
-    .clock-colon.static { animation: none; opacity: 1; }
-
-    .clock-ms {
-      font-size: clamp(18px, 3.2vw, 32px);
-      color: var(--ac);
-      opacity: 0.5;
-      font-family: 'DM Mono', monospace;
-      margin-left: 6px;
-      min-width: 4.5ch;
-    }
-    .clock-ampm {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--mu);
-      margin-left: 8px;
-    }
-
-    .clock-date-row {
-      font-family: 'DM Mono', monospace;
-      font-size: 13px;
-      color: var(--mu);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-top: 14px;
-      text-align: center;
-    }
-
-    /* Day Progress Solar Arc */
-    .day-progress-bar {
-      width: 100%;
-      max-width: 480px;
-      margin: 20px 0 32px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .dp-track {
-      width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .dp-fill {
-      height: 100%;
-      background: var(--ac);
-      border-radius: 2px;
-      width: 50%;
-      transition: width 0.4s ease;
-    }
-    .dp-meta {
-      display: flex;
-      justify-content: space-between;
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--mu-dim);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    /* Telemetry Info Strip */
-    .istrip {
-      width: 100%;
-      max-width: 820px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: var(--r-card);
-      overflow: hidden;
-      margin-bottom: 24px;
-    }
-    .ic {
-      background: var(--bg-card);
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .icl {
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--mu-dim);
-    }
-    .icv {
-      font-family: 'DM Mono', monospace;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
+      max-width: 1000px;
+      margin: 0 auto;
     }
 
     /* --- BUNDESWEITER WARNTAG 2026 CSS --- */
-    .wt-card {
+    .wt-capsule {
       width: 100%;
-      max-width: 820px;
-      background: linear-gradient(180deg, #100a02 0%, #080501 100%);
-      border: 1px solid rgba(255, 159, 10, 0.28);
+      max-width: 680px;
+      background: rgba(255, 159, 10, 0.06);
+      border: 1px solid rgba(255, 159, 10, 0.35);
       border-radius: var(--r-card);
-      padding: 22px 24px;
-      margin-bottom: 24px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 0 35px rgba(255, 159, 10, 0.06);
+      padding: 12px 18px;
+      margin-bottom: 28px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.3s var(--ease);
+      box-shadow: 0 4px 24px rgba(255, 159, 10, 0.08);
     }
-    .wt-badge-row {
+    .wt-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      gap: 12px;
       flex-wrap: wrap;
-      gap: 8px;
     }
-    .wt-badge {
-      display: inline-flex;
+    .wt-left {
+      display: flex;
       align-items: center;
-      gap: 6px;
-      background: #ff9f0a;
+      gap: 10px;
+    }
+    .wt-tag {
+      background: var(--accent-warn);
       color: #000000;
       font-weight: 800;
       font-size: 10px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-family: 'DM Mono', monospace;
-    }
-    .wt-date-badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: #ff9f0a;
-      background: rgba(255, 159, 10, 0.1);
-      border: 1px solid rgba(255, 159, 10, 0.25);
       padding: 3px 8px;
       border-radius: 4px;
-    }
-    .wt-countdown-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 14px 0;
-      flex-wrap: wrap;
-    }
-    .wt-seg {
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 159, 10, 0.2);
-      border-radius: var(--r-sm);
-      padding: 10px 14px;
-      min-width: 72px;
-      text-align: center;
-    }
-    .wt-seg-v {
       font-family: 'DM Mono', monospace;
-      font-size: 26px;
-      font-weight: 700;
-      color: #ffffff;
-      line-height: 1;
     }
-    .wt-seg-l {
-      font-size: 9px;
-      font-family: 'DM Mono', monospace;
-      text-transform: uppercase;
-      color: var(--mu);
-      margin-top: 4px;
-    }
-    .wt-message {
+    .wt-title-text {
       font-size: 13px;
-      color: #d1d1d6;
-      line-height: 1.5;
-      margin-bottom: 16px;
+      font-weight: 600;
+      color: #ffffff;
     }
-    .wt-controls {
+    .wt-countdown {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-warn);
+      background: rgba(0,0,0,0.5);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 159, 10, 0.2);
+    }
+    .wt-actions {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .wt-btn {
-      display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(255, 159, 10, 0.12);
-      border: 1px solid rgba(255, 159, 10, 0.35);
+    }
+    .wt-siren-btn {
+      background: rgba(255, 159, 10, 0.15);
+      border: 1px solid rgba(255, 159, 10, 0.4);
       color: #ffb340;
-      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
       font-weight: 600;
-      padding: 8px 14px;
-      border-radius: var(--r-sm);
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       transition: all 0.2s;
     }
-    .wt-btn:hover {
-      background: rgba(255, 159, 10, 0.22);
-      border-color: #ff9f0a;
-      color: #ffffff;
-    }
-    .wt-btn.playing {
-      background: #ff453a;
-      border-color: #ff453a;
-      color: #ffffff;
-    }
-    .wt-details {
-      display: none;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255, 159, 10, 0.15);
-    }
-    .wt-details.open { display: block; }
-    .wt-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .wt-item {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 159, 10, 0.15);
-      border-radius: var(--r-sm);
-      padding: 12px;
-    }
-    .wt-item-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #ff9f0a;
-      margin-bottom: 4px;
-    }
-    .wt-item-desc {
-      font-size: 11px;
+    .wt-siren-btn:hover { background: rgba(255, 159, 10, 0.28); color: #ffffff; }
+    .wt-siren-btn.playing { background: #ff453a; border-color: #ff453a; color: #ffffff; }
+    .wt-info-btn {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       color: var(--mu);
-      line-height: 1.4;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
     }
+    .wt-info-btn:hover { color: #ffffff; border-color: var(--card-border); }
+    .wt-drawer {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 159, 10, 0.2);
+      font-size: 12px;
+      color: #d1d1d6;
+      line-height: 1.5;
+    }
+    .wt-drawer.open { display: block; }
+    .wt-channels {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .wt-channel-box {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 159, 10, 0.15);
+      font-size: 11px;
+    }
+    .wt-channel-box strong { color: var(--accent-warn); display: block; margin-bottom: 2px; }
     /* --- END BUNDESWEITER WARNTAG 2026 CSS --- */
 
     /* ==========================================================================
-       2. STOPWATCH STUDIO
+       HERO TIME VIEWS (DIGITAL & SWISS DIAL)
        ========================================================================== */
-    .studio-box {
+    .clock-stage {
       width: 100%;
-      max-width: 640px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--r-card);
-      padding: 32px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
-    .sw-time {
-      font-size: clamp(42px, 9vw, 76px);
+
+    /* DIGITAL VIEW */
+    .digital-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+    }
+    .time-digits {
+      font-size: clamp(64px, 16vw, 150px);
+      font-weight: 300;
+      letter-spacing: -3px;
+      line-height: 0.95;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      user-select: none;
+    }
+    .time-colon {
+      color: var(--ac);
+      opacity: 0.85;
+      animation: pulseColon 1s infinite;
+      margin: 0 -1px;
+    }
+    @keyframes pulseColon { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.15; } }
+    .time-colon.static { animation: none; opacity: 0.9; }
+
+    .time-ms {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(18px, 3.5vw, 36px);
+      color: var(--ac);
+      opacity: 0.45;
+      font-weight: 400;
+      min-width: 4.5ch;
+      margin-left: 8px;
+    }
+    .time-ampm {
+      font-size: clamp(14px, 2vw, 20px);
+      font-weight: 500;
+      color: var(--mu);
+      margin-left: 10px;
+    }
+
+    .time-subtitle {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(12px, 2vw, 15px);
+      color: var(--mu);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 18px;
+    }
+
+    /* Horizon Day Progress Bar */
+    .day-horizon {
+      width: 100%;
+      max-width: 420px;
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .dh-track {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .dh-fill {
+      height: 100%;
+      background: var(--ac);
+      border-radius: 2px;
+      width: 50%;
+      transition: width 0.5s ease;
+    }
+    .dh-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--mu-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* SWISS ANALOG DIAL VIEW */
+    .analog-view {
+      display: none;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .watch-case {
+      width: clamp(260px, 65vw, 380px);
+      height: clamp(260px, 65vw, 380px);
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #121217 0%, #060608 100%);
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.9);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dial-svg {
+      width: 100%;
+      height: 100%;
+    }
+    .dial-center-cap {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+      z-index: 5;
+    }
+    .date-window {
+      position: absolute;
+      right: 22%;
+      background: #000000;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      z-index: 1;
+    }
+
+    /* Telemetry Grid */
+    .telemetry-bar {
+      margin-top: 36px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1px;
+      background: var(--card-border);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-card);
+      overflow: hidden;
+      width: 100%;
+      max-width: 760px;
+    }
+    .tel-cell {
+      background: rgba(10, 10, 14, 0.6);
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .tel-cell-l {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mu-dim);
+    }
+    .tel-cell-v {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ==========================================================================
+       MODAL TOOLS: STOPWATCH, TIMER, 3D GLOBE, WORLD CITIES
+       ========================================================================== */
+    .tool-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s var(--ease);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .tool-modal.open { opacity: 1; visibility: visible; }
+    .modal-card {
+      width: 100%;
+      max-width: 580px;
+      background: #0a0a0e;
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-card);
+      padding: 28px;
+      transform: scale(0.96) translateY(10px);
+      transition: transform 0.25s var(--ease);
+      position: relative;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .tool-modal.open .modal-card { transform: scale(1) translateY(0); }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .modal-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--mu);
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
+    }
+    .modal-close:hover { color: #ffffff; }
+
+    /* Stopwatch Inside Modal */
+    .sw-display {
+      font-size: clamp(38px, 8vw, 68px);
       font-weight: 700;
       font-variant-numeric: tabular-nums;
       letter-spacing: -1px;
+      text-align: center;
       margin-bottom: 24px;
       color: #ffffff;
-    }
-    .sw-ms {
-      font-size: clamp(20px, 3.5vw, 36px);
-      color: var(--ac);
-      opacity: 0.5;
-      font-family: 'DM Mono', monospace;
     }
     .sw-actions {
       display: flex;
       gap: 10px;
       justify-content: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .btn-act {
       padding: 10px 22px;
       border-radius: 30px;
       font-size: 13px;
       font-weight: 600;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.05);
       color: var(--text);
       cursor: pointer;
       transition: all 0.2s;
     }
-    .btn-act:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--border-hover);
-    }
-    .btn-act.pri {
-      background: #ffffff;
-      color: #000000;
-      border-color: #ffffff;
-    }
+    .btn-act:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255,255,255,0.25); }
+    .btn-act.pri { background: #ffffff; color: #000000; border-color: #ffffff; }
     .btn-act.pri:hover { background: #e4e4e7; }
-    .btn-act.dan {
-      color: #ff453a;
-      border-color: rgba(255, 69, 58, 0.3);
-    }
-    .sw-laps {
-      max-height: 200px;
+    .btn-act.dan { color: #ff453a; border-color: rgba(255, 69, 58, 0.3); }
+
+    .sw-laps-box {
+      max-height: 180px;
       overflow-y: auto;
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
       font-family: 'DM Mono', monospace;
+      font-size: 12px;
     }
-    .sw-laps:empty { display: none; }
+    .sw-laps-box:empty { display: none; }
     .lap-row {
       display: flex;
       justify-content: space-between;
       padding: 8px 14px;
-      font-size: 12px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--card-border);
       color: var(--mu);
     }
     .lap-row:last-child { border-bottom: none; }
-    .lap-row.best { color: #30d158; }
+    .lap-row.best { color: #30d158; font-weight: 700; }
     .lap-row.worst { color: #ff453a; }
 
-    /* ==========================================================================
-       3. TIMER STUDIO
-       ========================================================================== */
-    .timer-inputs {
+    /* Timer Inside Modal */
+    .timer-inputs-row {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       margin-bottom: 24px;
     }
-    .t-unit {
+    .ti-cell {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
     }
-    .t-unit input {
+    .ti-cell input {
       width: 72px;
-      height: 64px;
+      height: 60px;
       background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
       color: #ffffff;
       font-family: 'DM Mono', monospace;
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
       text-align: center;
       outline: none;
     }
-    .t-unit input:focus { border-color: var(--border-hover); }
-    .t-unit label {
-      font-size: 10px;
+    .ti-cell label {
+      font-size: 9px;
       font-family: 'DM Mono', monospace;
       text-transform: uppercase;
       color: var(--mu-dim);
     }
-    .t-sep {
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--mu-dim);
-      padding-bottom: 18px;
-    }
+    .ti-sep { font-size: 28px; font-weight: 700; color: var(--mu-dim); padding-bottom: 16px; }
     .timer-presets {
       display: flex;
       gap: 6px;
@@ -608,54 +601,30 @@
       margin-bottom: 24px;
       flex-wrap: wrap;
     }
-    .preset-btn {
+    .preset-pill {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
-      padding: 5px 10px;
+      padding: 6px 12px;
       background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      border-radius: 4px;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
       color: var(--mu);
       cursor: pointer;
+      transition: all 0.15s;
     }
-    .preset-btn:hover { color: #ffffff; border-color: var(--border-hover); }
+    .preset-pill:hover { color: #ffffff; border-color: rgba(255,255,255,0.25); }
 
-    /* ==========================================================================
-       4. 3D GLOBE STUDIO
-       ========================================================================== */
-    .globe-card {
+    /* 3D Globe Inside Modal */
+    .globe-wrap {
       width: 100%;
-      max-width: 820px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--r-card);
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .globe-canvas-wrap {
+      height: 380px;
       position: relative;
-      width: 100%;
-      height: 480px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       cursor: grab;
       touch-action: none;
     }
-    .globe-canvas-wrap:active { cursor: grabbing; }
-    #globe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-    .gpins {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
+    .globe-wrap:active { cursor: grabbing; }
+    #globeCanvas { width: 100%; height: 100%; }
+    .pins-layer { position: absolute; inset: 0; pointer-events: none; }
     .cpin {
       position: absolute;
       transform: translate(-50%, -100%);
@@ -663,121 +632,54 @@
       flex-direction: column;
       align-items: center;
       font-family: 'DM Mono', monospace;
-      transition: opacity 0.2s;
     }
-    .ctime {
-      background: rgba(0, 0, 0, 0.75);
-      border: 1px solid var(--border);
+    .cp-time {
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       color: #ffffff;
       font-size: 10px;
       padding: 2px 6px;
       border-radius: 4px;
       white-space: nowrap;
     }
-    .cname {
+    .cp-name {
       font-size: 9px;
       color: var(--mu);
       margin-top: 2px;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+      text-shadow: 0 1px 3px #000;
     }
 
-    /* ==========================================================================
-       5. WORLD HUBS STUDIO
-       ========================================================================== */
-    .world-grid {
-      width: 100%;
-      max-width: 820px;
+    /* World Grid Inside Modal */
+    .world-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
     }
-    .w-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--r-card);
-      padding: 16px 18px;
+    .wl-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .w-city { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
-    .w-diff { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--mu); }
-    .w-time { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 700; color: #ffffff; }
+    .wl-city { font-weight: 600; font-size: 13px; }
+    .wl-tz { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--mu); }
+    .wl-time { font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 700; color: #ffffff; }
 
-    /* Settings Drawer */
-    .drawer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(12px);
-      z-index: 500;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s, visibility 0.3s;
-      display: flex;
-      justify-content: flex-end;
-    }
-    .drawer-overlay.open { opacity: 1; visibility: visible; }
-    .drawer {
-      width: 360px;
-      max-width: 100vw;
-      height: 100vh;
-      background: #09090b;
-      border-left: 1px solid var(--border);
-      transform: translateX(100%);
-      transition: transform 0.3s var(--ease);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 24px;
-    }
-    .drawer-overlay.open .drawer { transform: translateX(0); }
-    .drawer-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .drawer-title { font-size: 14px; font-weight: 700; letter-spacing: -0.3px; }
-    .drawer-close {
-      background: none;
-      border: none;
-      color: var(--mu);
-      cursor: pointer;
-      padding: 4px;
-    }
-    .drawer-close:hover { color: #ffffff; }
-    
-    .opt-group {
-      margin-bottom: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .opt-label {
-      font-size: 10px;
-      font-family: 'DM Mono', monospace;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--mu-dim);
-    }
-    .opt-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .opt-name { font-size: 13px; color: var(--text); }
-    
-    /* Toggle Switch */
-    .toggle {
+    /* Settings Modal Controls */
+    .set-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .set-lbl { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--mu-dim); letter-spacing: 0.1em; }
+    .set-row { display: flex; justify-content: space-between; align-items: center; }
+    .set-txt { font-size: 13px; color: var(--text); }
+    .switch {
       position: relative;
-      width: 36px;
-      height: 20px;
+      width: 38px;
+      height: 22px;
     }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .slider {
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .sw-slider {
       position: absolute;
       inset: 0;
       background: rgba(255, 255, 255, 0.15);
@@ -785,34 +687,83 @@
       cursor: pointer;
       transition: 0.2s;
     }
-    .slider::before {
+    .sw-slider::before {
       content: '';
       position: absolute;
-      height: 14px;
-      width: 14px;
+      height: 16px;
+      width: 16px;
       left: 3px;
       bottom: 3px;
       background: white;
       border-radius: 50%;
       transition: 0.2s var(--ease);
     }
-    .toggle input:checked + .slider { background: var(--ac); }
-    .toggle input:checked + .slider::before { transform: translateX(16px); background: #000; }
+    .switch input:checked + .sw-slider { background: var(--ac); }
+    .switch input:checked + .sw-slider::before { transform: translateX(16px); background: #000000; }
 
-    /* Footer */
+    /* ==========================================================================
+       FLOATING STUDIO DOCK (MACOS/IOS LUXURY MINIMALISM)
+       ========================================================================== */
+    .studio-dock {
+      position: fixed;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(14, 14, 18, 0.82);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-pill);
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      z-index: 100;
+      user-select: none;
+    }
+    .dock-btn {
+      background: transparent;
+      border: none;
+      color: var(--mu);
+      height: 38px;
+      padding: 0 12px;
+      border-radius: var(--r-pill);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .dock-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+    }
+    .dock-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--card-border);
+      margin: 0 2px;
+    }
+    .dock-btn svg { width: 15px; height: 15px; }
+
+    /* Canonical Signature Footer */
     footer {
-      border-top: 1px solid var(--border);
-      padding: 24px 28px;
+      border-top: 1px solid var(--card-border);
+      padding: 20px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 12px;
       color: var(--mu);
-      max-width: 960px;
+      max-width: 1000px;
       margin: 0 auto;
       width: 100%;
     }
-    footer a { color: var(--mu); text-decoration: none; transition: color 0.2s; }
+    footer a { color: var(--mu); text-decoration: none; transition: color 0.15s; }
     footer a:hover { color: #ffffff; }
     .egg {
       width: 6px;
@@ -825,20 +776,22 @@
     }
     .egg:hover { background: #ffffff; transform: scale(1.4); }
 
-    @media (max-width: 640px) {
+    /* Responsive Mobile Layout */
+    @media (max-width: 680px) {
       nav { padding: 0 16px; }
-      main { padding: 24px 16px 60px; }
-      footer { padding: 20px 16px; }
-      .wt-grid { grid-template-columns: 1fr; }
-      .nav-center { display: none; }
-      .globe-canvas-wrap { height: 320px; }
+      main { padding: 18px 14px 28px; }
+      .ntp-pill { display: none; }
+      .telemetry-bar { grid-template-columns: 1fr 1fr; }
+      .dock-btn span { display: none; }
+      .dock-btn { padding: 0 10px; width: 38px; justify-content: center; }
+      .wt-countdown { font-size: 12px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Ambient Glow -->
-  <div class="ambient-glow" id="ambientGlow"></div>
+  <!-- Ambient Light -->
+  <div class="ambient" id="ambientBg"></div>
 
   <!-- NAVIGATION -->
   <nav>
@@ -847,268 +800,286 @@
       <span class="brand-sub">/ clock</span>
     </a>
 
-    <div class="nav-center">
-      <span class="sync-dot" id="syncDot"></span>
-      <span id="syncText">NTP LOCK (±0.2ms)</span>
+    <div class="ntp-pill">
+      <span class="s-dot" id="sDot"></span>
+      <span id="sText">NTP LOCK (±0.2ms)</span>
     </div>
 
-    <div class="nav-actions">
-      <div class="palette-quick">
-        <div class="swatch active" style="background:#ffffff;" onclick="setTheme('#ffffff')"></div>
-        <div class="swatch" style="background:#ff9f0a;" onclick="setTheme('#ff9f0a')"></div>
-        <div class="swatch" style="background:#30d158;" onclick="setTheme:#30d158')"></div>
-        <div class="swatch" style="background:#64d2ff;" onclick="setTheme('#64d2ff')"></div>
-      </div>
-
-      <button class="btn-nav-icon" id="btnSettings" title="Clock Settings">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    <!-- Mode Switcher (Digital vs Swiss Dial) -->
+    <div class="mode-switch">
+      <button class="mode-btn active" id="btnModeDig" onclick="setWatchMode('digital')">
+        <span>Digital</span>
       </button>
-
-      <button class="btn-nav-icon" id="btnFullscreen" title="Toggle Fullscreen">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+      <button class="mode-btn" id="btnModeAna" onclick="setWatchMode('analog')">
+        <span>Dial</span>
       </button>
     </div>
   </nav>
 
-  <!-- CONTENT -->
+  <!-- MAIN STAGE -->
   <main>
 
-    <!-- STUDIO TABS -->
-    <div class="studio-tabs">
-      <button class="s-tab active" data-tab="clock">01 · Clock</button>
-      <button class="s-tab" data-tab="sw">02 · Stopwatch</button>
-      <button class="s-tab" data-tab="timer">03 · Timer</button>
-      <button class="s-tab" data-tab="globe">04 · 3D Globe</button>
-      <button class="s-tab" data-tab="world">05 · World Cities</button>
-    </div>
-
-    <!-- TAB 1: CLOCK -->
-    <div class="studio-panel active" id="panel-clock">
-
-      <!-- BUNDESWEITER WARNTAG 2026 CARD -->
-      <div class="wt-card" id="wtCard">
-        <div class="wt-badge-row">
-          <div class="wt-badge">
-            <span>Bundesweiter Warntag 2026</span>
-          </div>
-          <div class="wt-date-badge" id="wtBadgeDate">10.09.2026 · 11:00 CEST</div>
+    <!-- BUNDESWEITER WARNTAG 2026 CARD -->
+    <div class="wt-capsule" id="wtCard">
+      <div class="wt-header">
+        <div class="wt-left">
+          <span class="wt-tag">Warntag 2026</span>
+          <span class="wt-title-text">10. Sept. · 11:00 Uhr</span>
         </div>
-
-        <div class="wt-message" id="wtMessage">
-          Offizielle bundesweite Probewarnung über Cell Broadcast, Sirenennetz &amp; Warn-Apps (NINA, KATWARN).
-        </div>
-
-        <div class="wt-countdown-row">
-          <div class="wt-seg">
-            <div class="wt-seg-v" id="wtH">--</div>
-            <div class="wt-seg-l">Stunden</div>
-          </div>
-          <div class="wt-seg">
-            <div class="wt-seg-v" id="wtM">--</div>
-            <div class="wt-seg-l">Minuten</div>
-          </div>
-          <div class="wt-seg">
-            <div class="wt-seg-v" id="wtS">--</div>
-            <div class="wt-seg-l">Sekunden</div>
-          </div>
-        </div>
-
-        <div class="wt-controls">
-          <button class="wt-btn" id="wtSirenBtn">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-            <span id="wtSirenBtnText">Sirene Probehören (Heulton)</span>
+        <div class="wt-countdown" id="wtCountdown">--:--:--</div>
+        <div class="wt-actions">
+          <button class="wt-siren-btn" id="wtSirenBtn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            <span id="wtSirenText">Probehören</span>
           </button>
-          <button class="wt-btn" id="wtDetailsBtn">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            <span>Kanäle &amp; Info</span>
+          <button class="wt-info-btn" id="wtInfoBtn">
+            <span>Info</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </button>
-        </div>
-
-        <div class="wt-details" id="wtDetails">
-          <div class="wt-grid">
-            <div class="wt-item">
-              <div class="wt-item-title">📱 Cell Broadcast</div>
-              <div class="wt-item-desc">Schriller Warnton auf fast jedem Handy, auch bei lautlosem Profil. Keine App nötig.</div>
-            </div>
-            <div class="wt-item">
-              <div class="wt-item-title">📢 Sirenennetz</div>
-              <div class="wt-item-desc">1 Minute auf- und abschwellender Heulton um 11:00 Uhr, Dauerton zur Entwarnung um 11:45 Uhr.</div>
-            </div>
-            <div class="wt-item">
-              <div class="wt-item-title">📲 Warn-Apps</div>
-              <div class="wt-item-desc">Meldung über NINA, KATWARN und BIWAPP mit Handlungshinweisen.</div>
-            </div>
-            <div class="wt-item">
-              <div class="wt-item-title">📻 Rundfunk &amp; TV</div>
-              <div class="wt-item-desc">Laufbänder und Warnunterbrechungen bei TV- und Radiosendern.</div>
-            </div>
-          </div>
         </div>
       </div>
-      <!-- END BUNDESWEITER WARNTAG 2026 CARD -->
 
-      <!-- CLOCK TIME DISPLAY -->
-      <div class="clock-display-wrap">
-        <div class="clock-time">
-          <span id="tH">--</span>
-          <span class="clock-colon" id="c1">:</span>
-          <span id="tM">--</span>
-          <span class="clock-colon" id="c2">:</span>
-          <span id="tS">--</span>
-          <span class="clock-ms" id="tMs">.000</span>
-          <span class="clock-ampm" id="tAmpm"></span>
+      <div class="wt-drawer" id="wtDrawer">
+        <div>Offizielle bundesweite Probewarnung über das Modulare Warnsystem (MoWaS), Sirenennetz und Cell Broadcast.</div>
+        <div class="wt-channels">
+          <div class="wt-channel-box"><strong>📱 Cell Broadcast</strong>Ton ertönt auch bei Stummschaltung</div>
+          <div class="wt-channel-box"><strong>📢 Sirenen</strong>1 Min. Heulton (Alarm) um 11:00 Uhr</div>
+          <div class="wt-channel-box"><strong>📲 NINA &amp; KATWARN</strong>Warn-Apps mit Entwarnung um 11:45 Uhr</div>
+        </div>
+      </div>
+    </div>
+    <!-- END BUNDESWEITER WARNTAG 2026 CARD -->
+
+    <!-- CLOCK STAGE -->
+    <div class="clock-stage">
+
+      <!-- VIEW 1: DIGITAL DISPLAY -->
+      <div class="digital-view" id="viewDigital">
+        <div class="time-digits">
+          <span id="digH">--</span>
+          <span class="time-colon" id="c1">:</span>
+          <span id="digM">--</span>
+          <span class="time-colon" id="c2">:</span>
+          <span id="digS">--</span>
+          <span class="time-ms" id="digMs">.000</span>
+          <span class="time-ampm" id="digAmpm"></span>
         </div>
 
-        <div class="clock-date-row" id="clockDate">--</div>
+        <div class="time-subtitle" id="timeSub">Donnerstag, 10. September 2026</div>
 
         <!-- Solar Day Progress Arc -->
-        <div class="day-progress-bar" id="dayBar">
-          <div class="dp-track">
-            <div class="dp-fill" id="dpFill"></div>
+        <div class="day-horizon" id="dayHorizon">
+          <div class="dh-track">
+            <div class="dh-fill" id="dhFill"></div>
           </div>
-          <div class="dp-meta">
+          <div class="dh-meta">
             <span>00:00</span>
-            <span id="dpPercent">--% Day Elapsed</span>
+            <span id="dhText">--% Day Elapsed</span>
             <span>24:00</span>
           </div>
         </div>
       </div>
 
-      <!-- TELEMETRY STRIP -->
-      <div class="istrip">
-        <div class="ic">
-          <div class="icl">Timezone</div>
-          <div class="icv" id="telTz">--</div>
+      <!-- VIEW 2: SWISS PRECISION ANALOG DIAL -->
+      <div class="analog-view" id="viewAnalog">
+        <div class="watch-case">
+          <svg class="dial-svg" viewBox="0 0 300 300">
+            <!-- 60 Minute Ticks -->
+            <g id="dialTicks"></g>
+            <!-- Date Window at 3 o'clock -->
+            <rect x="205" y="141" width="28" height="18" rx="2" fill="#000" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            <text x="219" y="154" fill="#fff" font-family="'DM Mono', monospace" font-size="11" font-weight="700" text-anchor="middle" id="analogDateText">10</text>
+            <!-- Hands -->
+            <!-- Hour Hand -->
+            <line x1="150" y1="150" x2="150" y2="85" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" id="handHour"/>
+            <!-- Minute Hand -->
+            <line x1="150" y1="150" x2="150" y2="52" stroke="#ffffff" stroke-width="3" stroke-linecap="round" id="handMin"/>
+            <!-- Second Hand (Swiss Smooth Sweep) -->
+            <g id="handSecWrap">
+              <line x1="150" y1="175" x2="150" y2="40" stroke="#ff453a" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="150" cy="55" r="4.5" fill="#ff453a"/>
+            </g>
+          </svg>
+          <div class="dial-center-cap"></div>
         </div>
-        <div class="ic">
-          <div class="icl">UTC Master</div>
-          <div class="icv" id="telUtc">--:--:--</div>
+      </div>
+
+      <!-- TELEMETRY BAR -->
+      <div class="telemetry-bar">
+        <div class="tel-cell">
+          <span class="tel-cell-l">Local Timezone</span>
+          <span class="tel-cell-v" id="telZone">Europe/Berlin</span>
         </div>
-        <div class="ic">
-          <div class="icl">UNIX Epoch</div>
-          <div class="icv" id="telEpoch">--</div>
+        <div class="tel-cell">
+          <span class="tel-cell-l">UTC Atomic</span>
+          <span class="tel-cell-v" id="telUtcTime">--:--:-- UTC</span>
         </div>
-        <div class="ic">
-          <div class="icl">Solar Week</div>
-          <div class="icv" id="telWeek">Week --</div>
+        <div class="tel-cell">
+          <span class="tel-cell-l">UNIX Epoch</span>
+          <span class="tel-cell-v" id="telEpoch">--</span>
+        </div>
+        <div class="tel-cell">
+          <span class="tel-cell-l">Drift Offset</span>
+          <span class="tel-cell-v" id="telOffset">±0.2 ms</span>
         </div>
       </div>
 
-    </div>
-
-    <!-- TAB 2: STOPWATCH -->
-    <div class="studio-panel" id="panel-sw">
-      <div class="studio-box">
-        <div class="sw-time">
-          <span id="swDigits">00:00:00</span>
-          <span class="sw-ms" id="swMs">.000</span>
-        </div>
-        <div class="sw-actions">
-          <button class="btn-act pri" id="btnSwStart">Start</button>
-          <button class="btn-act" id="btnSwLap">Lap</button>
-          <button class="btn-act dan" id="btnSwReset">Reset</button>
-        </div>
-        <div class="sw-laps" id="swLapsList"></div>
-      </div>
-    </div>
-
-    <!-- TAB 3: TIMER -->
-    <div class="studio-panel" id="panel-timer">
-      <div class="studio-box">
-        <div class="timer-inputs" id="timerSetup">
-          <div class="t-unit">
-            <input type="number" id="tiH" value="0" min="0" max="23">
-            <label>Hours</label>
-          </div>
-          <span class="t-sep">:</span>
-          <div class="t-unit">
-            <input type="number" id="tiM" value="5" min="0" max="59">
-            <label>Minutes</label>
-          </div>
-          <span class="t-sep">:</span>
-          <div class="t-unit">
-            <input type="number" id="tiS" value="0" min="0" max="59">
-            <label>Seconds</label>
-          </div>
-        </div>
-
-        <div class="timer-presets" id="timerPresets">
-          <button class="preset-btn" onclick="setTimerPreset(1)">1 Min</button>
-          <button class="preset-btn" onclick="setTimerPreset(5)">5 Min</button>
-          <button class="preset-btn" onclick="setTimerPreset(15)">15 Min</button>
-          <button class="preset-btn" onclick="setTimerPreset(25)">25 Min (Pomodoro)</button>
-        </div>
-
-        <div class="sw-time" id="timerDisplay" style="display:none;">00:05:00</div>
-
-        <div class="sw-actions">
-          <button class="btn-act pri" id="btnTimerStart">Start</button>
-          <button class="btn-act dan" id="btnTimerReset">Reset</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 4: 3D GLOBE -->
-    <div class="studio-panel" id="panel-globe">
-      <div class="globe-card">
-        <div class="globe-canvas-wrap" id="globeCont">
-          <canvas id="globe"></canvas>
-          <div class="gpins" id="gpins"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 5: WORLD CITIES -->
-    <div class="studio-panel" id="panel-world">
-      <div class="world-grid" id="worldGrid"></div>
     </div>
 
   </main>
 
-  <!-- SETTINGS DRAWER -->
-  <div class="drawer-overlay" id="drawerOverlay">
-    <div class="drawer">
-      <div class="drawer-header">
-        <span class="drawer-title">Clock Configuration</span>
-        <button class="drawer-close" id="drawerClose">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
+  <!-- FLOATING STUDIO DOCK -->
+  <div class="studio-dock">
+    <button class="dock-btn" onclick="openModal('stopwatch')" title="Precision Stopwatch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2m-2-12v2m7 2l-1.5 1.5"></path></svg>
+      <span>Stopwatch</span>
+    </button>
+
+    <button class="dock-btn" onclick="openModal('timer')" title="Countdown Timer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      <span>Timer</span>
+    </button>
+
+    <div class="dock-sep"></div>
+
+    <button class="dock-btn" onclick="openModal('globe')" title="3D Earth Globe">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+      <span>3D Globe</span>
+    </button>
+
+    <button class="dock-btn" onclick="openModal('world')" title="World Cities">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+      <span>World</span>
+    </button>
+
+    <div class="dock-sep"></div>
+
+    <button class="dock-btn" onclick="openModal('settings')" title="Display Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <span>Settings</span>
+    </button>
+
+    <button class="dock-btn" onclick="toggleFullscreen()" title="Fullscreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+    </button>
+  </div>
+
+  <!-- MODAL 1: STOPWATCH -->
+  <div class="tool-modal" id="modal-stopwatch">
+    <div class="modal-card">
+      <div class="modal-head">
+        <span class="modal-title">Precision Stopwatch</span>
+        <button class="modal-close" onclick="closeModal('stopwatch')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+      <div class="sw-display" id="swModalDisplay">00:00:00<span style="font-size:24px; opacity:0.4; font-family:'DM Mono', monospace;">.000</span></div>
+      <div class="sw-actions">
+        <button class="btn-act pri" id="btnSwStart">Start</button>
+        <button class="btn-act" id="btnSwLap">Lap</button>
+        <button class="btn-act dan" id="btnSwReset">Reset</button>
+      </div>
+      <div class="sw-laps-box" id="swLapsList"></div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: TIMER -->
+  <div class="tool-modal" id="modal-timer">
+    <div class="modal-card">
+      <div class="modal-head">
+        <span class="modal-title">Countdown Timer</span>
+        <button class="modal-close" onclick="closeModal('timer')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+      <div class="timer-inputs-row" id="timerInputs">
+        <div class="ti-cell">
+          <input type="number" id="tiH" value="0" min="0" max="23">
+          <label>Hours</label>
+        </div>
+        <span class="ti-sep">:</span>
+        <div class="ti-cell">
+          <input type="number" id="tiM" value="5" min="0" max="59">
+          <label>Minutes</label>
+        </div>
+        <span class="ti-sep">:</span>
+        <div class="ti-cell">
+          <input type="number" id="tiS" value="0" min="0" max="59">
+          <label>Seconds</label>
+        </div>
+      </div>
+      <div class="timer-presets" id="timerPresets">
+        <button class="preset-pill" onclick="setTimerPreset(1)">1 Min</button>
+        <button class="preset-pill" onclick="setTimerPreset(5)">5 Min</button>
+        <button class="preset-pill" onclick="setTimerPreset(15)">15 Min</button>
+        <button class="preset-pill" onclick="setTimerPreset(25)">25 Min (Pomodoro)</button>
+      </div>
+      <div class="sw-display" id="timerDisplay" style="display:none;">00:05:00</div>
+      <div class="sw-actions">
+        <button class="btn-act pri" id="btnTimerStart">Start</button>
+        <button class="btn-act dan" id="btnTimerReset">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: 3D GLOBE -->
+  <div class="tool-modal" id="modal-globe">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-head">
+        <span class="modal-title">3D Celestial Earth Globe</span>
+        <button class="modal-close" onclick="closeModal('globe')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+      <div class="globe-wrap" id="globeCont">
+        <canvas id="globeCanvas"></canvas>
+        <div class="pins-layer" id="globePins"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: WORLD HUBS -->
+  <div class="tool-modal" id="modal-world">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-head">
+        <span class="modal-title">World Hubs Matrix</span>
+        <button class="modal-close" onclick="closeModal('world')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+      <div class="world-list" id="worldList"></div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: SETTINGS -->
+  <div class="tool-modal" id="modal-settings">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-head">
+        <span class="modal-title">Clock Preferences</span>
+        <button class="modal-close" onclick="closeModal('settings')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+      
+      <div class="set-group">
+        <span class="set-lbl">Display Options</span>
+        <div class="set-row">
+          <span class="set-txt">24-Hour Military Format</span>
+          <label class="switch"><input type="checkbox" id="cfg24h" checked><span class="sw-slider"></span></label>
+        </div>
+        <div class="set-row">
+          <span class="set-txt">Millisecond Ribbon</span>
+          <label class="switch"><input type="checkbox" id="cfgMs" checked><span class="sw-slider"></span></label>
+        </div>
+        <div class="set-row">
+          <span class="set-txt">Blinking Separators</span>
+          <label class="switch"><input type="checkbox" id="cfgBlink" checked><span class="sw-slider"></span></label>
+        </div>
+        <div class="set-row">
+          <span class="set-txt">Day Horizon Progress</span>
+          <label class="switch"><input type="checkbox" id="cfgDayBar" checked><span class="sw-slider"></span></label>
+        </div>
       </div>
 
-      <div class="opt-group">
-        <span class="opt-label">Display Mode</span>
-        <div class="opt-row">
-          <span class="opt-name">24-Hour Military Format</span>
-          <label class="toggle"><input type="checkbox" id="set24h" checked><span class="slider"></span></label>
+      <div class="set-group">
+        <span class="set-lbl">Color Accent</span>
+        <div style="display:flex; gap:8px;">
+          <div onclick="setAccent('#ffffff')" style="width:24px; height:24px; border-radius:50%; background:#fff; cursor:pointer;"></div>
+          <div onclick="setAccent('#ff9f0a')" style="width:24px; height:24px; border-radius:50%; background:#ff9f0a; cursor:pointer;"></div>
+          <div onclick="setAccent('#30d158')" style="width:24px; height:24px; border-radius:50%; background:#30d158; cursor:pointer;"></div>
+          <div onclick="setAccent('#64d2ff')" style="width:24px; height:24px; border-radius:50%; background:#64d2ff; cursor:pointer;"></div>
+          <div onclick="setAccent('#bf5af2')" style="width:24px; height:24px; border-radius:50%; background:#bf5af2; cursor:pointer;"></div>
         </div>
-        <div class="opt-row">
-          <span class="opt-name">Milliseconds Counter</span>
-          <label class="toggle"><input type="checkbox" id="setMs" checked><span class="slider"></span></label>
-        </div>
-        <div class="opt-row">
-          <span class="opt-name">Blinking Time Colons</span>
-          <label class="toggle"><input type="checkbox" id="setBlink" checked><span class="slider"></span></label>
-        </div>
-        <div class="opt-row">
-          <span class="opt-name">Day Progress Arc</span>
-          <label class="toggle"><input type="checkbox" id="setDayBar" checked><span class="slider"></span></label>
-        </div>
-      </div>
-
-      <div class="opt-group">
-        <span class="opt-label">Accent Theme Color</span>
-        <div class="palette-quick" style="gap:8px;">
-          <div class="swatch" style="background:#ffffff; width:22px; height:22px;" onclick="setTheme('#ffffff')"></div>
-          <div class="swatch" style="background:#ff9f0a; width:22px; height:22px;" onclick="setTheme('#ff9f0a')"></div>
-          <div class="swatch" style="background:#30d158; width:22px; height:22px;" onclick="setTheme('#30d158')"></div>
-          <div class="swatch" style="background:#64d2ff; width:22px; height:22px;" onclick="setTheme('#64d2ff')"></div>
-          <div class="swatch" style="background:#bf5af2; width:22px; height:22px;" onclick="setTheme('#bf5af2')"></div>
-        </div>
-      </div>
-
-      <div class="opt-group">
-        <span class="opt-label">Scale Factor</span>
-        <input type="range" id="setFontScale" min="70" max="130" value="100" style="width:100%; accent-color:var(--ac);">
       </div>
     </div>
   </div>
@@ -1127,59 +1098,85 @@
     const $$ = s => [...document.querySelectorAll(s)];
     const pad = (n, d=2) => String(n).padStart(d, '0');
 
-    // Global Settings
-    const DEF = { ac: '#ffffff', h24: true, ms: true, blink: true, dayBar: true, scale: 100 };
+    // Configuration & State
+    const DEF = { ac: '#ffffff', h24: true, ms: true, blink: true, dayBar: true, mode: 'digital' };
     let CFG = { ...DEF };
     try {
-      const saved = localStorage.getItem('spa-clock-cfg');
+      const saved = localStorage.getItem('spanani-watch-cfg');
       if (saved) CFG = { ...DEF, ...JSON.parse(saved) };
     } catch(e) {}
 
-    function saveCfg() {
-      try { localStorage.setItem('spa-clock-cfg', JSON.stringify(CFG)); } catch(e) {}
+    function saveConfig() {
+      try { localStorage.setItem('spanani-watch-cfg', JSON.stringify(CFG)); } catch(e) {}
     }
 
-    function hexToRgb(h) {
+    function hexRgb(h) {
       const n = parseInt(h.slice(1), 16);
       return [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(',');
     }
 
-    window.setTheme = function(hex) {
+    window.setAccent = function(hex) {
       CFG.ac = hex;
       document.documentElement.style.setProperty('--ac', hex);
-      document.documentElement.style.setProperty('--ac-rgb', hexToRgb(hex));
-      $$('.swatch').forEach(s => s.classList.toggle('active', s.style.background === hex));
-      saveCfg();
+      document.documentElement.style.setProperty('--ac-rgb', hexRgb(hex));
+      saveConfig();
     };
 
-    function applyConfig() {
-      setTheme(CFG.ac);
-      $('#set24h').checked = CFG.h24;
-      $('#setMs').checked = CFG.ms;
-      $('#setBlink').checked = CFG.blink;
-      $('#setDayBar').checked = CFG.dayBar;
-      $('#setFontScale').value = CFG.scale;
-      document.documentElement.style.setProperty('--fs', CFG.scale / 100);
-      $('#tMs').style.display = CFG.ms ? 'inline-block' : 'none';
-      $('#c1').classList.toggle('static', !CFG.blink);
-      $('#c2').classList.toggle('static', !CFG.blink);
-      $('#dayBar').style.display = CFG.dayBar ? 'flex' : 'none';
-    }
+    window.setWatchMode = function(mode) {
+      CFG.mode = mode;
+      $('#viewDigital').style.display = mode === 'digital' ? 'flex' : 'none';
+      $('#viewAnalog').style.display = mode === 'analog' ? 'flex' : 'none';
+      $('#btnModeDig').classList.toggle('active', mode === 'digital');
+      $('#btnModeAna').classList.toggle('active', mode === 'analog');
+      saveConfig();
+    };
 
-    // Tabs Switcher
-    const sTabs = $$('.s-tab');
-    sTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        sTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const target = tab.dataset.tab;
-        $$('.studio-panel').forEach(p => p.classList.remove('active'));
-        const panel = document.getElementById('panel-' + target);
-        if (panel) panel.classList.add('active');
-      });
+    // Render Swiss Watch Dial Ticks
+    (function drawDialTicks() {
+      const g = $('#dialTicks');
+      if (!g) return;
+      let svgTicks = '';
+      for (let i = 0; i < 60; i++) {
+        const isHour = i % 5 === 0;
+        const deg = i * 6;
+        const rad = (deg - 90) * Math.PI / 180;
+        const len = isHour ? 12 : 6;
+        const width = isHour ? 2.5 : 1;
+        const color = isHour ? '#ffffff' : 'rgba(255,255,255,0.3)';
+        const r1 = 138;
+        const r2 = r1 - len;
+        const x1 = 150 + r1 * Math.cos(rad);
+        const y1 = 150 + r1 * Math.sin(rad);
+        const x2 = 150 + r2 * Math.cos(rad);
+        const y2 = 150 + r2 * Math.sin(rad);
+        svgTicks += `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="${color}" stroke-width="${width}" stroke-linecap="round"/>`;
+      }
+      g.innerHTML = svgTicks;
+    })();
+
+    // Modal Manager
+    window.openModal = function(id) {
+      const m = $('#modal-' + id);
+      if (m) m.classList.add('open');
+      if (id === 'globe') triggerGlobeResize();
+    };
+    window.closeModal = function(id) {
+      const m = $('#modal-' + id);
+      if (m) m.classList.remove('open');
+    };
+    $$('.tool-modal').forEach(m => {
+      m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
     });
 
-    // High Precision Time Engine with NTP Synchronization
+    window.toggleFullscreen = function() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(()=>{});
+      } else {
+        document.exitFullscreen().catch(()=>{});
+      }
+    };
+
+    // Fast-Race Atomic Network Sync Engine
     let ntpOffset = 0;
     let anchorTs = null;
     let anchorPerf = null;
@@ -1198,7 +1195,7 @@
         'https://worldtimeapi.org/api/timezone/Etc/UTC'
       ];
       try {
-        const result = await Promise.any(urls.map(async u => {
+        const race = await Promise.any(urls.map(async u => {
           const t0 = Date.now();
           const p0 = performance.now();
           const res = await fetch(u + '?_=' + Math.random(), { cache: 'no-store' });
@@ -1213,22 +1210,22 @@
           return { ts, perf: p0 + rtt / 2, off: Math.round(ts - (t0 + rtt / 2)) };
         }));
 
-        anchorTs = result.ts;
-        anchorPerf = result.perf;
-        ntpOffset = result.off;
-        $('#syncDot').className = 'sync-dot';
-        $('#syncText').textContent = 'NTP LOCK (±' + (Math.abs(ntpOffset) % 10) + 'ms)';
-      } catch (e) {
-        $('#syncDot').className = 'sync-dot warn';
-        $('#syncText').textContent = 'SYS CLOCK SYNC';
+        anchorTs = race.ts;
+        anchorPerf = race.perf;
+        ntpOffset = race.off;
+        $('#sDot').className = 's-dot';
+        $('#sText').textContent = 'NTP LOCK (±' + (Math.abs(ntpOffset) % 8 + 0.2).toFixed(1) + 'ms)';
+        $('#telOffset').textContent = (ntpOffset >= 0 ? '+' : '') + ntpOffset + ' ms · Locked';
+      } catch(e) {
+        $('#sDot').className = 's-dot warn';
+        $('#sText').textContent = 'SYS CLOCK SYNC';
       }
     }
 
     // --- BUNDESWEITER WARNTAG 2026 LOGIC ---
     const WT_TARGET = new Date('2026-09-10T11:00:00+02:00').getTime();
     const WT_EXPIRE = new Date('2026-09-10T11:45:00+02:00').getTime();
-    let wtAudioCtx = null, wtOsc = null, wtGain = null, wtLfo = null;
-    let wtIsPlaying = false;
+    let wtAudioCtx = null, wtOsc = null, wtGain = null, wtLfo = null, wtPlaying = false;
 
     function updWarntag(nowTs) {
       const card = $('#wtCard');
@@ -1242,19 +1239,17 @@
       const h = Math.floor(s / 3600);
       const m = Math.floor((s % 3600) / 60);
       const sec = s % 60;
-      $('#wtH').textContent = pad(h);
-      $('#wtM').textContent = pad(m);
-      $('#wtS').textContent = pad(sec);
+      $('#wtCountdown').textContent = pad(h) + 'h ' + pad(m) + 'm ' + pad(sec) + 's';
     }
 
     function toggleSiren() {
       const btn = $('#wtSirenBtn');
-      const txt = $('#wtSirenBtnText');
-      if (wtIsPlaying) {
+      const txt = $('#wtSirenText');
+      if (wtPlaying) {
         if (wtOsc) { try { wtOsc.stop(); wtLfo.stop(); } catch(e){} }
-        wtIsPlaying = false;
+        wtPlaying = false;
         btn.classList.remove('playing');
-        txt.textContent = 'Sirene Probehören (Heulton)';
+        txt.textContent = 'Probehören';
         return;
       }
       try {
@@ -1291,23 +1286,22 @@
 
         wtOsc.start(now);
         wtLfo.start(now);
-        wtIsPlaying = true;
+        wtPlaying = true;
         btn.classList.add('playing');
-        txt.textContent = 'Sirene Stoppen';
-
-        setTimeout(() => { if (wtIsPlaying) toggleSiren(); }, 16000);
-      } catch(e) {}
+        txt.textContent = 'Stoppen';
+        setTimeout(() => { if (wtPlaying) toggleSiren(); }, 16000);
+      } catch(e){}
     }
 
     $('#wtSirenBtn').addEventListener('click', toggleSiren);
-    $('#wtDetailsBtn').addEventListener('click', () => {
-      $('#wtDetails').classList.toggle('open');
+    $('#wtInfoBtn').addEventListener('click', () => {
+      $('#wtDrawer').classList.toggle('open');
     });
     // --- END BUNDESWEITER WARNTAG 2026 LOGIC ---
 
-    // Tick Loop
-    const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-    const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+    // High Precision Animation Frame Loop
+    const daysArr = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+    const monthsArr = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 
     function tick() {
       const ts = getAtomicTime();
@@ -1320,22 +1314,43 @@
         ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12 || 12;
       }
-      $('#tH').textContent = pad(hours);
-      $('#tM').textContent = pad(d.getMinutes());
-      $('#tS').textContent = pad(d.getSeconds());
-      $('#tMs').textContent = '.' + pad(Math.floor(d.getMilliseconds()), 3);
-      $('#tAmpm').textContent = ampm;
 
-      $('#clockDate').textContent = days[d.getDay()] + ', ' + d.getDate() + '. ' + months[d.getMonth()] + ' ' + d.getFullYear();
+      // Digital View
+      $('#digH').textContent = pad(hours);
+      $('#digM').textContent = pad(d.getMinutes());
+      $('#digS').textContent = pad(d.getSeconds());
+      $('#digMs').textContent = '.' + pad(Math.floor(d.getMilliseconds()), 3);
+      $('#digAmpm').textContent = ampm;
 
-      // Day Progress
+      $('#timeSub').textContent = daysArr[d.getDay()] + ', ' + d.getDate() + '. ' + monthsArr[d.getMonth()] + ' ' + d.getFullYear();
+
+      // Day Horizon Progress
       const daySecs = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
-      const dayPercent = ((daySecs / 86400) * 100).toFixed(1);
-      $('#dpFill').style.width = dayPercent + '%';
-      $('#dpPercent').textContent = dayPercent + '% Day Elapsed';
+      const dayPct = ((daySecs / 86400) * 100).toFixed(1);
+      $('#dhFill').style.width = dayPct + '%';
+      $('#dhText').textContent = dayPct + '% Day Elapsed';
 
-      // Telemetry Strip
-      $('#telUtc').textContent = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds());
+      // Swiss Watch Analog Hands (Smooth continuous sweeps)
+      const ms = d.getMilliseconds();
+      const secTotal = d.getSeconds() + ms / 1000;
+      const minTotal = d.getMinutes() + secTotal / 60;
+      const hourTotal = (d.getHours() % 12) + minTotal / 60;
+
+      const degSec = secTotal * 6;
+      const degMin = minTotal * 6;
+      const degHour = hourTotal * 30;
+
+      const hHand = $('#handHour');
+      const mHand = $('#handMin');
+      const sWrap = $('#handSecWrap');
+      if (hHand) hHand.setAttribute('transform', `rotate(${degHour}, 150, 150)`);
+      if (mHand) mHand.setAttribute('transform', `rotate(${degMin}, 150, 150)`);
+      if (sWrap) sWrap.setAttribute('transform', `rotate(${degSec}, 150, 150)`);
+      const aDate = $('#analogDateText');
+      if (aDate) aDate.textContent = d.getDate();
+
+      // Telemetry Bar
+      $('#telUtcTime').textContent = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()) + ' UTC';
       $('#telEpoch').textContent = Math.floor(ts / 1000);
     }
     setInterval(tick, 16);
@@ -1343,20 +1358,15 @@
     syncNTP();
     setInterval(syncNTP, 180000);
 
-    // Initial Telemetry setup
+    // Initial Timezone Telemetry
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const ro = new Date().getTimezoneOffset();
-      const s = 'UTC' + (ro <= 0 ? '+' : '-') + pad(Math.abs(Math.floor(ro / 60))) + ':' + pad(Math.abs(ro % 60));
-      $('#telTz').textContent = tz + ' (' + s + ')';
-
-      const dNow = new Date();
-      const oneJan = new Date(dNow.getFullYear(), 0, 1);
-      const weekNum = Math.ceil((((dNow - oneJan) / 86400000) + oneJan.getDay() + 1) / 7);
-      $('#telWeek').textContent = 'Week ' + weekNum;
+      const offsetStr = 'UTC' + (ro <= 0 ? '+' : '-') + pad(Math.abs(Math.floor(ro / 60))) + ':' + pad(Math.abs(ro % 60));
+      $('#telZone').textContent = tz + ' (' + offsetStr + ')';
     } catch(e) {}
 
-    // Stopwatch Logic
+    // Stopwatch Implementation
     let swRunning = false, swStart = 0, swElapsed = 0, swRaf = null, swLaps = [];
     const fmtSW = ms => {
       const s = Math.floor(ms / 1000);
@@ -1366,8 +1376,9 @@
     function swTick() {
       if (!swRunning) return;
       const current = swElapsed + (performance.now() - swStart);
-      $('#swDigits').textContent = fmtSW(current);
-      $('#swMs').textContent = '.' + pad(Math.floor(current % 1000), 3);
+      const s = fmtSW(current);
+      const ms = '.' + pad(Math.floor(current % 1000), 3);
+      $('#swModalDisplay').innerHTML = s + `<span style="font-size:24px; opacity:0.4; font-family:'DM Mono', monospace;">${ms}</span>`;
       swRaf = requestAnimationFrame(swTick);
     }
 
@@ -1397,8 +1408,7 @@
       swElapsed = 0;
       swLaps = [];
       cancelAnimationFrame(swRaf);
-      $('#swDigits').textContent = '00:00:00';
-      $('#swMs').textContent = '.000';
+      $('#swModalDisplay').innerHTML = `00:00:00<span style="font-size:24px; opacity:0.4; font-family:'DM Mono', monospace;">.000</span>`;
       $('#swLapsList').innerHTML = '';
       $('#btnSwStart').textContent = 'Start';
     });
@@ -1422,10 +1432,10 @@
       list.innerHTML = html;
     }
 
-    // Timer Logic
+    // Countdown Timer Implementation
     let timerRunning = false, timerEnd = 0, timerRem = 0, timerRaf = null;
     const fmtT = s => pad(Math.floor(s / 3600)) + ':' + pad(Math.floor((s % 3600) / 60)) + ':' + pad(s % 60);
-    const getTimerInputSecs = () => (+$('#tiH').value || 0) * 3600 + (+$('#tiM').value || 0) * 60 + (+$('#tiS').value || 0);
+    const getTimerSecs = () => (+$('#tiH').value || 0) * 3600 + (+$('#tiM').value || 0) * 60 + (+$('#tiS').value || 0);
 
     window.setTimerPreset = function(mins) {
       $('#tiH').value = 0;
@@ -1458,11 +1468,11 @@
 
     $('#btnTimerStart').addEventListener('click', () => {
       if (!timerRunning) {
-        const ms = timerRem > 0 ? timerRem : getTimerInputSecs() * 1000;
+        const ms = timerRem > 0 ? timerRem : getTimerSecs() * 1000;
         if (ms <= 0) return;
         timerEnd = Date.now() + ms;
         timerRunning = true;
-        $('#timerSetup').style.display = 'none';
+        $('#timerInputs').style.display = 'none';
         $('#timerPresets').style.display = 'none';
         $('#timerDisplay').style.display = 'block';
         $('#btnTimerStart').textContent = 'Pause';
@@ -1479,13 +1489,13 @@
       timerRunning = false;
       timerRem = 0;
       cancelAnimationFrame(timerRaf);
-      $('#timerSetup').style.display = 'flex';
+      $('#timerInputs').style.display = 'flex';
       $('#timerPresets').style.display = 'flex';
       $('#timerDisplay').style.display = 'none';
       $('#btnTimerStart').textContent = 'Start';
     });
 
-    // World Hubs Cities Data
+    // World Cities Data
     const CITIES = [
       { name: 'Berlin', tz: 'Europe/Berlin', lat: 52.52, lon: 13.40 },
       { name: 'London', tz: 'Europe/London', lat: 51.51, lon: -0.13 },
@@ -1499,33 +1509,34 @@
       { name: 'São Paulo', tz: 'America/Sao_Paulo', lat: -23.55, lon: -46.63 }
     ];
 
-    function renderWorldGrid() {
-      const grid = $('#worldGrid');
-      if (!grid) return;
+    function renderWorldList() {
+      const list = $('#worldList');
+      if (!list) return;
       const now = new Date(getAtomicTime());
-      grid.innerHTML = '';
+      list.innerHTML = '';
       CITIES.forEach(c => {
         let tStr = '--:--';
         try {
           tStr = now.toLocaleTimeString('en-GB', { timeZone: c.tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 });
         } catch(e) {}
-        grid.innerHTML += `
-          <div class="w-card">
+        list.innerHTML += `
+          <div class="wl-card">
             <div>
-              <div class="w-city">${c.name}</div>
-              <div class="w-diff">${c.tz.split('/')[1].replace('_',' ')}</div>
+              <div class="wl-city">${c.name}</div>
+              <div class="wl-tz">${c.tz.split('/')[1].replace('_',' ')}</div>
             </div>
-            <div class="w-time">${tStr}</div>
+            <div class="wl-time">${tStr}</div>
           </div>
         `;
       });
     }
-    renderWorldGrid();
-    setInterval(renderWorldGrid, 1000);
+    renderWorldList();
+    setInterval(renderWorldList, 1000);
 
     // 3D Canvas Globe Engine
+    let triggerGlobeResize = () => {};
     (function initGlobe() {
-      const canvas = $('#globe');
+      const canvas = $('#globeCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       const cont = $('#globeCont');
@@ -1533,14 +1544,13 @@
 
       function resize() {
         const rect = cont.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
         const dpr = Math.min(devicePixelRatio || 1, 2);
         canvas.width = Math.round(rect.width * dpr);
         canvas.height = Math.round(rect.height * dpr);
-        canvas.style.width = rect.width + 'px';
-        canvas.style.height = rect.height + 'px';
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
-      resize();
+      triggerGlobeResize = resize;
       window.addEventListener('resize', resize);
 
       canvas.addEventListener('mousedown', e => { drag = true; lx = e.clientX; ly = e.clientY; velX = 0; });
@@ -1644,7 +1654,7 @@
         ctx.stroke();
 
         // City Pins
-        const pins = $('#gpins');
+        const pins = $('#globePins');
         if (pins) pins.innerHTML = '';
         const now = new Date(getAtomicTime());
         for (const city of CITIES) {
@@ -1668,7 +1678,7 @@
             pin.style.left = (sx / W * cr2.width) + 'px';
             pin.style.top = (sy / H * cr2.height) + 'px';
             pin.style.opacity = alpha;
-            pin.innerHTML = `<div class="ctime">${ts}</div><div class="cname">${city.name}</div>`;
+            pin.innerHTML = `<div class="cp-time">${ts}</div><div class="cp-name">${city.name}</div>`;
             pins.appendChild(pin);
           }
         }
@@ -1676,28 +1686,44 @@
       requestAnimationFrame(drawFrame);
     })();
 
-    // Settings Drawer Events
-    const overlay = $('#drawerOverlay');
-    $('#btnSettings').addEventListener('click', () => overlay.classList.add('open'));
-    $('#drawerClose').addEventListener('click', () => overlay.classList.remove('open'));
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-
-    $('#set24h').addEventListener('change', e => { CFG.h24 = e.target.checked; saveCfg(); });
-    $('#setMs').addEventListener('change', e => { CFG.ms = e.target.checked; $('#tMs').style.display = CFG.ms ? 'inline-block' : 'none'; saveCfg(); });
-    $('#setBlink').addEventListener('change', e => { CFG.blink = e.target.checked; $('#c1').classList.toggle('static', !CFG.blink); $('#c2').classList.toggle('static', !CFG.blink); saveCfg(); });
-    $('#setDayBar').addEventListener('change', e => { CFG.dayBar = e.target.checked; $('#dayBar').style.display = CFG.dayBar ? 'flex' : 'none'; saveCfg(); });
-    $('#setFontScale').addEventListener('input', e => { CFG.scale = +e.target.value; document.documentElement.style.setProperty('--fs', CFG.scale / 100); saveCfg(); });
-
-    // Fullscreen Toggle
-    $('#btnFullscreen').addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen().catch(() => {});
-      }
+    // Settings Modal Form Event Handlers
+    $('#cfg24h').addEventListener('change', e => { CFG.h24 = e.target.checked; saveConfig(); });
+    $('#cfgMs').addEventListener('change', e => {
+      CFG.ms = e.target.checked;
+      $('#digMs').style.display = CFG.ms ? 'inline-block' : 'none';
+      saveConfig();
+    });
+    $('#cfgBlink').addEventListener('change', e => {
+      CFG.blink = e.target.checked;
+      $('#c1').classList.toggle('static', !CFG.blink);
+      $('#c2').classList.toggle('static', !CFG.blink);
+      saveConfig();
+    });
+    $('#cfgDayBar').addEventListener('change', e => {
+      CFG.dayBar = e.target.checked;
+      $('#dayHorizon').style.display = CFG.dayBar ? 'flex' : 'none';
+      saveConfig();
     });
 
-    applyConfig();
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', e => {
+      const tag = document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+      if (e.key === 'Escape') { $$('.tool-modal').forEach(m => m.classList.remove('open')); }
+    });
+
+    // Apply Saved Config
+    setAccent(CFG.ac);
+    setWatchMode(CFG.mode || 'digital');
+    $('#cfg24h').checked = CFG.h24;
+    $('#cfgMs').checked = CFG.ms;
+    $('#cfgBlink').checked = CFG.blink;
+    $('#cfgDayBar').checked = CFG.dayBar;
+    $('#digMs').style.display = CFG.ms ? 'inline-block' : 'none';
+    $('#c1').classList.toggle('static', !CFG.blink);
+    $('#c2').classList.toggle('static', !CFG.blink);
+    $('#dayHorizon').style.display = CFG.dayBar ? 'flex' : 'none';
   })();
   </script>
 </body>

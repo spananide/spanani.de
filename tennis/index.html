@@ -81,7 +81,7 @@
     /* Floating New Button */
     .btn-fab {
       position: fixed;
-      bottom: 24px;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
       right: calc(50% - 200px);
       width: 52px;
       height: 52px;

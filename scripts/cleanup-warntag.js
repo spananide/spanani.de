@@ -16,10 +16,12 @@ if (!clockFile) {
 let content = fs.readFileSync(clockFile, 'utf8');
 
 // 1. Remove Warntag CSS
+content = content.replace(/\/\* --- BUNDESWEITER WARNTAG 2026 CSS --- \*\/[\s\S]*?\/\* --- END BUNDESWEITER WARNTAG 2026 CSS --- \*\//, '');
 content = content.replace(/\/\* --- WARNTAG SPECIAL COUNTDOWN --- \*\/[\s\S]*?(?=\n@media\(max-width:768px\)\{)/, '');
 content = content.replace(/\s*\.wt-card\{margin-bottom:18px\}[\s\S]*?\.wt-grid\{grid-template-columns:1fr 1fr\}/, '');
 
 // 2. Remove Warntag HTML card
+content = content.replace(/<!-- BUNDESWEITER WARNTAG 2026 CARD -->[\s\S]*?<!-- END BUNDESWEITER WARNTAG 2026 CARD -->/, '');
 content = content.replace(/\s*<!-- WARNTAG 2026 SPECIAL COUNTDOWN -->[\s\S]*?<\/div>\s*<\/div>\s*(?=\n\s*<div class="istrip">)/, '\n');
 
 // 3. Remove updWarntag call in tick()

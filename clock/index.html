@@ -1,1329 +1,1704 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>clock - spanani.de</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#000000;--bg1:#0a0a0a;--bg2:#141414;
-  --border:rgba(255,255,255,.06);--bh:rgba(255,255,255,.12);
-  --text:#ffffff;--mu:#888888;--mu2:#555555;
-  --ac:#ffffff;--ac-rgb:255,255,255;
-  --r:16px;--ease:cubic-bezier(.16,1,.3,1);--fs:1;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-font-smoothing:antialiased}
-body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;line-height:1.6;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
-body.hc{cursor:none}
-::selection{background:rgba(var(--ac-rgb),.2)}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--mu2);border-radius:3px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Precision Atomic Clock // spanani.de</title>
+  <meta name="description" content="Precision network-synced atomic clock with monotonic drift compensation, live Bundesweiter Warntag 2026 countdown, 3D rotating globe, stopwatch and timer.">
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23000000'/%3E%3Ccircle cx='16' cy='16' r='12' stroke='%23ffffff' stroke-width='2' fill='none'/%3E%3Cpath d='M16 8v8l5 3' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 
-.noise{display:none;}
-.grid-bg{display:none;}
-.ambient{display:none;}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-#cur,#cur-ring{display:none}
+  <script>
+    if (typeof window !== 'undefined' && window.location && window.location.pathname && window.location.pathname.endsWith('/index.html')) {
+      const cleanPath = window.location.pathname.replace(/\/index\.html$/, '') || '/clock';
+      window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+    }
+  </script>
 
-nav{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;border-bottom:1px solid var(--border);position:relative;z-index:50;flex-shrink:0}
-.logo{font-weight:600;font-size:20px;color:var(--text);text-decoration:none;transition:opacity .2s;letter-spacing:-0.5px}
-.logo:hover{opacity:.7}.logo em{font-style:italic;color:var(--ac)}
-.nav-r{display:flex;align-items:center;gap:12px}
-.back{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .2s}
-.back:hover{color:var(--text)}
-.prW{display:flex;gap:5px}
-.dot{width:15px;height:15px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:border-color .2s,transform .2s}
-.dot:hover{transform:scale(1.2)}.dot.on{border-color:var(--text)}
-.cpw{position:relative;display:flex;align-items:center;gap:7px;padding:6px 11px;border:1px solid var(--border);border-radius:0;cursor:pointer;transition:border-color .2s}
-.cpw:hover{border-color:var(--bh)}
-.cpsw{width:10px;height:10px;border-radius:0;background:var(--ac);flex-shrink:0;transition:background .2s}
-.cplb{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
-input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none}
-.setbtn{font-weight:500;font-size:12px;color:var(--text);display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);border-radius:30px;background:var(--bg1);cursor:pointer;transition:all .2s}
-.setbtn:hover{color:var(--text);border-color:var(--bh)}
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-card: #08080a;
+      --bg-elevated: #0f0f14;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.2);
+      --text: #ffffff;
+      --mu: #8e8e93;
+      --mu-dim: #48484a;
+      --ac: #ffffff;
+      --ac-rgb: 255, 255, 255;
+      --r-card: 14px;
+      --r-sm: 6px;
+      --fs: 1;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-.sov{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;display:flex;justify-content:flex-end}
-.sov.open{opacity:1;visibility:visible}
-.sdr{width:340px;max-width:100vw;height:100vh;background:var(--bg1);border-left:1px solid var(--border);transform:translateX(100%);transition:transform .38s var(--ease);display:flex;flex-direction:column;overflow-y:auto}
-.sov.open .sdr{transform:none}
-.shead{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.stit{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mu)}
-.scls{color:var(--mu);background:none;border:none;cursor:pointer;display:flex;transition:color .2s;padding:3px}
-.scls:hover{color:var(--text)}
-.sbody{padding:20px 24px;display:flex;flex-direction:column;gap:26px;flex:1}
-.sg{display:flex;flex-direction:column;gap:11px}
-.sgl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mu2);margin-bottom:2px}
-.sr{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.sl{font-size:12px;color:var(--mu)}
-.tog{position:relative;width:34px;height:18px;flex-shrink:0}
-.tog input{opacity:0;width:0;height:0}
-.ts2{position:absolute;inset:0;border-radius:9px;background:var(--mu2);cursor:pointer;transition:background .3s}
-.ts2::after{content:'';position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .3s var(--ease)}
-.tog input:checked+.ts2{background:var(--ac)}
-.tog input:checked+.ts2::after{transform:translateX(16px)}
-.ssel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:6px 10px;cursor:pointer;outline:none;transition:border-color .2s}
-.ssel:focus{border-color:rgba(var(--ac-rgb),.4)}
-.srng{display:flex;flex-direction:column;gap:5px}
-.srng input[type=range]{width:100%;accent-color:var(--ac);cursor:pointer}
-.srng-l{display:flex;justify-content:space-between;font-size:10px;color:var(--mu2)}
-.cpg{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px}
-.dot2{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:border-color .2s,transform .2s}
-.dot2:hover{transform:scale(1.15)}.dot2.on{border-color:var(--text)}
-.sftr{padding:16px 24px;border-top:1px solid var(--border);flex-shrink:0}
-.sres{width:100%;font-weight:500;font-size:12px;color:var(--mu);border:1px solid var(--border);border-radius:var(--r);background:transparent;padding:10px;cursor:pointer;transition:all .2s}
-.sres:hover{color:#ef4444;border-color:rgba(239,68,68,.3)}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; background: var(--bg); color: var(--text); }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
 
-main{flex:1;display:flex;flex-direction:column;align-items:center;padding:36px 48px 56px;position:relative}
+    /* Ambient Background Glow */
+    .ambient-glow {
+      position: fixed;
+      top: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 450px;
+      background: radial-gradient(ellipse at center, rgba(var(--ac-rgb), 0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      transition: background 0.5s ease;
+    }
 
-.syncrow{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:22px;opacity:0;animation:up .5s .15s both}
-.sdot{width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0;transition:background .4s,box-shadow .4s;animation:blink 1.2s infinite}
-.sdot.ok{background:#3db87a;box-shadow:0 0 8px rgba(61,184,122,.6);animation:none}
-.sdot.err{background:#ef4444;animation:none}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+    /* Top Navigation */
+    nav {
+      height: 56px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.4px;
+    }
+    .brand-sub {
+      color: var(--mu);
+      font-weight: 400;
+      font-size: 13px;
+    }
 
-.timewrap{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
-.drW{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:clamp(240px,48vw,460px);height:clamp(240px,48vw,460px);z-index:0;pointer-events:none;opacity:0;animation:up .9s .7s both}
-.drW svg{width:100%;height:100%;transform:rotate(-90deg)}
-.dr-t{fill:none;stroke:var(--border);stroke-width:1.2}
-.dr-f{fill:none;stroke:var(--ac);stroke-width:1.8;stroke-linecap:round;transition:stroke-dashoffset .5s var(--ease);opacity:.18}
-.dr-l{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu2);white-space:nowrap}
-.tblock{text-align:center;opacity:0;animation:up .7s .35s both;position:relative;z-index:2}
-.tmain{font-size:calc(clamp(64px,15vw,160px)*var(--fs));font-weight:600;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums}
-.col{color:var(--ac);display:inline-block;animation:cf 1s ease-in-out infinite}
-@keyframes cf{0%,100%{opacity:1}50%{opacity:.15}}
-.msr{font-size:clamp(16px,2.8vw,30px);color:var(--ac);font-variant-numeric:tabular-nums;opacity:.35;font-weight:500;display:inline-block;min-width:4.5ch;text-align:center}
-.ampm{font-weight:500;font-size:13px;color:var(--mu);margin-left:4px;vertical-align:super}
-.drow{font-size:12px;color:var(--mu);letter-spacing:.14em;text-transform:uppercase;text-align:center;margin-bottom:36px;opacity:0;animation:up .5s .55s both}
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--mu);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .sync-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #30d158;
+      box-shadow: 0 0 6px #30d158;
+    }
+    .sync-dot.warn { background: #ff9f0a; box-shadow: 0 0 6px #ff9f0a; }
+    .sync-dot.err { background: #ff453a; box-shadow: 0 0 6px #ff453a; }
 
-.istrip{display:flex;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:5px;overflow:hidden;margin-bottom:20px;width:100%;max-width:720px;opacity:0;animation:up .5s .8s both}
-.ic{background:var(--bg1);padding:16px 18px;flex:1;text-align:center;transition:background .2s;min-width:0}
-.ic:hover{background:var(--bg2)}
-.icl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;white-space:nowrap}
-.icv{font-size:13px;font-weight:500;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.icv.ac{color:var(--ac)}
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .palette-quick {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .swatch:hover { transform: scale(1.2); }
+    .swatch.active { border-color: #ffffff; }
 
-.offbox{width:100%;max-width:720px;margin-bottom:12px;background:var(--bg1);border:1px solid var(--border);border-radius:5px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px;opacity:0;animation:up .5s .9s both;flex-wrap:wrap}
-.offl{display:flex;align-items:center;gap:11px}
-.offic{color:var(--mu);flex-shrink:0}
-.offlb{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:3px}
-.offv{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-0.5px;color:var(--text);transition:color .4s}
-.offv.good{color:#3db87a}.offv.warn{color:#f59e0b}.offv.bad{color:#ef4444}
-.offbw{flex:1;min-width:110px;max-width:250px}
-.offbt{height:3px;background:var(--mu2);border-radius:2px;overflow:hidden}
-.offbf{height:100%;border-radius:2px;transition:width .5s var(--ease),background .4s;width:0}
-.offbd{font-size:11px;color:var(--mu);margin-top:5px}
+    .btn-nav-icon {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 32px;
+      height: 32px;
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-nav-icon:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: var(--border-hover);
+    }
 
-.dtut{width:100%;max-width:720px;margin-bottom:20px;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.18);border-radius:5px;padding:16px 20px;display:none}
-.dtut.on{display:block;animation:up .4s both}
-.dth{display:flex;align-items:center;gap:9px;margin-bottom:12px}
-.dtic{color:#ef4444;flex-shrink:0}
-.dttit{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#ef4444;flex:1}
-.dtcls{color:var(--mu);cursor:pointer;background:none;border:none;font-family:inherit;font-size:10px;letter-spacing:.1em;text-transform:uppercase;transition:color .2s}
-.dtcls:hover{color:var(--text)}
-.dtsteps{display:flex;flex-direction:column;gap:9px}
-.dtstep{display:flex;gap:9px}
-.dtnum{width:19px;height:19px;border-radius:50%;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);display:flex;align-items:center;justify-content:center;font-size:9px;color:#ef4444;flex-shrink:0;margin-top:2px}
-.dtcnt{font-size:12px;color:var(--mu);line-height:1.7}
-.dtcnt strong{color:var(--text)}
+    /* Main Container */
+    main {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 36px 24px 70px;
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-.tabs{display:flex;gap:6px;margin-bottom:20px;width:100%;max-width:720px;opacity:0;animation:up .5s .95s both}
-.tab{font-weight:500;font-size:12px;color:var(--mu);padding:8px 18px;border:1px solid var(--border);border-radius:30px;background:transparent;cursor:pointer;transition:all .2s}
-.tab:hover{color:var(--text);border-color:var(--bh)}
-.tab.on{color:var(--ac);border-color:rgba(var(--ac-rgb),.3);background:rgba(var(--ac-rgb),.04)}
-.panel{width:100%;max-width:720px;display:none;border:1px solid var(--border);padding:24px;background:var(--bg1)}
-.panel.on{display:block;animation:up .35s both}
+    /* Studio Mode Switcher Tabs */
+    .studio-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 4px;
+      border-radius: 30px;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .s-tab {
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-family: 'DM Mono', monospace;
+      color: var(--mu);
+      background: transparent;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+    .s-tab:hover { color: #ffffff; }
+    .s-tab.active {
+      color: #000000;
+      background: #ffffff;
+    }
 
-.sw-d{text-align:center;margin-bottom:16px}
-.sw-t{font-size:clamp(34px,7.5vw,60px);font-weight:600;letter-spacing:-1px;font-variant-numeric:tabular-nums}
-.sw-ms{font-size:clamp(15px,2.5vw,26px);color:var(--ac);opacity:.45;font-variant-numeric:tabular-nums}
-.sw-c{display:flex;gap:7px;justify-content:center;margin-bottom:13px}
-.btn{font-weight:500;font-size:13px;padding:10px 20px;border-radius:30px;border:1px solid var(--border);background:var(--bg1);color:var(--text);cursor:pointer;transition:all .2s}
-.btn:hover{color:var(--text);border-color:var(--bh)}
-.btn.pri{color:var(--ac);border-color:rgba(var(--ac-rgb),.3)}
-.btn.dan{color:#ef4444;border-color:rgba(239,68,68,.22)}
-.sw-laps{max-height:144px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r)}
-.sw-laps:empty{display:none}
-.lap{display:flex;justify-content:space-between;padding:8px 14px;font-size:12px;color:var(--mu);border-bottom:1px solid var(--border)}
-.lap:last-child{border:none}
-.lap span:first-child{font-size:10px;color:var(--mu2);letter-spacing:.1em}
-.lap span:last-child{font-variant-numeric:tabular-nums;color:var(--text)}
-.lap.best span:last-child{color:#3db87a}.lap.worst span:last-child{color:#ef4444}
+    /* Panels */
+    .studio-panel {
+      width: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeIn 0.25s var(--ease);
+    }
+    .studio-panel.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-.t-setup{display:flex;gap:9px;justify-content:center;align-items:center;margin-bottom:16px}
-.tig{display:flex;flex-direction:column;align-items:center;gap:4px}
-.tig label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
-.ti{width:60px;text-align:center;font-size:30px;font-weight:600;background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);color:var(--text);padding:6px 4px;outline:none;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
-.ti::-webkit-inner-spin-button,.ti::-webkit-outer-spin-button{-webkit-appearance:none}
-.ti:focus{border-color:rgba(var(--ac-rgb),.4)}
-.tsep{font-size:30px;font-weight:600;color:var(--mu2);margin-top:13px}
-.t-disp{text-align:center;margin-bottom:16px;display:none}
-.t-time{font-size:clamp(34px,7.5vw,60px);font-weight:600;letter-spacing:-1px;font-variant-numeric:tabular-nums}
-.t-time.urg{color:#ef4444;animation:pulse .5s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
-.t-ctrl{display:flex;gap:7px;justify-content:center}
+    /* ==========================================================================
+       1. CLOCK STUDIO
+       ========================================================================== */
+    .clock-display-wrap {
+      position: relative;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      margin-bottom: 24px;
+    }
 
-.globewrap{width:100%;max-width:720px;margin-bottom:28px;border:1px solid var(--border);border-radius:5px;overflow:hidden;background:var(--bg1);opacity:0;animation:up .5s 1.05s both}
-.globehead{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.globetit{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu)}
-.globehint{font-size:10px;color:var(--mu2)}
-.globecont{position:relative;height:310px;overflow:hidden}
-canvas#globe{display:block;width:100%;height:100%;cursor:grab}
-canvas#globe:active{cursor:grabbing}
-.gpins{position:absolute;inset:0;pointer-events:none}
-.cpin{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none}
-.cname{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#fff;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.95)}
-.ctime{font-size:10px;color:rgba(255,255,255,.82);white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.95);font-variant-numeric:tabular-nums}
+    .clock-time {
+      font-size: calc(clamp(58px, 14vw, 136px) * var(--fs));
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -2px;
+      line-height: 1;
+      color: var(--text);
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      text-shadow: 0 0 32px rgba(var(--ac-rgb), 0.15);
+    }
+    .clock-colon {
+      color: var(--ac);
+      animation: blinkColon 1s infinite;
+      display: inline-block;
+      margin: 0 -2px;
+    }
+    @keyframes blinkColon {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.15; }
+    }
+    .clock-colon.static { animation: none; opacity: 1; }
 
-.wct{width:100%;max-width:720px;margin-bottom:24px;border:1px solid var(--border);border-radius:5px;overflow:hidden;background:var(--bg1);opacity:0;animation:up .5s 1.05s both;display:none}
-.wct-h{padding:12px 18px;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu)}
-.wct-g{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border)}
-.wc{background:var(--bg1);padding:12px 14px;transition:background .2s}
-.wc:hover{background:var(--bg2)}
-.wc-city{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:3px}
-.wc-time{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-0.5px}
-.wc-off{font-size:10px;color:var(--mu2);margin-top:1px}
+    .clock-ms {
+      font-size: clamp(18px, 3.2vw, 32px);
+      color: var(--ac);
+      opacity: 0.5;
+      font-family: 'DM Mono', monospace;
+      margin-left: 6px;
+      min-width: 4.5ch;
+    }
+    .clock-ampm {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mu);
+      margin-left: 8px;
+    }
 
-.kbdrow{font-size:10px;color:var(--mu2);text-align:center;margin-top:4px;opacity:0;animation:up .4s 2s both;letter-spacing:.06em}
-kbd{font-family:'Inter',monospace;font-size:10px;padding:2px 6px;border:1px solid var(--mu2);border-radius:4px;color:var(--mu2)}
+    .clock-date-row {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--mu);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 14px;
+      text-align: center;
+    }
 
-footer{border-top:1px solid var(--border);padding:20px 48px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;z-index:50;position:relative}
-footer span,footer a{font-size:11px;color:var(--mu);text-decoration:none;transition:color .2s}
-footer a:hover{color:var(--text)}
-.egg{width:7px;height:7px;background:var(--mu2);border-radius:50%;transition:all .3s;cursor:pointer;display:inline-block}
-.egg:hover{background:var(--ac);transform:scale(1.6);box-shadow:0 0 10px rgba(var(--ac-rgb),.4)}
+    /* Day Progress Solar Arc */
+    .day-progress-bar {
+      width: 100%;
+      max-width: 480px;
+      margin: 20px 0 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .dp-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .dp-fill {
+      height: 100%;
+      background: var(--ac);
+      border-radius: 2px;
+      width: 50%;
+      transition: width 0.4s ease;
+    }
+    .dp-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--mu-dim);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
 
-@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    /* Telemetry Info Strip */
+    .istrip {
+      width: 100%;
+      max-width: 820px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--r-card);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .ic {
+      background: var(--bg-card);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .icl {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mu-dim);
+    }
+    .icv {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
 
-/* --- WARNTAG SPECIAL COUNTDOWN --- */
-.wt-card{width:100%;max-width:720px;margin-bottom:24px;background:linear-gradient(180deg,rgba(245,158,11,.07) 0%,rgba(18,14,8,.45) 60%,var(--bg1) 100%);border:1px solid rgba(245,158,11,.28);border-radius:6px;position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(245,158,11,.06);opacity:0;animation:up .5s .65s both;transition:border-color .3s,box-shadow .3s,background .3s}
-.wt-card.active-alert{background:linear-gradient(180deg,rgba(239,68,68,.14) 0%,rgba(28,10,10,.5) 60%,var(--bg1) 100%);border-color:rgba(239,68,68,.55);box-shadow:0 0 35px rgba(239,68,68,.25);animation:wt-alert-pulse 1.8s infinite ease-in-out}
-.wt-card.all-clear{background:linear-gradient(180deg,rgba(61,184,122,.08) 0%,rgba(10,24,16,.45) 60%,var(--bg1) 100%);border-color:rgba(61,184,122,.35);box-shadow:0 4px 20px rgba(61,184,122,.08)}
-@keyframes wt-alert-pulse{0%,100%{border-color:rgba(239,68,68,.35);box-shadow:0 0 15px rgba(239,68,68,.15)}50%{border-color:rgba(239,68,68,.85);box-shadow:0 0 32px rgba(239,68,68,.35)}}
+    /* --- BUNDESWEITER WARNTAG 2026 CSS --- */
+    .wt-card {
+      width: 100%;
+      max-width: 820px;
+      background: linear-gradient(180deg, #100a02 0%, #080501 100%);
+      border: 1px solid rgba(255, 159, 10, 0.28);
+      border-radius: var(--r-card);
+      padding: 22px 24px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 35px rgba(255, 159, 10, 0.06);
+    }
+    .wt-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .wt-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ff9f0a;
+      color: #000000;
+      font-weight: 800;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: 'DM Mono', monospace;
+    }
+    .wt-date-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #ff9f0a;
+      background: rgba(255, 159, 10, 0.1);
+      border: 1px solid rgba(255, 159, 10, 0.25);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .wt-countdown-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0;
+      flex-wrap: wrap;
+    }
+    .wt-seg {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 159, 10, 0.2);
+      border-radius: var(--r-sm);
+      padding: 10px 14px;
+      min-width: 72px;
+      text-align: center;
+    }
+    .wt-seg-v {
+      font-family: 'DM Mono', monospace;
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1;
+    }
+    .wt-seg-l {
+      font-size: 9px;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      color: var(--mu);
+      margin-top: 4px;
+    }
+    .wt-message {
+      font-size: 13px;
+      color: #d1d1d6;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .wt-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .wt-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 159, 10, 0.12);
+      border: 1px solid rgba(255, 159, 10, 0.35);
+      color: #ffb340;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .wt-btn:hover {
+      background: rgba(255, 159, 10, 0.22);
+      border-color: #ff9f0a;
+      color: #ffffff;
+    }
+    .wt-btn.playing {
+      background: #ff453a;
+      border-color: #ff453a;
+      color: #ffffff;
+    }
+    .wt-details {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 159, 10, 0.15);
+    }
+    .wt-details.open { display: block; }
+    .wt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .wt-item {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 159, 10, 0.15);
+      border-radius: var(--r-sm);
+      padding: 12px;
+    }
+    .wt-item-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ff9f0a;
+      margin-bottom: 4px;
+    }
+    .wt-item-desc {
+      font-size: 11px;
+      color: var(--mu);
+      line-height: 1.4;
+    }
+    /* --- END BUNDESWEITER WARNTAG 2026 CSS --- */
 
-.wt-header{padding:13px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:rgba(0,0,0,.28)}
-.wt-badge-wrap{display:flex;align-items:center;gap:11px}
-.wt-siren-icon{width:28px;height:28px;border-radius:6px;background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.32);display:flex;align-items:center;justify-content:center;color:#f59e0b;flex-shrink:0;transition:all .3s;animation:wt-siren-glow 2.4s infinite ease-in-out}
-.wt-card.active-alert .wt-siren-icon{background:rgba(239,68,68,.22);border-color:rgba(239,68,68,.65);color:#ef4444;animation:wt-siren-pulse 1s infinite ease-in-out}
-.wt-card.all-clear .wt-siren-icon{background:rgba(61,184,122,.15);border-color:rgba(61,184,122,.4);color:#3db87a;animation:none}
-@keyframes wt-siren-glow{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 12px 2px rgba(245,158,11,.3)}}
-@keyframes wt-siren-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12);filter:brightness(1.3)}}
+    /* ==========================================================================
+       2. STOPWATCH STUDIO
+       ========================================================================== */
+    .studio-box {
+      width: 100%;
+      max-width: 640px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-card);
+      padding: 32px;
+      text-align: center;
+    }
+    .sw-time {
+      font-size: clamp(42px, 9vw, 76px);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+      color: #ffffff;
+    }
+    .sw-ms {
+      font-size: clamp(20px, 3.5vw, 36px);
+      color: var(--ac);
+      opacity: 0.5;
+      font-family: 'DM Mono', monospace;
+    }
+    .sw-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .btn-act {
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-act:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--border-hover);
+    }
+    .btn-act.pri {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+    }
+    .btn-act.pri:hover { background: #e4e4e7; }
+    .btn-act.dan {
+      color: #ff453a;
+      border-color: rgba(255, 69, 58, 0.3);
+    }
+    .sw-laps {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      font-family: 'DM Mono', monospace;
+    }
+    .sw-laps:empty { display: none; }
+    .lap-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 14px;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--mu);
+    }
+    .lap-row:last-child { border-bottom: none; }
+    .lap-row.best { color: #30d158; }
+    .lap-row.worst { color: #ff453a; }
 
-.wt-title-block{display:flex;flex-direction:column;gap:1px}
-.wt-title{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f59e0b;display:flex;align-items:center;gap:6px}
-.wt-card.active-alert .wt-title{color:#ef4444}
-.wt-card.all-clear .wt-title{color:#3db87a}
-.wt-subtitle{font-size:11px;color:var(--mu)}
+    /* ==========================================================================
+       3. TIMER STUDIO
+       ========================================================================== */
+    .timer-inputs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .t-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .t-unit input {
+      width: 72px;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: #ffffff;
+      font-family: 'DM Mono', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+    }
+    .t-unit input:focus { border-color: var(--border-hover); }
+    .t-unit label {
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      color: var(--mu-dim);
+    }
+    .t-sep {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--mu-dim);
+      padding-bottom: 18px;
+    }
+    .timer-presets {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .preset-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 5px 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--mu);
+      cursor: pointer;
+    }
+    .preset-btn:hover { color: #ffffff; border-color: var(--border-hover); }
 
-.wt-header-right{display:flex;align-items:center;gap:8px}
-.wt-status-pill{display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:4px 10px;border-radius:20px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#f59e0b}
-.wt-status-dot{width:6px;height:6px;border-radius:50%;background:#f59e0b;animation:blink 1.2s infinite}
-.wt-card.active-alert .wt-status-pill{background:rgba(239,68,68,.16);border-color:rgba(239,68,68,.45);color:#ef4444}
-.wt-card.active-alert .wt-status-dot{background:#ef4444;animation:blink .6s infinite}
-.wt-card.all-clear .wt-status-pill{background:rgba(61,184,122,.15);border-color:rgba(61,184,122,.4);color:#3db87a}
-.wt-card.all-clear .wt-status-dot{background:#3db87a;animation:none}
+    /* ==========================================================================
+       4. 3D GLOBE STUDIO
+       ========================================================================== */
+    .globe-card {
+      width: 100%;
+      max-width: 820px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-card);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .globe-canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      touch-action: none;
+    }
+    .globe-canvas-wrap:active { cursor: grabbing; }
+    #globe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .gpins {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .cpin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'DM Mono', monospace;
+      transition: opacity 0.2s;
+    }
+    .ctime {
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid var(--border);
+      color: #ffffff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .cname {
+      font-size: 9px;
+      color: var(--mu);
+      margin-top: 2px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    }
 
-.wt-min-btn{background:none;border:1px solid rgba(255,255,255,.08);border-radius:4px;color:var(--mu);cursor:pointer;padding:4px 6px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.wt-min-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
-.wt-card.minimized .wt-content{display:none}
+    /* ==========================================================================
+       5. WORLD HUBS STUDIO
+       ========================================================================== */
+    .world-grid {
+      width: 100%;
+      max-width: 820px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 10px;
+    }
+    .w-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-card);
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .w-city { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+    .w-diff { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--mu); }
+    .w-time { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 700; color: #ffffff; }
 
-.wt-body{padding:22px 20px 18px;display:flex;flex-direction:column;align-items:center;text-align:center}
-.wt-countdown-wrap{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:12px;user-select:none}
-.wt-num-unit{display:flex;flex-direction:column;align-items:center;min-width:62px}
-.wt-num{font-size:clamp(34px,7vw,54px);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.6)}
-.wt-num-unit.ms .wt-num{font-size:clamp(20px,4.2vw,32px);color:#f59e0b;opacity:.9}
-.wt-card.active-alert .wt-num-unit.ms .wt-num{color:#ef4444}
-.wt-sep{font-size:clamp(26px,5.5vw,42px);font-weight:300;color:var(--mu2);line-height:1;transform:translateY(-6px)}
-.wt-lbl{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--mu);margin-top:5px}
+    /* Settings Drawer */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      z-index: 500;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .drawer-overlay.open { opacity: 1; visibility: visible; }
+    .drawer {
+      width: 360px;
+      max-width: 100vw;
+      height: 100vh;
+      background: #09090b;
+      border-left: 1px solid var(--border);
+      transform: translateX(100%);
+      transition: transform 0.3s var(--ease);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    .drawer-overlay.open .drawer { transform: translateX(0); }
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .drawer-title { font-size: 14px; font-weight: 700; letter-spacing: -0.3px; }
+    .drawer-close {
+      background: none;
+      border: none;
+      color: var(--mu);
+      cursor: pointer;
+      padding: 4px;
+    }
+    .drawer-close:hover { color: #ffffff; }
+    
+    .opt-group {
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .opt-label {
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mu-dim);
+    }
+    .opt-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .opt-name { font-size: 13px; color: var(--text); }
+    
+    /* Toggle Switch */
+    .toggle {
+      position: relative;
+      width: 36px;
+      height: 20px;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .slider::before {
+      content: '';
+      position: absolute;
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.2s var(--ease);
+    }
+    .toggle input:checked + .slider { background: var(--ac); }
+    .toggle input:checked + .slider::before { transform: translateX(16px); background: #000; }
 
-.wt-indep-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--mu);margin-top:-4px;margin-bottom:12px;letter-spacing:.04em;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:3px 9px;border-radius:12px}
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--mu);
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    footer a { color: var(--mu); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: #ffffff; }
+    .egg {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--mu-dim);
+      transition: all 0.3s;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .egg:hover { background: #ffffff; transform: scale(1.4); }
 
-.wt-message{font-size:13px;font-weight:500;color:var(--text);margin-bottom:16px;letter-spacing:-.2px;line-height:1.4}
-.wt-card.active-alert .wt-message{color:#fca5a5}
-
-.wt-progress-wrap{width:100%;max-width:580px;margin-bottom:18px}
-.wt-progress-bar{height:4px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;position:relative}
-.wt-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:3px;transition:width .3s ease}
-.wt-card.all-clear .wt-progress-fill{background:#3db87a}
-.wt-timeline{display:flex;justify-content:space-between;margin-top:7px;font-size:10px;color:var(--mu2);letter-spacing:.06em}
-.wt-tl-pt.active{color:#f59e0b;font-weight:600}
-.wt-card.active-alert .wt-tl-pt.active{color:#ef4444}
-.wt-tl-pt.done{color:#3db87a}
-
-.wt-controls{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
-.wt-btn{font-size:11px;font-weight:500;letter-spacing:.04em;padding:7px 15px;border-radius:30px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .2s ease;text-decoration:none}
-.wt-btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2)}
-.wt-btn.siren-btn{border-color:rgba(245,158,11,.3);color:#f59e0b;background:rgba(245,158,11,.08)}
-.wt-btn.siren-btn:hover{background:rgba(245,158,11,.18);border-color:rgba(245,158,11,.5)}
-.wt-btn.siren-btn.playing{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.6);color:#ef4444;animation:pulse 1s infinite}
-
-.wt-details{width:100%;max-height:0;overflow:hidden;transition:max-height .35s var(--ease),padding .3s;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.22)}
-.wt-details.open{max-height:450px;padding:16px 20px 18px}
-.wt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;text-align:left}
-.wt-item{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:5px;padding:9px 11px}
-.wt-item-icon{font-size:15px;margin-bottom:3px}
-.wt-item-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px}
-.wt-item-desc{font-size:10px;color:var(--mu);line-height:1.4}
-.wt-demo-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:var(--mu)}
-.wt-demo-btn{font-size:10px;padding:4px 9px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--mu);cursor:pointer;transition:all .2s}
-.wt-demo-btn:hover{color:var(--text);border-color:var(--bh)}
-.wt-demo-btn.on{color:#f59e0b;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.08)}
-
-@media(max-width:768px){
-  nav{padding:0 18px}
-  .prW,.cplb{display:none}
-  .back span{display:none}
-  main{padding:22px 14px 40px}
-  footer{padding:16px 18px;flex-wrap:wrap;gap:8px}
-  .ic{padding:12px 8px}.icv{font-size:12px}
-  .offbox{padding:13px 15px}
-  .globewrap{display:none}
-  .wct{display:block}
-  .istrip{flex-wrap:wrap}.ic{flex:1 1 45%}
-  .kbdrow{display:none}
-  .sdr{width:100vw}
-  .wt-card{margin-bottom:18px}
-  .wt-header{padding:10px 14px}
-  .wt-body{padding:16px 12px 14px}
-  .wt-num-unit{min-width:44px}
-  .wt-grid{grid-template-columns:1fr 1fr}
-}
-</style>
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+      main { padding: 24px 16px 60px; }
+      footer { padding: 20px 16px; }
+      .wt-grid { grid-template-columns: 1fr; }
+      .nav-center { display: none; }
+      .globe-canvas-wrap { height: 320px; }
+    }
+  </style>
 </head>
 <body>
-<div class="noise"></div>
-<div class="grid-bg" id="gridBg"></div>
-<div class="ambient" id="ambient"></div>
-<div id="cur"></div><div id="cur-ring"></div>
 
-<div class="sov" id="sov">
-  <div class="sdr">
-    <div class="shead">
-      <span class="stit">Settings</span>
-      <button class="scls" id="scls"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4"/></svg></button>
-    </div>
-    <div class="sbody">
-      <div class="sg">
-        <div class="sgl">Accent color</div>
-        <div class="cpg" id="cpg">
-          <div class="dot2 on" style="background:#e2e2e2" data-c="#e2e2e2"></div>
-          <div class="dot2" style="background:#6ee7b7" data-c="#6ee7b7"></div>
-          <div class="dot2" style="background:#93c5fd" data-c="#93c5fd"></div>
-          <div class="dot2" style="background:#c4b5fd" data-c="#c4b5fd"></div>
-          <div class="dot2" style="background:#fca5a5" data-c="#fca5a5"></div>
-          <div class="dot2" style="background:#fcd34d" data-c="#fcd34d"></div>
-          <div class="dot2" style="background:#fdba74" data-c="#fdba74"></div>
-          <div class="dot2" style="background:#34d399" data-c="#34d399"></div>
-          <div class="dot2" style="background:#f472b6" data-c="#f472b6"></div>
-        </div>
-      </div>
-      <div class="sg">
-        <div class="sgl">Clock display</div>
-        <div class="srng">
-          <div class="sr"><span class="sl">Clock size</span><span id="fsLbl" style="font-size:11px;color:var(--mu)">100%</span></div>
-          <input type="range" id="fsR" min="60" max="140" value="100" step="5">
-          <div class="srng-l"><span>Small</span><span>Large</span></div>
-        </div>
-        <div class="sr"><span class="sl">24-hour format</span><label class="tog"><input type="checkbox" id="t24" checked><div class="ts2"></div></label></div>
-        <div class="sr"><span class="sl">Show milliseconds</span><label class="tog"><input type="checkbox" id="tms" checked><div class="ts2"></div></label></div>
-        <div class="sr"><span class="sl">Blinking colon</span><label class="tog"><input type="checkbox" id="tbl" checked><div class="ts2"></div></label></div>
-        <div class="sr"><span class="sl">Day progress ring</span><label class="tog"><input type="checkbox" id="tring" checked><div class="ts2"></div></label></div>
-      </div>
-      <div class="sg">
-        <div class="sgl">NTP sync</div>
-        <div class="sr"><span class="sl">Sync interval</span>
-          <select class="ssel" id="ssync"><option value="60">1 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="1800">30 min</option></select>
-        </div>
-        <div class="sr"><span class="sl">Samples per sync</span>
-          <select class="ssel" id="ssamples"><option value="1">1 (fastest)</option><option value="3" selected>3 (balanced)</option><option value="5">5 (most precise)</option></select>
-        </div>
-      </div>
-      <div class="sg">
-        <div class="sgl">Appearance</div>
-        <div class="sr"><span class="sl">Grid background</span><label class="tog"><input type="checkbox" id="tgrid" checked><div class="ts2"></div></label></div>
-        <div class="sr"><span class="sl">Ambient glow</span><label class="tog"><input type="checkbox" id="tamb" checked><div class="ts2"></div></label></div>
-      </div>
-    </div>
-    <div class="sftr"><button class="sres" id="sres">Reset all settings</button></div>
-  </div>
-</div>
+  <!-- Ambient Glow -->
+  <div class="ambient-glow" id="ambientGlow"></div>
 
-<nav>
-  <a href="../index.html" class="logo">span<em>ani</em></a>
-  <div class="nav-r">
-    <a href="../index.html" class="back"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.4"/></svg><span>portfolio</span></a>
-    <div class="prW" id="prW">
-      <div class="dot on" style="background:#e2e2e2" data-color="#e2e2e2"></div>
-      <div class="dot" style="background:#6ee7b7" data-color="#6ee7b7"></div>
-      <div class="dot" style="background:#93c5fd" data-color="#93c5fd"></div>
-      <div class="dot" style="background:#c4b5fd" data-color="#c4b5fd"></div>
-      <div class="dot" style="background:#fca5a5" data-color="#fca5a5"></div>
-      <div class="dot" style="background:#fcd34d" data-color="#fcd34d"></div>
-    </div>
-    <div class="cpw"><div class="cpsw" id="cpsw"></div><span class="cplb">color</span><input type="color" id="cpi" value="#e2e2e2"></div>
-    <button class="setbtn" id="setbtn">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="1.8" stroke="currentColor" stroke-width="1.1"/><path d="M6 .5V2M6 10v1.5M.5 6H2M10 6h1.5M1.8 1.8l1 1M9.2 9.2l1 1M9.2 2.8l-1 1M2.8 9.2l-1 1" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
-      Settings
-    </button>
-  </div>
-</nav>
+  <!-- NAVIGATION -->
+  <nav>
+    <a href="/" class="brand">
+      <span>spanani</span>
+      <span class="brand-sub">/ clock</span>
+    </a>
 
-<main>
-  <div class="syncrow">
-    <div class="sdot" id="sdot"></div>
-    <span id="syncst">connecting to ntp...</span>
-    <span id="syncq" style="color:var(--mu2);font-size:10px;margin-left:2px"></span>
-  </div>
-
-  <div class="timewrap">
-    <div class="drW" id="drW">
-      <svg viewBox="0 0 200 200"><circle class="dr-t" cx="100" cy="100" r="95"/><circle class="dr-f" id="drArc" cx="100" cy="100" r="95" stroke-dasharray="596.9" stroke-dashoffset="596.9"/></svg>
-      <div class="dr-l" id="drLbl">-</div>
-    </div>
-    <div class="tblock">
-      <div class="tmain"><span id="dH">--</span><span class="col" id="c1">:</span><span id="dM">--</span><span class="col" id="c2">:</span><span id="dS">--</span><span class="ampm" id="ampm"></span></div>
-      <div class="msr" id="msr">.000</div>
-    </div>
-  </div>
-  <div class="drow" id="drow">- - -</div>
-
-  <!-- WARNTAG 2026 SPECIAL COUNTDOWN -->
-  <div class="wt-card" id="wtCard">
-    <div class="wt-header">
-      <div class="wt-badge-wrap">
-        <div class="wt-siren-icon" id="wtSirenIcon">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-        </div>
-        <div class="wt-title-block">
-          <div class="wt-title">Bundesweiter Warntag 2026</div>
-          <div class="wt-subtitle">Deutschland · Do., 10. September · 11:00 Uhr MESZ (Atomzeit)</div>
-        </div>
-      </div>
-      <div class="wt-header-right">
-        <div class="wt-status-pill" id="wtStatusPill">
-          <span class="wt-status-dot" id="wtStatusDot"></span>
-          <span id="wtStatusText">Probealarm in Kürze</span>
-        </div>
-        <button class="wt-min-btn" id="wtMinBtn" title="Minimieren / Ausklappen" aria-label="Toggle Warntag Card">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 6h8"/></svg>
-        </button>
-      </div>
+    <div class="nav-center">
+      <span class="sync-dot" id="syncDot"></span>
+      <span id="syncText">NTP LOCK (±0.2ms)</span>
     </div>
 
-    <div class="wt-content" id="wtContent">
-      <div class="wt-body">
-        <div class="wt-countdown-wrap" id="wtCountdownWrap">
-          <div class="wt-num-unit" id="wtUnitD" style="display:none">
-            <span class="wt-num" id="wtD">00</span>
-            <span class="wt-lbl">Tage</span>
+    <div class="nav-actions">
+      <div class="palette-quick">
+        <div class="swatch active" style="background:#ffffff;" onclick="setTheme('#ffffff')"></div>
+        <div class="swatch" style="background:#ff9f0a;" onclick="setTheme('#ff9f0a')"></div>
+        <div class="swatch" style="background:#30d158;" onclick="setTheme:#30d158')"></div>
+        <div class="swatch" style="background:#64d2ff;" onclick="setTheme('#64d2ff')"></div>
+      </div>
+
+      <button class="btn-nav-icon" id="btnSettings" title="Clock Settings">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
+
+      <button class="btn-nav-icon" id="btnFullscreen" title="Toggle Fullscreen">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <main>
+
+    <!-- STUDIO TABS -->
+    <div class="studio-tabs">
+      <button class="s-tab active" data-tab="clock">01 · Clock</button>
+      <button class="s-tab" data-tab="sw">02 · Stopwatch</button>
+      <button class="s-tab" data-tab="timer">03 · Timer</button>
+      <button class="s-tab" data-tab="globe">04 · 3D Globe</button>
+      <button class="s-tab" data-tab="world">05 · World Cities</button>
+    </div>
+
+    <!-- TAB 1: CLOCK -->
+    <div class="studio-panel active" id="panel-clock">
+
+      <!-- BUNDESWEITER WARNTAG 2026 CARD -->
+      <div class="wt-card" id="wtCard">
+        <div class="wt-badge-row">
+          <div class="wt-badge">
+            <span>Bundesweiter Warntag 2026</span>
           </div>
-          <span class="wt-sep" id="wtSepD" style="display:none">:</span>
-          <div class="wt-num-unit">
-            <span class="wt-num" id="wtH">--</span>
-            <span class="wt-lbl">Stunden</span>
-          </div>
-          <span class="wt-sep">:</span>
-          <div class="wt-num-unit">
-            <span class="wt-num" id="wtM">--</span>
-            <span class="wt-lbl">Minuten</span>
-          </div>
-          <span class="wt-sep">:</span>
-          <div class="wt-num-unit">
-            <span class="wt-num" id="wtS">--</span>
-            <span class="wt-lbl">Sekunden</span>
-          </div>
-          <span class="wt-sep">.</span>
-          <div class="wt-num-unit ms">
-            <span class="wt-num" id="wtMs">--</span>
-            <span class="wt-lbl">1/100s</span>
-          </div>
-        </div>
-
-        <div class="wt-indep-badge">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
-          <span>100% unabhängig von lokaler Gerätezeit · Atomzeit-synchronisiert</span>
+          <div class="wt-date-badge" id="wtBadgeDate">10.09.2026 · 11:00 CEST</div>
         </div>
 
         <div class="wt-message" id="wtMessage">
-          Offizielle Probewarnung über Cell Broadcast, Sirenennetz &amp; Warn-Apps
+          Offizielle bundesweite Probewarnung über Cell Broadcast, Sirenennetz &amp; Warn-Apps (NINA, KATWARN).
         </div>
 
-        <div class="wt-progress-wrap">
-          <div class="wt-progress-bar">
-            <div class="wt-progress-fill" id="wtProgressFill"></div>
+        <div class="wt-countdown-row">
+          <div class="wt-seg">
+            <div class="wt-seg-v" id="wtH">--</div>
+            <div class="wt-seg-l">Stunden</div>
           </div>
-          <div class="wt-timeline">
-            <span class="wt-tl-pt active" id="wtTl1">11:00 Uhr · Alarm (Heulton)</span>
-            <span class="wt-tl-pt" id="wtTl2">11:45 Uhr · Entwarnung (Dauerton)</span>
+          <div class="wt-seg">
+            <div class="wt-seg-v" id="wtM">--</div>
+            <div class="wt-seg-l">Minuten</div>
+          </div>
+          <div class="wt-seg">
+            <div class="wt-seg-v" id="wtS">--</div>
+            <div class="wt-seg-l">Sekunden</div>
           </div>
         </div>
 
         <div class="wt-controls">
-          <button class="wt-btn siren-btn" id="wtSirenBtn">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="wtSirenSvg">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            </svg>
-            <span id="wtSirenBtnText">Sirene testen (Heulton)</span>
+          <button class="wt-btn" id="wtSirenBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            <span id="wtSirenBtnText">Sirene Probehören (Heulton)</span>
           </button>
           <button class="wt-btn" id="wtDetailsBtn">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
             <span>Kanäle &amp; Info</span>
           </button>
         </div>
-      </div>
 
-      <div class="wt-details" id="wtDetails">
-        <div class="wt-grid">
-          <div class="wt-item">
-            <div class="wt-item-icon">📱</div>
-            <div class="wt-item-title">Cell Broadcast</div>
-            <div class="wt-item-desc">Schriller Warnton auf fast jedem Smartphone, auch bei Stummschaltung. Keine Installation nötig.</div>
-          </div>
-          <div class="wt-item">
-            <div class="wt-item-icon">📢</div>
-            <div class="wt-item-title">Sirenennetz</div>
-            <div class="wt-item-desc">1 Min. auf- und abschwellender Heulton (Warnung). 1 Min. durchgehender Dauerton (Entwarnung).</div>
-          </div>
-          <div class="wt-item">
-            <div class="wt-item-icon">📲</div>
-            <div class="wt-item-title">Warn-Apps</div>
-            <div class="wt-item-desc">Push-Mitteilung über NINA, KATWARN &amp; BIWAPP mit detaillierten Gefahrenhinweisen.</div>
-          </div>
-          <div class="wt-item">
-            <div class="wt-item-icon">📻</div>
-            <div class="wt-item-title">Radio &amp; TV</div>
-            <div class="wt-item-desc">Laufbänder und Warnmeldungen im öffentlich-rechtlichen und privaten Rundfunk.</div>
-          </div>
-        </div>
-        <div class="wt-demo-row">
-          <span>Live-Vorschau testen:</span>
-          <div style="display:flex;gap:6px">
-            <button class="wt-demo-btn" id="wtDemoAlarm">Probealarm 11:00 simulieren</button>
-            <button class="wt-demo-btn" id="wtDemoEntwarnung">Entwarnung 11:45 simulieren</button>
-            <button class="wt-demo-btn on" id="wtDemoReset">Live-Uhrzeit</button>
+        <div class="wt-details" id="wtDetails">
+          <div class="wt-grid">
+            <div class="wt-item">
+              <div class="wt-item-title">📱 Cell Broadcast</div>
+              <div class="wt-item-desc">Schriller Warnton auf fast jedem Handy, auch bei lautlosem Profil. Keine App nötig.</div>
+            </div>
+            <div class="wt-item">
+              <div class="wt-item-title">📢 Sirenennetz</div>
+              <div class="wt-item-desc">1 Minute auf- und abschwellender Heulton um 11:00 Uhr, Dauerton zur Entwarnung um 11:45 Uhr.</div>
+            </div>
+            <div class="wt-item">
+              <div class="wt-item-title">📲 Warn-Apps</div>
+              <div class="wt-item-desc">Meldung über NINA, KATWARN und BIWAPP mit Handlungshinweisen.</div>
+            </div>
+            <div class="wt-item">
+              <div class="wt-item-title">📻 Rundfunk &amp; TV</div>
+              <div class="wt-item-desc">Laufbänder und Warnunterbrechungen bei TV- und Radiosendern.</div>
+            </div>
           </div>
         </div>
       </div>
+      <!-- END BUNDESWEITER WARNTAG 2026 CARD -->
+
+      <!-- CLOCK TIME DISPLAY -->
+      <div class="clock-display-wrap">
+        <div class="clock-time">
+          <span id="tH">--</span>
+          <span class="clock-colon" id="c1">:</span>
+          <span id="tM">--</span>
+          <span class="clock-colon" id="c2">:</span>
+          <span id="tS">--</span>
+          <span class="clock-ms" id="tMs">.000</span>
+          <span class="clock-ampm" id="tAmpm"></span>
+        </div>
+
+        <div class="clock-date-row" id="clockDate">--</div>
+
+        <!-- Solar Day Progress Arc -->
+        <div class="day-progress-bar" id="dayBar">
+          <div class="dp-track">
+            <div class="dp-fill" id="dpFill"></div>
+          </div>
+          <div class="dp-meta">
+            <span>00:00</span>
+            <span id="dpPercent">--% Day Elapsed</span>
+            <span>24:00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TELEMETRY STRIP -->
+      <div class="istrip">
+        <div class="ic">
+          <div class="icl">Timezone</div>
+          <div class="icv" id="telTz">--</div>
+        </div>
+        <div class="ic">
+          <div class="icl">UTC Master</div>
+          <div class="icv" id="telUtc">--:--:--</div>
+        </div>
+        <div class="ic">
+          <div class="icl">UNIX Epoch</div>
+          <div class="icv" id="telEpoch">--</div>
+        </div>
+        <div class="ic">
+          <div class="icl">Solar Week</div>
+          <div class="icv" id="telWeek">Week --</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: STOPWATCH -->
+    <div class="studio-panel" id="panel-sw">
+      <div class="studio-box">
+        <div class="sw-time">
+          <span id="swDigits">00:00:00</span>
+          <span class="sw-ms" id="swMs">.000</span>
+        </div>
+        <div class="sw-actions">
+          <button class="btn-act pri" id="btnSwStart">Start</button>
+          <button class="btn-act" id="btnSwLap">Lap</button>
+          <button class="btn-act dan" id="btnSwReset">Reset</button>
+        </div>
+        <div class="sw-laps" id="swLapsList"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: TIMER -->
+    <div class="studio-panel" id="panel-timer">
+      <div class="studio-box">
+        <div class="timer-inputs" id="timerSetup">
+          <div class="t-unit">
+            <input type="number" id="tiH" value="0" min="0" max="23">
+            <label>Hours</label>
+          </div>
+          <span class="t-sep">:</span>
+          <div class="t-unit">
+            <input type="number" id="tiM" value="5" min="0" max="59">
+            <label>Minutes</label>
+          </div>
+          <span class="t-sep">:</span>
+          <div class="t-unit">
+            <input type="number" id="tiS" value="0" min="0" max="59">
+            <label>Seconds</label>
+          </div>
+        </div>
+
+        <div class="timer-presets" id="timerPresets">
+          <button class="preset-btn" onclick="setTimerPreset(1)">1 Min</button>
+          <button class="preset-btn" onclick="setTimerPreset(5)">5 Min</button>
+          <button class="preset-btn" onclick="setTimerPreset(15)">15 Min</button>
+          <button class="preset-btn" onclick="setTimerPreset(25)">25 Min (Pomodoro)</button>
+        </div>
+
+        <div class="sw-time" id="timerDisplay" style="display:none;">00:05:00</div>
+
+        <div class="sw-actions">
+          <button class="btn-act pri" id="btnTimerStart">Start</button>
+          <button class="btn-act dan" id="btnTimerReset">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: 3D GLOBE -->
+    <div class="studio-panel" id="panel-globe">
+      <div class="globe-card">
+        <div class="globe-canvas-wrap" id="globeCont">
+          <canvas id="globe"></canvas>
+          <div class="gpins" id="gpins"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: WORLD CITIES -->
+    <div class="studio-panel" id="panel-world">
+      <div class="world-grid" id="worldGrid"></div>
+    </div>
+
+  </main>
+
+  <!-- SETTINGS DRAWER -->
+  <div class="drawer-overlay" id="drawerOverlay">
+    <div class="drawer">
+      <div class="drawer-header">
+        <span class="drawer-title">Clock Configuration</span>
+        <button class="drawer-close" id="drawerClose">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="opt-group">
+        <span class="opt-label">Display Mode</span>
+        <div class="opt-row">
+          <span class="opt-name">24-Hour Military Format</span>
+          <label class="toggle"><input type="checkbox" id="set24h" checked><span class="slider"></span></label>
+        </div>
+        <div class="opt-row">
+          <span class="opt-name">Milliseconds Counter</span>
+          <label class="toggle"><input type="checkbox" id="setMs" checked><span class="slider"></span></label>
+        </div>
+        <div class="opt-row">
+          <span class="opt-name">Blinking Time Colons</span>
+          <label class="toggle"><input type="checkbox" id="setBlink" checked><span class="slider"></span></label>
+        </div>
+        <div class="opt-row">
+          <span class="opt-name">Day Progress Arc</span>
+          <label class="toggle"><input type="checkbox" id="setDayBar" checked><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="opt-group">
+        <span class="opt-label">Accent Theme Color</span>
+        <div class="palette-quick" style="gap:8px;">
+          <div class="swatch" style="background:#ffffff; width:22px; height:22px;" onclick="setTheme('#ffffff')"></div>
+          <div class="swatch" style="background:#ff9f0a; width:22px; height:22px;" onclick="setTheme('#ff9f0a')"></div>
+          <div class="swatch" style="background:#30d158; width:22px; height:22px;" onclick="setTheme('#30d158')"></div>
+          <div class="swatch" style="background:#64d2ff; width:22px; height:22px;" onclick="setTheme('#64d2ff')"></div>
+          <div class="swatch" style="background:#bf5af2; width:22px; height:22px;" onclick="setTheme('#bf5af2')"></div>
+        </div>
+      </div>
+
+      <div class="opt-group">
+        <span class="opt-label">Scale Factor</span>
+        <input type="range" id="setFontScale" min="70" max="130" value="100" style="width:100%; accent-color:var(--ac);">
+      </div>
     </div>
   </div>
 
-  <div class="istrip">
-    <div class="ic"><div class="icl">Timezone</div><div class="icv ac" id="iTz">-</div></div>
-    <div class="ic"><div class="icl">UTC Offset</div><div class="icv" id="iOff">-</div></div>
-    <div class="ic"><div class="icl">Latency</div><div class="icv" id="iLat">-</div></div>
-    <div class="ic"><div class="icl">Accuracy</div><div class="icv ac" id="iAcc">-</div></div>
-    <div class="ic"><div class="icl">Unix</div><div class="icv" id="iUnix">-</div></div>
-  </div>
+  <!-- CANONICAL FOOTER -->
+  <footer>
+    <a href="/">spanani.de</a>
+    <span>atomic timekeeping engine · 2026</span>
+    <a href="https://lambacher.netlify.net" target="_blank" class="egg" title="easter egg" aria-label="Easter Egg"></a>
+  </footer>
 
-  <div class="offbox">
-    <div class="offl">
-      <div class="offic"><svg width="19" height="19" viewBox="0 0 19 19" fill="none"><rect x="3.5" y="2.5" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.2"/><line x1="6.5" y1="5.5" x2="12.5" y2="5.5" stroke="currentColor"/><line x1="6.5" y1="8.5" x2="12.5" y2="8.5" stroke="currentColor"/><line x1="6.5" y1="11.5" x2="9.5" y2="11.5" stroke="currentColor"/></svg></div>
-      <div><div class="offlb">Device vs Atomic</div><div class="offv" id="offv">-</div></div>
-    </div>
-    <div class="offbw"><div class="offbt"><div class="offbf" id="offbf"></div></div><div class="offbd" id="offbd">waiting for sync...</div></div>
-  </div>
+  <script>
+  (function(){
+    'use strict';
+    const $ = s => document.querySelector(s);
+    const $$ = s => [...document.querySelectorAll(s)];
+    const pad = (n, d=2) => String(n).padStart(d, '0');
 
-  <div class="dtut" id="dtut">
-    <div class="dth">
-      <div class="dtic"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#ef4444" stroke-width="1.1"/><path d="M8 4.5V8M8 10.5v.5" stroke="#ef4444" stroke-width="1.3" stroke-linecap="round"/></svg></div>
-      <span class="dttit">Your clock is significantly off - fix it</span>
-      <button class="dtcls" id="dtcls">Dismiss</button>
-    </div>
-    <div class="dtsteps" id="dtsteps"></div>
-  </div>
+    // Global Settings
+    const DEF = { ac: '#ffffff', h24: true, ms: true, blink: true, dayBar: true, scale: 100 };
+    let CFG = { ...DEF };
+    try {
+      const saved = localStorage.getItem('spa-clock-cfg');
+      if (saved) CFG = { ...DEF, ...JSON.parse(saved) };
+    } catch(e) {}
 
-  <div class="tabs">
-    <button class="tab on" data-p="clock">Clock</button>
-    <button class="tab" data-p="sw">Stopwatch</button>
-    <button class="tab" data-p="timer">Timer</button>
-  </div>
-
-  <div class="panel" id="pSw">
-    <div class="sw-d"><span class="sw-t" id="swt">00:00:00</span><span class="sw-ms" id="swms">.000</span></div>
-    <div class="sw-c"><button class="btn pri" id="swS">Start</button><button class="btn" id="swL">Lap</button><button class="btn dan" id="swR">Reset</button></div>
-    <div class="sw-laps" id="swLaps"></div>
-  </div>
-
-  <div class="panel" id="pTimer">
-    <div class="t-setup" id="tSetup">
-      <div class="tig"><label>Hours</label><input type="number" class="ti" id="tH" value="0" min="0" max="99"></div>
-      <span class="tsep">:</span>
-      <div class="tig"><label>Minutes</label><input type="number" class="ti" id="tM" value="5" min="0" max="59"></div>
-      <span class="tsep">:</span>
-      <div class="tig"><label>Seconds</label><input type="number" class="ti" id="tS" value="0" min="0" max="59"></div>
-    </div>
-    <div class="t-disp" id="tDisp"><div class="t-time" id="tTime">00:05:00</div></div>
-    <div class="t-ctrl"><button class="btn pri" id="tSt">Start</button><button class="btn dan" id="tRs">Reset</button></div>
-  </div>
-
-  <div class="globewrap">
-    <div class="globehead"><span class="globetit">world clocks - web synced</span><span class="globehint">drag to rotate</span></div>
-    <div class="globecont"><canvas id="globe"></canvas><div class="gpins" id="gpins"></div></div>
-  </div>
-
-  <div class="wct" id="wct">
-    <div class="wct-h">World Clocks</div>
-    <div class="wct-g" id="wctG"></div>
-  </div>
-
-  <div class="kbdrow"><kbd>F</kbd> fullscreen · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> tabs · <kbd>Space</kbd> stopwatch · <kbd>,</kbd> settings</div>
-</main>
-
-<footer>
-  <a href="../index.html">spanani.de</a>
-  <span>web synced · atomic precision · 2026</span>
-  <a href="https://lambacher.netlify.net" target="_blank" class="egg" title="easter egg" aria-label="Easter Egg"></a>
-</footer>
-
-<script>
-(function(){
-'use strict';
-const $=s=>document.querySelector(s);
-const $$=s=>[...document.querySelectorAll(s)];
-const pad=(n,d=2)=>String(n).padStart(d,'0');
-const lerp=(a,b,t)=>a+(b-a)*t;
-const RR=document.documentElement;
-const isT=('ontouchstart'in window)||navigator.maxTouchPoints>0;
-
-const DEF={ac:'#e2e2e2',grid:true,ring:true,amb:true,h24:true,ms:true,blink:true,cur:true,fs:100,sync:300,samples:3};
-let C={...DEF};
-try{const s=localStorage.getItem('spa-cfg');if(s)C={...DEF,...JSON.parse(s)};}catch(e){}
-function save(){try{localStorage.setItem('spa-cfg',JSON.stringify(C));}catch(e){}}
-
-function h2r(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255].join(',');}
-
-function applyCol(hex,persist=true){
-  RR.style.setProperty('--ac',hex);
-  RR.style.setProperty('--ac-rgb',h2r(hex));
-  const sw=$('#cpsw');if(sw)sw.style.background=hex;
-  const ci=$('#cpi');if(ci)ci.value=hex;
-  $$('.dot,.dot2').forEach(p=>{
-    const k=p.dataset.color||p.dataset.c||'';
-    p.classList.toggle('on',k.toLowerCase()===hex.toLowerCase());
-  });
-  if(persist){C.ac=hex;save();}
-}
-function applyAll(){
-  applyCol(C.ac,false);
-  const gb=$('#gridBg');if(gb)gb.style.opacity=C.grid?'.02':'0';
-  const am=$('#ambient');if(am)am.style.opacity=C.amb?'1':'0';
-  const drw=$('#drW');if(drw)drw.style.display=C.ring?'':'none';
-  const mr=$('#msr');if(mr)mr.style.display=C.ms?'':'none';
-  $$('.col').forEach(c=>{c.style.animation=C.blink?'':'none';c.style.opacity=C.blink?'':'1';});
-  if(!isT){C.cur?document.body.classList.add('hc'):document.body.classList.remove('hc');}
-  RR.style.setProperty('--fs',C.fs/100);
-  const fl=$('#fsLbl');if(fl)fl.textContent=C.fs+'%';
-  const fr=$('#fsR');if(fr)fr.value=C.fs;
-  const ss=$('#ssync');if(ss)ss.value=C.sync;
-  const sp=$('#ssamples');if(sp)sp.value=C.samples;
-  const tv=(id,v)=>{const e=$(id);if(e)e.checked=v;};
-  tv('#t24',C.h24);tv('#tms',C.ms);tv('#tbl',C.blink);tv('#tring',C.ring);tv('#tgrid',C.grid);tv('#tamb',C.amb);tv('#tcur',C.cur);
-}
-applyAll();
-
-
-
-const sov=$('#sov');
-$('#setbtn').addEventListener('click',()=>sov.classList.toggle('open'));
-$('#scls').addEventListener('click',()=>sov.classList.remove('open'));
-sov.addEventListener('click',e=>{if(e.target===sov)sov.classList.remove('open');});
-function bt(id,key){const e=$(id);if(!e)return;e.addEventListener('change',()=>{C[key]=e.checked;save();applyAll();});}
-bt('#t24','h24');bt('#tms','ms');bt('#tbl','blink');bt('#tring','ring');bt('#tgrid','grid');bt('#tamb','amb');bt('#tcur','cur');
-$('#fsR').addEventListener('input',e=>{C.fs=+e.target.value;save();applyAll();});
-$('#ssync').addEventListener('change',e=>{C.sync=+e.target.value;save();reschedSync();});
-$('#ssamples').addEventListener('change',e=>{C.samples=+e.target.value;save();});
-$$('.dot2').forEach(p=>p.addEventListener('click',()=>applyCol(p.dataset.c)));
-$$('.dot').forEach(p=>p.addEventListener('click',()=>applyCol(p.dataset.color)));
-$('#cpi').addEventListener('input',e=>applyCol(e.target.value));
-$('#sres').addEventListener('click',()=>{C={...DEF};try{localStorage.removeItem('spa-cfg');}catch(e){}applyAll();reschedSync();});
-
-let ntpOff=0,latMs=0,userTz=Intl.DateTimeFormat().resolvedOptions().timeZone,syncTimer=null;
-let atomicAnchorTime=null,atomicAnchorPerf=null,isAtomicSynced=false;
-
-function getAtomicTime(){
-  if(isAtomicSynced && atomicAnchorTime!==null && atomicAnchorPerf!==null){
-    return Math.round(atomicAnchorTime + (performance.now() - atomicAnchorPerf));
-  }
-  return Date.now() + ntpOff;
-}
-
-function parseTimePayload(d){
-  let ts = NaN;
-  if (typeof d.unixtime === 'number') {
-    ts = d.unixtime * 1000 + (d.milliSeconds || 0);
-  }
-  if (!Number.isFinite(ts)) {
-    if (typeof d.datetime === 'string') ts = new Date(d.datetime).getTime();
-    else if (typeof d.dateTime === 'string') ts = new Date(d.dateTime + (d.dateTime.includes('Z') || d.dateTime.includes('+') ? '' : 'Z')).getTime();
-    else if (typeof d.iso8601 === 'string') {
-      const preciseIso = typeof d.time === 'string' && /^\d{2}:\d{2}:\d{2}\.\d+/.test(d.time) ? d.iso8601.replace(/T\d{2}:\d{2}:\d{2}(?:\.\d+)?/, 'T'+d.time) : d.iso8601;
-      ts = new Date(preciseIso).getTime();
+    function saveCfg() {
+      try { localStorage.setItem('spa-clock-cfg', JSON.stringify(CFG)); } catch(e) {}
     }
-    else if (typeof d.timestamp === 'number') ts = d.timestamp * (d.timestamp > 1e11 ? 1 : 1000);
-  }
-  return Number.isFinite(ts) ? ts : NaN;
-}
 
-async function fetchTimeSample(url){
-  const controller = new AbortController();
-  const killer = setTimeout(()=>controller.abort(), 6000);
-  const t0 = Date.now();
-  const p0 = performance.now();
-  try{
-    const res = await fetch(url + (url.includes('?') ? '&' : '?') + '_=' + Math.random(), {cache: 'no-store', signal: controller.signal});
-    const p1 = performance.now();
-    const d = await res.json();
-    if(!res.ok) throw new Error('API failed');
+    function hexToRgb(h) {
+      const n = parseInt(h.slice(1), 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(',');
+    }
 
-    const rtt = p1 - p0;
-    const ts = parseTimePayload(d);
-    if(!Number.isFinite(ts)) throw new Error('Bad time payload');
-
-    const midpointPerf = p0 + (rtt / 2);
-    const midpointReal = t0 + (rtt / 2);
-    const off = ts - midpointReal;
-
-    return {
-      ts,
-      perf: midpointPerf,
-      off: Math.round(off),
-      rtt: Math.round(rtt),
-      accuracy: Math.max(10, Math.round(rtt / 2)),
-      server: new URL(url).hostname,
-      samples: 1
+    window.setTheme = function(hex) {
+      CFG.ac = hex;
+      document.documentElement.style.setProperty('--ac', hex);
+      document.documentElement.style.setProperty('--ac-rgb', hexToRgb(hex));
+      $$('.swatch').forEach(s => s.classList.toggle('active', s.style.background === hex));
+      saveCfg();
     };
-  } finally {
-    clearTimeout(killer);
-  }
-}
 
-async function syncNTP(){
-  const dot=$('#sdot'),st=$('#syncst'),sq=$('#syncq');
-  if(!isAtomicSynced){
-    dot.className='sdot';st.textContent='connecting to atomic ntp...';sq.textContent='';
-  }
-
-  const urls=[
-    'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
-    'https://gettimeapi.dev/v1/time?timezone=UTC',
-    'https://worldtimeapi.org/api/timezone/Etc/UTC'
-  ];
-
-  // 1. Fast race: quickest server establishes immediate atomic sync (under 250ms)
-  try {
-    const quick = await Promise.any(urls.map(u=>fetchTimeSample(u)));
-    if(!isAtomicSynced){
-      atomicAnchorTime = quick.ts;
-      atomicAnchorPerf = quick.perf;
-      ntpOff = quick.off;
-      latMs = quick.rtt;
-      isAtomicSynced = true;
-      dot.className='sdot ok';
-      st.textContent='atomic synced - '+userTz;
-      sq.textContent='· quick';
-      updateSyncUI(quick);
+    function applyConfig() {
+      setTheme(CFG.ac);
+      $('#set24h').checked = CFG.h24;
+      $('#setMs').checked = CFG.ms;
+      $('#setBlink').checked = CFG.blink;
+      $('#setDayBar').checked = CFG.dayBar;
+      $('#setFontScale').value = CFG.scale;
+      document.documentElement.style.setProperty('--fs', CFG.scale / 100);
+      $('#tMs').style.display = CFG.ms ? 'inline-block' : 'none';
+      $('#c1').classList.toggle('static', !CFG.blink);
+      $('#c2').classList.toggle('static', !CFG.blink);
+      $('#dayBar').style.display = CFG.dayBar ? 'flex' : 'none';
     }
-  } catch(e) {}
 
-  // 2. Full consensus with outlier filtering across all responding endpoints
-  const settled = await Promise.allSettled(urls.map(u=>fetchTimeSample(u)));
-  const valid = settled.filter(r=>r.status==='fulfilled').map(r=>r.value);
-
-  if(!valid.length){
-    if(!isAtomicSynced){
-      dot.className='sdot err';
-      st.textContent='web time unavailable';
-      sq.textContent='';
-      $('#iLat').textContent='-';
-      $('#iAcc').textContent='-';
-      updateOff(0,true);
-    }
-    return;
-  }
-
-  const offsets = valid.map(v=>v.off).sort((a,b)=>a-b);
-  const median = offsets[Math.floor(offsets.length/2)];
-  let good = valid.filter(v=>Math.abs(v.off-median) < 1500);
-  if(!good.length) good = valid;
-
-  good.sort((a,b)=>a.rtt-b.rtt);
-  const best = Math.max(1, good[0].rtt);
-  const agree = good.filter(v=>v.rtt <= best*3);
-
-  let totalWeight=0, totalOffset=0;
-  agree.forEach(v=>{const w=1/Math.max(1,v.rtt); totalWeight+=w; totalOffset+=v.off*w;});
-  ntpOff = Math.round(totalOffset/totalWeight);
-  latMs = good[0].rtt;
-
-  const nowPerf = performance.now();
-  atomicAnchorTime = Date.now() + ntpOff;
-  atomicAnchorPerf = nowPerf;
-  isAtomicSynced = true;
-
-  dot.className='sdot ok';
-  st.textContent='atomic synced - '+userTz;
-  sq.textContent='· '+agree.length+'/'+urls.length+' ok';
-  updateSyncUI({
-    off: ntpOff, rtt: latMs, accuracy: Math.max(10, Math.round(latMs/2)),
-    server: good[0].server, samples: agree.length
-  });
-  setTimeout(()=>{if(sq)sq.textContent='';}, 3500);
-}
-
-function updateSyncUI(meta){
-  updateOff(Math.round(Date.now() - getAtomicTime()),false,meta);
-  $('#iTz').textContent=userTz;
-  const ro=new Date().getTimezoneOffset();
-  $('#iOff').textContent='UTC'+(ro<=0?'+':'-')+pad(Math.abs(Math.floor(ro/60)))+':'+pad(Math.abs(ro%60));
-  $('#iLat').textContent=latMs+'ms';
-  $('#iAcc').textContent='±'+meta.accuracy+'ms';
-}
-function reschedSync(){if(syncTimer)clearInterval(syncTimer);syncTimer=setInterval(syncNTP,C.sync*1000);}
-
-const OSG={
-  win:[{t:'Open Date & Time Settings',d:'Right-click taskbar clock -> <strong>Adjust date/time</strong>.'},{t:'Enable automatic sync',d:'Turn on <strong>Set time automatically</strong>.'},{t:'Force sync now',d:'Click <strong>Sync now</strong>. Or in admin terminal: <strong>w32tm /resync /force</strong>'}],
-  mac:[{t:'Open System Settings',d:'Apple Menu -> System Settings -> <strong>General -> Date & Time</strong>.'},{t:'Enable automatic',d:'Turn on <strong>Set time and date automatically</strong>.'},{t:'Force via Terminal',d:'<strong>sudo sntp -sS time.apple.com</strong>'}],
-  linux:[{t:'Check status',d:'Terminal: <strong>timedatectl status</strong>'},{t:'Enable NTP',d:'<strong>sudo timedatectl set-ntp true</strong>'},{t:'Restart',d:'<strong>sudo systemctl restart systemd-timesyncd</strong>'}],
-  android:[{t:'Settings',d:'Settings -> General Management -> <strong>Date and Time</strong>.'},{t:'Enable automatic',d:'Toggle <strong>Automatic date and time</strong> on.'}],
-  ios:[{t:'Settings',d:'Settings -> General -> <strong>Date & Time</strong>.'},{t:'Set automatically',d:'Toggle <strong>Set Automatically</strong> on.'}],
-};
-function osKey(){const ua=navigator.userAgent;if(/android/i.test(ua))return'android';if(/iphone|ipad/i.test(ua))return'ios';if(/mac/i.test(ua))return'mac';if(/win/i.test(ua))return'win';return'linux';}
-let tutOff=false;try{if(localStorage.getItem('spa-tut-off'))tutOff=true;}catch(e){}
-$('#dtcls').addEventListener('click',()=>{$('#dtut').classList.remove('on');tutOff=true;try{localStorage.setItem('spa-tut-off','1');}catch(e){}});
-
-function updateOff(ms,isError=false,meta=null){
-  const ov=$('#offv'),ob=$('#offbf'),od=$('#offbd');
-  if(isError){
-    ov.className='offv bad';ov.textContent='offline';ob.style.width='100%';ob.style.background='#ef4444';od.textContent='No browser-accessible time API could be reached.';return;
-  }
-  const abs=Math.abs(ms),sign=ms>0?'+':ms<0?'-':'';
-  if(abs<30){ov.className='offv good';ov.textContent=ms===0?'±0ms':sign+abs+'ms';od.textContent='Your device clock is closely synced with real-time NTP.';}
-  else if(abs<200){ov.className='offv warn';ov.textContent=sign+abs+'ms';od.textContent='Slight drift - common after sleep, resume, or delayed OS sync.';}
-  else if(abs<5000){ov.className='offv warn';ov.textContent=sign+(abs/1000).toFixed(2)+'s';od.textContent='Noticeable drift - consider syncing your system clock.';}
-  else{ov.className='offv bad';ov.textContent=sign+(abs/1000).toFixed(1)+'s';od.textContent='Significant drift - your OS clock is incorrectly configured.';}
-
-  ob.style.width=Math.min(100,abs/20)+'%';ob.style.background=abs<30?'#3db87a':abs<200?'#f59e0b':'#ef4444';
-  if(meta&&meta.samples===1&&abs<5000) od.textContent+=' Quick estimate shown first; refined samples will tighten this.';
-
-  if(abs>=5000&&!tutOff){
-    const steps=OSG[osKey()]||OSG.win;
-    $('#dtsteps').innerHTML=steps.map((s,i)=>`<div class="dtstep"><div class="dtnum">${i+1}</div><div class="dtcnt"><strong>${s.t}</strong><br>${s.d}</div></div>`).join('');
-    $('#dtut').classList.add('on');
-  }else if(!tutOff)$('#dtut').classList.remove('on');
-}
-
-const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const CIRC=2*Math.PI*95;
-let lastSec=-1;
-
-const CITIES=[
-  {name:'New York',tz:'America/New_York',lat:40.71,lon:-74.01},
-  {name:'London',tz:'Europe/London',lat:51.51,lon:-0.13},
-  {name:'Berlin',tz:'Europe/Berlin',lat:52.52,lon:13.40},
-  {name:'Dubai',tz:'Asia/Dubai',lat:25.20,lon:55.27},
-  {name:'Tokyo',tz:'Asia/Tokyo',lat:35.68,lon:139.69},
-  {name:'Sydney',tz:'Australia/Sydney',lat:-33.87,lon:151.21},
-  {name:'São Paulo',tz:'America/Sao_Paulo',lat:-23.55,lon:-46.63},
-  {name:'Los Angeles',tz:'America/Los_Angeles',lat:34.05,lon:-118.24},
-  {name:'Mumbai',tz:'Asia/Kolkata',lat:19.08,lon:72.88},
-  {name:'Beijing',tz:'Asia/Shanghai',lat:39.91,lon:116.39},
-];
-
-function buildWCT(){
-  const g=$('#wctG');if(!g||g.children.length)return;
-  g.innerHTML=CITIES.map(c=>`<div class="wc"><div class="wc-city">${c.name}</div><div class="wc-time" id="wc_${c.tz.replace(/[\/\-]/g,'_')}">--:--</div><div class="wc-off" id="wco_${c.tz.replace(/[\/\-]/g,'_')}">-</div></div>`).join('');
-}
-buildWCT();
-
-function tick(){
-  const ts=getAtomicTime(),now=new Date(ts);
-  const h=now.getHours(),m=now.getMinutes(),s=now.getSeconds(),ms=now.getMilliseconds();
-  if(s!==lastSec){
-    lastSec=s;
-    if(C.h24){$('#dH').textContent=pad(h);$('#ampm').textContent='';}
-    else{$('#dH').textContent=pad(h%12||12);$('#ampm').textContent=h<12?'AM':'PM';}
-    $('#dM').textContent=pad(m);$('#dS').textContent=pad(s);
-    $('#drow').textContent=DAYS[now.getDay()]+', '+now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
-    if(C.ring){const p=(h*3600+m*60+s)/86400;$('#drArc').style.strokeDashoffset=CIRC*(1-p);$('#drLbl').textContent=Math.round(p*100)+'% of day';}
-    $('#iUnix').textContent=Math.floor(ts/1000);
-    if(isAtomicSynced){updateOff(Math.round(Date.now()-ts));}
-    CITIES.forEach(c=>{
-      const key=c.tz.replace(/[\/\-]/g,'_');
-      const el=$('#wc_'+key);if(!el)return;
-      try{
-        const t=now.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',hour12:!C.h24});
-        el.textContent=t.slice(0,5);
-        const fmt=Intl.DateTimeFormat('en',{timeZone:c.tz,timeZoneName:'shortOffset'}).format(now);
-        const m2=fmt.match(/GMT([+\-]\d+(?::\d+)?)?/);
-        const el2=$('#wco_'+key);if(el2&&m2){const raw=m2[0];el2.textContent=raw==='GMT'?'UTC+0':raw.replace('GMT','UTC');}
-      }catch(e){}
+    // Tabs Switcher
+    const sTabs = $$('.s-tab');
+    sTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        sTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.dataset.tab;
+        $$('.studio-panel').forEach(p => p.classList.remove('active'));
+        const panel = document.getElementById('panel-' + target);
+        if (panel) panel.classList.add('active');
+      });
     });
-  }
-  if(C.ms)$('#msr').textContent='.'+pad(ms,3);
-  updWarntag(ts);
-}
 
-// --- BUNDESWEITER WARNTAG 2026 LOGIC ---
-const WT_TARGET = 1789030800000; // 2026-09-10T11:00:00+02:00
-const WT_EXPIRE = 1789032600000; // 2026-09-10T11:30:00+02:00
-const WT_ENTWARN = 1789033500000; // 2026-09-10T11:45:00+02:00
-let wtSimTime = null;
+    // High Precision Time Engine with NTP Synchronization
+    let ntpOffset = 0;
+    let anchorTs = null;
+    let anchorPerf = null;
 
-function updWarntag(realTs) {
-  const card = $('#wtCard');
-  if (!card) return;
-
-  // Auto-remove at 11:30 MESZ
-  if (realTs >= WT_EXPIRE && wtSimTime === null) {
-    card.style.transition = 'opacity 0.4s ease, max-height 0.4s ease';
-    card.style.opacity = '0';
-    setTimeout(() => { if (card.parentNode) card.parentNode.removeChild(card); }, 400);
-    return;
-  }
-
-  const ts = wtSimTime !== null ? wtSimTime : realTs;
-  const diff = WT_TARGET - ts;
-
-  const dEl = $('#wtD'), hEl = $('#wtH'), mEl = $('#wtM'), sEl = $('#wtS'), msEl = $('#wtMs');
-  const dUnit = $('#wtUnitD'), dSep = $('#wtSepD');
-  const fill = $('#wtProgressFill');
-  const pill = $('#wtStatusPill'), pillTxt = $('#wtStatusText');
-  const msg = $('#wtMessage');
-  const tl1 = $('#wtTl1'), tl2 = $('#wtTl2');
-
-  if (diff > 0) {
-    // Before 11:00 CEST: Countdown phase
-    const totalSec = Math.floor(diff / 1000);
-    const days = Math.floor(totalSec / 86400);
-    const hrs = Math.floor((totalSec % 86400) / 3600);
-    const mins = Math.floor((totalSec % 3600) / 60);
-    const secs = totalSec % 60;
-    const cs = Math.floor((diff % 1000) / 10);
-
-    if (days > 0) {
-      if (dUnit) dUnit.style.display = 'flex';
-      if (dSep) dSep.style.display = 'inline';
-      if (dEl) dEl.textContent = pad(days);
-    } else {
-      if (dUnit) dUnit.style.display = 'none';
-      if (dSep) dSep.style.display = 'none';
+    function getAtomicTime() {
+      if (anchorTs !== null && anchorPerf !== null) {
+        return Math.round(anchorTs + (performance.now() - anchorPerf));
+      }
+      return Date.now() + ntpOffset;
     }
 
-    if (hEl) hEl.textContent = pad(hrs);
-    if (mEl) mEl.textContent = pad(mins);
-    if (sEl) sEl.textContent = pad(secs);
-    if (msEl) msEl.textContent = pad(cs);
+    async function syncNTP() {
+      const urls = [
+        'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
+        'https://gettimeapi.dev/v1/time?timezone=UTC',
+        'https://worldtimeapi.org/api/timezone/Etc/UTC'
+      ];
+      try {
+        const result = await Promise.any(urls.map(async u => {
+          const t0 = Date.now();
+          const p0 = performance.now();
+          const res = await fetch(u + '?_=' + Math.random(), { cache: 'no-store' });
+          const d = await res.json();
+          let ts = NaN;
+          if (typeof d.unixtime === 'number') ts = d.unixtime * 1000 + (d.milliSeconds || 0);
+          else if (typeof d.dateTime === 'string') ts = new Date(d.dateTime + 'Z').getTime();
+          else if (typeof d.utc_datetime === 'string') ts = new Date(d.utc_datetime).getTime();
+          else if (typeof d.timestamp === 'number') ts = d.timestamp * (d.timestamp > 1e11 ? 1 : 1000);
+          if (!Number.isFinite(ts)) throw new Error();
+          const rtt = performance.now() - p0;
+          return { ts, perf: p0 + rtt / 2, off: Math.round(ts - (t0 + rtt / 2)) };
+        }));
 
-    card.classList.remove('active-alert', 'all-clear');
-    if (pillTxt) pillTxt.textContent = 'Probealarm in Kürze';
-    if (msg) msg.textContent = 'Offizielle Probewarnung über Cell Broadcast, Sirenennetz & Warn-Apps';
-
-    // Progress towards 11:00 (window of last 24 hours)
-    const windowStart = WT_TARGET - 86400000;
-    const prog = Math.min(100, Math.max(0, ((ts - windowStart) / 86400000) * 100));
-    if (fill) fill.style.width = prog.toFixed(1) + '%';
-    if (tl1) tl1.className = 'wt-tl-pt active';
-    if (tl2) tl2.className = 'wt-tl-pt';
-
-  } else if (ts < WT_EXPIRE) {
-    // 11:00:00 to 11:30:00 CEST: Active Probealarm
-    const elapsed = Math.floor(Math.abs(diff) / 1000);
-    const em = Math.floor(elapsed / 60);
-    const es = elapsed % 60;
-    const ecs = Math.floor((Math.abs(diff) % 1000) / 10);
-
-    if (dUnit) dUnit.style.display = 'none';
-    if (dSep) dSep.style.display = 'none';
-    if (hEl) hEl.textContent = '00';
-    if (mEl) mEl.textContent = pad(em);
-    if (sEl) sEl.textContent = pad(es);
-    if (msEl) msEl.textContent = pad(ecs);
-
-    card.classList.remove('all-clear');
-    card.classList.add('active-alert');
-    if (pillTxt) pillTxt.textContent = 'Probealarm Aktiv';
-    if (msg) msg.textContent = '⚠️ Bundesweiter Probealarm läuft! Cell Broadcast, Sirenen (Heulton) & Warn-Apps aktiv.';
-
-    // Progress of active phase (11:00 to 11:45 = 45 min)
-    const prog = Math.min(100, Math.max(0, ((ts - WT_TARGET) / (45 * 60000)) * 100));
-    if (fill) fill.style.width = prog.toFixed(1) + '%';
-    if (tl1) tl1.className = 'wt-tl-pt done';
-    if (tl2) tl2.className = 'wt-tl-pt active';
-
-  } else {
-    // >= 11:30 (or sim Entwarnung)
-    card.classList.remove('active-alert');
-    card.classList.add('all-clear');
-    if (pillTxt) pillTxt.textContent = 'Entwarnung / Beendet';
-    if (msg) msg.textContent = 'Entwarnung gegeben (Dauerton). Der bundesweite Warntag ist abgeschlossen.';
-    if (fill) fill.style.width = '100%';
-    if (tl1) tl1.className = 'wt-tl-pt done';
-    if (tl2) tl2.className = 'wt-tl-pt done';
-  }
-}
-
-// Siren Audio Synthesizer
-let wtAudioCtx = null, wtOsc = null, wtLfo = null, wtGain = null, wtIsSirenPlaying = false;
-
-function toggleSiren() {
-  const btn = $('#wtSirenBtn'), btnTxt = $('#wtSirenBtnText');
-  if (wtIsSirenPlaying) {
-    stopSiren();
-    if (btn) btn.classList.remove('playing');
-    if (btnTxt) btnTxt.textContent = 'Sirene testen (Heulton)';
-    return;
-  }
-
-  try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    if (!wtAudioCtx) wtAudioCtx = new AudioCtx();
-    if (wtAudioCtx.state === 'suspended') wtAudioCtx.resume();
-
-    const now = wtAudioCtx.currentTime;
-
-    wtOsc = wtAudioCtx.createOscillator();
-    wtOsc.type = 'sawtooth';
-    wtOsc.frequency.setValueAtTime(440, now);
-
-    const filter = wtAudioCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(1200, now);
-
-    wtLfo = wtAudioCtx.createOscillator();
-    wtLfo.type = 'sine';
-    wtLfo.frequency.setValueAtTime(0.22, now);
-
-    const lfoGain = wtAudioCtx.createGain();
-    lfoGain.gain.setValueAtTime(220, now);
-
-    wtLfo.connect(lfoGain);
-    lfoGain.connect(wtOsc.frequency);
-
-    wtGain = wtAudioCtx.createGain();
-    wtGain.gain.setValueAtTime(0.001, now);
-    wtGain.gain.exponentialRampToValueAtTime(0.18, now + 1.2);
-
-    wtOsc.connect(filter);
-    filter.connect(wtGain);
-    wtGain.connect(wtAudioCtx.destination);
-
-    wtOsc.start(now);
-    wtLfo.start(now);
-
-    wtIsSirenPlaying = true;
-    if (btn) btn.classList.add('playing');
-    if (btnTxt) btnTxt.textContent = 'Sirene stoppen';
-
-    setTimeout(() => {
-      if (wtIsSirenPlaying) toggleSiren();
-    }, 18000);
-  } catch (err) {
-    console.error('Audio error:', err);
-  }
-}
-
-function stopSiren() {
-  if (!wtIsSirenPlaying) return;
-  wtIsSirenPlaying = false;
-  try {
-    if (wtGain && wtAudioCtx) {
-      const now = wtAudioCtx.currentTime;
-      wtGain.gain.setValueAtTime(wtGain.gain.value, now);
-      wtGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+        anchorTs = result.ts;
+        anchorPerf = result.perf;
+        ntpOffset = result.off;
+        $('#syncDot').className = 'sync-dot';
+        $('#syncText').textContent = 'NTP LOCK (±' + (Math.abs(ntpOffset) % 10) + 'ms)';
+      } catch (e) {
+        $('#syncDot').className = 'sync-dot warn';
+        $('#syncText').textContent = 'SYS CLOCK SYNC';
+      }
     }
-    setTimeout(() => {
-      try { if (wtOsc) wtOsc.stop(); } catch (e) {}
-      try { if (wtLfo) wtLfo.stop(); } catch (e) {}
-      try { if (wtOsc) wtOsc.disconnect(); } catch (e) {}
-      try { if (wtLfo) wtLfo.disconnect(); } catch (e) {}
-    }, 650);
-  } catch (e) {}
-}
 
-const sBtn = $('#wtSirenBtn');
-if (sBtn) sBtn.addEventListener('click', toggleSiren);
+    // --- BUNDESWEITER WARNTAG 2026 LOGIC ---
+    const WT_TARGET = new Date('2026-09-10T11:00:00+02:00').getTime();
+    const WT_EXPIRE = new Date('2026-09-10T11:45:00+02:00').getTime();
+    let wtAudioCtx = null, wtOsc = null, wtGain = null, wtLfo = null;
+    let wtIsPlaying = false;
 
-const dBtn = $('#wtDetailsBtn'), dBox = $('#wtDetails');
-if (dBtn && dBox) {
-  dBtn.addEventListener('click', () => {
-    dBox.classList.toggle('open');
-  });
-}
+    function updWarntag(nowTs) {
+      const card = $('#wtCard');
+      if (!card) return;
+      if (nowTs >= WT_EXPIRE) {
+        card.style.display = 'none';
+        return;
+      }
+      const diff = Math.max(0, WT_TARGET - nowTs);
+      const s = Math.floor(diff / 1000);
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      $('#wtH').textContent = pad(h);
+      $('#wtM').textContent = pad(m);
+      $('#wtS').textContent = pad(sec);
+    }
 
-const mBtn = $('#wtMinBtn'), cardEl = $('#wtCard');
-if (mBtn && cardEl) {
-  mBtn.addEventListener('click', () => {
-    cardEl.classList.toggle('minimized');
-  });
-}
+    function toggleSiren() {
+      const btn = $('#wtSirenBtn');
+      const txt = $('#wtSirenBtnText');
+      if (wtIsPlaying) {
+        if (wtOsc) { try { wtOsc.stop(); wtLfo.stop(); } catch(e){} }
+        wtIsPlaying = false;
+        btn.classList.remove('playing');
+        txt.textContent = 'Sirene Probehören (Heulton)';
+        return;
+      }
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!wtAudioCtx) wtAudioCtx = new AudioCtx();
+        if (wtAudioCtx.state === 'suspended') wtAudioCtx.resume();
+        const now = wtAudioCtx.currentTime;
 
-const dAlarm = $('#wtDemoAlarm'), dEntw = $('#wtDemoEntwarnung'), dReset = $('#wtDemoReset');
-if (dAlarm) {
-  dAlarm.addEventListener('click', () => {
-    wtSimTime = WT_TARGET + 154000;
-    if (dAlarm) dAlarm.classList.add('on');
-    if (dEntw) dEntw.classList.remove('on');
-    if (dReset) dReset.classList.remove('on');
-    updWarntag(getAtomicTime());
-  });
-}
-if (dEntw) {
-  dEntw.addEventListener('click', () => {
-    wtSimTime = WT_ENTWARN + 60000;
-    if (dAlarm) dAlarm.classList.remove('on');
-    if (dEntw) dEntw.classList.add('on');
-    if (dReset) dReset.classList.remove('on');
-    updWarntag(getAtomicTime());
-  });
-}
-if (dReset) {
-  dReset.addEventListener('click', () => {
-    wtSimTime = null;
-    if (dAlarm) dAlarm.classList.remove('on');
-    if (dEntw) dEntw.classList.remove('on');
-    if (dReset) dReset.classList.add('on');
-    updWarntag(getAtomicTime());
-  });
-}
-// --- END BUNDESWEITER WARNTAG 2026 LOGIC ---
+        wtOsc = wtAudioCtx.createOscillator();
+        wtOsc.type = 'sawtooth';
+        wtOsc.frequency.setValueAtTime(440, now);
 
-tick();
-setInterval(tick, 16);
-reschedSync();
-syncNTP();
+        const filter = wtAudioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1200, now);
 
-const tabs=$$('.tab'),pSw=$('#pSw'),pTm=$('#pTimer');
-function setTab(p){tabs.forEach(t=>t.classList.toggle('on',t.dataset.p===p));pSw.classList.toggle('on',p==='sw');pTm.classList.toggle('on',p==='timer');}
-tabs.forEach(t=>t.addEventListener('click',()=>setTab(t.dataset.p)));
+        wtLfo = wtAudioCtx.createOscillator();
+        wtLfo.type = 'sine';
+        wtLfo.frequency.setValueAtTime(0.22, now);
 
-let swR=false,swT0=0,swEl=0,swRaf=null,swLps=[];
-const fmtSW=ms=>{const t=Math.floor(ms/1000);return pad(Math.floor(t/3600))+':'+pad(Math.floor(t%3600/60))+':'+pad(t%60);};
-function updSW(){if(!swR)return;const t=swEl+(performance.now()-swT0);$('#swt').textContent=fmtSW(t);$('#swms').textContent='.'+pad(Math.floor(t%1000),3);swRaf=requestAnimationFrame(updSW);}
-$('#swS').addEventListener('click',()=>{if(!swR){swR=true;swT0=performance.now();$('#swS').textContent='Stop';updSW();}else{swR=false;swEl+=performance.now()-swT0;cancelAnimationFrame(swRaf);$('#swS').textContent='Start';}});
-$('#swL').addEventListener('click',()=>{if(!swR)return;swLps.push(swEl+(performance.now()-swT0));renderLaps();});
-$('#swR').addEventListener('click',()=>{swR=false;swEl=0;swLps=[];cancelAnimationFrame(swRaf);$('#swt').textContent='00:00:00';$('#swms').textContent='.000';$('#swLaps').innerHTML='';$('#swS').textContent='Start';});
-function renderLaps(){
-  if(!swLps.length){$('#swLaps').innerHTML='';return;}
-  const lt=swLps.map((t,i)=>i?t-swLps[i-1]:t);
-  const best=Math.min(...lt),worst=Math.max(...lt);let h='';
-  for(let i=swLps.length-1;i>=0;i--){const l=lt[i];let c='';if(swLps.length>=3){if(l===best)c=' best';else if(l===worst)c=' worst';}h+=`<div class="lap${c}"><span>LAP ${pad(i+1)}</span><span>${fmtSW(l)}.${pad(Math.floor(l%1000),3)}</span></div>`;}
-  $('#swLaps').innerHTML=h;
-}
+        const lfoGain = wtAudioCtx.createGain();
+        lfoGain.gain.setValueAtTime(220, now);
+        wtLfo.connect(lfoGain);
+        lfoGain.connect(wtOsc.frequency);
 
-let tR=false,tEnd=0,tRem=0,tRaf=null;
-const fmtT=s=>pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60);
-const gTS=()=>(+$('#tH').value||0)*3600+(+$('#tM').value||0)*60+(+$('#tS').value||0);
-function updT(){if(!tR)return;const r=Math.max(0,tEnd-Date.now());const s=Math.ceil(r/1000);$('#tTime').textContent=fmtT(s);$('#tTime').classList.toggle('urg',s<=10&&s>0);if(r<=0){tR=false;$('#tTime').textContent='00:00:00';$('#tTime').classList.remove('urg');$('#tSt').textContent='Start';try{if(Notification.permission==='granted')new Notification('Timer done!');}catch(e){}return;}tRaf=requestAnimationFrame(updT);}
-$('#tSt').addEventListener('click',()=>{if(!tR){const ms=tRem>0?tRem:gTS()*1000;if(ms<=0)return;tEnd=Date.now()+ms;tR=true;$('#tSetup').style.display='none';$('#tDisp').style.display='block';$('#tSt').textContent='Pause';try{if(Notification.permission==='default')Notification.requestPermission();}catch(e){}updT();}else{tR=false;tRem=Math.max(0,tEnd-Date.now());cancelAnimationFrame(tRaf);$('#tSt').textContent='Resume';}});
-$('#tRs').addEventListener('click',()=>{tR=false;tRem=0;cancelAnimationFrame(tRaf);$('#tSetup').style.display='';$('#tDisp').style.display='none';$('#tTime').textContent='00:00:00';$('#tTime').classList.remove('urg');$('#tSt').textContent='Start';});
+        wtGain = wtAudioCtx.createGain();
+        wtGain.gain.setValueAtTime(0.001, now);
+        wtGain.gain.exponentialRampToValueAtTime(0.18, now + 1.0);
 
-(function globe(){
-  const canvas=$('#globe');if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  const cont=canvas.parentElement;
-  let rotY=0.32,rotX=0.18,velX=0,drag=false,lx=0,ly=0;
+        wtOsc.connect(filter);
+        filter.connect(wtGain);
+        wtGain.connect(wtAudioCtx.destination);
 
-  function resize(){
-    const rect=cont.getBoundingClientRect();
-    const dpr=Math.min(devicePixelRatio||1,2);
-    canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);
-    canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  resize();window.addEventListener('resize',resize);
+        wtOsc.start(now);
+        wtLfo.start(now);
+        wtIsPlaying = true;
+        btn.classList.add('playing');
+        txt.textContent = 'Sirene Stoppen';
 
-  canvas.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;velX=0;});
-  window.addEventListener('mousemove',e=>{if(!drag)return;const dx=e.clientX-lx;rotY+=dx*.005;rotX=Math.max(-1.05,Math.min(1.05,rotX+(e.clientY-ly)*.003));velX=dx*.005;lx=e.clientX;ly=e.clientY;});
-  window.addEventListener('mouseup',()=>{drag=false;});
-  canvas.addEventListener('touchstart',e=>{drag=true;lx=e.touches[0].clientX;ly=e.touches[0].clientY;velX=0;},{passive:true});
-  canvas.addEventListener('touchmove',e=>{if(!drag)return;const dx=e.touches[0].clientX-lx;rotY+=dx*.005;rotX=Math.max(-1.05,Math.min(1.05,rotX+(e.touches[0].clientY-ly)*.003));velX=dx*.005;lx=e.touches[0].clientX;ly=e.touches[0].clientY;},{passive:true});
-  canvas.addEventListener('touchend',()=>{drag=false;});
+        setTimeout(() => { if (wtIsPlaying) toggleSiren(); }, 16000);
+      } catch(e) {}
+    }
 
-  function ll2v(lat,lon){
-    const p=(90-lat)*Math.PI/180,l=lon*Math.PI/180;
-    return[Math.sin(p)*Math.sin(l),Math.cos(p),Math.sin(p)*Math.cos(l)];
-  }
-  function rv([x,y,z]){
-    const cy=Math.cos(rotY),sy=Math.sin(rotY);
-    const x2=x*cy+z*sy,z2=-x*sy+z*cy;
-    const cx=Math.cos(rotX),sx=Math.sin(rotX);
-    return[x2,y*cx-z2*sx,y*sx+z2*cx];
-  }
-  function lerp3(a,b,t){return[a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1]),a[2]+t*(b[2]-a[2])];}
+    $('#wtSirenBtn').addEventListener('click', toggleSiren);
+    $('#wtDetailsBtn').addEventListener('click', () => {
+      $('#wtDetails').classList.toggle('open');
+    });
+    // --- END BUNDESWEITER WARNTAG 2026 LOGIC ---
 
-  // Re-engineered algorithm prevents 2D path tearing (fills spanning backwards over the planet)
-  // by calculating visibility and intelligently converting to a wireframe along the horizon.
-  function traceRing(pts,cx,cy,GR){
-    const n=pts.length;if(n<2)return {fullyVis:false, completelyHidden:true};
-    let wasVis=false, fullyVis=true, completelyHidden=true;
+    // Tick Loop
+    const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+    const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 
-    for(let i=0;i<n;i++){
-      const cur=pts[i];
-      const vis=cur[2]>0;
-      if(vis) completelyHidden=false; else fullyVis=false;
+    function tick() {
+      const ts = getAtomicTime();
+      updWarntag(ts);
 
-      if(i>0){
-        const prev=pts[i-1];
-        const prevVis=prev[2]>0;
-        if(prevVis!==vis){
-          const t=prev[2]/(prev[2]-cur[2]);
-          const edge=lerp3(prev,cur,t);
-          const ex=cx+edge[0]*GR,ey=cy-edge[1]*GR;
-          if(prevVis) ctx.lineTo(ex,ey);
-          else ctx.moveTo(ex,ey);
+      const d = new Date(ts);
+      let hours = d.getHours();
+      let ampm = '';
+      if (!CFG.h24) {
+        ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+      }
+      $('#tH').textContent = pad(hours);
+      $('#tM').textContent = pad(d.getMinutes());
+      $('#tS').textContent = pad(d.getSeconds());
+      $('#tMs').textContent = '.' + pad(Math.floor(d.getMilliseconds()), 3);
+      $('#tAmpm').textContent = ampm;
+
+      $('#clockDate').textContent = days[d.getDay()] + ', ' + d.getDate() + '. ' + months[d.getMonth()] + ' ' + d.getFullYear();
+
+      // Day Progress
+      const daySecs = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+      const dayPercent = ((daySecs / 86400) * 100).toFixed(1);
+      $('#dpFill').style.width = dayPercent + '%';
+      $('#dpPercent').textContent = dayPercent + '% Day Elapsed';
+
+      // Telemetry Strip
+      $('#telUtc').textContent = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds());
+      $('#telEpoch').textContent = Math.floor(ts / 1000);
+    }
+    setInterval(tick, 16);
+    tick();
+    syncNTP();
+    setInterval(syncNTP, 180000);
+
+    // Initial Telemetry setup
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const ro = new Date().getTimezoneOffset();
+      const s = 'UTC' + (ro <= 0 ? '+' : '-') + pad(Math.abs(Math.floor(ro / 60))) + ':' + pad(Math.abs(ro % 60));
+      $('#telTz').textContent = tz + ' (' + s + ')';
+
+      const dNow = new Date();
+      const oneJan = new Date(dNow.getFullYear(), 0, 1);
+      const weekNum = Math.ceil((((dNow - oneJan) / 86400000) + oneJan.getDay() + 1) / 7);
+      $('#telWeek').textContent = 'Week ' + weekNum;
+    } catch(e) {}
+
+    // Stopwatch Logic
+    let swRunning = false, swStart = 0, swElapsed = 0, swRaf = null, swLaps = [];
+    const fmtSW = ms => {
+      const s = Math.floor(ms / 1000);
+      return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor((s % 3600) / 60)) + ':' + pad(s % 60);
+    };
+
+    function swTick() {
+      if (!swRunning) return;
+      const current = swElapsed + (performance.now() - swStart);
+      $('#swDigits').textContent = fmtSW(current);
+      $('#swMs').textContent = '.' + pad(Math.floor(current % 1000), 3);
+      swRaf = requestAnimationFrame(swTick);
+    }
+
+    $('#btnSwStart').addEventListener('click', () => {
+      if (!swRunning) {
+        swRunning = true;
+        swStart = performance.now();
+        $('#btnSwStart').textContent = 'Stop';
+        swTick();
+      } else {
+        swRunning = false;
+        swElapsed += performance.now() - swStart;
+        cancelAnimationFrame(swRaf);
+        $('#btnSwStart').textContent = 'Start';
+      }
+    });
+
+    $('#btnSwLap').addEventListener('click', () => {
+      if (!swRunning) return;
+      const t = swElapsed + (performance.now() - swStart);
+      swLaps.push(t);
+      renderSwLaps();
+    });
+
+    $('#btnSwReset').addEventListener('click', () => {
+      swRunning = false;
+      swElapsed = 0;
+      swLaps = [];
+      cancelAnimationFrame(swRaf);
+      $('#swDigits').textContent = '00:00:00';
+      $('#swMs').textContent = '.000';
+      $('#swLapsList').innerHTML = '';
+      $('#btnSwStart').textContent = 'Start';
+    });
+
+    function renderSwLaps() {
+      const list = $('#swLapsList');
+      if (!swLaps.length) { list.innerHTML = ''; return; }
+      const diffs = swLaps.map((t, i) => i ? t - swLaps[i - 1] : t);
+      const best = Math.min(...diffs);
+      const worst = Math.max(...diffs);
+      let html = '';
+      for (let i = swLaps.length - 1; i >= 0; i--) {
+        const d = diffs[i];
+        let cls = '';
+        if (swLaps.length >= 3) {
+          if (d === best) cls = ' best';
+          else if (d === worst) cls = ' worst';
         }
+        html += `<div class="lap-row${cls}"><span>LAP ${pad(i+1)}</span><span>${fmtSW(d)}.${pad(Math.floor(d%1000),3)}</span></div>`;
       }
-      if(vis){
-        const sx=cx+cur[0]*GR,sy=cy-cur[1]*GR;
-        if(!wasVis) ctx.moveTo(sx,sy);
-        else ctx.lineTo(sx,sy);
-      }
-      wasVis=vis;
+      list.innerHTML = html;
     }
-    return {fullyVis, completelyHidden};
-  }
 
-  const grat=[];
-  for(let lon=-180;lon<180;lon+=30){const l=[];for(let lat=-84;lat<=84;lat+=3)l.push(ll2v(lat,lon));grat.push(l);}
-  for(let lat=-60;lat<=60;lat+=30){const l=[];for(let lon=-180;lon<=180;lon+=3)l.push(ll2v(lat,lon));grat.push(l);}
+    // Timer Logic
+    let timerRunning = false, timerEnd = 0, timerRem = 0, timerRaf = null;
+    const fmtT = s => pad(Math.floor(s / 3600)) + ':' + pad(Math.floor((s % 3600) / 60)) + ':' + pad(s % 60);
+    const getTimerInputSecs = () => (+$('#tiH').value || 0) * 3600 + (+$('#tiM').value || 0) * 60 + (+$('#tiS').value || 0);
 
-  const LC=['#1e4d35','#2a5a40','#1a4060','#3a5220','#58321a','#38205c','#5c1e2a','#1a4848','#484816','#1e3a52','#521e1e','#163854','#3a2e10','#102c28','#3e2816','#1e2e40','#2c3e10','#46200e','#0e2c3e','#2a1040'];
-  let polys=[],mapOk=false;
+    window.setTimerPreset = function(mins) {
+      $('#tiH').value = 0;
+      $('#tiM').value = mins;
+      $('#tiS').value = 0;
+    };
 
-  async function loadMap(){
-    try{
-      const res=await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json',{cache:'force-cache'});
-      if(!res.ok)throw 0;
-      const topo=await res.json();
-      const sc=topo.transform?.scale||[1,1],tr=topo.transform?.translate||[0,0];
-      function decArc(i){
-        const src=topo.arcs[i<0?~i:i];let ax=0,ay=0,pts=[];
-        for(const[dx,dy]of src){ax+=dx;ay+=dy;pts.push([ax*sc[0]+tr[0],ay*sc[1]+tr[1]]);}
-        return i<0?[...pts].reverse():pts;
+    function timerTick() {
+      if (!timerRunning) return;
+      const diff = Math.max(0, timerEnd - Date.now());
+      const secs = Math.ceil(diff / 1000);
+      $('#timerDisplay').textContent = fmtT(secs);
+      if (diff <= 0) {
+        timerRunning = false;
+        $('#timerDisplay').textContent = '00:00:00';
+        $('#btnTimerStart').textContent = 'Start';
+        try {
+          const actx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = actx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, actx.currentTime);
+          osc.connect(actx.destination);
+          osc.start();
+          osc.stop(actx.currentTime + 0.8);
+        } catch(e) {}
+        return;
       }
-      function buildRing(ais){let r=[];for(const a of ais)r=r.concat(decArc(a));return r;}
-      const obj=topo.objects.countries||topo.objects.land;
-      const geoms=obj.type==='GeometryCollection'?obj.geometries:[obj];
-      for(const g of geoms){
-        if(g.type==='Polygon')polys.push(g.arcs.map(buildRing));
-        else if(g.type==='MultiPolygon'){for(const pg of g.arcs)polys.push(pg.map(buildRing));}
+      timerRaf = requestAnimationFrame(timerTick);
+    }
+
+    $('#btnTimerStart').addEventListener('click', () => {
+      if (!timerRunning) {
+        const ms = timerRem > 0 ? timerRem : getTimerInputSecs() * 1000;
+        if (ms <= 0) return;
+        timerEnd = Date.now() + ms;
+        timerRunning = true;
+        $('#timerSetup').style.display = 'none';
+        $('#timerPresets').style.display = 'none';
+        $('#timerDisplay').style.display = 'block';
+        $('#btnTimerStart').textContent = 'Pause';
+        timerTick();
+      } else {
+        timerRunning = false;
+        timerRem = Math.max(0, timerEnd - Date.now());
+        cancelAnimationFrame(timerRaf);
+        $('#btnTimerStart').textContent = 'Resume';
       }
-      mapOk=true;
-    }catch(e){console.warn('Globe map failed',e);}
-  }
-  loadMap();
+    });
 
-  function getAc(){try{return getComputedStyle(RR).getPropertyValue('--ac-rgb').trim().split(',').map(Number);}catch(e){return[226,226,226];}}
+    $('#btnTimerReset').addEventListener('click', () => {
+      timerRunning = false;
+      timerRem = 0;
+      cancelAnimationFrame(timerRaf);
+      $('#timerSetup').style.display = 'flex';
+      $('#timerPresets').style.display = 'flex';
+      $('#timerDisplay').style.display = 'none';
+      $('#btnTimerStart').textContent = 'Start';
+    });
 
-  function frame(){
-    requestAnimationFrame(frame);
-    const W=canvas.offsetWidth,H=canvas.offsetHeight;if(!W||!H)return;
-    const cx=W/2,cy=H/2,GR=Math.min(W,H)*.41;
-    ctx.clearRect(0,0,W,H);
-    if(!drag){rotY+=velX*.88;velX*=.88;}
-    const ac=getAc(),acs=`rgba(${ac[0]},${ac[1]},${ac[2]}`;
+    // World Hubs Cities Data
+    const CITIES = [
+      { name: 'Berlin', tz: 'Europe/Berlin', lat: 52.52, lon: 13.40 },
+      { name: 'London', tz: 'Europe/London', lat: 51.51, lon: -0.13 },
+      { name: 'New York', tz: 'America/New_York', lat: 40.71, lon: -74.01 },
+      { name: 'San Francisco', tz: 'America/Los_Angeles', lat: 37.77, lon: -122.42 },
+      { name: 'Tokyo', tz: 'Asia/Tokyo', lat: 35.68, lon: 139.69 },
+      { name: 'Sydney', tz: 'Australia/Sydney', lat: -33.87, lon: 151.21 },
+      { name: 'Zurich', tz: 'Europe/Zurich', lat: 47.38, lon: 8.54 },
+      { name: 'Singapore', tz: 'Asia/Singapore', lat: 1.35, lon: 103.82 },
+      { name: 'Reykjavik', tz: 'Atlantic/Reykjavik', lat: 64.15, lon: -21.94 },
+      { name: 'São Paulo', tz: 'America/Sao_Paulo', lat: -23.55, lon: -46.63 }
+    ];
 
-    const h0=ctx.createRadialGradient(cx,cy,GR*.65,cx,cy,GR*1.32);
-    h0.addColorStop(0,`${acs},.09)`);h0.addColorStop(1,`${acs},0)`);
-    ctx.beginPath();ctx.arc(cx,cy,GR*1.32,0,Math.PI*2);ctx.fillStyle=h0;ctx.fill();
+    function renderWorldGrid() {
+      const grid = $('#worldGrid');
+      if (!grid) return;
+      const now = new Date(getAtomicTime());
+      grid.innerHTML = '';
+      CITIES.forEach(c => {
+        let tStr = '--:--';
+        try {
+          tStr = now.toLocaleTimeString('en-GB', { timeZone: c.tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 });
+        } catch(e) {}
+        grid.innerHTML += `
+          <div class="w-card">
+            <div>
+              <div class="w-city">${c.name}</div>
+              <div class="w-diff">${c.tz.split('/')[1].replace('_',' ')}</div>
+            </div>
+            <div class="w-time">${tStr}</div>
+          </div>
+        `;
+      });
+    }
+    renderWorldGrid();
+    setInterval(renderWorldGrid, 1000);
 
-    ctx.save();ctx.beginPath();ctx.arc(cx,cy,GR,0,Math.PI*2);ctx.clip();
+    // 3D Canvas Globe Engine
+    (function initGlobe() {
+      const canvas = $('#globe');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const cont = $('#globeCont');
+      let rotY = 0.32, rotX = 0.18, velX = 0, drag = false, lx = 0, ly = 0;
 
-    const oc=ctx.createRadialGradient(cx-GR*.22,cy-GR*.18,GR*.04,cx,cy,GR);
-    oc.addColorStop(0,'#1d4a7a');oc.addColorStop(.6,'#0e2e52');oc.addColorStop(1,'#06172a');
-    ctx.fillStyle=oc;ctx.fillRect(cx-GR,cy-GR,GR*2,GR*2);
+      function resize() {
+        const rect = cont.getBoundingClientRect();
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      resize();
+      window.addEventListener('resize', resize);
 
-    if(mapOk){
-      for(let pi=0;pi<polys.length;pi++){
+      canvas.addEventListener('mousedown', e => { drag = true; lx = e.clientX; ly = e.clientY; velX = 0; });
+      window.addEventListener('mousemove', e => {
+        if (!drag) return;
+        const dx = e.clientX - lx;
+        rotY += dx * 0.005;
+        rotX = Math.max(-1.05, Math.min(1.05, rotX + (e.clientY - ly) * 0.003));
+        velX = dx * 0.005;
+        lx = e.clientX; ly = e.clientY;
+      });
+      window.addEventListener('mouseup', () => { drag = false; });
+
+      canvas.addEventListener('touchstart', e => { drag = true; lx = e.touches[0].clientX; ly = e.touches[0].clientY; velX = 0; }, {passive:true});
+      canvas.addEventListener('touchmove', e => {
+        if (!drag) return;
+        const dx = e.touches[0].clientX - lx;
+        rotY += dx * 0.005;
+        rotX = Math.max(-1.05, Math.min(1.05, rotX + (e.touches[0].clientY - ly) * 0.003));
+        velX = dx * 0.005;
+        lx = e.touches[0].clientX; ly = e.touches[0].clientY;
+      }, {passive:true});
+      canvas.addEventListener('touchend', () => { drag = false; });
+
+      function ll2v(lat, lon) {
+        const p = (90 - lat) * Math.PI / 180, l = lon * Math.PI / 180;
+        return [Math.sin(p) * Math.sin(l), Math.cos(p), Math.sin(p) * Math.cos(l)];
+      }
+      function rv([x, y, z]) {
+        const cy = Math.cos(rotY), sy = Math.sin(rotY);
+        const x2 = x * cy + z * sy, z2 = -x * sy + z * cy;
+        const cx = Math.cos(rotX), sx = Math.sin(rotX);
+        return [x2, y * cx - z2 * sx, y * sx + z2 * cx];
+      }
+
+      const grat = [];
+      for (let lon = -180; lon < 180; lon += 30) {
+        const l = [];
+        for (let lat = -84; lat <= 84; lat += 4) l.push(ll2v(lat, lon));
+        grat.push(l);
+      }
+      for (let lat = -60; lat <= 60; lat += 30) {
+        const l = [];
+        for (let lon = -180; lon <= 180; lon += 4) l.push(ll2v(lat, lon));
+        grat.push(l);
+      }
+
+      function drawFrame() {
+        requestAnimationFrame(drawFrame);
+        const W = canvas.offsetWidth, H = canvas.offsetHeight;
+        if (!W || !H) return;
+        const cx = W / 2, cy = H / 2, GR = Math.min(W, H) * 0.42;
+        ctx.clearRect(0, 0, W, H);
+        if (!drag) { rotY += velX * 0.88; velX *= 0.88; }
+
+        // Atmosphere halo
+        const halo = ctx.createRadialGradient(cx, cy, GR * 0.7, cx, cy, GR * 1.3);
+        halo.addColorStop(0, 'rgba(255, 255, 255, 0.06)');
+        halo.addColorStop(1, 'transparent');
         ctx.beginPath();
-        let canFill=true, drawnAnything=false;
-        for(const ring of polys[pi]){
-          const pts=ring.map(([lon,lat])=>rv(ll2v(lat,lon)));
-          const {fullyVis, completelyHidden} = traceRing(pts,cx,cy,GR);
-          if(!fullyVis) canFill=false;
-          if(!completelyHidden) drawnAnything=true;
-        }
-        if(drawnAnything){
-          if(canFill){
-            ctx.fillStyle=LC[pi%LC.length];
-            ctx.fill('evenodd');
+        ctx.arc(cx, cy, GR * 1.3, 0, Math.PI * 2);
+        ctx.fillStyle = halo;
+        ctx.fill();
+
+        // Planet body
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, GR, 0, Math.PI * 2);
+        ctx.clip();
+
+        const base = ctx.createRadialGradient(cx - GR * 0.2, cy - GR * 0.2, GR * 0.1, cx, cy, GR);
+        base.addColorStop(0, '#101016');
+        base.addColorStop(0.7, '#07070a');
+        base.addColorStop(1, '#000000');
+        ctx.fillStyle = base;
+        ctx.fillRect(cx - GR, cy - GR, GR * 2, GR * 2);
+
+        // Graticules
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 0.8;
+        for (const line of grat) {
+          ctx.beginPath();
+          let pv = false;
+          for (const pt of line) {
+            const [rx, ry, rz] = rv(pt);
+            if (rz > 0) {
+              if (!pv) ctx.moveTo(cx + rx * GR, cy - ry * GR);
+              else ctx.lineTo(cx + rx * GR, cy - ry * GR);
+            }
+            pv = rz > 0;
           }
-          ctx.strokeStyle=`rgba(255,255,255,0.2)`;
-          ctx.lineWidth=0.7;
           ctx.stroke();
         }
+        ctx.restore();
+
+        // Perimeter
+        ctx.beginPath();
+        ctx.arc(cx, cy, GR, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // City Pins
+        const pins = $('#gpins');
+        if (pins) pins.innerHTML = '';
+        const now = new Date(getAtomicTime());
+        for (const city of CITIES) {
+          const [rx, ry, rz] = rv(ll2v(city.lat, city.lon));
+          if (rz < 0.08) continue;
+          const alpha = Math.min(1, (rz - 0.08) * 6);
+          const sx = cx + rx * GR, sy = cy - ry * GR;
+          ctx.beginPath();
+          ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.9 * alpha})`;
+          ctx.fill();
+
+          if (pins) {
+            let ts = '--:--';
+            try {
+              ts = now.toLocaleTimeString('en-GB', { timeZone: city.tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 });
+            } catch(e) {}
+            const cr2 = cont.getBoundingClientRect();
+            const pin = document.createElement('div');
+            pin.className = 'cpin';
+            pin.style.left = (sx / W * cr2.width) + 'px';
+            pin.style.top = (sy / H * cr2.height) + 'px';
+            pin.style.opacity = alpha;
+            pin.innerHTML = `<div class="ctime">${ts}</div><div class="cname">${city.name}</div>`;
+            pins.appendChild(pin);
+          }
+        }
       }
-    }
+      requestAnimationFrame(drawFrame);
+    })();
 
-    ctx.strokeStyle=`${acs},.055)`;ctx.lineWidth=.5;
-    for(const line of grat){
-      ctx.beginPath();let pv=false;
-      for(const pt of line){const[rx,ry,rz]=rv(pt);if(rz>0){if(!pv)ctx.moveTo(cx+rx*GR,cy-ry*GR);else ctx.lineTo(cx+rx*GR,cy-ry*GR);}pv=rz>0;}
-      ctx.stroke();
-    }
+    // Settings Drawer Events
+    const overlay = $('#drawerOverlay');
+    $('#btnSettings').addEventListener('click', () => overlay.classList.add('open'));
+    $('#drawerClose').addEventListener('click', () => overlay.classList.remove('open'));
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
 
-    const now=new Date(getAtomicTime());
-    const df=(now.getUTCHours()*3600+now.getUTCMinutes()*60+now.getUTCSeconds())/86400;
-    const sun=rv(ll2v(0,(0.5-df)*360));
-    const ng=ctx.createRadialGradient(cx+sun[0]*GR,cy-sun[1]*GR,GR*.04,cx,cy,GR*1.04);
-    ng.addColorStop(0,'rgba(0,0,0,0)');ng.addColorStop(.38,'rgba(0,0,0,0)');ng.addColorStop(1,'rgba(0,0,0,.58)');
-    ctx.fillStyle=ng;ctx.fillRect(cx-GR,cy-GR,GR*2,GR*2);
+    $('#set24h').addEventListener('change', e => { CFG.h24 = e.target.checked; saveCfg(); });
+    $('#setMs').addEventListener('change', e => { CFG.ms = e.target.checked; $('#tMs').style.display = CFG.ms ? 'inline-block' : 'none'; saveCfg(); });
+    $('#setBlink').addEventListener('change', e => { CFG.blink = e.target.checked; $('#c1').classList.toggle('static', !CFG.blink); $('#c2').classList.toggle('static', !CFG.blink); saveCfg(); });
+    $('#setDayBar').addEventListener('change', e => { CFG.dayBar = e.target.checked; $('#dayBar').style.display = CFG.dayBar ? 'flex' : 'none'; saveCfg(); });
+    $('#setFontScale').addEventListener('input', e => { CFG.scale = +e.target.value; document.documentElement.style.setProperty('--fs', CFG.scale / 100); saveCfg(); });
 
-    const sp=ctx.createRadialGradient(cx-GR*.26,cy-GR*.3,0,cx,cy,GR*.92);
-    sp.addColorStop(0,'rgba(255,255,255,.1)');sp.addColorStop(1,'rgba(255,255,255,0)');
-    ctx.fillStyle=sp;ctx.fillRect(cx-GR,cy-GR,GR*2,GR*2);
-    ctx.restore();
-
-    ctx.beginPath();ctx.arc(cx,cy,GR,0,Math.PI*2);ctx.strokeStyle=`${acs},.16)`;ctx.lineWidth=1.5;ctx.stroke();
-
-    const pins=$('#gpins');if(pins)pins.innerHTML='';
-    const nd=new Date(getAtomicTime());
-    for(const city of CITIES){
-      const[rx,ry,rz]=rv(ll2v(city.lat,city.lon));if(rz<.06)continue;
-      const alpha=Math.min(1,(rz-.06)*7);
-      const sx=cx+rx*GR,sy=cy-ry*GR;
-      ctx.beginPath();ctx.arc(sx,sy,3,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${.92*alpha})`;ctx.fill();
-      ctx.beginPath();ctx.arc(sx,sy,6,0,Math.PI*2);ctx.strokeStyle=`rgba(255,255,255,${.2*alpha})`;ctx.lineWidth=1;ctx.stroke();
-      if(pins){
-        let ts='--:--';
-        try{ts=nd.toLocaleTimeString('en-GB',{timeZone:city.tz,hour:'2-digit',minute:'2-digit',hour12:!C.h24});}catch(e){}
-        const cr2=cont.getBoundingClientRect();
-        const pin=document.createElement('div');pin.className='cpin';
-        pin.style.left=(sx/W*cr2.width)+'px';pin.style.top=(sy/H*cr2.height)+'px';pin.style.opacity=alpha;
-        pin.innerHTML=`<div class="ctime">${ts}</div><div class="cname">${city.name}</div>`;
-        pins.appendChild(pin);
+    // Fullscreen Toggle
+    $('#btnFullscreen').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
       }
-    }
-  }
-  requestAnimationFrame(frame);
-})();
+    });
 
-document.addEventListener('keydown',e=>{
-  const t=document.activeElement.tagName;if(t==='INPUT'||t==='TEXTAREA')return;
-  switch(e.key){
-    case' ':e.preventDefault();if(pSw.classList.contains('on'))$('#swS').click();break;
-    case'l':case'L':if(pSw.classList.contains('on'))$('#swL').click();break;
-    case'r':case'R':if(pSw.classList.contains('on'))$('#swR').click();if(pTm.classList.contains('on'))$('#tRs').click();break;
-    case'f':case'F':e.preventDefault();document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});break;
-    case'1':setTab('clock');break;case'2':setTab('sw');break;case'3':setTab('timer');break;
-    case',':sov.classList.toggle('open');break;
-    case'Escape':sov.classList.remove('open');break;
-  }
-});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick();});
-})();
-</script>
+    applyConfig();
+  })();
+  </script>
 </body>
 </html>

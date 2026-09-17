@@ -188,5 +188,102 @@
 
   <div class="toast" id="toast">Copied webmaster@spanani.de to clipboard</div>
 
+  <script>
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function updateClocks() {
+      const now = new Date();
+      const utcStr = pad(now.getUTCHours()) + ':' + pad(now.getUTCMinutes()) + ':' + pad(now.getUTCSeconds()) + ' UTC';
+      const localStr = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+      const navEl = document.getElementById('navTime');
+      const cardEl = document.getElementById('cardClock');
+      if (navEl) navEl.textContent = utcStr;
+      if (cardEl) cardEl.textContent = localStr;
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+
+    const revealEls = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      revealEls.forEach(el => io.observe(el));
+    } else {
+      revealEls.forEach(el => el.classList.add('visible'));
+    }
+
+    const copyBtn = document.getElementById('copyEmailBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText('webmaster@spanani.de').then(() => {
+          const toast = document.getElementById('toast');
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), 2500);
+        });
+      });
+    }
+
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const form = document.getElementById('contactForm');
+    if (form) {
+      const status = document.getElementById('cfStatus');
+      const submitBtn = document.getElementById('cfSubmit');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        status.textContent = '';
+        status.className = 'form-status';
+
+        const name = document.getElementById('cfName').value.trim();
+        const email = document.getElementById('cfEmail').value.trim();
+        const message = document.getElementById('cfMessage').value.trim();
+        const website = document.getElementById('cfWebsite').value;
+
+        if (!name || !email || !message) {
+          status.textContent = 'Please fill in your name, email, and message.';
+          status.classList.add('error');
+          return;
+        }
+        if (!EMAIL_RE.test(email)) {
+          status.textContent = 'That email address does not look valid.';
+          status.classList.add('error');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        try {
+          const res = await fetch('/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, message, website }),
+          });
+          const data = await res.json();
+          if (data.ok) {
+            status.textContent = "Message sent — thanks, I'll get back to you soon.";
+            status.classList.add('success');
+            form.reset();
+          } else {
+            status.textContent = data.error || 'Something went wrong. Please try emailing us directly.';
+            status.classList.add('error');
+          }
+        } catch (err) {
+          status.textContent = 'Network error. Please try emailing us directly.';
+          status.classList.add('error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send message';
+        }
+      });
+    }
+  </script>
+
 </body>
 </html>

@@ -48,10 +48,15 @@ backed by a Cloudflare Pages Function.
 - `clock/index.html` (1512 lines): full-featured atomic clock — NTP-style
   time sync with drift detection and offset display, 24h/12h and
   milliseconds display, day-progress ring, world clock (interactive globe
-  on desktop, grid on mobile), stopwatch, countdown timer, a
-  Bundesweiter-Warntag-2026 countdown/siren feature, and persisted
-  settings via `localStorage`. Styled to match the same dark console
-  aesthetic as the homepage.
+  on desktop, grid on mobile), and stopwatch/countdown timer, with
+  persisted settings via `localStorage`. Styled to match the same dark
+  console aesthetic as the homepage. **Correction from initial scan:** an
+  earlier version of this page had a Bundesweiter-Warntag-2026
+  countdown/siren feature, but `scripts/cleanup-warntag.js` (run via
+  `.github/workflows/cleanup-warntag.yml`) already auto-stripped it after
+  the event passed (2026-09-10). It is not present in the current file
+  and is **not** being recreated by this redesign — that automation and
+  any future reuse of it next year is out of scope here.
 - `assets/css/main.css` exists but is not referenced by any current page
   (dead file, leftover from an earlier design iteration — purple/space
   themed).
@@ -83,11 +88,11 @@ a warm, editorial, light-first identity:
 - **Motion:** the cursor-spotlight follower and dot-grid background are
   removed. Replaced with restrained scroll-reveal transitions and
   considered hover states.
-- **Clock page:** identical feature set (NTP sync/drift, world clock,
-  stopwatch, timer, Warntag countdown, settings persistence), restyled
-  with the same palette/type system — data-typography replaces "console"
-  styling; the numbers carry the design, not decorative chrome around
-  them.
+- **Clock page:** identical feature set (NTP sync/drift, digital + Swiss
+  analog views, world clock, stopwatch, timer, settings persistence),
+  restyled with the same palette/type system — data-typography replaces
+  "console" styling; the numbers carry the design, not decorative chrome
+  around them.
 - **Copy:** rewritten to drop dashboard/telemetry jargon ("sys.cluster",
   "Engine Runtime: Vanilla JS/WebAPI", "NTP Lock (±0.2ms)" as UI chrome)
   in favor of plainer, more human copy that still conveys technical

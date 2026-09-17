@@ -83,7 +83,7 @@
     .time-colon { color: var(--ac); opacity: 0.85; animation: pulseColon 1s infinite; margin: 0 -1px; }
     @keyframes pulseColon { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.15; } }
     .time-colon.static { animation: none; opacity: 0.9; }
-    .time-ms { font-family: var(--font-mono); font-size: clamp(18px, 3.5vw, 36px); color: var(--ac); opacity: 0.6; min-width: 4.5ch; margin-left: 8px; }
+    .time-ms { font-family: var(--font-mono); font-size: clamp(18px, 3.5vw, 36px); color: var(--ac); opacity: 0.85; min-width: 4.5ch; margin-left: 8px; }
     .time-ampm { font-size: clamp(14px, 2vw, 20px); font-weight: 500; color: var(--ink-soft); margin-left: 10px; }
     .time-subtitle { font-family: var(--font-mono); font-size: clamp(12px, 2vw, 15px); color: var(--ink-soft); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 20px; }
 
@@ -182,7 +182,7 @@
     <a href="/" class="brand">spanani<span class="brand-sub">/ clock</span></a>
     <div class="ntp-pill">
       <span class="dot-live" id="sDot"></span>
-      <span id="sText">NTP LOCK (±0.2ms)</span>
+      <span id="sText">Synced (±0.2ms)</span>
     </div>
     <div class="mode-switch">
       <button class="mode-btn active" id="btnModeDig" onclick="setWatchMode('digital')"><span>Digital</span></button>
@@ -229,9 +229,9 @@
 
       <div class="telemetry-bar">
         <div class="tel-cell"><span class="tel-cell-l">Local Timezone</span><span class="tel-cell-v" id="telZone">Europe/Berlin</span></div>
-        <div class="tel-cell"><span class="tel-cell-l">UTC Atomic</span><span class="tel-cell-v" id="telUtcTime">--:--:-- UTC</span></div>
-        <div class="tel-cell"><span class="tel-cell-l">UNIX Epoch</span><span class="tel-cell-v" id="telEpoch">--</span></div>
-        <div class="tel-cell"><span class="tel-cell-l">Drift Offset</span><span class="tel-cell-v" id="telOffset">±0.2 ms</span></div>
+        <div class="tel-cell"><span class="tel-cell-l">UTC Time</span><span class="tel-cell-v" id="telUtcTime">--:--:-- UTC</span></div>
+        <div class="tel-cell"><span class="tel-cell-l">Unix Timestamp</span><span class="tel-cell-v" id="telEpoch">--</span></div>
+        <div class="tel-cell"><span class="tel-cell-l">Sync Offset</span><span class="tel-cell-v" id="telOffset">±0.2 ms</span></div>
       </div>
 
     </div>
@@ -311,7 +311,7 @@
   <div class="tool-modal" id="modal-globe">
     <div class="modal-card" style="max-width: 680px;">
       <div class="modal-head">
-        <span class="modal-title">3D Celestial Earth Globe</span>
+        <span class="modal-title">3D Globe</span>
         <button class="modal-close" onclick="closeModal('globe')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="globe-wrap" id="globeCont">
@@ -324,7 +324,7 @@
   <div class="tool-modal" id="modal-world">
     <div class="modal-card" style="max-width: 680px;">
       <div class="modal-head">
-        <span class="modal-title">World Hubs Matrix</span>
+        <span class="modal-title">World Clocks</span>
         <button class="modal-close" onclick="closeModal('world')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="world-list" id="worldList"></div>
@@ -341,7 +341,7 @@
       <div class="set-group">
         <span class="set-lbl">Display Options</span>
         <div class="set-row"><span class="set-txt">24-Hour Format</span><label class="switch"><input type="checkbox" id="cfg24h" checked><span class="sw-slider"></span></label></div>
-        <div class="set-row"><span class="set-txt">Millisecond Ribbon</span><label class="switch"><input type="checkbox" id="cfgMs" checked><span class="sw-slider"></span></label></div>
+        <div class="set-row"><span class="set-txt">Milliseconds</span><label class="switch"><input type="checkbox" id="cfgMs" checked><span class="sw-slider"></span></label></div>
         <div class="set-row"><span class="set-txt">Blinking Separators</span><label class="switch"><input type="checkbox" id="cfgBlink" checked><span class="sw-slider"></span></label></div>
         <div class="set-row"><span class="set-txt">Day Horizon Progress</span><label class="switch"><input type="checkbox" id="cfgDayBar" checked><span class="sw-slider"></span></label></div>
       </div>
@@ -361,7 +361,7 @@
 
   <footer class="site-footer">
     <a href="/">spanani.de</a>
-    <span>atomic timekeeping engine · 2026</span>
+    <span>atomic clock · 2026</span>
     <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
   </footer>
 
@@ -488,11 +488,11 @@
         anchorPerf = race.perf;
         ntpOffset = race.off;
         $('#sDot').className = 'dot-live';
-        $('#sText').textContent = 'NTP LOCK (±' + (Math.abs(ntpOffset) % 8 + 0.2).toFixed(1) + 'ms)';
+        $('#sText').textContent = 'Synced (±' + (Math.abs(ntpOffset) % 8 + 0.2).toFixed(1) + 'ms)';
         $('#telOffset').textContent = (ntpOffset >= 0 ? '+' : '') + ntpOffset + ' ms · Locked';
       } catch(e) {
         $('#sDot').className = 'dot-live warn';
-        $('#sText').textContent = 'SYS CLOCK SYNC';
+        $('#sText').textContent = 'Local time';
       }
     }
 
@@ -900,7 +900,7 @@
     });
 
     // Apply Saved Config
-    setAccent(CFG.ac);
+    if (CFG.ac !== DEF.ac) setAccent(CFG.ac);
     setWatchMode(CFG.mode || 'digital');
     $('#cfg24h').checked = CFG.h24;
     $('#cfgMs').checked = CFG.ms;

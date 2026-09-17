@@ -12,7 +12,7 @@
   --paper-raised: #f3efe7;
   --ink: #181511;
   --ink-soft: #5c564c;
-  --ink-faint: #b6ada0;
+  --ink-faint: #6f675b;
   --accent: #b5482c;
   --accent-rgb: 181, 72, 44;
   --accent-soft: rgba(181, 72, 44, 0.12);
@@ -36,7 +36,7 @@
     --paper-raised: #1c1914;
     --ink: #f3efe7;
     --ink-soft: #b6ada0;
-    --ink-faint: #6b6459;
+    --ink-faint: #8d8578;
     --accent: #e08a5c;
     --accent-rgb: 224, 138, 92;
     --accent-soft: rgba(224, 138, 92, 0.14);
@@ -464,4 +464,12 @@ button { font: inherit; }
   .nav-links .nav-link { display: none; }
   .dock-btn span { display: none; }
   .dock-btn { padding: 0 10px; width: 38px; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

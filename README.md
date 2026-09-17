@@ -1,88 +1,86 @@
 # spanani.de
 
-Minimal portfolio and atomic clock website built in plain HTML, CSS, and JavaScript.
+Source for [spanani.de](https://spanani.de) — a 100% static site (plain
+HTML, CSS, and vanilla JavaScript, no framework or build step) deployed
+via **Cloudflare Pages**, using its git integration to auto-build and
+deploy on every push to `main`.
 
-## Overview
+## Pages
 
-This project contains two handcrafted pages:
+- `index.html` — the portfolio homepage. A light-first, editorial
+  "Quiet Precision" design: an opening statement, a grid of links to the
+  sub-projects below, and a contact section (a real contact form plus a
+  click-to-copy email address).
+- `clock/index.html` — the atomic precision clock. Network-time-synced
+  digital and Swiss analog dial views, a day-progress indicator, a world
+  clock with an interactive 3D globe, a stopwatch, a countdown timer, and
+  persisted display settings (24h/12h, milliseconds, accent color, etc.
+  via `localStorage`).
 
-- `index.html`  
-  A dark portfolio landing page for **spanani** with animated sections, project highlights, contact links, a live clock strip, accent color customization, and a settings drawer.
+Both pages share `assets/css/design-system.css`, which holds the design
+tokens (colors, spacing, type) and reusable components (nav, buttons,
+cards, forms, modals) used across the site.
 
-- `clock.html`  
-  A standalone **atomic clock experience** with NTP-style time sync via web APIs, drift detection, world clocks, stopwatch, timer, globe visualization, and user-adjustable display settings.
+### Fonts
 
-## Features
+- **Fraunces** — display serif, used for headlines
+- **Inter** — body and UI sans-serif
+- **DM Mono** — reserved for real data (clock digits, timestamps, sync
+  offsets), not decorative labels
 
-### Portfolio Page
+### Other sections
 
-- Clean editorial-style layout
-- Animated intro loader
-- Scroll-based reveal effects
-- Accent color presets and custom color picker
-- Settings panel for grid, noise, cursor, smooth scroll, and clock strip
-- Live synced time preview
-- Responsive mobile layout
+`/rust`, `/tennis`, `/steam`, and `/rustempire` are separate,
+independently maintained sections of the site not covered by this
+README.
 
-### Clock Page
+## Backend: contact form
 
-- Live synchronized time display
-- Milliseconds, 24-hour mode, and day progress ring
-- Device vs atomic time drift indicator
-- NTP sync status with latency and accuracy info
-- Stopwatch and countdown timer
-- Interactive world clock globe on desktop
-- Mobile-friendly world clock grid
-- Persistent settings via `localStorage`
+The homepage's contact form (`POST /contact`) is handled by
+`functions/contact.ts`, a Cloudflare Pages Function. It validates the
+submission server-side (required fields, email format, a length cap on
+each field, and a hidden honeypot field to silently drop spam) and sends
+the message via the [Resend](https://resend.com) API.
 
-## Tech Stack
+### Setup: RESEND_API_KEY
 
-- HTML5
-- CSS3
-- Vanilla JavaScript
-- Google Fonts (`Instrument Serif`, `DM Mono`)
-- External time APIs for synchronization
+The contact form will not work without this being configured:
 
-## Project Structure
+1. Create a Resend account and, in the dashboard, verify the
+   `spanani.de` sending domain (Domains → Add Domain, then add the DNS
+   records Resend gives you). Until that's verified, you can temporarily
+   send from Resend's shared `onboarding@resend.dev` address for testing.
+2. Create an API key in Resend (API Keys → Create API Key).
+3. In the Cloudflare Pages project dashboard, go to
+   **Settings → Environment variables** and add `RESEND_API_KEY` with
+   that key's value — for **both** the Production and Preview
+   environments.
 
-```text
-.
-|-- index.html   # Portfolio homepage
-|-- clock.html   # Atomic clock page
-`-- README.md
-```
+The key is never committed to this repository.
 
-## Running Locally
+## Running locally
 
-Because this project is fully static, you can run it in any simple way:
-
-1. Clone the repository
-2. Open `index.html` in your browser
-
-For best results, use a local server so fetch requests behave consistently:
+Since this is a static site, any simple local server works for the
+pages themselves:
 
 ```bash
-# Python
 python -m http.server 8000
 ```
 
 Then open `http://localhost:8000`.
 
+To exercise the contact form locally (Cloudflare Pages Functions), use
+Wrangler instead:
+
+```bash
+npx wrangler pages dev . --compatibility-date=2026-09-17
+```
+
+with `RESEND_API_KEY` exported in that terminal.
+
 ## Notes
 
-- The clock page depends on external time APIs such as `worldtimeapi.org` and falls back when needed.
-- User preferences are stored in the browser with `localStorage`.
-- The portfolio links assume the clock page is available at `/clock`.
-
-## Screens / Concept
-
-The project is designed around:
-
-- monochrome, low-noise visuals
-- serif + mono typography
-- subtle motion and hover feedback
-- a minimal but slightly experimental web aesthetic
-
-## License
-
-Add your preferred license here, for example `MIT`.
+- The clock page syncs against a small set of public time APIs and falls
+  back to the device's local clock if none of them respond.
+- User preferences (clock display settings, accent color) persist via
+  `localStorage`, per browser.

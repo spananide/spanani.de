@@ -1,3 +1,5 @@
+import { EmailMessage } from 'cloudflare:email';
+
 interface ContactPayload {
   name?: string;
   email?: string;
@@ -5,17 +7,45 @@ interface ContactPayload {
   website?: string; // honeypot — real users never fill this in
 }
 
+interface SendEmailBinding {
+  send(message: EmailMessage): Promise<void>;
+}
+
 interface Env {
-  RESEND_API_KEY: string;
+  SEND_EMAIL: SendEmailBinding;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CONTACT_FROM = 'contact@spanani.de';
+const CONTACT_TO = 'webmaster@spanani.de';
 
 function jsonResponse(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
+}
+
+// Strips characters that could break out of a MIME header line (header injection).
+function sanitizeHeaderValue(value: string): string {
+  return value.replace(/[\r\n]/g, ' ').trim();
+}
+
+function buildRawEmail(name: string, email: string, message: string): string {
+  const safeName = sanitizeHeaderValue(name);
+  const subject = sanitizeHeaderValue(`New message from ${safeName}`);
+  const body = [`From: ${safeName} <${email}>`, '', message.replace(/\r\n/g, '\n')].join('\n');
+
+  return [
+    `From: "spanani.de contact form" <${CONTACT_FROM}>`,
+    `To: <${CONTACT_TO}>`,
+    `Reply-To: <${email}>`,
+    `Subject: ${subject}`,
+    'MIME-Version: 1.0',
+    'Content-Type: text/plain; charset="UTF-8"',
+    '',
+    body,
+  ].join('\r\n');
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
@@ -55,23 +85,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return jsonResponse({ ok: false, error: 'Message is too long.' }, 400);
   }
 
-  const resendRes = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${context.env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: '"spanani.de contact form" <contact@spanani.de>',
-      to: 'webmaster@spanani.de',
-      reply_to: email,
-      subject: `New message from ${name}`,
-      text: `From: ${name} <${email}>\n\n${message}`,
-    }),
-  });
-
-  if (!resendRes.ok) {
-    console.error('Resend send failed', resendRes.status, await resendRes.text());
+  try {
+    const raw = buildRawEmail(name, email, message);
+    const emailMessage = new EmailMessage(CONTACT_FROM, CONTACT_TO, raw);
+    await context.env.SEND_EMAIL.send(emailMessage);
+  } catch (err) {
+    console.error('Email Routing send failed', err instanceof Error ? err.message : err);
     return jsonResponse(
       { ok: false, error: 'Could not send your message right now. Please email us directly instead.' },
       502

@@ -40,23 +40,26 @@ The homepage's contact form (`POST /contact`) is handled by
 `functions/contact.ts`, a Cloudflare Pages Function. It validates the
 submission server-side (required fields, email format, a length cap on
 each field, and a hidden honeypot field to silently drop spam) and sends
-the message via the [Resend](https://resend.com) API.
+the message using **Cloudflare Email Routing** — no third-party email
+service or API key required, since it stays entirely inside Cloudflare.
 
-### Setup: RESEND_API_KEY
+### Setup: Email Routing + a Send Email binding
 
-The contact form will not work without this being configured:
+The contact form will not work without this being configured, all from
+the Cloudflare dashboard for the `spanani.de` zone:
 
-1. Create a Resend account and, in the dashboard, verify the
-   `spanani.de` sending domain (Domains → Add Domain, then add the DNS
-   records Resend gives you). Until that's verified, you can temporarily
-   send from Resend's shared `onboarding@resend.dev` address for testing.
-2. Create an API key in Resend (API Keys → Create API Key).
-3. In the Cloudflare Pages project dashboard, go to
-   **Settings → Environment variables** and add `RESEND_API_KEY` with
-   that key's value — for **both** the Production and Preview
-   environments.
+1. **Enable Email Routing** for the zone (Email → Email Routing). This
+   adds the necessary MX/SPF DNS records automatically, since Cloudflare
+   already manages this domain's DNS.
+2. **Add and verify a destination address** — the real inbox that should
+   receive contact-form messages (Email Routing → Destination addresses).
+   Cloudflare emails a one-time confirmation link to that address.
+3. In the **Pages project** dashboard, go to
+   **Settings → Functions → Email Bindings**, and add a binding named
+   `SEND_EMAIL` pointing at that same verified destination address.
 
-The key is never committed to this repository.
+No API key is created or stored anywhere — access is controlled entirely
+by which destination address you verified in step 2.
 
 ## Running locally
 
@@ -76,7 +79,11 @@ Wrangler instead:
 npx wrangler pages dev . --compatibility-date=2026-09-17
 ```
 
-with `RESEND_API_KEY` exported in that terminal.
+Local Email Routing bindings aren't simulated by Wrangler, so a local
+`/contact` call will fail past validation — that's expected. Field
+validation, the honeypot, and malformed-request handling can still be
+tested locally; the actual send only works once deployed with the
+binding configured (see above).
 
 ## Notes
 

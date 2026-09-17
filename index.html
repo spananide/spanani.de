@@ -60,8 +60,7 @@
       margin-top: 6px;
     }
 
-    .contact-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: start; }
-    .contact-alt { display: flex; flex-direction: column; gap: 12px; }
+    .contact-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 640px; }
 
     @media (max-width: 720px) {
       main { padding: 48px 18px 72px; }
@@ -143,39 +142,14 @@
     <section class="contact reveal" id="contact">
       <h2 class="section-title">Get in touch</h2>
       <div class="contact-grid">
-
-        <form class="contact-form" id="contactForm" novalidate>
-          <div class="field">
-            <label for="cfName">Name</label>
-            <input type="text" id="cfName" name="name" required autocomplete="name">
-          </div>
-          <div class="field">
-            <label for="cfEmail">Email</label>
-            <input type="email" id="cfEmail" name="email" required autocomplete="email">
-          </div>
-          <div class="field">
-            <label for="cfMessage">Message</label>
-            <textarea id="cfMessage" name="message" rows="5" required></textarea>
-          </div>
-          <div class="field field-hp" aria-hidden="true">
-            <label for="cfWebsite">Website</label>
-            <input type="text" id="cfWebsite" name="website" tabindex="-1" autocomplete="off">
-          </div>
-          <button type="submit" class="btn btn-primary" id="cfSubmit">Send message</button>
-          <p class="form-status" id="cfStatus" role="status" aria-live="polite"></p>
-        </form>
-
-        <div class="contact-alt">
-          <button class="connect-card" id="copyEmailBtn" type="button">
-            <span class="connect-title">webmaster@spanani.de</span>
-            <span class="connect-sub">Click to copy</span>
-          </button>
-          <a href="https://github.com/spananide" target="_blank" rel="noopener" class="connect-card">
-            <span class="connect-title">github.com/spananide</span>
-            <span class="connect-sub">Source &amp; repositories</span>
-          </a>
-        </div>
-
+        <button class="connect-card" id="copyEmailBtn" type="button">
+          <span class="connect-title">webmaster@spanani.de</span>
+          <span class="connect-sub">Click to copy</span>
+        </button>
+        <a href="https://github.com/spananide" target="_blank" rel="noopener" class="connect-card">
+          <span class="connect-title">github.com/spananide</span>
+          <span class="connect-sub">Source &amp; repositories</span>
+        </a>
       </div>
     </section>
 
@@ -227,61 +201,6 @@
           toast.classList.add('show');
           setTimeout(() => toast.classList.remove('show'), 2500);
         });
-      });
-    }
-
-    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const form = document.getElementById('contactForm');
-    if (form) {
-      const status = document.getElementById('cfStatus');
-      const submitBtn = document.getElementById('cfSubmit');
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        status.textContent = '';
-        status.className = 'form-status';
-
-        const name = document.getElementById('cfName').value.trim();
-        const email = document.getElementById('cfEmail').value.trim();
-        const message = document.getElementById('cfMessage').value.trim();
-        const website = document.getElementById('cfWebsite').value;
-
-        if (!name || !email || !message) {
-          status.textContent = 'Please fill in your name, email, and message.';
-          status.classList.add('error');
-          return;
-        }
-        if (!EMAIL_RE.test(email)) {
-          status.textContent = 'That email address does not look valid.';
-          status.classList.add('error');
-          return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Sending...';
-
-        try {
-          const res = await fetch('/contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, message, website }),
-          });
-          const data = await res.json();
-          if (data.ok) {
-            status.textContent = "Message sent — thanks, I'll get back to you soon.";
-            status.classList.add('success');
-            form.reset();
-          } else {
-            status.textContent = data.error || 'Something went wrong. Please try emailing us directly.';
-            status.classList.add('error');
-          }
-        } catch (err) {
-          status.textContent = 'Network error. Please try emailing us directly.';
-          status.classList.add('error');
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Send message';
-        }
       });
     }
   </script>

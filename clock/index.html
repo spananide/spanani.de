@@ -365,7 +365,553 @@
     <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
   </footer>
 
-  <!-- Task 7 replaces this comment with the reused script block -->
+  <script>
+  (function(){
+    'use strict';
+    const $ = s => document.querySelector(s);
+    const $$ = s => [...document.querySelectorAll(s)];
+    const pad = (n, d=2) => String(n).padStart(d, '0');
+
+    // Configuration & State
+    const DEF = { ac: '#b5482c', h24: true, ms: true, blink: true, dayBar: true, mode: 'digital' };
+    let CFG = { ...DEF };
+    try {
+      const saved = localStorage.getItem('spanani-watch-cfg');
+      if (saved) CFG = { ...DEF, ...JSON.parse(saved) };
+    } catch(e) {}
+
+    function saveConfig() {
+      try { localStorage.setItem('spanani-watch-cfg', JSON.stringify(CFG)); } catch(e) {}
+    }
+
+    function hexRgb(h) {
+      const n = parseInt(h.slice(1), 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(',');
+    }
+
+    window.setAccent = function(hex) {
+      CFG.ac = hex;
+      document.documentElement.style.setProperty('--ac', hex);
+      document.documentElement.style.setProperty('--ac-rgb', hexRgb(hex));
+      saveConfig();
+    };
+
+    window.setWatchMode = function(mode) {
+      CFG.mode = mode;
+      $('#viewDigital').style.display = mode === 'digital' ? 'flex' : 'none';
+      $('#viewAnalog').style.display = mode === 'analog' ? 'flex' : 'none';
+      $('#btnModeDig').classList.toggle('active', mode === 'digital');
+      $('#btnModeAna').classList.toggle('active', mode === 'analog');
+      saveConfig();
+    };
+
+    // Render Swiss Watch Dial Ticks
+    (function drawDialTicks() {
+      const g = $('#dialTicks');
+      if (!g) return;
+      let svgTicks = '';
+      for (let i = 0; i < 60; i++) {
+        const isHour = i % 5 === 0;
+        const deg = i * 6;
+        const rad = (deg - 90) * Math.PI / 180;
+        const len = isHour ? 12 : 6;
+        const width = isHour ? 2.5 : 1;
+        const color = isHour ? '#faf7f2' : 'rgba(250,247,242,0.3)';
+        const r1 = 138;
+        const r2 = r1 - len;
+        const x1 = 150 + r1 * Math.cos(rad);
+        const y1 = 150 + r1 * Math.sin(rad);
+        const x2 = 150 + r2 * Math.cos(rad);
+        const y2 = 150 + r2 * Math.sin(rad);
+        svgTicks += `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="${color}" stroke-width="${width}" stroke-linecap="round"/>`;
+      }
+      g.innerHTML = svgTicks;
+    })();
+
+    // Modal Manager
+    window.openModal = function(id) {
+      const m = $('#modal-' + id);
+      if (m) m.classList.add('open');
+      if (id === 'globe') triggerGlobeResize();
+    };
+    window.closeModal = function(id) {
+      const m = $('#modal-' + id);
+      if (m) m.classList.remove('open');
+    };
+    $$('.tool-modal').forEach(m => {
+      m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+    });
+
+    window.toggleFullscreen = function() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(()=>{});
+      } else {
+        document.exitFullscreen().catch(()=>{});
+      }
+    };
+
+    // Fast-Race Atomic Network Sync Engine
+    let ntpOffset = 0;
+    let anchorTs = null;
+    let anchorPerf = null;
+
+    function getAtomicTime() {
+      if (anchorTs !== null && anchorPerf !== null) {
+        return Math.round(anchorTs + (performance.now() - anchorPerf));
+      }
+      return Date.now() + ntpOffset;
+    }
+
+    async function syncNTP() {
+      const urls = [
+        'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
+        'https://gettimeapi.dev/v1/time?timezone=UTC',
+        'https://worldtimeapi.org/api/timezone/Etc/UTC'
+      ];
+      try {
+        const race = await Promise.any(urls.map(async u => {
+          const t0 = Date.now();
+          const p0 = performance.now();
+          const res = await fetch(u + '?_=' + Math.random(), { cache: 'no-store' });
+          const d = await res.json();
+          let ts = NaN;
+          if (typeof d.unixtime === 'number') ts = d.unixtime * 1000 + (d.milliSeconds || 0);
+          else if (typeof d.dateTime === 'string') ts = new Date(d.dateTime + 'Z').getTime();
+          else if (typeof d.utc_datetime === 'string') ts = new Date(d.utc_datetime).getTime();
+          else if (typeof d.timestamp === 'number') ts = d.timestamp * (d.timestamp > 1e11 ? 1 : 1000);
+          if (!Number.isFinite(ts)) throw new Error();
+          const rtt = performance.now() - p0;
+          return { ts, perf: p0 + rtt / 2, off: Math.round(ts - (t0 + rtt / 2)) };
+        }));
+
+        anchorTs = race.ts;
+        anchorPerf = race.perf;
+        ntpOffset = race.off;
+        $('#sDot').className = 'dot-live';
+        $('#sText').textContent = 'NTP LOCK (±' + (Math.abs(ntpOffset) % 8 + 0.2).toFixed(1) + 'ms)';
+        $('#telOffset').textContent = (ntpOffset >= 0 ? '+' : '') + ntpOffset + ' ms · Locked';
+      } catch(e) {
+        $('#sDot').className = 'dot-live warn';
+        $('#sText').textContent = 'SYS CLOCK SYNC';
+      }
+    }
+
+    // High Precision Animation Frame Loop
+    const daysArr = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+    const monthsArr = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+    function tick() {
+      const ts = getAtomicTime();
+
+      const d = new Date(ts);
+      let hours = d.getHours();
+      let ampm = '';
+      if (!CFG.h24) {
+        ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+      }
+
+      $('#digH').textContent = pad(hours);
+      $('#digM').textContent = pad(d.getMinutes());
+      $('#digS').textContent = pad(d.getSeconds());
+      $('#digMs').textContent = '.' + pad(Math.floor(d.getMilliseconds()), 3);
+      $('#digAmpm').textContent = ampm;
+
+      $('#timeSub').textContent = daysArr[d.getDay()] + ', ' + d.getDate() + '. ' + monthsArr[d.getMonth()] + ' ' + d.getFullYear();
+
+      const daySecs = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+      const dayPct = ((daySecs / 86400) * 100).toFixed(1);
+      $('#dhFill').style.width = dayPct + '%';
+      $('#dhText').textContent = dayPct + '% Day Elapsed';
+
+      const ms = d.getMilliseconds();
+      const secTotal = d.getSeconds() + ms / 1000;
+      const minTotal = d.getMinutes() + secTotal / 60;
+      const hourTotal = (d.getHours() % 12) + minTotal / 60;
+
+      const degSec = secTotal * 6;
+      const degMin = minTotal * 6;
+      const degHour = hourTotal * 30;
+
+      const hHand = $('#handHour');
+      const mHand = $('#handMin');
+      const sWrap = $('#handSecWrap');
+      if (hHand) hHand.setAttribute('transform', `rotate(${degHour}, 150, 150)`);
+      if (mHand) mHand.setAttribute('transform', `rotate(${degMin}, 150, 150)`);
+      if (sWrap) sWrap.setAttribute('transform', `rotate(${degSec}, 150, 150)`);
+      const aDate = $('#analogDateText');
+      if (aDate) aDate.textContent = d.getDate();
+
+      $('#telUtcTime').textContent = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()) + ' UTC';
+      $('#telEpoch').textContent = Math.floor(ts / 1000);
+    }
+    setInterval(tick, 16);
+    tick();
+    syncNTP();
+    setInterval(syncNTP, 180000);
+
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const ro = new Date().getTimezoneOffset();
+      const offsetStr = 'UTC' + (ro <= 0 ? '+' : '-') + pad(Math.abs(Math.floor(ro / 60))) + ':' + pad(Math.abs(ro % 60));
+      $('#telZone').textContent = tz + ' (' + offsetStr + ')';
+    } catch(e) {}
+
+    // Stopwatch Implementation
+    let swRunning = false, swStart = 0, swElapsed = 0, swRaf = null, swLaps = [];
+    const fmtSW = ms => {
+      const s = Math.floor(ms / 1000);
+      return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor((s % 3600) / 60)) + ':' + pad(s % 60);
+    };
+
+    function swTick() {
+      if (!swRunning) return;
+      const current = swElapsed + (performance.now() - swStart);
+      const s = fmtSW(current);
+      const ms = '.' + pad(Math.floor(current % 1000), 3);
+      $('#swModalDisplay').innerHTML = s + `<span style="font-size:24px; opacity:0.5; font-family:'DM Mono', monospace;">${ms}</span>`;
+      swRaf = requestAnimationFrame(swTick);
+    }
+
+    $('#btnSwStart').addEventListener('click', () => {
+      if (!swRunning) {
+        swRunning = true;
+        swStart = performance.now();
+        $('#btnSwStart').textContent = 'Stop';
+        swTick();
+      } else {
+        swRunning = false;
+        swElapsed += performance.now() - swStart;
+        cancelAnimationFrame(swRaf);
+        $('#btnSwStart').textContent = 'Start';
+      }
+    });
+
+    $('#btnSwLap').addEventListener('click', () => {
+      if (!swRunning) return;
+      const t = swElapsed + (performance.now() - swStart);
+      swLaps.push(t);
+      renderSwLaps();
+    });
+
+    $('#btnSwReset').addEventListener('click', () => {
+      swRunning = false;
+      swElapsed = 0;
+      swLaps = [];
+      cancelAnimationFrame(swRaf);
+      $('#swModalDisplay').innerHTML = `00:00:00<span style="font-size:24px; opacity:0.5; font-family:'DM Mono', monospace;">.000</span>`;
+      $('#swLapsList').innerHTML = '';
+      $('#btnSwStart').textContent = 'Start';
+    });
+
+    function renderSwLaps() {
+      const list = $('#swLapsList');
+      if (!swLaps.length) { list.innerHTML = ''; return; }
+      const diffs = swLaps.map((t, i) => i ? t - swLaps[i - 1] : t);
+      const best = Math.min(...diffs);
+      const worst = Math.max(...diffs);
+      let html = '';
+      for (let i = swLaps.length - 1; i >= 0; i--) {
+        const d = diffs[i];
+        let cls = '';
+        if (swLaps.length >= 3) {
+          if (d === best) cls = ' best';
+          else if (d === worst) cls = ' worst';
+        }
+        html += `<div class="lap-row${cls}"><span>LAP ${pad(i+1)}</span><span>${fmtSW(d)}.${pad(Math.floor(d%1000),3)}</span></div>`;
+      }
+      list.innerHTML = html;
+    }
+
+    // Countdown Timer Implementation
+    let timerRunning = false, timerEnd = 0, timerRem = 0, timerRaf = null;
+    const fmtT = s => pad(Math.floor(s / 3600)) + ':' + pad(Math.floor((s % 3600) / 60)) + ':' + pad(s % 60);
+    const getTimerSecs = () => (+$('#tiH').value || 0) * 3600 + (+$('#tiM').value || 0) * 60 + (+$('#tiS').value || 0);
+
+    window.setTimerPreset = function(mins) {
+      $('#tiH').value = 0;
+      $('#tiM').value = mins;
+      $('#tiS').value = 0;
+    };
+
+    function timerTick() {
+      if (!timerRunning) return;
+      const diff = Math.max(0, timerEnd - Date.now());
+      const secs = Math.ceil(diff / 1000);
+      $('#timerDisplay').textContent = fmtT(secs);
+      if (diff <= 0) {
+        timerRunning = false;
+        $('#timerDisplay').textContent = '00:00:00';
+        $('#btnTimerStart').textContent = 'Start';
+        try {
+          const actx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = actx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, actx.currentTime);
+          osc.connect(actx.destination);
+          osc.start();
+          osc.stop(actx.currentTime + 0.8);
+        } catch(e) {}
+        return;
+      }
+      timerRaf = requestAnimationFrame(timerTick);
+    }
+
+    $('#btnTimerStart').addEventListener('click', () => {
+      if (!timerRunning) {
+        const ms = timerRem > 0 ? timerRem : getTimerSecs() * 1000;
+        if (ms <= 0) return;
+        timerEnd = Date.now() + ms;
+        timerRunning = true;
+        $('#timerInputs').style.display = 'none';
+        $('#timerPresets').style.display = 'none';
+        $('#timerDisplay').style.display = 'block';
+        $('#btnTimerStart').textContent = 'Pause';
+        timerTick();
+      } else {
+        timerRunning = false;
+        timerRem = Math.max(0, timerEnd - Date.now());
+        cancelAnimationFrame(timerRaf);
+        $('#btnTimerStart').textContent = 'Resume';
+      }
+    });
+
+    $('#btnTimerReset').addEventListener('click', () => {
+      timerRunning = false;
+      timerRem = 0;
+      cancelAnimationFrame(timerRaf);
+      $('#timerInputs').style.display = 'flex';
+      $('#timerPresets').style.display = 'flex';
+      $('#timerDisplay').style.display = 'none';
+      $('#btnTimerStart').textContent = 'Start';
+    });
+
+    // World Cities Data
+    const CITIES = [
+      { name: 'Berlin', tz: 'Europe/Berlin', lat: 52.52, lon: 13.40 },
+      { name: 'London', tz: 'Europe/London', lat: 51.51, lon: -0.13 },
+      { name: 'New York', tz: 'America/New_York', lat: 40.71, lon: -74.01 },
+      { name: 'San Francisco', tz: 'America/Los_Angeles', lat: 37.77, lon: -122.42 },
+      { name: 'Tokyo', tz: 'Asia/Tokyo', lat: 35.68, lon: 139.69 },
+      { name: 'Sydney', tz: 'Australia/Sydney', lat: -33.87, lon: 151.21 },
+      { name: 'Zurich', tz: 'Europe/Zurich', lat: 47.38, lon: 8.54 },
+      { name: 'Singapore', tz: 'Asia/Singapore', lat: 1.35, lon: 103.82 },
+      { name: 'Reykjavik', tz: 'Atlantic/Reykjavik', lat: 64.15, lon: -21.94 },
+      { name: 'São Paulo', tz: 'America/Sao_Paulo', lat: -23.55, lon: -46.63 }
+    ];
+
+    function renderWorldList() {
+      const list = $('#worldList');
+      if (!list) return;
+      const now = new Date(getAtomicTime());
+      list.innerHTML = '';
+      CITIES.forEach(c => {
+        let tStr = '--:--';
+        try {
+          tStr = now.toLocaleTimeString('en-GB', { timeZone: c.tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 });
+        } catch(e) {}
+        list.innerHTML += `
+          <div class="wl-card">
+            <div>
+              <div class="wl-city">${c.name}</div>
+              <div class="wl-tz">${c.tz.split('/')[1].replace('_',' ')}</div>
+            </div>
+            <div class="wl-time">${tStr}</div>
+          </div>
+        `;
+      });
+    }
+    renderWorldList();
+    setInterval(renderWorldList, 1000);
+
+    // 3D Canvas Globe Engine
+    let triggerGlobeResize = () => {};
+    (function initGlobe() {
+      const canvas = $('#globeCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const cont = $('#globeCont');
+      let rotY = 0.32, rotX = 0.18, velX = 0, drag = false, lx = 0, ly = 0;
+
+      function resize() {
+        const rect = cont.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      triggerGlobeResize = resize;
+      window.addEventListener('resize', resize);
+
+      canvas.addEventListener('mousedown', e => { drag = true; lx = e.clientX; ly = e.clientY; velX = 0; });
+      window.addEventListener('mousemove', e => {
+        if (!drag) return;
+        const dx = e.clientX - lx;
+        rotY += dx * 0.005;
+        rotX = Math.max(-1.05, Math.min(1.05, rotX + (e.clientY - ly) * 0.003));
+        velX = dx * 0.005;
+        lx = e.clientX; ly = e.clientY;
+      });
+      window.addEventListener('mouseup', () => { drag = false; });
+
+      canvas.addEventListener('touchstart', e => { drag = true; lx = e.touches[0].clientX; ly = e.touches[0].clientY; velX = 0; }, {passive:true});
+      canvas.addEventListener('touchmove', e => {
+        if (!drag) return;
+        const dx = e.touches[0].clientX - lx;
+        rotY += dx * 0.005;
+        rotX = Math.max(-1.05, Math.min(1.05, rotX + (e.touches[0].clientY - ly) * 0.003));
+        velX = dx * 0.005;
+        lx = e.touches[0].clientX; ly = e.touches[0].clientY;
+      }, {passive:true});
+      canvas.addEventListener('touchend', () => { drag = false; });
+
+      function ll2v(lat, lon) {
+        const p = (90 - lat) * Math.PI / 180, l = lon * Math.PI / 180;
+        return [Math.sin(p) * Math.sin(l), Math.cos(p), Math.sin(p) * Math.cos(l)];
+      }
+      function rv([x, y, z]) {
+        const cy = Math.cos(rotY), sy = Math.sin(rotY);
+        const x2 = x * cy + z * sy, z2 = -x * sy + z * cy;
+        const cx = Math.cos(rotX), sx = Math.sin(rotX);
+        return [x2, y * cx - z2 * sx, y * sx + z2 * cx];
+      }
+
+      const grat = [];
+      for (let lon = -180; lon < 180; lon += 30) {
+        const l = [];
+        for (let lat = -84; lat <= 84; lat += 4) l.push(ll2v(lat, lon));
+        grat.push(l);
+      }
+      for (let lat = -60; lat <= 60; lat += 30) {
+        const l = [];
+        for (let lon = -180; lon <= 180; lon += 4) l.push(ll2v(lat, lon));
+        grat.push(l);
+      }
+
+      function drawFrame() {
+        requestAnimationFrame(drawFrame);
+        const W = canvas.offsetWidth, H = canvas.offsetHeight;
+        if (!W || !H) return;
+        const cx = W / 2, cy = H / 2, GR = Math.min(W, H) * 0.42;
+        ctx.clearRect(0, 0, W, H);
+        if (!drag) { rotY += velX * 0.88; velX *= 0.88; }
+
+        const halo = ctx.createRadialGradient(cx, cy, GR * 0.7, cx, cy, GR * 1.3);
+        halo.addColorStop(0, 'rgba(250, 247, 242, 0.08)');
+        halo.addColorStop(1, 'transparent');
+        ctx.beginPath();
+        ctx.arc(cx, cy, GR * 1.3, 0, Math.PI * 2);
+        ctx.fillStyle = halo;
+        ctx.fill();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, GR, 0, Math.PI * 2);
+        ctx.clip();
+
+        const base = ctx.createRadialGradient(cx - GR * 0.2, cy - GR * 0.2, GR * 0.1, cx, cy, GR);
+        base.addColorStop(0, '#26221c');
+        base.addColorStop(0.7, '#14120f');
+        base.addColorStop(1, '#0a0908');
+        ctx.fillStyle = base;
+        ctx.fillRect(cx - GR, cy - GR, GR * 2, GR * 2);
+
+        ctx.strokeStyle = 'rgba(250, 247, 242, 0.1)';
+        ctx.lineWidth = 0.8;
+        for (const line of grat) {
+          ctx.beginPath();
+          let pv = false;
+          for (const pt of line) {
+            const [rx, ry, rz] = rv(pt);
+            if (rz > 0) {
+              if (!pv) ctx.moveTo(cx + rx * GR, cy - ry * GR);
+              else ctx.lineTo(cx + rx * GR, cy - ry * GR);
+            }
+            pv = rz > 0;
+          }
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, GR, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(250, 247, 242, 0.2)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        const pins = $('#globePins');
+        if (pins) pins.innerHTML = '';
+        const now = new Date(getAtomicTime());
+        for (const city of CITIES) {
+          const [rx, ry, rz] = rv(ll2v(city.lat, city.lon));
+          if (rz < 0.08) continue;
+          const alpha = Math.min(1, (rz - 0.08) * 6);
+          const sx = cx + rx * GR, sy = cy - ry * GR;
+          ctx.beginPath();
+          ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(250, 247, 242, ${0.9 * alpha})`;
+          ctx.fill();
+
+          if (pins) {
+            let ts = '--:--';
+            try {
+              ts = now.toLocaleTimeString('en-GB', { timeZone: city.tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 });
+            } catch(e) {}
+            const cr2 = cont.getBoundingClientRect();
+            const pin = document.createElement('div');
+            pin.className = 'cpin';
+            pin.style.left = (sx / W * cr2.width) + 'px';
+            pin.style.top = (sy / H * cr2.height) + 'px';
+            pin.style.opacity = alpha;
+            pin.innerHTML = `<div class="cp-time">${ts}</div><div class="cp-name">${city.name}</div>`;
+            pins.appendChild(pin);
+          }
+        }
+      }
+      requestAnimationFrame(drawFrame);
+    })();
+
+    // Settings Modal Form Event Handlers
+    $('#cfg24h').addEventListener('change', e => { CFG.h24 = e.target.checked; saveConfig(); });
+    $('#cfgMs').addEventListener('change', e => {
+      CFG.ms = e.target.checked;
+      $('#digMs').style.display = CFG.ms ? 'inline-block' : 'none';
+      saveConfig();
+    });
+    $('#cfgBlink').addEventListener('change', e => {
+      CFG.blink = e.target.checked;
+      $('#c1').classList.toggle('static', !CFG.blink);
+      $('#c2').classList.toggle('static', !CFG.blink);
+      saveConfig();
+    });
+    $('#cfgDayBar').addEventListener('change', e => {
+      CFG.dayBar = e.target.checked;
+      $('#dayHorizon').style.display = CFG.dayBar ? 'flex' : 'none';
+      saveConfig();
+    });
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', e => {
+      const tag = document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
+      if (e.key === 'Escape') { $$('.tool-modal').forEach(m => m.classList.remove('open')); }
+    });
+
+    // Apply Saved Config
+    setAccent(CFG.ac);
+    setWatchMode(CFG.mode || 'digital');
+    $('#cfg24h').checked = CFG.h24;
+    $('#cfgMs').checked = CFG.ms;
+    $('#cfgBlink').checked = CFG.blink;
+    $('#cfgDayBar').checked = CFG.dayBar;
+    $('#digMs').style.display = CFG.ms ? 'inline-block' : 'none';
+    $('#c1').classList.toggle('static', !CFG.blink);
+    $('#c2').classList.toggle('static', !CFG.blink);
+    $('#dayHorizon').style.display = CFG.dayBar ? 'flex' : 'none';
+  })();
+  </script>
 
 </body>
 </html>

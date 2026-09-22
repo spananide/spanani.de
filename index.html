@@ -4,20 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>spanani.de</title>
-  <meta name="description" content="Independent tools and small builds by spanani — an atomic precision clock, a Rust raid calculator, and a tennis match tracker.">
+  <meta name="description" content="spanani — software engineer. Small precise tools, custom Discord bots and server builds, and independent projects.">
   <meta name="author" content="spanani">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://spanani.de/">
-  <meta property="og:title" content="spanani.de">
-  <meta property="og:description" content="Independent tools and small builds by spanani.">
-  <meta name="theme-color" content="#faf7f2">
+  <meta property="og:title" content="spanani.de — software engineer">
+  <meta property="og:description" content="Software engineer. Small precise tools, custom Discord bots and server builds, and independent projects.">
+  <meta name="theme-color" content="#0d1117">
 
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/design-system.css">
   <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
 
@@ -29,17 +29,79 @@
   </script>
 
   <style>
+    /* Page-scoped "terminal" theme — overrides shared tokens for this page only.
+       /clock, /rust, /tennis, /rustempire are untouched (their own <style> blocks). */
+    :root {
+      --font-display: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+
+      --paper: #0d1117;
+      --paper-raised: #161b22;
+      --ink: #c9d1d9;
+      --ink-soft: #8b949e;
+      --ink-faint: #6e7681;
+      --accent: #58a6ff;
+      --accent-rgb: 88, 166, 255;
+      --accent-soft: rgba(88, 166, 255, 0.14);
+      --line: #30363d;
+      --line-strong: #484f58;
+      --danger: #f85149;
+      --success: #3fb950;
+    }
+    .site-nav { background: rgba(13, 17, 23, 0.85); }
+    .brand { font-weight: 500; }
+
     main { width: 100%; max-width: 1100px; margin: 0 auto; padding: 72px 28px 96px; flex: 1; }
 
-    .hero { max-width: 720px; margin-bottom: 88px; }
+    /* Hero */
+    .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; margin-bottom: 110px; }
     .hero h1 {
-      font-size: clamp(34px, 5vw, 52px);
-      letter-spacing: -0.5px;
-      margin-bottom: 22px;
+      font-size: clamp(27px, 3.6vw, 40px);
+      letter-spacing: -0.2px;
+      margin-bottom: 20px;
     }
-    .hero-sub { font-size: 18px; color: var(--ink-soft); line-height: 1.65; margin-bottom: 32px; max-width: 560px; }
+    .hero-sub { font-size: 17px; color: var(--ink-soft); line-height: 1.65; margin-bottom: 30px; max-width: 480px; }
     .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
+    /* Terminal panel */
+    .terminal { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+    .term-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink-faint);
+    }
+    .term-body { padding: 20px 22px; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.95; overflow-x: auto; }
+    .term-line { opacity: 0; transform: translateY(4px); animation: line-in 0.45s var(--ease) forwards; white-space: pre-wrap; }
+    .term-line:nth-child(1) { animation-delay: 0.1s; }
+    .term-line:nth-child(2) { animation-delay: 0.3s; }
+    .term-line:nth-child(3) { animation-delay: 0.5s; }
+    .term-line:nth-child(4) { animation-delay: 0.7s; }
+    .term-line:nth-child(5) { animation-delay: 0.9s; }
+    .term-line:nth-child(6) { animation-delay: 1.1s; }
+    @keyframes line-in { to { opacity: 1; transform: none; } }
+    .term-prompt { color: var(--ink-faint); }
+    .term-cmd { color: var(--ink); }
+    .term-out { color: var(--ink-soft); }
+    .term-hl { color: var(--accent); }
+    .term-ok { color: var(--success); }
+    .cursor { display: inline-block; width: 7px; height: 14px; background: var(--accent); margin-left: 2px; vertical-align: -2px; animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* Discord ad */
+    .ad-panel { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 44px; margin-bottom: 96px; }
+    .ad-sub { color: var(--ink-soft); max-width: 580px; margin: 14px 0 30px; line-height: 1.65; font-size: 15px; }
+    .embed-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 30px; }
+    .embed-card { background: var(--paper); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); padding: 22px 24px; }
+    .embed-tag { font-family: var(--font-mono); font-size: 13px; color: var(--accent); }
+    .embed-card h3 { font-size: 19px; margin: 8px 0 8px; font-family: var(--font-sans); font-weight: 600; }
+    .embed-card p { font-size: 14.5px; color: var(--ink-soft); line-height: 1.62; }
+
+    /* Projects — styled like repo cards, deliberately not like the Discord embeds above */
     .tools-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -47,6 +109,8 @@
       margin-bottom: 96px;
     }
     .card-feature { grid-column: span 2; }
+    .repo-path { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); margin-bottom: 8px; }
+    .card-title { font-family: var(--font-sans); font-weight: 600; }
     .mini-clock {
       display: flex;
       align-items: center;
@@ -61,12 +125,18 @@
     }
 
     .contact-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 640px; }
+    .section-title { font-weight: 600; }
 
+    @media (max-width: 860px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
     @media (max-width: 720px) {
       main { padding: 48px 18px 72px; }
-      .tools-grid { grid-template-columns: 1fr; }
+      .tools-grid, .embed-grid { grid-template-columns: 1fr; }
       .card-feature { grid-column: span 1; }
       .contact-grid { grid-template-columns: 1fr; }
+      .ad-panel { padding: 26px 20px; }
+      .term-body { font-size: 12px; padding: 16px; }
     }
   </style>
 </head>
@@ -75,11 +145,10 @@
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-nav">
-    <a href="/" class="brand">spanani</a>
+    <a href="/" class="brand">~/spanani</a>
     <nav class="nav-links" aria-label="Primary">
       <a class="nav-link" href="/clock">Clock</a>
-      <a class="nav-link" href="/rust">Rust</a>
-      <a class="nav-link" href="/tennis">Tennis</a>
+      <a class="nav-link" href="#projects">Projects</a>
       <a class="time-pill" href="/clock" title="Atomic clock">
         <span class="dot-live"></span>
         <span id="navTime">--:--:-- UTC</span>
@@ -90,21 +159,61 @@
   <main id="main">
 
     <section class="hero reveal">
-      <p class="kicker">spanani.de</p>
-      <h1>Small, precise tools for the details other sites skip.</h1>
-      <p class="hero-sub">An atomic-precision clock, a Rust raid calculator, and a tennis match tracker — built by hand, kept fast, and free of anything you didn't ask for.</p>
-      <div class="hero-actions">
-        <a href="#tools" class="btn btn-primary">See the tools</a>
-        <a href="https://github.com/spananide" target="_blank" rel="noopener" class="btn btn-secondary">GitHub</a>
+      <div class="hero-grid">
+        <div>
+          <p class="kicker">software engineer</p>
+          <h1>I build software — end to end, by myself.</h1>
+          <p class="hero-sub">I design, write, and ship things myself: small precise tools, custom Discord bots, and the occasional obsession that didn't need to exist but does now.</p>
+          <div class="hero-actions">
+            <a href="#projects" class="btn btn-primary">View projects</a>
+            <a href="https://github.com/spananide" target="_blank" rel="noopener" class="btn btn-secondary">GitHub</a>
+          </div>
+        </div>
+        <div class="terminal" aria-hidden="true">
+          <div class="term-head">
+            <span class="dot-live"></span>
+            spanani@dev — zsh
+          </div>
+          <div class="term-body">
+            <div class="term-line"><span class="term-prompt">$</span> <span class="term-cmd">whoami</span></div>
+            <div class="term-line"><span class="term-out">spanani — </span><span class="term-hl">software engineer</span></div>
+            <div class="term-line"><span class="term-prompt">$</span> <span class="term-cmd">ls ./builds</span></div>
+            <div class="term-line"><span class="term-out">clock  rust  tennis  discord-bots</span></div>
+            <div class="term-line"><span class="term-prompt">$</span> <span class="term-cmd">git push origin main</span></div>
+            <div class="term-line"><span class="term-ok">&check; deployed to spanani.de</span><span class="cursor" aria-hidden="true"></span></div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="tools" id="tools">
-      <h2 class="section-title">Tools &amp; builds</h2>
+    <section class="discord-ad reveal" id="discord">
+      <div class="ad-panel">
+        <p class="kicker">also available for</p>
+        <h2 class="section-title">Discord bots &amp; servers</h2>
+        <p class="ad-sub">Alongside my own projects, I build custom bots and set up full servers for communities and small teams — moderation, games, onboarding, the works.</p>
+        <div class="embed-grid">
+          <div class="embed-card">
+            <span class="embed-tag">/discord-bots</span>
+            <h3>Discord Bots</h3>
+            <p>Moderation, leveling, tickets, games, or something nobody's built yet — written in JavaScript or Python, hosted and kept running.</p>
+          </div>
+          <div class="embed-card">
+            <span class="embed-tag">/server-setup</span>
+            <h3>Server Setup</h3>
+            <p>Channels, roles, and permissions planned out properly, with onboarding and verification so new members land somewhere that makes sense.</p>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="copyDiscordBtn" type="button">Message me on Discord</button>
+      </div>
+    </section>
+
+    <section class="tools" id="projects">
+      <h2 class="section-title">Projects</h2>
       <div class="tools-grid">
 
         <a href="/clock" class="card card-feature reveal">
           <div>
+            <p class="repo-path">spanani/atomic-clock</p>
             <span class="card-tag">Precision time</span>
             <h3 class="card-title">Atomic Precision Clock</h3>
             <p class="card-desc">Network-synced clock with drift compensation, a Swiss analog dial, an interactive 3D globe, world clocks, a stopwatch, and a timer.</p>
@@ -116,6 +225,7 @@
         </a>
 
         <a href="/rust" class="card reveal">
+          <p class="repo-path">spanani/rust-raid-calc</p>
           <span class="card-tag">Game logistics</span>
           <h3 class="card-title">Rust Raid Calculator</h3>
           <p class="card-desc">Exact explosive, sulfur, and scrap costs across 19 structure tiers, with soft/hard-side logic and CSV export.</p>
@@ -123,6 +233,7 @@
         </a>
 
         <a href="/tennis" class="card reveal">
+          <p class="repo-path">spanani/tennis-tracker</p>
           <span class="card-tag">Performance</span>
           <h3 class="card-title">Tennis Match Tracker</h3>
           <p class="card-desc">Offline-first scorekeeper with set timelines, ace/double-fault counts, and head-to-head momentum.</p>
@@ -130,6 +241,7 @@
         </a>
 
         <a href="/rustempire" class="card reveal">
+          <p class="repo-path">spanani/rustempire</p>
           <span class="card-tag">Systems</span>
           <h3 class="card-title">Rust Empire Ecosystem</h3>
           <p class="card-desc">Server management and clan coordination tooling for wipe tracking and logistics.</p>
@@ -142,14 +254,14 @@
     <section class="contact reveal" id="contact">
       <h2 class="section-title">Get in touch</h2>
       <div class="contact-grid">
+        <button class="connect-card" id="copyDiscordBtn2" type="button">
+          <span class="connect-title">spanani</span>
+          <span class="connect-sub">Discord — click to copy</span>
+        </button>
         <button class="connect-card" id="copyEmailBtn" type="button">
           <span class="connect-title">webmaster@spanani.de</span>
           <span class="connect-sub">Click to copy</span>
         </button>
-        <a href="https://github.com/spananide" target="_blank" rel="noopener" class="connect-card">
-          <span class="connect-title">github.com/spananide</span>
-          <span class="connect-sub">Source &amp; repositories</span>
-        </a>
       </div>
     </section>
 
@@ -193,16 +305,29 @@
       revealEls.forEach(el => el.classList.add('visible'));
     }
 
-    const copyBtn = document.getElementById('copyEmailBtn');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText('webmaster@spanani.de').then(() => {
-          const toast = document.getElementById('toast');
-          toast.classList.add('show');
-          setTimeout(() => toast.classList.remove('show'), 2500);
-        });
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function copyText(text, message) {
+      navigator.clipboard.writeText(text).then(() => showToast(message));
+    }
+
+    const copyEmailBtn = document.getElementById('copyEmailBtn');
+    if (copyEmailBtn) {
+      copyEmailBtn.addEventListener('click', () => {
+        copyText('webmaster@spanani.de', 'Copied webmaster@spanani.de to clipboard');
       });
     }
+
+    document.querySelectorAll('#copyDiscordBtn, #copyDiscordBtn2').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        copyText('spanani', 'Copied "spanani" — add me on Discord');
+      });
+    });
   </script>
 
 </body>

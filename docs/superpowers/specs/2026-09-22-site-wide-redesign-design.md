@@ -31,10 +31,12 @@ New/changed:
 - `/assets/js/site.js` — new, shared behavior (nav highlight, clock pill, clipboard-copy + toast, scroll-reveal), replacing per-page inline copies
 - `/assets/fonts/` — self-hosted font files (Space Grotesk, Inter, DM Mono, Fraunces), replacing the `fonts.googleapis.com` `<link>` tags
 - `/clock/index.html` — nav markup updated to the shared 4-link nav (`.site-nav--tool` wrapping variant); one CSS line so `.time-digits` keeps using Fraunces via a new `--font-numeric` token instead of `--font-display`; default accent color and settings-panel swatch list updated to brand-adjacent colors (existing users' saved `localStorage` accent choice is untouched)
+- `/rust/index.html` — its own `:root` token block (currently `--bg`/`--ac`/etc., fully independent of `design-system.css`) is retinted to the new brand palette; heading font swapped toward Space Grotesk/Inter; existing "back to spanani.de" nav link and footer link kept as-is; no layout/functional change (see Decisions)
+- `/tennis/index.html` — same retint treatment for its neutral palette (background/text/border tokens) and headings; its two match-participant accent colors (`--accent`/`--accent-opp`) are kept as functional data-distinguishing colors, not treated as brand decoration (see Decisions); existing "back to spanani.de" footer link kept
 
-Untouched (functionally): `/rust`, `/tennis`, `/rustempire` internals, `/steam`. `/rust` and `/tennis` don't share `design-system.css` so they're visually unaffected by the retokenization.
+Untouched entirely: `/rustempire` internals, `/steam`.
 
-Out of scope: rewriting the clock's tool UI (dial/globe/stopwatch/timer logic), rust calculator internals, tennis tracker internals, a real `/rustempire` page (see Decisions), a manual light/dark theme toggle (stays OS-preference-only), a contact form backend.
+Out of scope: rewriting the clock's tool UI (dial/globe/stopwatch/timer logic), rust calculator's/tennis tracker's functional layout and logic, a real `/rustempire` page (see Decisions), a manual light/dark theme toggle (stays OS-preference-only), a contact form backend.
 
 ## Decisions
 
@@ -49,6 +51,11 @@ These were confirmed with the site owner and are not open questions:
 7. **Legal pages**: add `/impressum/` and `/datenschutz/` (linked from the footer on every page), and self-host all font files instead of loading from `fonts.googleapis.com`, to address German Impressumspflicht and the GDPR issue with Google Fonts transmitting visitor IPs. (Not legal advice — content should be reviewed by the owner before launch, but the pages and font change are in scope for this implementation.)
 8. **Clock re-skin**: the clock page's shared chrome (nav, footer, buttons, cards, modals, dock, toggles) restyles automatically via the shared `design-system.css` tokens — this is intended, to unify branding. Its bespoke tool UI (analog dial, 3D globe, digit displays) is not touched beyond the one `--font-numeric` line and the default-accent/swatch update in #9.
 9. **Clock default accent**: update the clock's hard-coded default accent color and settings swatch list to brand-adjacent colors (matching the new violet accent) instead of the current terracotta. Any visitor who already customized their accent via `localStorage` keeps their own saved choice.
+
+10. **Tool page reskin depth**: `/rust` and `/tennis` get their color tokens and headline typography retinted to the new brand palette, plus the shared font stack where feasible — not a structural/layout rebuild. Their functional UI, JS logic, and page structure are untouched. This carries real risk if done carelessly (both pages hardcode some colors outside their `:root` blocks — see Risks), so implementation must audit each page's actual token usage rather than assume every color is a variable.
+11. **Rust's user-customizable accent picker**: `/rust` already lets visitors pick their own accent color via an in-page swatch picker (default `#f97316` orange). Only the *default* accent changes (to a brand-adjacent color, same pattern as the clock's default-accent change in Decision 9) — the picker feature itself and any visitor's chosen color are untouched.
+12. **Tennis's dual accent colors are functional, not decorative**: `--accent` (`#ccff00`) and `--accent-opp` (`#ff9500`) visually distinguish the two sides of a tracked match — they are data-encoding colors, not brand decoration. They are kept as-is rather than collapsed toward the single brand accent, since a scorekeeping tool needs two contrasting colors to remain usable. Neutral tokens (background/border/text) and headline font are retinted/updated instead.
+13. **`/rustempire` and `/steam` stay fully out of scope** for this redesign (no static page exists for rustempire; steam is a plain text file, not a page).
 
 Minor items resolved by adopting the recommended default (not asked as blocking questions, called out here for visibility):
 - Minecraft service copy stays general ("Fabric/Forge mods or Paper/Spigot plugins") rather than narrowed further.
@@ -68,7 +75,9 @@ Minor items resolved by adopting the recommended default (not asked as blocking 
 /assets/js/site.js              shared behavior
 /assets/fonts/*                 self-hosted font files
 /clock/index.html                nav + one CSS line + accent defaults changed
-/rust/, /tennis/, /rustempire/, /steam/   untouched
+/rust/index.html                 :root token retint + heading font, no layout change
+/tennis/index.html               neutral token retint + heading font, no layout change
+/rustempire/, /steam/             untouched
 ```
 
 Nav (identical on Home/Projects/Services/Contact/Impressum/Datenschutz and on `/clock`):
@@ -221,3 +230,4 @@ All new grids use `repeat(auto-fit, minmax(260px,1fr))` so they degrade column c
 
 - Impressum/Datenschutz page content is a shell in this pass — the owner must supply/verify the actual legal text before the site is considered compliant.
 - A real `/rustempire` static overview page is explicitly deferred; the GitHub-repo link is the interim fix.
+- Both `/rust` and `/tennis` have hardcoded hex colors scattered outside their `:root` blocks (e.g. rust's status colors `#ef4444`/`#34d399`/`#f59e0b` for warnings/success/etc., tennis's raw `#fff`/`#000` in a few rules) in addition to their token-driven colors. The reskin must audit each file's actual color usage rather than assume every visual color flows from a variable — a naive "just edit `:root`" pass would miss some and leave an inconsistent result.

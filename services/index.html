@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Services — spanani</title>
+  <meta name="description" content="Custom Discord bots, Minecraft mods and plugins, Discord server setups, websites and bespoke tools — built end to end by one developer. Message me and we'll scope it together.">
+  <meta name="author" content="spanani">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://spanani.de/services/">
+  <meta property="og:title" content="Services — spanani">
+  <meta property="og:description" content="Discord bots, Minecraft mods, server setups, websites and custom tools — built end to end by one developer.">
+  <meta name="theme-color" content="#faf9fb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0b10" media="(prefers-color-scheme: dark)">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <link rel="preload" href="/assets/fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/design-system.css">
+  <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+
+  <script>
+    if (window.location.pathname.endsWith('/index.html')) {
+      const cleanPath = window.location.pathname.replace(/\/index\.html$/, '') || '/services';
+      window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+    }
+  </script>
+
+  <script src="/assets/js/site.js" defer></script>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-nav">
+    <div class="nav-inner">
+      <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"></span>spanani</a>
+      <nav class="nav-links" aria-label="Primary">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects">Projects</a>
+        <a class="nav-link is-current" aria-current="page" href="/services">Services</a>
+        <a class="nav-link" href="/contact">Contact</a>
+      </nav>
+      <span class="nav-cta"><a class="btn btn-primary" href="/contact">Message me</a></span>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="kicker">services</span>
+          <h1 class="section-title">What I build for other people</h1>
+          <p class="section-lead">Five kinds of work, all of it written and shipped by me. Whichever one you land on, the process is the same: you describe the problem, I tell you honestly what it takes, and then I build it.</p>
+          <p class="note-pill" style="margin-top: var(--space-5);"><strong>No price list, on purpose.</strong>&nbsp;Two "Discord bots" can be a weekend apart or a month apart. I'd rather hear what you actually need first.</p>
+        </div>
+
+        <div class="step-strip reveal" data-reveal-stagger>
+          <div class="step">
+            <div class="step-num">01</div>
+            <h3>Message me</h3>
+            <p>Discord or email, whichever you prefer. A couple of sentences is enough to start — what it's for, who it's for, and roughly when you'd need it.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <h3>We scope it</h3>
+            <p>I ask the annoying questions early: edge cases, hosting, who maintains it afterwards. You get a clear picture of what's in, what's out, and how long it takes.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <h3>Build &amp; deliver</h3>
+            <p>I build it, show you progress as it goes, and hand over working software plus the source. Changes after delivery are a conversation, not a support ticket.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--sunk">
+      <div class="container">
+        <div class="service-list">
+
+          <article class="service-card reveal" id="discord-bots">
+            <div class="service-head">
+              <span class="card-tag">Discord</span>
+              <h3>Discord Bots</h3>
+            </div>
+            <p class="service-pitch">Most communities outgrow the off-the-shelf bots eventually — you want one specific thing they don't do, or you want five bots' worth of features in one that actually matches your server. I write bots from scratch in JavaScript (discord.js) or Python (discord.py), so the feature list is whatever you need it to be, and nothing is locked behind someone else's premium tier.</p>
+            <ul class="service-includes">
+              <li>Moderation, tickets, verification, leveling, giveaways, logging — or something that doesn't exist yet</li>
+              <li>Slash commands, buttons, modals and proper permission handling</li>
+              <li>Persistent storage so settings and stats survive restarts</li>
+              <li>Hosting set up and kept running, or handed over for you to host yourself</li>
+            </ul>
+            <div class="service-cta">
+              <button class="btn btn-primary" type="button" data-copy="spanani" data-copy-message="Copied &quot;spanani&quot; — add me on Discord">Message me on Discord</button>
+              <a class="btn btn-secondary" href="mailto:webmaster@spanani.de?subject=Discord%20bot&amp;body=Hi%20spanani%2C%0A%0AWhat%20I%20need%3A%20%0AWhen%20I%20need%20it%3A%20%0AAnything%20else%20you%20should%20know%3A%20%0A%0AThanks!">Email about a bot</a>
+            </div>
+          </article>
+
+          <article class="service-card reveal" id="minecraft-mods">
+            <div class="service-head">
+              <span class="card-tag">Minecraft</span>
+              <h3>Minecraft Mods &amp; Plugins</h3>
+            </div>
+            <p class="service-pitch">Whether you need a client-and-server mod or a server-side plugin depends on your setup, so I'll work in whichever fits: Fabric or Forge mods, or Paper/Spigot plugins. New mechanics, custom items and blocks, minigames, economy and progression systems, or quality-of-life fixes for the specific thing that keeps annoying your players.</p>
+            <ul class="service-includes">
+              <li>Fabric/Forge mods or Paper/Spigot plugins, targeting your server's version</li>
+              <li>Custom items, blocks, mobs, mechanics and minigames</li>
+              <li>Config files so you can tune values without touching code</li>
+              <li>Tested against your existing mod or plugin stack before handover</li>
+            </ul>
+            <div class="service-cta">
+              <button class="btn btn-primary" type="button" data-copy="spanani" data-copy-message="Copied &quot;spanani&quot; — add me on Discord">Message me on Discord</button>
+              <a class="btn btn-secondary" href="mailto:webmaster@spanani.de?subject=Minecraft%20mod%20or%20plugin&amp;body=Hi%20spanani%2C%0A%0AWhat%20I%20need%3A%20%0AWhen%20I%20need%20it%3A%20%0AAnything%20else%20you%20should%20know%3A%20%0A%0AThanks!">Email about a mod</a>
+            </div>
+          </article>
+
+          <article class="service-card reveal" id="server-setup">
+            <div class="service-head">
+              <span class="card-tag">Discord</span>
+              <h3>Discord Server Setup</h3>
+            </div>
+            <p class="service-pitch">A server that grew organically usually shows it: forty channels nobody reads, roles that overlap in ways nobody remembers, and new members who join and immediately leave because they can't tell where anything is. I plan the structure properly — from the first thing a new member sees to the permissions your staff actually need — and then build it out.</p>
+            <ul class="service-includes">
+              <li>Channel and category structure designed around how your community actually behaves</li>
+              <li>Role hierarchy and permissions that don't quietly leak access</li>
+              <li>Onboarding, rules, verification and auto-roles for new members</li>
+              <li>A written handover so your staff can maintain it without me</li>
+            </ul>
+            <div class="service-cta">
+              <button class="btn btn-primary" type="button" data-copy="spanani" data-copy-message="Copied &quot;spanani&quot; — add me on Discord">Message me on Discord</button>
+              <a class="btn btn-secondary" href="mailto:webmaster@spanani.de?subject=Discord%20server%20setup&amp;body=Hi%20spanani%2C%0A%0AWhat%20I%20need%3A%20%0AWhen%20I%20need%20it%3A%20%0AAnything%20else%20you%20should%20know%3A%20%0A%0AThanks!">Email about a setup</a>
+            </div>
+          </article>
+
+          <article class="service-card reveal" id="websites">
+            <div class="service-head">
+              <span class="card-tag">Web</span>
+              <h3>Websites</h3>
+            </div>
+            <p class="service-pitch">Hand-built sites for communities, game servers, small businesses and personal projects. No page builder, no theme marketplace, no twelve plugins doing the job of one — just clean HTML, CSS and JavaScript that loads instantly and still works in five years. This site is a fair sample of what you'd get.</p>
+            <ul class="service-includes">
+              <li>Custom design, not a template — built around your content, not the other way round</li>
+              <li>Fast, accessible and readable on a phone without pinch-zooming</li>
+              <li>Deployed for you, with a domain pointed at it and HTTPS working</li>
+              <li>Source handed over so you're never locked in to me or a platform</li>
+            </ul>
+            <div class="service-cta">
+              <button class="btn btn-primary" type="button" data-copy="spanani" data-copy-message="Copied &quot;spanani&quot; — add me on Discord">Message me on Discord</button>
+              <a class="btn btn-secondary" href="mailto:webmaster@spanani.de?subject=Website&amp;body=Hi%20spanani%2C%0A%0AWhat%20I%20need%3A%20%0AWhen%20I%20need%20it%3A%20%0AAnything%20else%20you%20should%20know%3A%20%0A%0AThanks!">Email about a site</a>
+            </div>
+          </article>
+
+          <article class="service-card reveal" id="custom">
+            <div class="service-head">
+              <span class="card-tag">Anything else</span>
+              <h3>Custom Tools &amp; Everything Else</h3>
+            </div>
+            <p class="service-pitch">The projects on this site started as exactly this: something specific that didn't exist yet. Calculators, trackers, dashboards, scrapers, automation scripts, API glue between two things that refuse to talk to each other. If it's small, oddly specific, and currently costing you an hour a week in manual work, it's usually worth building.</p>
+            <ul class="service-includes">
+              <li>Browser tools and calculators that run entirely client-side</li>
+              <li>Automation scripts and scheduled jobs</li>
+              <li>Integrations between APIs, spreadsheets and existing tooling</li>
+              <li>An honest "this isn't worth building" if that's the real answer</li>
+            </ul>
+            <div class="service-cta">
+              <button class="btn btn-primary" type="button" data-copy="spanani" data-copy-message="Copied &quot;spanani&quot; — add me on Discord">Message me on Discord</button>
+              <a class="btn btn-secondary" href="mailto:webmaster@spanani.de?subject=Custom%20tool&amp;body=Hi%20spanani%2C%0A%0AWhat%20I%20need%3A%20%0AWhen%20I%20need%20it%3A%20%0AAnything%20else%20you%20should%20know%3A%20%0A%0AThanks!">Email about a tool</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta-panel reveal">
+          <div class="cta-inner">
+            <h2>Not sure which one you need?</h2>
+            <p class="section-lead">That's normal, and it's a fine place to start from. Describe the problem rather than the solution and I'll tell you what it would actually take — including if the answer is "you don't need me for this".</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary btn-lg" type="button" data-copy="spanani" data-copy-message="Copied &quot;spanani&quot; — add me on Discord">Copy my Discord</button>
+              <a class="btn btn-secondary btn-lg" href="/contact">Other ways to reach me</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/">spanani.de</a>
+        <a href="/projects">Projects</a>
+        <a href="/services">Services</a>
+        <a href="/contact">Contact</a>
+        <a href="/impressum">Impressum</a>
+        <a href="/datenschutz">Datenschutz</a>
+        <a href="https://github.com/spananide" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <span class="footer-meta">
+        <span>&copy; 2026</span>
+        <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
+      </span>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+</body>
+</html>

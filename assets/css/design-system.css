@@ -1,72 +1,233 @@
 /* ==========================================================================
    spanani.de — shared design system
-   Tokens + reusable components for the portfolio and clock pages.
+   Tokens + reusable components for every page on the site.
+   Fonts are self-hosted from /assets/fonts (no third-party font CDN).
    ========================================================================== */
 
+/* --- Self-hosted fonts ---------------------------------------------------
+   Fraunces is declared here for convenience but is referenced ONLY by
+   --font-numeric, which only /clock uses. An unreferenced @font-face costs
+   nothing: browsers download a face only when something actually renders in
+   it, so keeping all four families in one stylesheet is the simpler option
+   and does not penalise the marketing pages.
+   ------------------------------------------------------------------------ */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/assets/fonts/space-grotesk-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/assets/fonts/space-grotesk-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/inter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/assets/fonts/inter-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/assets/fonts/inter-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/assets/fonts/inter-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/dm-mono-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/assets/fonts/dm-mono-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/fraunces-400.woff2') format('woff2');
+}
+
 :root {
-  --font-display: 'Fraunces', Georgia, serif;
+  --font-display: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'DM Mono', 'SF Mono', Menlo, monospace;
+  --font-numeric: 'Fraunces', Georgia, serif;
 
-  --paper: #faf7f2;
-  --paper-raised: #f3efe7;
-  --ink: #181511;
-  --ink-soft: #5c564c;
-  --ink-faint: #6f675b;
-  --accent: #b5482c;
-  --accent-rgb: 181, 72, 44;
-  --accent-soft: rgba(181, 72, 44, 0.12);
-  --line: rgba(24, 21, 17, 0.12);
-  --line-strong: rgba(24, 21, 17, 0.28);
-  --danger: #b3271e;
-  --success: #3f6b4f;
+  /* Type scale */
+  --fs-hero: clamp(40px, 7vw, 76px);
+  --fs-h2: clamp(28px, 4vw, 44px);
+  --fs-h3: clamp(19px, 2.2vw, 23px);
+  --fs-lead: clamp(17px, 1.6vw, 20px);
+  --fs-body: 16px;
+  --fs-sm: 14px;
+  --fs-xs: 12px;
 
+  /* Palette — light */
+  --paper: #faf9fb;
+  --paper-raised: #ffffff;
+  --paper-sunk: #f2f0f5;
+  --ink: #14121a;
+  --ink-soft: #55525f;
+  --ink-faint: #6f6c7d;
+  --accent: #5b4bff;
+  --accent-2: #ff6b5b;
+  --accent-3: #ffb03a;
+  --accent-rgb: 91, 75, 255;
+  --accent-soft: rgba(91, 75, 255, 0.10);
+  --on-accent: #ffffff;
+  --line: rgba(20, 18, 26, 0.10);
+  --line-strong: rgba(20, 18, 26, 0.22);
+  --success: #12855f;
+  --danger: #d13b32;
+
+  /* Aliases the clock's JS reads/writes at runtime — must stay */
   --ac: var(--accent);
   --ac-rgb: var(--accent-rgb);
 
-  --radius-sm: 6px;
-  --radius-md: 14px;
-  --radius-pill: 30px;
+  --grad-brand: linear-gradient(120deg, var(--accent) 0%, var(--accent-2) 58%, var(--accent-3) 100%);
+
+  /* Radii */
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(20, 18, 26, 0.05), 0 2px 8px rgba(20, 18, 26, 0.04);
+  --shadow-md: 0 4px 12px rgba(20, 18, 26, 0.06), 0 12px 32px rgba(20, 18, 26, 0.06);
+  --shadow-lg: 0 8px 24px rgba(20, 18, 26, 0.08), 0 24px 64px rgba(20, 18, 26, 0.10);
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  /* Layout */
+  --container: 1120px;
+  --gutter: clamp(20px, 5vw, 32px);
+  --section-y: clamp(72px, 9vw, 128px);
+
+  /* Motion */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 150ms;
+  --dur: 250ms;
+  --dur-slow: 600ms;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #14120f;
-    --paper-raised: #1c1914;
-    --ink: #f3efe7;
-    --ink-soft: #b6ada0;
-    --ink-faint: #8d8578;
-    --accent: #e08a5c;
-    --accent-rgb: 224, 138, 92;
-    --accent-soft: rgba(224, 138, 92, 0.14);
-    --line: rgba(243, 239, 231, 0.1);
-    --line-strong: rgba(243, 239, 231, 0.22);
-    --success: #6fae85;
+    --paper: #0c0b10;
+    --paper-raised: #15141d;
+    --paper-sunk: #100f17;
+    --ink: #f3f1f7;
+    --ink-soft: #a8a4b8;
+    --ink-faint: #837f94;
+    --accent: #8b7dff;
+    --accent-2: #ff8a76;
+    --accent-3: #ffc46b;
+    --accent-rgb: 139, 125, 255;
+    --accent-soft: rgba(139, 125, 255, 0.14);
+    --on-accent: #0c0b10;
+    --line: rgba(243, 241, 247, 0.10);
+    --line-strong: rgba(243, 241, 247, 0.20);
+    --success: #3fc98f;
+    --danger: #ff6b60;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.24);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.36), 0 12px 32px rgba(0, 0, 0, 0.30);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.42), 0 24px 64px rgba(0, 0, 0, 0.38);
   }
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* --- Base ---------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 html {
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
   background: var(--paper);
   color: var(--ink);
 }
+
 body {
   font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: var(--fs-body);
+  line-height: 1.65;
   background: var(--paper);
   color: var(--ink);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
-h1, h2, h3 { font-family: var(--font-display); font-weight: 500; line-height: 1.1; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+h1 { font-size: var(--fs-hero); letter-spacing: -0.03em; line-height: 1.02; }
+h2 { font-size: var(--fs-h2); line-height: 1.08; }
+h3 { font-size: var(--fs-h3); font-weight: 500; letter-spacing: -0.01em; line-height: 1.2; }
+
+p { max-width: 65ch; }
 a { color: inherit; }
 img, svg { display: block; max-width: 100%; }
-button { font: inherit; }
+button { font: inherit; color: inherit; }
+ul { list-style: none; }
+
+/* Layout helper used by every marketing page */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* --- Global focus ring (previously missing site-wide) --------------------- */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+/* Mouse users never see it; keyboard users always do. */
+:focus:not(:focus-visible) { outline: none; }
 
 .skip-link {
   position: absolute;
@@ -77,6 +238,7 @@ button { font: inherit; }
   padding: 10px 16px;
   border-radius: var(--radius-sm);
   z-index: 1000;
+  text-decoration: none;
 }
 .skip-link:focus { left: 12px; top: 12px; }
 
@@ -441,5 +603,17 @@ button { font: inherit; }
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Mesh blobs fall back to a static, dimmer gradient instead of drifting */
+  .mesh-blob {
+    animation: none !important;
+    opacity: 0.28 !important;
+    transform: none !important;
+  }
+  /* Reveal elements must be fully visible, not just instantly transitioned */
+  .reveal, .reveal.visible {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

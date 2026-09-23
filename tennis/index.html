@@ -13,19 +13,20 @@
     }
   </script>
   <style>
+    @font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/space-grotesk-700.woff2') format('woff2'); }
     :root {
-      --bg: #000000;
-      --card: #121214;
-      --card-elevated: #1c1c1e;
-      --border: #2c2c2e;
-      --border-subtle: #1f1f22;
-      --accent: #ccff00; /* Tennis Volt */
+      --bg: #0c0b10;
+      --card: #15141d;
+      --card-elevated: #232130;
+      --border: #322f3f;
+      --border-subtle: #1e1c28;
+      --accent: #ccff00; /* Tennis Volt — functional: "you". Do not rebrand. */
       --accent-dim: rgba(204, 255, 0, 0.12);
-      --accent-opp: #ff9500;
+      --accent-opp: #ff9500; /* Functional: "opponent". Do not rebrand. */
       --accent-opp-dim: rgba(255, 149, 0, 0.12);
-      --text: #ffffff;
-      --text-muted: #8e8e93;
-      --text-dim: #636366;
+      --text: #f3f1f7;
+      --text-muted: #a8a4b8;
+      --text-dim: #837f94;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -41,7 +42,7 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border-subtle);
-      background: rgba(18, 18, 20, 0.85);
+      background: rgba(21, 20, 29, 0.85);
       backdrop-filter: blur(20px);
       position: sticky;
       top: 0;
@@ -127,7 +128,7 @@
       background: var(--card-elevated);
       border: 1px solid var(--border);
       border-radius: 10px;
-      color: #fff;
+      color: var(--text);
       font-size: 14px;
       font-weight: 500;
       padding: 0 12px;
@@ -196,7 +197,7 @@
       font-size: 48px;
       font-weight: 800;
       letter-spacing: -1px;
-      color: #fff;
+      color: var(--text);
       margin: 4px 0 12px 0;
     }
     .score-pills {
@@ -238,7 +239,7 @@
       gap: 2px;
     }
     .btn-point.you { background: var(--accent); color: #000; }
-    .btn-point.opp { background: var(--card-elevated); color: #fff; border: 1px solid var(--border); }
+    .btn-point.opp { background: var(--card-elevated); color: var(--text); border: 1px solid var(--border); }
     .btn-point span { font-size: 11px; font-weight: 500; opacity: 0.8; }
     .btn-undo {
       height: 64px;
@@ -273,7 +274,7 @@
       height: 26px;
       background: var(--card);
       border: 1px solid var(--border);
-      color: #fff;
+      color: var(--text);
       border-radius: 6px;
       font-weight: 700;
       cursor: pointer;
@@ -323,7 +324,7 @@
     .modal-sheet {
       width: 100%;
       max-width: 440px;
-      background: #18181b;
+      background: #1a1825;
       border-top: 1px solid var(--border);
       border-radius: 18px 18px 0 0;
       padding: 20px 16px 32px 16px;
@@ -332,7 +333,7 @@
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .modal-title { font-size: 16px; font-weight: 700; }
-    .modal-close { background: var(--card-elevated); border: none; color: #fff; width: 28px; height: 28px; border-radius: 14px; font-size: 12px; cursor: pointer; }
+    .modal-close { background: var(--card-elevated); border: none; color: var(--text); width: 28px; height: 28px; border-radius: 14px; font-size: 12px; cursor: pointer; }
 
     .modal-stats {
       display: grid;
@@ -373,7 +374,7 @@
       text-decoration: none;
       transition: color 0.2s;
     }
-    footer a:hover { color: #fff; }
+    footer a:hover { color: var(--text); }
     .egg {
       width: 6px;
       height: 6px;
@@ -384,7 +385,7 @@
       cursor: pointer;
     }
     .egg:hover {
-      background: #fff;
+      background: var(--text);
       transform: scale(1.4);
     }
   </style>
@@ -396,7 +397,7 @@
   <!-- Header Navigation -->
   <header class="nav">
     <div style="display:flex;align-items:center;gap:10px;">
-      <a href="/" style="font-weight:600;font-size:16px;color:#fff;text-decoration:none;letter-spacing:-0.4px;">spanani <span style="font-weight:400;color:var(--text-muted);font-size:12px;">/ tennis</span></a>
+      <a href="/" style="font-family:'Space Grotesk',-apple-system,sans-serif;font-weight:700;font-size:16px;color:var(--text);text-decoration:none;letter-spacing:-0.4px;">spanani <span style="font-weight:400;color:var(--text-muted);font-size:12px;font-family:inherit;">/ tennis</span></a>
     </div>
     <button class="btn-nav hidden" id="btnBack" onclick="navigate('home')">Zurück</button>
   </header>

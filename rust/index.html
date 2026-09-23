@@ -45,15 +45,21 @@
 </script>
 <!-- ==================================================== -->
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/assets/fonts/inter-400.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 500; font-display: swap; src: url('/assets/fonts/inter-500.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/assets/fonts/inter-600.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/inter-700.woff2') format('woff2'); }
+@font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 500; font-display: swap; src: url('/assets/fonts/space-grotesk-500.woff2') format('woff2'); }
+@font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/space-grotesk-700.woff2') format('woff2'); }
 :root {
-  --bg: #000000; --bg1: #0a0a0a; --bg2: #141414;
-  --border: rgba(255,255,255,0.06); --bh: rgba(255,255,255,0.12);
-  --text: #ffffff; --mu: #888888; --mu2: #555555;
-  --ac: #f97316; --ac-rgb: 249,115,22; 
+  --bg: #0c0b10; --bg1: #15141d; --bg2: #1d1b27;
+  --border: rgba(243,241,247,0.08); --bh: rgba(243,241,247,0.18);
+  --text: #f3f1f7; --mu: #a8a4b8; --mu2: #5f5c6e;
+  --ac: #8b7dff; --ac-rgb: 139,125,255;
   --r: 16px; --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -83,7 +89,7 @@ body.hc #cur-ring.hide { opacity: 0; } body.hc #cur-ring.big { width: 50px; heig
 
 /* Navigation */
 nav { display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 64px; border-bottom: 1px solid var(--border); position: relative; z-index: 50; flex-shrink: 0; background: var(--bg); }
-.logo { font-weight: 600; font-size: 20px; color: var(--text); text-decoration: none; transition: opacity .2s; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+.logo { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 700; font-size: 20px; color: var(--text); text-decoration: none; transition: opacity .2s; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
 .logo i { color: var(--ac); font-size: 20px; transition: color .3s; }
 .logo em { font-style: italic; color: var(--ac); transition: color .3s; }
 .nav-r { display: flex; align-items: center; gap: 12px; }
@@ -119,18 +125,18 @@ nav { display: flex; align-items: center; justify-content: space-between; paddin
 .tog { position: relative; width: 34px; height: 18px; flex-shrink: 0; }
 .tog input { opacity: 0; width: 0; height: 0; }
 .ts2 { position: absolute; inset: 0; border-radius: 9px; background: var(--mu2); cursor: pointer; transition: background .3s; }
-.ts2::after { content: ''; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .3s var(--ease); }
+.ts2::after { content: ''; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: #f3f1f7; transition: transform .3s var(--ease); }
 .tog input:checked + .ts2 { background: var(--ac); }
 .tog input:checked + .ts2::after { transform: translateX(16px); }
 
 /* Custom Inputs */
-.ssel { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); color: var(--text); font-family: 'Inter', monospace; font-size: 12px; padding: 6px 10px; cursor: text; outline: none; transition: border-color .2s; width: 80px; text-align: center; }
+.ssel { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); color: var(--text); font-family: 'Inter', sans-serif; font-size: 12px; padding: 6px 10px; cursor: text; outline: none; transition: border-color .2s; width: 80px; text-align: center; }
 .ssel:focus { border-color: rgba(var(--ac-rgb), .5); }
 .ssel::-webkit-inner-spin-button, .ssel::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
 .sftr { padding: 16px 24px; border-top: 1px solid var(--border); flex-shrink: 0; display: flex; gap: 8px; }
-.sres { width: 100%; font-family: 'Inter', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); border: 1px solid var(--border); border-radius: var(--r); background: transparent; padding: 9px; cursor: pointer; transition: all .2s; }
-.sres:hover { color: #ef4444; border-color: rgba(239,68,68,.3); }
+.sres { width: 100%; font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); border: 1px solid var(--border); border-radius: var(--r); background: transparent; padding: 9px; cursor: pointer; transition: all .2s; }
+.sres:hover { color: #ff6b60; border-color: rgba(255,107,96,.3); }
 
 /* Beautiful Color Cards (Settings) */
 .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -150,13 +156,13 @@ main { flex: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; pa
 
 /* Main Navigation Tabs */
 .main-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
-.m-tab { flex: 1; text-align: center; font-family: 'Inter', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg1); cursor: pointer; transition: all .3s; }
+.m-tab { flex: 1; text-align: center; font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg1); cursor: pointer; transition: all .3s; }
 .m-tab:hover { color: var(--text); border-color: var(--bh); }
 .m-tab.on { color: var(--bg); background: var(--ac); border-color: var(--ac); font-weight: 500; }
 
 /* Sub Tabs */
 .sub-tabs { display: flex; gap: 4px; background: var(--bg2); padding: 4px; border-radius: 6px; border: 1px solid var(--border); }
-.s-tab { font-family: 'Inter', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); padding: 6px 12px; border: none; border-radius: 4px; background: transparent; cursor: pointer; transition: all .2s; }
+.s-tab { font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); padding: 6px 12px; border: none; border-radius: 4px; background: transparent; cursor: pointer; transition: all .2s; }
 .s-tab.on { color: var(--text); background: var(--bg1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid var(--border); }
 
 /* Target Cards */
@@ -189,7 +195,7 @@ main { flex: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; pa
 .sum-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 8px; }
 .sum-box { display: flex; flex-direction: column; }
 .page-title { font-size: clamp(34px, 5vw, 48px); font-weight: 600; letter-spacing: -1px; text-align: center; margin-bottom: 8px; }
-.r-huge { font-family: 'Inter', serif; font-size: clamp(42px, 5vw, 64px); font-weight: 400; letter-spacing: -0.02em; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; display: flex; align-items: center; gap: 16px; }
+.r-huge { font-family: 'Inter', sans-serif; font-size: clamp(42px, 5vw, 64px); font-weight: 400; letter-spacing: -0.02em; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; display: flex; align-items: center; gap: 16px; }
 .r-huge img { width: 36px; height: 36px; object-fit: contain; }
 .item-name { font-size: 14px; font-weight: 500; color: var(--text); }
 .r-label { font-size: 10px; color: var(--mu); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 12px; }
@@ -213,7 +219,7 @@ main { flex: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; pa
 .node-box { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; background: var(--bg1); border: 1px solid var(--border); border-radius: 6px; margin-top: 24px; }
 .node-left { display: flex; align-items: center; gap: 16px; }
 .node-left img { width: 28px; height: 28px; }
-.node-val { font-family: 'Inter', serif; font-size: 42px; color: var(--ac); line-height: 1; font-variant-numeric: tabular-nums; }
+.node-val { font-family: 'Inter', sans-serif; font-size: 42px; color: var(--ac); line-height: 1; font-variant-numeric: tabular-nums; }
 
 footer { border-top: 1px solid var(--border); padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 50; position: relative; margin-top: auto; background: var(--bg); }
 footer span, footer a { font-size: 11px; color: var(--mu); text-decoration: none; transition: color .2s; letter-spacing: 0.05em; }
@@ -461,15 +467,16 @@ const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
 // NEW PRESET THEMES (Aesthetic)
 const presetThemes = [
-    { name: 'Rust Orange', hex: '#f97316' },
-    { name: 'Toxic Green', hex: '#34d399' },
-    { name: 'Neon Cyan',   hex: '#22d3ee' },
-    { name: 'Amethyst',    hex: '#c4b5fd' },
-    { name: 'Rose Pink',   hex: '#f472b6' },
-    { name: 'Gold',        hex: '#fcd34d' }
+    { name: 'Brand Violet', hex: '#8b7dff' },
+    { name: 'Rust Orange',  hex: '#f97316' },
+    { name: 'Toxic Green',  hex: '#34d399' },
+    { name: 'Neon Cyan',    hex: '#22d3ee' },
+    { name: 'Amethyst',     hex: '#c4b5fd' },
+    { name: 'Rose Pink',    hex: '#f472b6' },
+    { name: 'Gold',         hex: '#fcd34d' }
 ];
 
-const DEF = { ac:'#f97316', grid:true, noise:true, cur:true, rawMode: false, rate: 1, tools: {} };
+const DEF = { ac:'#8b7dff', grid:true, noise:true, cur:true, rawMode: false, rate: 1, tools: {} };
 let C = { ...DEF };
 
 function loadCfg() {
@@ -813,7 +820,7 @@ function calculateEngine() {
     if(!hasTargets) {
         craftList.innerHTML = `<div style="text-align:center; color:var(--mu); padding:20px 0;">Add targets to generate layout.</div>`;
     } else if (invalidPath) {
-        craftList.innerHTML = `<div style="text-align:center; color:#ef4444; padding:20px 0;">Path blocked. Enable more tools in Arsenal.</div>`;
+        craftList.innerHTML = `<div style="text-align:center; color:#ff6b60; padding:20px 0;">Path blocked. Enable more tools in Arsenal.</div>`;
     } else {
         for(const [key, req] of Object.entries(requiredExp)) {
             const expDef = explosivesData[key];

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Projects — spanani</title>
+  <meta name="description" content="Four things spanani built and still maintains: an atomic precision clock, a Rust raid calculator, an offline tennis match tracker and the Rust Empire server tooling.">
+  <meta name="author" content="spanani">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://spanani.de/projects/">
+  <meta property="og:title" content="Projects — spanani">
+  <meta property="og:description" content="An atomic precision clock, a Rust raid calculator, an offline tennis match tracker and the Rust Empire server tooling.">
+  <meta name="theme-color" content="#faf9fb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0b10" media="(prefers-color-scheme: dark)">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <link rel="preload" href="/assets/fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/design-system.css">
+  <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+
+  <script>
+    if (window.location.pathname.endsWith('/index.html')) {
+      const cleanPath = window.location.pathname.replace(/\/index\.html$/, '') || '/projects';
+      window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+    }
+  </script>
+
+  <script src="/assets/js/site.js" defer></script>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-nav">
+    <div class="nav-inner">
+      <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"></span>spanani</a>
+      <nav class="nav-links" aria-label="Primary">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link is-current" aria-current="page" href="/projects">Projects</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/contact">Contact</a>
+      </nav>
+      <span class="nav-cta"><a class="btn btn-primary" href="/contact">Message me</a></span>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="kicker">projects</span>
+          <h1 class="section-title">Everything I've built and still keep running</h1>
+          <p class="section-lead">These are my own projects, not client work — which makes them the most honest thing I can show you. Every one of them is live, maintained, and written from scratch without a framework. Open any of them and poke at it.</p>
+        </div>
+
+        <div class="grid-2" data-reveal-stagger>
+
+          <a class="card card--feature reveal" href="/clock">
+            <div>
+              <span class="card-tag">Precision time</span>
+              <h2 class="card-title">Atomic Precision Clock</h2>
+              <p class="card-desc">A network-synced clock that measures and compensates for your device's own drift. Includes a Swiss-style analog dial, an interactive 3D globe with a live day/night terminator, world clocks, a stopwatch and a timer — plus a settings panel that remembers everything locally.</p>
+            </div>
+            <p class="stack-meta">vanilla JS · SVG &amp; canvas · NTP-style offset sync · zero dependencies</p>
+          </a>
+
+          <a class="card card--feature reveal" href="/rust">
+            <div>
+              <span class="card-tag">Game logistics</span>
+              <h2 class="card-title">Rust Raid Calculator</h2>
+              <p class="card-desc">Exact explosive, sulfur and scrap costs across 19 structure tiers, with soft-side/hard-side logic, an arsenal picker that recalculates the cheapest viable path, a user-customizable accent colour and CSV export for sharing with your team.</p>
+            </div>
+            <p class="stack-meta">vanilla JS · localStorage state · CSV export</p>
+          </a>
+
+          <a class="card card--feature reveal" href="/tennis">
+            <div>
+              <span class="card-tag">Performance tracking</span>
+              <h2 class="card-title">Tennis Match Tracker</h2>
+              <p class="card-desc">An offline-first scorekeeper built for actually holding a phone courtside: point-by-point entry, full set timelines, ace and double-fault counts, and a head-to-head momentum view that shows who was winning which stretch of the match.</p>
+            </div>
+            <p class="stack-meta">vanilla JS · mobile-first · offline-first · German UI</p>
+          </a>
+
+          <a class="card card--feature reveal" href="https://github.com/spananide/spananirust" target="_blank" rel="noopener">
+            <div>
+              <span class="card-tag">Systems &amp; tooling</span>
+              <h2 class="card-title">Rust Empire</h2>
+              <p class="card-desc">Server management and clan coordination tooling: wipe tracking, roster management and raid logistics for a Rust community. Source lives on GitHub — there's no hosted page for it yet.</p>
+            </div>
+            <p class="stack-meta">source on GitHub · server-side tooling</p>
+          </a>
+
+        </div>
+
+        <div class="grid-auto reveal" style="margin-top: var(--space-6);">
+          <a class="card card--wide" href="https://github.com/spananide" target="_blank" rel="noopener">
+            <div>
+              <span class="card-tag">Source</span>
+              <h2 class="card-title">Everything else lives on GitHub</h2>
+              <p class="card-desc">Experiments, half-finished ideas and the source for this site itself.</p>
+            </div>
+            <span class="btn btn-secondary">Open GitHub &rarr;</span>
+          </a>
+        </div>
+
+        <p class="reveal" style="margin-top: var(--space-6); color: var(--ink-soft);">
+          Want something like one of these built for you? <a href="/services" style="color: var(--accent);">Have a look at what I offer &rarr;</a>
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/">spanani.de</a>
+        <a href="/projects">Projects</a>
+        <a href="/services">Services</a>
+        <a href="/contact">Contact</a>
+        <a href="/impressum">Impressum</a>
+        <a href="/datenschutz">Datenschutz</a>
+        <a href="https://github.com/spananide" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <span class="footer-meta">
+        <span>&copy; 2026</span>
+        <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
+      </span>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+</body>
+</html>

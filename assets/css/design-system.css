@@ -90,17 +90,16 @@
   --fs-sm: 14px;
   --fs-xs: 12px;
 
-  /* Palette — dark (default look: black, white, pink) */
+  /* Palette — dark (default look: black, white, purple) */
   --paper: #0a0a0d;
   --paper-raised: #141417;
   --paper-sunk: #08080a;
   --ink: #f5f5f7;
   --ink-soft: #a3a3ab;
   --ink-faint: #6c6c76;
-  --accent: #ff2ec0;
-  --accent-rgb: 255, 46, 192;
-  --accent-soft: rgba(255, 46, 192, 0.14);
-  --accent-2: #9e2ade;
+  --accent: #b655e7;
+  --accent-rgb: 182, 85, 231;
+  --accent-soft: rgba(182, 85, 231, 0.14);
   --on-accent: #0a0a0d;
   --line: rgba(255, 255, 255, 0.10);
   --line-strong: rgba(255, 255, 255, 0.20);
@@ -145,8 +144,8 @@
   --dur-slow: 600ms;
 }
 
-/* Dark is the default look (no-preference browsers get black/white/pink).
-   Users with an explicit light preference get a white/black/pink flip. */
+/* Dark is the default look (no-preference browsers get black/white/purple).
+   Users with an explicit light preference get a white/black/purple flip. */
 @media (prefers-color-scheme: light) {
   :root {
     --paper: #fafafa;
@@ -155,10 +154,9 @@
     --ink: #0a0a0d;
     --ink-soft: #55555f;
     --ink-faint: #85858f;
-    --accent: #c813a4;
-    --accent-rgb: 200, 19, 164;
-    --accent-soft: rgba(200, 19, 164, 0.10);
-    --accent-2: #9e2ade;
+    --accent: #861bbb;
+    --accent-rgb: 134, 27, 187;
+    --accent-soft: rgba(134, 27, 187, 0.10);
     --on-accent: #ffffff;
     --line: rgba(10, 10, 13, 0.10);
     --line-strong: rgba(10, 10, 13, 0.20);
@@ -278,8 +276,8 @@ ul { list-style: none; }
   flex-shrink: 0;
 }
 .brand-mark {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   display: block;
 }
@@ -433,18 +431,17 @@ ul { list-style: none; }
   color: var(--accent);
 }
 .note-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: var(--radius-pill);
+  display: block;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
   background: var(--accent-soft);
   border: 1px solid rgba(var(--accent-rgb), 0.22);
   font-size: var(--fs-sm);
+  line-height: 1.6;
   color: var(--ink);
-  max-width: 100%;
+  max-width: 640px;
 }
-.note-pill strong { font-weight: 600; }
+.note-pill strong { font-weight: 600; color: var(--accent); }
 
 /* --- Hero ------------------------------------------------------------------
    Deliberately plain: a two-column layout (copy + a static code panel), no
@@ -519,7 +516,7 @@ ul { list-style: none; }
   line-height: 1.7;
   color: var(--ink-soft);
 }
-.code-panel .tok-kw { color: var(--accent-2); }
+.code-panel .tok-kw { color: var(--accent); }
 .code-panel .tok-fn { color: var(--ink); }
 .code-panel .tok-str { color: var(--success); }
 .code-panel .tok-com { color: var(--ink-faint); font-style: italic; }

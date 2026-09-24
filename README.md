@@ -2,7 +2,7 @@
   <img src="assets/banner.svg" alt="spanani — software engineer" width="100%">
 
   <p>
-    <a href="https://spanani.de"><img src="https://img.shields.io/badge/live-spanani.de-ff2ec0?style=flat-square&labelColor=0a0a0d" alt="Live site"></a>
+    <a href="https://spanani.de"><img src="https://img.shields.io/badge/live-spanani.de-b655e7?style=flat-square&labelColor=0a0a0d" alt="Live site"></a>
     <img src="https://img.shields.io/badge/stack-HTML%2FCSS%2FJS-0a0a0d?style=flat-square" alt="Stack: HTML/CSS/JS">
     <img src="https://img.shields.io/badge/backend-none-0a0a0d?style=flat-square" alt="No backend">
     <a href="LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-0a0a0d?style=flat-square" alt="License: MIT"></a>
@@ -40,7 +40,7 @@ framework, no build step, no backend — deployed on GitHub Pages from
 
 ## Design
 
-Black, white, one purple-pink accent. Dark by default, flips to light
+Black, white, one purple accent. Dark by default, flips to light
 if your system asks for it. No gradients, no animated backgrounds —
 the only visual flourish on the homepage is a static code snippet,
 because that's what actually proves I can build something.

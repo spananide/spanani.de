@@ -631,6 +631,7 @@ ul { list-style: none; }
   left: 14px;
   z-index: 50;
   display: flex;
+  align-items: center;
   gap: 10px;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -641,6 +642,16 @@ ul { list-style: none; }
   transition: color var(--dur-fast);
 }
 .legal-links a:hover { color: var(--ink-soft); }
+.egg {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  display: inline-block;
+  cursor: pointer;
+  transition: background var(--dur), transform var(--dur);
+}
+.egg:hover { background: var(--accent); transform: scale(1.5); }
 
 /* --- Toast (role="status" aria-live="polite" in markup) ------------------- */
 .toast {

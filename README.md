@@ -2,7 +2,7 @@
   <img src="assets/banner.svg" alt="spanani — software engineer" width="100%">
 
   <p>
-    <a href="https://spanani.de"><img src="https://img.shields.io/badge/live-spanani.de-b655e7?style=flat-square&labelColor=0a0a0d" alt="Live site"></a>
+    <a href="https://spanani.de"><img src="https://img.shields.io/badge/live-spanani.de-9955e7?style=flat-square&labelColor=0a0a0d" alt="Live site"></a>
     <img src="https://img.shields.io/badge/stack-HTML%2FCSS%2FJS-0a0a0d?style=flat-square" alt="Stack: HTML/CSS/JS">
     <img src="https://img.shields.io/badge/backend-none-0a0a0d?style=flat-square" alt="No backend">
     <a href="LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-0a0a0d?style=flat-square" alt="License: MIT"></a>

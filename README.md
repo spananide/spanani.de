@@ -7,11 +7,11 @@ backend) deployed via **GitHub Pages** (legacy branch deploy from
 
 ## Pages
 
-- `index.html` — the portfolio homepage. A bold, modern-SaaS-style
-  design built around a violet/coral/amber accent system and Space
-  Grotesk display type: a hero statement, featured-work cards linking
-  into the sub-projects below, and a contact section (click-to-copy
-  email address and a GitHub link).
+- `index.html` — the portfolio homepage. A minimal, dark-first
+  black/white/pink design with Space Grotesk display type: a name-led
+  hero with a static code-snippet panel, a "what I offer" grid, a
+  featured-work section linking into the sub-projects below, and a
+  closing contact section (click-to-copy Discord/email, a GitHub link).
 - `projects/index.html` — the full projects index, with a card for
   every project (Clock, Rust Raid Calculator, Tennis Match Tracker,
   Rust Empire).
@@ -47,6 +47,16 @@ spacing, type) and reusable components (nav, buttons, cards, modals)
 used across the site, and `assets/js/site.js`, which holds shared
 behavior (nav/menu handling, scroll reveals, toast notifications, and
 other small interactions used by more than one page).
+
+### Design
+
+Black, white, and a single hot-pink accent — dark by default (matches
+system preference for most visitors), flipping to a white/black/pink
+light theme for anyone with a light OS preference. One accent color,
+no gradients or animated backgrounds; the homepage hero's only visual
+flourish is a static code snippet, not a decorative animation. `/rust`
+and `/tennis` keep their own independent color systems (see "Other
+sections" below) and are unaffected by this palette.
 
 ### Fonts
 
@@ -90,3 +100,9 @@ Then open `http://localhost:8000`.
   API routes, and no server-side code of any kind. The `CNAME` file is
   required for GitHub Pages to keep serving the custom domain; don't
   remove it.
+
+## License
+
+MIT — see [`LICENSE.txt`](LICENSE.txt). The self-hosted fonts under
+`/assets/fonts/` are licensed separately under the SIL Open Font
+License 1.1 (see `assets/fonts/OFL.txt`), not this MIT license.

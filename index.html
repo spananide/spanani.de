@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>spanani — Discord bots, Minecraft mods &amp; custom tools</title>
-  <meta name="description" content="spanani builds custom Discord bots, Minecraft mods and plugins, Discord server setups, websites and small precise tools — designed, written and shipped end to end by one developer.">
+  <title>spanani — software engineer &amp; builder</title>
+  <meta name="description" content="spanani — software engineer. I build websites, Discord bots, Minecraft mods, server setups and custom tools, designed, written and shipped end to end by one developer.">
   <meta name="author" content="spanani">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://spanani.de/">
-  <meta property="og:title" content="spanani — Discord bots, Minecraft mods & custom tools">
-  <meta property="og:description" content="Custom Discord bots, Minecraft mods and plugins, server setups, websites and small precise tools — built end to end by one developer.">
-  <meta name="theme-color" content="#faf9fb" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0c0b10" media="(prefers-color-scheme: dark)">
+  <meta property="og:title" content="spanani — software engineer & builder">
+  <meta property="og:description" content="Websites, Discord bots, Minecraft mods, server setups and custom tools — built end to end by one developer.">
+  <meta name="theme-color" content="#0a0a0d">
+  <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
 
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
@@ -50,25 +50,35 @@
   <main id="main">
 
     <section class="hero">
-      <div class="hero-dots" aria-hidden="true"></div>
-      <div class="hero-mesh" aria-hidden="true">
-        <span class="mesh-blob mesh-blob--a"></span>
-        <span class="mesh-blob mesh-blob--b"></span>
-        <span class="mesh-blob mesh-blob--c"></span>
-      </div>
       <div class="container">
-        <div class="hero-inner">
-          <span class="kicker">software engineer</span>
-          <h1>Custom bots, mods and tools — <span class="gradient-text">built properly</span>, by one person.</h1>
-          <p class="hero-sub">I'm spanani. I design, write and ship software end to end: Discord bots, Minecraft mods, full server setups, websites and the occasional very precise little tool.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary btn-lg" href="/services">See what I build</a>
-            <a class="btn btn-secondary btn-lg" href="/projects">Browse my projects</a>
+        <div class="hero-grid">
+          <div class="hero-inner">
+            <span class="kicker">spanani</span>
+            <h1>I'm <span class="gradient-text">spanani</span> — I build websites, bots, mods and tools that actually work.</h1>
+            <p class="hero-sub">Software engineer. I design, write and ship everything myself: websites, Discord bots, Minecraft mods, full server setups and the occasional very precise little tool.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary btn-lg" href="/services">See what I build</a>
+              <a class="btn btn-secondary btn-lg" href="/projects">Browse my projects</a>
+            </div>
+            <div class="trust-row">
+              <span class="trust-item">You talk to the builder</span>
+              <span class="trust-item">Usually replies within a day</span>
+              <span class="trust-item">Taking on new projects</span>
+            </div>
           </div>
-          <div class="trust-row">
-            <span class="trust-item">You talk to the builder</span>
-            <span class="trust-item">Usually replies within a day</span>
-            <span class="trust-item">Taking on new projects</span>
+          <div class="code-panel reveal" aria-hidden="true">
+            <div class="code-panel-head">
+              <span class="code-panel-dot"></span>
+              <span class="code-panel-dot"></span>
+              <span class="code-panel-dot"></span>
+              <span class="code-panel-name">bot.js</span>
+            </div>
+            <pre><span class="tok-com">// spanani / discord-bot</span>
+client.<span class="tok-fn">on</span>(<span class="tok-str">'interactionCreate'</span>, <span class="tok-kw">async</span> i =&gt; {
+  <span class="tok-kw">if</span> (!i.isChatInputCommand()) <span class="tok-kw">return</span>;
+  <span class="tok-kw">const</span> cmd = commands.<span class="tok-fn">get</span>(i.commandName);
+  <span class="tok-kw">await</span> cmd.<span class="tok-fn">execute</span>(i);
+});</pre>
           </div>
         </div>
       </div>
@@ -92,6 +102,15 @@
             <span class="card-arrow" aria-hidden="true">&rarr;</span>
           </a>
 
+          <a class="card reveal" href="/services#websites">
+            <div>
+              <span class="card-tag">Web</span>
+              <h3 class="card-title">Websites</h3>
+              <p class="card-desc">Fast, hand-built sites for communities, servers and small businesses. No page builder, no plugin soup — just clean pages that load instantly.</p>
+            </div>
+            <span class="card-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+
           <a class="card reveal" href="/services#minecraft-mods">
             <div>
               <span class="card-tag">Minecraft</span>
@@ -106,15 +125,6 @@
               <span class="card-tag">Discord</span>
               <h3 class="card-title">Server Setup</h3>
               <p class="card-desc">Channels, roles and permissions planned out properly, with onboarding, verification and rules so new members land somewhere that makes sense.</p>
-            </div>
-            <span class="card-arrow" aria-hidden="true">&rarr;</span>
-          </a>
-
-          <a class="card reveal" href="/services#websites">
-            <div>
-              <span class="card-tag">Web</span>
-              <h3 class="card-title">Websites</h3>
-              <p class="card-desc">Fast, hand-built sites for communities, servers and small businesses. No page builder, no plugin soup — just clean pages that load instantly.</p>
             </div>
             <span class="card-arrow" aria-hidden="true">&rarr;</span>
           </a>

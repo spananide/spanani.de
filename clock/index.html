@@ -363,11 +363,11 @@
       <div class="set-group">
         <span class="set-lbl">Color Accent</span>
         <div style="display:flex; gap:8px;">
-          <div class="swatch" style="background:#5b4bff;" onclick="setAccent('#5b4bff')" title="Violet"></div>
-          <div class="swatch" style="background:#8b7dff;" onclick="setAccent('#8b7dff')" title="Light violet"></div>
-          <div class="swatch" style="background:#ff6b5b;" onclick="setAccent('#ff6b5b')" title="Coral"></div>
-          <div class="swatch" style="background:#ffb03a;" onclick="setAccent('#ffb03a')" title="Amber"></div>
-          <div class="swatch" style="background:#14121a;" onclick="setAccent('#14121a')" title="Ink"></div>
+          <div class="swatch" style="background:#ff2f8a;" onclick="setAccent('#ff2f8a')" title="Pink"></div>
+          <div class="swatch" style="background:#2fd0ff;" onclick="setAccent('#2fd0ff')" title="Cyan"></div>
+          <div class="swatch" style="background:#b6ff2f;" onclick="setAccent('#b6ff2f')" title="Lime"></div>
+          <div class="swatch" style="background:#f5f5f7;" onclick="setAccent('#f5f5f7')" title="White"></div>
+          <div class="swatch" style="background:#0a0a0d;" onclick="setAccent('#0a0a0d')" title="Black"></div>
         </div>
       </div>
     </div>
@@ -399,7 +399,7 @@
     const pad = (n, d=2) => String(n).padStart(d, '0');
 
     // Configuration & State
-    const DEF = { ac: '#5b4bff', h24: true, ms: true, blink: true, dayBar: true, mode: 'digital' };
+    const DEF = { ac: '#ff2f8a', h24: true, ms: true, blink: true, dayBar: true, mode: 'digital' };
     let CFG = { ...DEF };
     try {
       const saved = localStorage.getItem('spanani-watch-cfg');

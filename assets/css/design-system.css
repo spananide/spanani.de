@@ -332,14 +332,14 @@ ul { list-style: none; }
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   color: var(--ink-soft);
-  background: var(--paper-raised);
+  background: var(--paper-sunk);
   border: 1px solid var(--line);
   padding: 6px 12px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   text-decoration: none;
   transition: border-color var(--dur), color var(--dur);
 }
-.time-pill:hover { border-color: var(--line-strong); color: var(--ink); }
+.time-pill:hover { border-color: var(--accent); color: var(--ink); }
 .dot-live {
   width: 6px;
   height: 6px;
@@ -1023,6 +1023,8 @@ ul { list-style: none; }
   /* Tool nav (/clock) wraps to two rows: brand+links, then tool controls */
   .site-nav--tool .nav-inner { justify-content: center; }
   .site-nav--tool .brand { margin-right: auto; }
+  /* Homepage nav clock: drop it before the row gets tight, same as .nav-cta at 680px */
+  .nav-links .time-pill { display: none; }
 }
 @media (max-width: 760px) {
   .step-strip { grid-template-columns: 1fr; }

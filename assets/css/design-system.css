@@ -112,7 +112,7 @@
   --ac: var(--accent);
   --ac-rgb: var(--accent-rgb);
 
-  --grad-brand: linear-gradient(120deg, var(--accent) 0%, var(--accent-2) 58%, var(--accent-3) 100%);
+  --grad-brand: linear-gradient(120deg, var(--accent) 0%, var(--accent) 45%, var(--accent-2) 80%, var(--accent-3) 100%);
 
   /* Radii */
   --radius-sm: 10px;
@@ -822,7 +822,7 @@ ul { list-style: none; }
 }
 .service-card:hover { border-color: var(--line-strong); box-shadow: var(--shadow-md); }
 .service-head { margin-bottom: var(--space-4); }
-.service-card h3 { font-size: clamp(21px, 2.6vw, 27px); font-weight: 700; letter-spacing: -0.02em; }
+.service-card h2 { font-size: clamp(21px, 2.6vw, 27px); font-weight: 700; letter-spacing: -0.02em; }
 .service-pitch {
   font-size: var(--fs-body);
   color: var(--ink-soft);
@@ -996,7 +996,7 @@ ul { list-style: none; }
 .tool-modal {
   position: fixed;
   inset: 0;
-  background: rgba(24, 21, 17, 0.45);
+  background: rgba(20, 18, 26, 0.45);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   z-index: 200;
@@ -1055,7 +1055,7 @@ ul { list-style: none; }
   display: flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 10px 40px rgba(24, 21, 17, 0.15);
+  box-shadow: 0 10px 40px rgba(20, 18, 26, 0.15);
   z-index: 100;
   user-select: none;
 }

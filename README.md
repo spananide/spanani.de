@@ -7,26 +7,62 @@ backend) deployed via **GitHub Pages** (legacy branch deploy from
 
 ## Pages
 
-- `index.html` — the portfolio homepage. A light-first, editorial
-  "Quiet Precision" design: an opening statement, a grid of links to the
-  sub-projects below, and a contact section (click-to-copy email
-  address and a GitHub link).
+- `index.html` — the portfolio homepage. A bold, modern-SaaS-style
+  design built around a violet/coral/amber accent system and Space
+  Grotesk display type: a hero statement, featured-work cards linking
+  into the sub-projects below, and a contact section (click-to-copy
+  email address and a GitHub link).
+- `projects/index.html` — the full projects index, with a card for
+  every project (Clock, Rust Raid Calculator, Tennis Match Tracker,
+  Rust Empire).
+- `services/index.html` — the services offered (Discord bots,
+  Minecraft mods & plugins, Discord server setup, websites, and custom
+  tooling), plus a "how it works" step list and a CTA panel.
+- `contact/index.html` — the contact page (email and Discord/GitHub
+  contact options; no form, no backend).
+- `impressum/index.html` — the legally required Impressum (provider
+  identification) page.
+- `datenschutz/index.html` — the Datenschutzerklärung (privacy policy)
+  page, covering hosting, cookies/analytics (none), local storage
+  usage, and third-party resources loaded by individual tool pages.
 - `clock/index.html` — the atomic precision clock. Network-time-synced
   digital and Swiss analog dial views, a day-progress indicator, a world
   clock with an interactive 3D globe, a stopwatch, a countdown timer, and
   persisted display settings (24h/12h, milliseconds, accent color, etc.
   via `localStorage`).
+- `rust/index.html` — the Rust Raid Calculator, a raid-cost tool
+  covering explosive and sulfur costs across the game's structure
+  tiers, with soft-side/hard-side logic and a customizable accent
+  color.
+- `tennis/index.html` — the Tennis Match Tracker, a mobile-first,
+  offline-capable scorekeeper for live match tracking.
+- `rustempire/` — source for a separate Rust server-management/clan
+  tool (see "Other sections" below); not part of the static marketing
+  site's build.
 
-Both pages share `assets/css/design-system.css`, which holds the design
-tokens (colors, spacing, type) and reusable components (nav, buttons,
-cards, modals) used across the site.
+All of the marketing pages above (`index.html`, `projects`, `services`,
+`contact`, `impressum`, `datenschutz`) plus `/clock` share
+`assets/css/design-system.css`, which holds the design tokens (colors,
+spacing, type) and reusable components (nav, buttons, cards, modals)
+used across the site, and `assets/js/site.js`, which holds shared
+behavior (nav/menu handling, scroll reveals, toast notifications, and
+other small interactions used by more than one page).
 
 ### Fonts
 
-- **Fraunces** — display serif, used for headlines
-- **Inter** — body and UI sans-serif
+- **Space Grotesk** — display font, used for headlines and other large
+  display type across the marketing pages
+- **Inter** — body and UI sans-serif (unchanged)
 - **DM Mono** — reserved for real data (clock digits, timestamps, sync
-  offsets), not decorative labels
+  offsets) and small mono labels, not decorative text (unchanged)
+- **Fraunces** — no longer a general display font; scoped to
+  `--font-numeric` and used only for the clock's numeric digits on
+  `/clock`
+
+All four fonts are self-hosted as `.woff2` files under
+`/assets/fonts/` (see `assets/fonts/OFL.txt` for their license — all
+four are licensed under the SIL Open Font License 1.1) rather than
+loaded from Google Fonts or another external font service.
 
 ### Other sections
 

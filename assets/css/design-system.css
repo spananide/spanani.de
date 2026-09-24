@@ -202,8 +202,8 @@ h1 { font-size: var(--fs-hero); letter-spacing: -0.03em; line-height: 1.02; }
 h2 { font-size: var(--fs-h2); line-height: 1.08; }
 h3 { font-size: var(--fs-h3); font-weight: 500; letter-spacing: -0.01em; line-height: 1.2; }
 
-p { max-width: 65ch; }
-a { color: inherit; }
+p { max-width: 65ch; overflow-wrap: break-word; }
+a { color: inherit; overflow-wrap: break-word; }
 img, svg { display: block; max-width: 100%; }
 button { font: inherit; color: inherit; }
 ul { list-style: none; }
@@ -1029,6 +1029,18 @@ ul { list-style: none; }
   .hero-actions .btn { width: 100%; }
   .dock-btn span { display: none; }
   .dock-btn { padding: 0 10px; width: 38px; justify-content: center; }
+}
+@media (max-width: 480px) {
+  /* Brand + 4 nav links no longer fit one row on common phone widths
+     (~360-390px) — wrap to two rows instead of letting body's
+     overflow-x: hidden silently clip the last link. */
+  .nav-inner {
+    flex-wrap: wrap;
+    height: auto;
+    padding-block: 14px;
+    row-gap: 10px;
+  }
+  .nav-links { flex-basis: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

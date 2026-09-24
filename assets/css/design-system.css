@@ -97,9 +97,9 @@
   --ink: #f5f5f7;
   --ink-soft: #a3a3ab;
   --ink-faint: #6c6c76;
-  --accent: #ff2f8a;
-  --accent-rgb: 255, 47, 138;
-  --accent-soft: rgba(255, 47, 138, 0.14);
+  --accent: #ff2ea8;
+  --accent-rgb: 255, 46, 168;
+  --accent-soft: rgba(255, 46, 168, 0.14);
   --on-accent: #0a0a0d;
   --line: rgba(255, 255, 255, 0.10);
   --line-strong: rgba(255, 255, 255, 0.20);
@@ -154,9 +154,9 @@
     --ink: #0a0a0d;
     --ink-soft: #55555f;
     --ink-faint: #85858f;
-    --accent: #c81368;
-    --accent-rgb: 200, 19, 104;
-    --accent-soft: rgba(200, 19, 104, 0.10);
+    --accent: #c81386;
+    --accent-rgb: 200, 19, 134;
+    --accent-soft: rgba(200, 19, 134, 0.10);
     --on-accent: #ffffff;
     --line: rgba(10, 10, 13, 0.10);
     --line-strong: rgba(10, 10, 13, 0.20);
@@ -282,11 +282,10 @@ ul { list-style: none; }
   flex-shrink: 0;
 }
 .brand-mark {
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  background: var(--accent);
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
+  display: block;
 }
 .brand-sub {
   color: var(--ink-soft);

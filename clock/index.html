@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Precision Time // spanani.de</title>
-  <meta name="description" content="Precision network-synced atomic clock. Swiss analog dial and digital typography, a 3D rotating globe, stopwatch, and timer.">
+  <meta name="description" content="Precision network-synced atomic clock rendered in your real location's timezone — not your device's. Swiss analog dial, 3D globe, stopwatch, and timer.">
 
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23181511'/%3E%3Ccircle cx='16' cy='16' r='12' stroke='%23faf7f2' stroke-width='2' fill='none'/%3E%3Cpath d='M16 8v8l5 3' stroke='%23faf7f2' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
   <link rel="preload" href="/assets/fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
@@ -24,58 +24,61 @@
   <style>
     body { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
 
-    .ambient {
-      position: fixed;
-      top: 25%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: clamp(320px, 70vw, 850px);
-      height: clamp(320px, 70vw, 850px);
-      background: radial-gradient(circle, rgba(var(--ac-rgb), 0.05) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .ntp-pill {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--ink-soft);
-      background: var(--paper-raised);
-      border: 1px solid var(--line);
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
-    }
-
-    .nav-tool-controls { display: flex; align-items: center; gap: 12px; }
-    @media (max-width: 860px) {
-      .site-nav--tool .nav-tool-controls { order: 3; width: 100%; justify-content: center; }
-    }
-
     main {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 28px 20px 40px;
+      padding: clamp(24px, 5vw, 48px) var(--gutter) 48px;
       position: relative;
       z-index: 10;
       width: 100%;
-      max-width: 1000px;
+      max-width: 1080px;
       margin: 0 auto;
     }
 
     .clock-stage { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
+    .clock-panel {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--paper-raised);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 48px);
+    }
+    .clock-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      background: var(--ac);
+      opacity: 0.9;
+    }
+
+    .loc-chip {
+      margin-top: var(--space-5);
+      cursor: pointer;
+      font-family: var(--font-mono);
+    }
+    .loc-chip .loc-sep { color: var(--ink-faint); }
+    .loc-chip .loc-src { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); }
+    .loc-chip .loc-chev { width: 11px; height: 11px; color: var(--ink-faint); }
+
     .digital-view { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; }
+    .time-zone-line { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: var(--space-3); }
     .time-digits {
       font-family: var(--font-numeric);
-      font-size: clamp(64px, 16vw, 150px);
+      font-size: clamp(68px, 17vw, 168px);
       font-weight: 400;
-      letter-spacing: -2px;
+      letter-spacing: -0.03em;
       line-height: 0.95;
       font-variant-numeric: tabular-nums;
       color: var(--ink);
@@ -84,71 +87,104 @@
       justify-content: center;
       user-select: none;
     }
+    #digH, #digM, #digS { min-width: 2ch; display: inline-block; }
+    #digS { color: var(--ink-soft); }
     .time-colon { color: var(--ac); opacity: 0.85; animation: pulseColon 1s infinite; margin: 0 -1px; }
     @keyframes pulseColon { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.15; } }
     .time-colon.static { animation: none; opacity: 0.9; }
-    .time-ms { font-family: var(--font-mono); font-size: clamp(18px, 3.5vw, 36px); color: var(--ac); opacity: 0.85; min-width: 4.5ch; margin-left: 8px; }
+    .time-ms { font-family: var(--font-mono); font-size: clamp(18px, 3.5vw, 36px); color: var(--ink-faint); opacity: 0.85; min-width: 4.5ch; margin-left: 8px; }
     .time-ampm { font-size: clamp(14px, 2vw, 20px); font-weight: 500; color: var(--ink-soft); margin-left: 10px; }
-    .time-subtitle { font-family: var(--font-mono); font-size: clamp(12px, 2vw, 15px); color: var(--ink-soft); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 20px; }
+    .time-subtitle { font-family: var(--font-mono); font-size: clamp(12px, 2vw, 14px); color: var(--ink-soft); letter-spacing: 0.12em; text-transform: uppercase; margin-top: var(--space-4); }
 
-    .day-horizon { width: 100%; max-width: 420px; margin-top: 26px; display: flex; flex-direction: column; gap: 6px; }
-    .dh-track { width: 100%; height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
-    .dh-fill { height: 100%; background: var(--ac); border-radius: 2px; width: 50%; transition: width 0.5s ease; }
-    .dh-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+    .day-horizon { width: 100%; max-width: 480px; margin-top: 26px; display: flex; flex-direction: column; gap: 6px; }
+    .dh-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background-color: var(--line);
+      background-image: repeating-linear-gradient(90deg, var(--line-strong) 0 1px, transparent 1px 8.3333%);
+      overflow: hidden;
+    }
+    .dh-fill {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(var(--ac-rgb), 0.35), var(--ac));
+      box-shadow: 0 0 8px rgba(var(--ac-rgb), 0.55);
+      border-radius: 3px;
+      width: 50%;
+      transition: width var(--dur) var(--ease);
+    }
+    .dh-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-top: var(--space-2); }
 
     .analog-view { display: none; width: 100%; align-items: center; justify-content: center; margin: 12px 0; }
     .watch-case {
       width: clamp(260px, 65vw, 380px);
       height: clamp(260px, 65vw, 380px);
       border-radius: 50%;
-      background: radial-gradient(circle at center, #26221c 0%, #100e0b 100%);
-      border: 2px solid rgba(250, 247, 242, 0.12);
-      box-shadow: 0 0 50px rgba(0, 0, 0, 0.35), inset 0 0 20px rgba(0, 0, 0, 0.6);
+      background: radial-gradient(circle at 32% 26%, var(--paper-raised) 0%, var(--paper) 58%, var(--paper-sunk) 100%);
+      border: 1px solid var(--line-strong);
+      box-shadow: var(--shadow-lg), inset 0 0 0 1px var(--line);
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .dial-svg { width: 100%; height: 100%; }
-    .dial-center-cap { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #faf7f2; box-shadow: 0 2px 6px rgba(0,0,0,0.5); z-index: 5; }
+    .tick { stroke: var(--ink-faint); stroke-width: 1; }
+    .tick--h { stroke: var(--ink); stroke-width: 2.5; }
+    .tick--q { stroke: var(--ink); stroke-width: 3.5; }
+    .tick-pip { fill: var(--ac); }
+    .dial-center-cap {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ink);
+      box-shadow: 0 0 0 2px var(--paper), var(--shadow-sm);
+      z-index: 5;
+    }
+    .dial-center-cap::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: var(--ac);
+    }
 
     .telemetry-bar {
-      margin-top: 40px;
+      margin-top: var(--space-6);
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(164px, 1fr));
       gap: 1px;
       background: var(--line);
       border: 1px solid var(--line);
       border-radius: var(--radius-md);
       overflow: hidden;
       width: 100%;
-      max-width: 760px;
+      max-width: 880px;
     }
-    .tel-cell { background: var(--paper-raised); padding: 13px 18px; display: flex; flex-direction: column; gap: 3px; }
+    .tel-cell { background: var(--paper-raised); padding: 13px 18px; display: flex; flex-direction: column; gap: 3px; transition: background var(--dur) var(--ease); }
     .tel-cell-l { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
     .tel-cell-v { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .tel-cell--action { border: none; font: inherit; text-align: left; cursor: pointer; width: 100%; }
+    .tel-cell--action:hover { background: var(--paper-sunk); }
 
-    .sw-display { font-family: var(--font-mono); font-size: clamp(38px, 8vw, 68px); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -1px; text-align: center; margin-bottom: 24px; color: var(--ink); }
-    .sw-actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-    .btn-act { padding: 10px 22px; border-radius: var(--radius-pill); font-size: 13px; font-weight: 600; border: 1px solid var(--line-strong); background: var(--paper-raised); color: var(--ink); cursor: pointer; transition: all 0.2s; }
-    .btn-act:hover { background: var(--paper); }
-    .btn-act.pri { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-    .btn-act.dan { color: var(--danger); border-color: rgba(179, 39, 30, 0.35); }
+    .sw-display { font-family: var(--font-mono); font-size: clamp(38px, 8vw, 68px); font-weight: 500; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; text-align: center; margin-bottom: 24px; color: var(--ink); }
+    .sw-actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
 
-    .sw-laps-box { max-height: 180px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; font-family: var(--font-mono); font-size: 12px; }
+    .sw-laps-box { max-height: 180px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 12px; }
     .sw-laps-box:empty { display: none; }
     .lap-row { display: flex; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--line); color: var(--ink-soft); }
     .lap-row:last-child { border-bottom: none; }
-    .lap-row.best { color: var(--success); font-weight: 700; }
+    .lap-row.best { color: var(--success); font-weight: 500; }
     .lap-row.worst { color: var(--danger); }
 
     .timer-inputs-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 24px; }
     .ti-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .ti-cell input { width: 72px; height: 60px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font-family: var(--font-mono); font-size: 28px; font-weight: 700; text-align: center; outline: none; }
+    .ti-cell input { width: 72px; height: 60px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-sm); color: var(--ink); font-family: var(--font-mono); font-size: 28px; font-weight: 500; text-align: center; outline: none; }
     .ti-cell label { font-size: 9px; font-family: var(--font-mono); text-transform: uppercase; color: var(--ink-faint); }
-    .ti-sep { font-size: 28px; font-weight: 700; color: var(--ink-faint); padding-bottom: 16px; }
+    .ti-sep { font-size: 28px; font-weight: 500; color: var(--ink-faint); padding-bottom: 16px; }
     .timer-presets { display: flex; gap: 6px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
-    .preset-pill { font-family: var(--font-mono); font-size: 11px; padding: 6px 12px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: 20px; color: var(--ink-soft); cursor: pointer; transition: all 0.15s; }
+    .preset-pill { font-family: var(--font-mono); font-size: 11px; padding: 6px 12px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-pill); color: var(--ink-soft); cursor: pointer; transition: all 0.15s; }
     .preset-pill:hover { color: var(--ink); border-color: var(--line-strong); }
 
     .globe-wrap { width: 100%; height: 380px; position: relative; cursor: grab; touch-action: none; }
@@ -156,14 +192,18 @@
     #globeCanvas { width: 100%; height: 100%; }
     .pins-layer { position: absolute; inset: 0; pointer-events: none; }
     .cpin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; font-family: var(--font-mono); }
-    .cp-time { background: rgba(24, 21, 17, 0.85); border: 1px solid rgba(250, 247, 242, 0.15); color: #faf7f2; font-size: 10px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
-    .cp-name { font-size: 9px; color: #d8d2c6; margin-top: 2px; text-shadow: 0 1px 3px #000; }
+    .cp-time { background: var(--paper-raised); border: 1px solid var(--line); color: var(--ink); font-size: 10px; padding: 3px 8px; border-radius: var(--radius-sm); white-space: nowrap; box-shadow: var(--shadow-sm); }
+    .cp-name { font-size: 9px; color: var(--ink-soft); margin-top: 2px; text-shadow: 0 1px 3px var(--paper); }
+    .cpin--here .cp-time { border-color: rgba(var(--ac-rgb), 0.45); }
+    .cpin--here .cp-name { color: var(--ac); }
 
     .world-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
-    .wl-card { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
-    .wl-city { font-weight: 600; font-size: 13px; }
+    .wl-card { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+    .wl-card--here { border-color: rgba(var(--ac-rgb), 0.35); background: var(--accent-soft); }
+    .wl-city { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .wl-tag { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.12em; color: var(--ac); background: var(--accent-soft); border-radius: var(--radius-pill); padding: 1px 7px; }
     .wl-tz { font-family: var(--font-mono); font-size: 10px; color: var(--ink-soft); }
-    .wl-time { font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: var(--ink); }
+    .wl-time { font-family: var(--font-mono); font-size: 16px; font-weight: 500; letter-spacing: 0.02em; color: var(--ink); }
 
     .set-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
     .set-lbl { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; color: var(--ink-faint); letter-spacing: 0.1em; }
@@ -171,16 +211,29 @@
     .set-txt { font-size: 13px; color: var(--ink); }
     .swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 1px solid var(--line); }
 
+    .loc-place { font-family: var(--font-display); font-size: 21px; font-weight: 500; color: var(--ink); }
+    .loc-zone { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+    .loc-source { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); display: flex; align-items: center; gap: 7px; margin-top: 10px; }
+    .loc-hint { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); margin-top: 12px; }
+    .loc-select {
+      background: var(--paper-raised);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      padding: 10px 12px;
+      width: 100%;
+    }
+
     @media (max-width: 680px) {
       main { padding: 20px 14px 28px; }
-      .ntp-pill { display: none; }
       .telemetry-bar { grid-template-columns: 1fr 1fr; }
+      .telemetry-bar > *:last-child { grid-column: 1 / -1; }
     }
   </style>
 </head>
 <body>
-
-  <div class="ambient" id="ambientBg"></div>
 
   <header class="site-nav site-nav--tool">
     <div class="nav-inner">
@@ -191,10 +244,10 @@
         <a class="nav-link" href="/services">Services</a>
         <a class="nav-link" href="/contact">Contact</a>
       </nav>
-      <div class="nav-tool-controls">
-        <div class="ntp-pill">
+      <div class="nav-tool-controls" style="display:flex; align-items:center; gap:12px;">
+        <div class="time-pill">
           <span class="dot-live" id="sDot"></span>
-          <span id="sText">Synced (±0.2ms)</span>
+          <span id="sText">Synced (±0ms)</span>
         </div>
         <div class="mode-switch">
           <button class="mode-btn active" id="btnModeDig" onclick="setWatchMode('digital')"><span>Digital</span></button>
@@ -207,98 +260,118 @@
   <main>
     <div class="clock-stage">
 
-      <div class="digital-view" id="viewDigital">
-        <div class="time-digits">
-          <span id="digH">--</span>
-          <span class="time-colon" id="c1">:</span>
-          <span id="digM">--</span>
-          <span class="time-colon" id="c2">:</span>
-          <span id="digS">--</span>
-          <span class="time-ms" id="digMs">.000</span>
-          <span class="time-ampm" id="digAmpm"></span>
-        </div>
-        <div class="time-subtitle" id="timeSub">Donnerstag, 10. September 2026</div>
-        <div class="day-horizon" id="dayHorizon">
-          <div class="dh-track"><div class="dh-fill" id="dhFill"></div></div>
-          <div class="dh-meta"><span>00:00</span><span id="dhText">--% Day Elapsed</span><span>24:00</span></div>
-        </div>
-      </div>
+      <div class="clock-panel">
 
-      <div class="analog-view" id="viewAnalog">
-        <div class="watch-case">
-          <svg class="dial-svg" viewBox="0 0 300 300">
-            <g id="dialTicks"></g>
-            <rect x="205" y="141" width="28" height="18" rx="2" fill="#181511" stroke="rgba(250,247,242,0.2)" stroke-width="1"/>
-            <text x="219" y="154" fill="#faf7f2" font-family="'DM Mono', monospace" font-size="11" font-weight="700" text-anchor="middle" id="analogDateText">10</text>
-            <line x1="150" y1="150" x2="150" y2="85" stroke="#faf7f2" stroke-width="4.5" stroke-linecap="round" id="handHour"/>
-            <line x1="150" y1="150" x2="150" y2="52" stroke="#faf7f2" stroke-width="3" stroke-linecap="round" id="handMin"/>
-            <g id="handSecWrap">
-              <line x1="150" y1="175" x2="150" y2="40" style="stroke:var(--ac)" stroke-width="1.5" stroke-linecap="round"/>
-              <circle cx="150" cy="55" r="4.5" style="fill:var(--ac)"/>
-            </g>
-          </svg>
-          <div class="dial-center-cap"></div>
+        <div class="digital-view" id="viewDigital">
+          <div class="time-zone-line" id="timeZoneLine">LOCATING…</div>
+          <div class="time-digits">
+            <span id="digH">--</span>
+            <span class="time-colon" id="c1">:</span>
+            <span id="digM">--</span>
+            <span class="time-colon" id="c2">:</span>
+            <span id="digS">--</span>
+            <span class="time-ms" id="digMs">.000</span>
+            <span class="time-ampm" id="digAmpm"></span>
+          </div>
+          <div class="time-subtitle" id="timeSub">Thursday, 1 January 2026</div>
+          <div class="day-horizon" id="dayHorizon">
+            <div class="dh-track"><div class="dh-fill" id="dhFill"></div></div>
+            <div class="dh-meta"><span>00:00</span><span id="dhText">--% Day Elapsed</span><span>24:00</span></div>
+          </div>
         </div>
+
+        <div class="analog-view" id="viewAnalog">
+          <div class="watch-case">
+            <svg class="dial-svg" viewBox="0 0 300 300">
+              <g id="dialTicks"></g>
+              <text x="150" y="104" text-anchor="middle" style="fill:var(--ink-soft); letter-spacing:.3em" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="500">spanani</text>
+              <text x="150" y="118" text-anchor="middle" style="fill:var(--ink-faint); letter-spacing:.22em" font-family="'DM Mono', monospace" font-size="6.5">NETWORK SYNCED</text>
+              <rect x="205" y="141" width="28" height="18" rx="3" style="fill:var(--paper-sunk); stroke:var(--line-strong)" stroke-width="1"/>
+              <text x="219" y="154" style="fill:var(--ink)" font-family="'DM Mono', monospace" font-size="11" font-weight="500" text-anchor="middle" id="analogDateText">1</text>
+              <line x1="150" y1="150" x2="150" y2="85" style="stroke:var(--ink)" stroke-width="4.5" stroke-linecap="round" id="handHour"/>
+              <line x1="150" y1="150" x2="150" y2="52" style="stroke:var(--ink)" stroke-width="3" stroke-linecap="round" id="handMin"/>
+              <g id="handSecWrap" style="filter: drop-shadow(0 0 4px rgba(var(--ac-rgb), 0.45))">
+                <line x1="150" y1="175" x2="150" y2="40" style="stroke:var(--ac)" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="150" cy="55" r="4.5" style="fill:var(--ac)"/>
+              </g>
+            </svg>
+            <div class="dial-center-cap"></div>
+          </div>
+        </div>
+
+        <button class="time-pill loc-chip" id="locChip" onclick="openModal('location')" aria-haspopup="dialog" aria-label="Location and timezone settings">
+          <span class="dot-live pending" id="locDot"></span>
+          <span id="locPlace">Locating…</span>
+          <span class="loc-sep">·</span>
+          <span class="loc-src" id="locSrc">…</span>
+          <svg class="loc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+
       </div>
 
       <div class="telemetry-bar">
-        <div class="tel-cell"><span class="tel-cell-l">Local Timezone</span><span class="tel-cell-v" id="telZone">Europe/Berlin</span></div>
+        <div class="tel-cell"><span class="tel-cell-l">Location Timezone</span><span class="tel-cell-v" id="telZone">—</span></div>
         <div class="tel-cell"><span class="tel-cell-l">UTC Time</span><span class="tel-cell-v" id="telUtcTime">--:--:-- UTC</span></div>
-        <div class="tel-cell"><span class="tel-cell-l">Unix Timestamp</span><span class="tel-cell-v" id="telEpoch">--</span></div>
-        <div class="tel-cell"><span class="tel-cell-l">Sync Offset</span><span class="tel-cell-v" id="telOffset">±0.2 ms</span></div>
+        <button type="button" class="tel-cell tel-cell--action" id="telEpochBtn" data-copy="" data-copy-message="Unix timestamp copied"><span class="tel-cell-l">Unix Timestamp</span><span class="tel-cell-v" id="telEpoch">--</span></button>
+        <div class="tel-cell"><span class="tel-cell-l">Sync Offset</span><span class="tel-cell-v" id="telOffset">± -- ms</span></div>
+        <div class="tel-cell"><span class="tel-cell-l">Location Source</span><span class="tel-cell-v" id="telLocSrc">Resolving…</span></div>
       </div>
 
     </div>
   </main>
 
   <div class="studio-dock">
-    <button class="dock-btn" onclick="openModal('stopwatch')" title="Precision Stopwatch">
+    <button class="dock-btn" onclick="openModal('stopwatch')" title="Precision Stopwatch (S)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2m-2-12v2m7 2l-1.5 1.5"></path></svg>
       <span>Stopwatch</span>
     </button>
-    <button class="dock-btn" onclick="openModal('timer')" title="Countdown Timer">
+    <button class="dock-btn" onclick="openModal('timer')" title="Countdown Timer (T)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
       <span>Timer</span>
     </button>
     <div class="dock-sep"></div>
-    <button class="dock-btn" onclick="openModal('globe')" title="3D Earth Globe">
+    <button class="dock-btn" onclick="openModal('globe')" title="3D Earth Globe (G)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
       <span>3D Globe</span>
     </button>
-    <button class="dock-btn" onclick="openModal('world')" title="World Cities">
+    <button class="dock-btn" onclick="openModal('world')" title="World Cities (W)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
       <span>World</span>
+    </button>
+    <button class="dock-btn" onclick="openModal('location')" title="Location &amp; Timezone (L)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"></path><circle cx="12" cy="10" r="2.6"></circle></svg>
+      <span>Location</span>
     </button>
     <div class="dock-sep"></div>
     <button class="dock-btn" onclick="openModal('settings')" title="Display Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       <span>Settings</span>
     </button>
-    <button class="dock-btn" onclick="toggleFullscreen()" title="Fullscreen">
+    <button class="dock-btn" onclick="toggleFullscreen()" title="Fullscreen (F)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
     </button>
   </div>
 
   <div class="tool-modal" id="modal-stopwatch">
-    <div class="modal-card">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="titleStopwatch">
       <div class="modal-head">
-        <span class="modal-title">Precision Stopwatch</span>
+        <span class="modal-title" id="titleStopwatch">Precision Stopwatch</span>
         <button class="modal-close" onclick="closeModal('stopwatch')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="sw-display" id="swModalDisplay">00:00:00<span style="font-size:24px; opacity:0.5; font-family:'DM Mono', monospace;">.000</span></div>
       <div class="sw-actions">
-        <button class="btn-act pri" id="btnSwStart">Start</button>
-        <button class="btn-act" id="btnSwLap">Lap</button>
-        <button class="btn-act dan" id="btnSwReset">Reset</button>
+        <button class="btn btn-primary" id="btnSwStart">Start</button>
+        <button class="btn btn-secondary" id="btnSwLap">Lap</button>
+        <button class="btn btn-danger" id="btnSwReset">Reset</button>
       </div>
       <div class="sw-laps-box" id="swLapsList"></div>
     </div>
   </div>
 
   <div class="tool-modal" id="modal-timer">
-    <div class="modal-card">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="titleTimer">
       <div class="modal-head">
-        <span class="modal-title">Countdown Timer</span>
+        <span class="modal-title" id="titleTimer">Countdown Timer</span>
         <button class="modal-close" onclick="closeModal('timer')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="timer-inputs-row" id="timerInputs">
@@ -316,16 +389,16 @@
       </div>
       <div class="sw-display" id="timerDisplay" style="display:none;">00:05:00</div>
       <div class="sw-actions">
-        <button class="btn-act pri" id="btnTimerStart">Start</button>
-        <button class="btn-act dan" id="btnTimerReset">Reset</button>
+        <button class="btn btn-primary" id="btnTimerStart">Start</button>
+        <button class="btn btn-danger" id="btnTimerReset">Reset</button>
       </div>
     </div>
   </div>
 
   <div class="tool-modal" id="modal-globe">
-    <div class="modal-card" style="max-width: 680px;">
+    <div class="modal-card" style="max-width: 680px;" role="dialog" aria-modal="true" aria-labelledby="titleGlobe">
       <div class="modal-head">
-        <span class="modal-title">3D Globe</span>
+        <span class="modal-title" id="titleGlobe">3D Globe</span>
         <button class="modal-close" onclick="closeModal('globe')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="globe-wrap" id="globeCont">
@@ -336,19 +409,49 @@
   </div>
 
   <div class="tool-modal" id="modal-world">
-    <div class="modal-card" style="max-width: 680px;">
+    <div class="modal-card" style="max-width: 680px;" role="dialog" aria-modal="true" aria-labelledby="titleWorld">
       <div class="modal-head">
-        <span class="modal-title">World Clocks</span>
+        <span class="modal-title" id="titleWorld">World Clocks</span>
         <button class="modal-close" onclick="closeModal('world')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="world-list" id="worldList"></div>
     </div>
   </div>
 
-  <div class="tool-modal" id="modal-settings">
-    <div class="modal-card" style="max-width: 440px;">
+  <div class="tool-modal" id="modal-location">
+    <div class="modal-card" style="max-width: 460px;" role="dialog" aria-modal="true" aria-labelledby="titleLocation">
       <div class="modal-head">
-        <span class="modal-title">Clock Preferences</span>
+        <span class="modal-title" id="titleLocation">Location &amp; Timezone</span>
+        <button class="modal-close" onclick="closeModal('location')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+
+      <div class="loc-place" id="locModalPlace">Locating…</div>
+      <div class="loc-zone" id="locModalZone">—</div>
+      <div class="loc-source"><span class="dot-live pending" id="locModalDot"></span><span id="locModalSourceText">Locating…</span></div>
+
+      <p class="note-pill" style="margin-top:16px;">Your device's clock and timezone setting are ignored. The time above is a network-synced UTC anchor, rendered in the timezone of where you actually are. The lookup happens in your browser; the result is kept in localStorage and never sent to this site.</p>
+      <p class="loc-hint" id="locDeniedHint" style="display:none;">Location permission is blocked for this site. Enable it in your browser's site settings, then press Refresh.</p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;">
+        <button class="btn btn-primary" id="btnLocGps">Use precise location</button>
+        <button class="btn btn-secondary" id="btnLocRefresh">Refresh</button>
+      </div>
+
+      <div class="set-group" style="margin-top:22px;">
+        <span class="set-lbl">Manual override</span>
+        <select id="locManual" class="loc-select">
+          <option value="auto">Detect automatically</option>
+          <optgroup label="Pick a city" id="locManualCities"></optgroup>
+          <option value="device" id="locManualDevice">Use device timezone</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-modal" id="modal-settings">
+    <div class="modal-card" style="max-width: 440px;" role="dialog" aria-modal="true" aria-labelledby="titleSettings">
+      <div class="modal-head">
+        <span class="modal-title" id="titleSettings">Clock Preferences</span>
         <button class="modal-close" onclick="closeModal('settings')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
@@ -379,6 +482,8 @@
     <a href="https://lambacher.netlify.app" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
   </div>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script>
   (function(){
     'use strict';
@@ -387,11 +492,12 @@
     const pad = (n, d=2) => String(n).padStart(d, '0');
 
     // Configuration & State
-    const DEF = { ac: '#9955e7', h24: true, ms: true, blink: true, dayBar: true, mode: 'digital' };
+    const DEF = { ac: '#9955e7', h24: true, ms: true, blink: true, dayBar: true, mode: 'digital', loc: { mode: 'auto' } };
     let CFG = { ...DEF };
     try {
       const saved = localStorage.getItem('spanani-watch-cfg');
       if (saved) CFG = { ...DEF, ...JSON.parse(saved) };
+      if (!CFG.loc) CFG.loc = { mode: 'auto' };
     } catch(e) {}
 
     function saveConfig() {
@@ -403,10 +509,27 @@
       return [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(',');
     }
 
+    // Palette read from CSS custom properties, for the canvas globe (which cannot read var() itself)
+    let PAL = null;
+    function readPalette() {
+      const cs = getComputedStyle(document.documentElement);
+      PAL = {
+        paper: cs.getPropertyValue('--paper').trim(),
+        paperRaised: cs.getPropertyValue('--paper-raised').trim(),
+        paperSunk: cs.getPropertyValue('--paper-sunk').trim(),
+        line: cs.getPropertyValue('--line').trim(),
+        inkSoftRgb: hexRgb(cs.getPropertyValue('--ink-soft').trim()),
+        acRgb: cs.getPropertyValue('--ac-rgb').trim()
+      };
+    }
+    readPalette();
+    try { window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', readPalette); } catch(e) {}
+
     window.setAccent = function(hex) {
       CFG.ac = hex;
       document.documentElement.style.setProperty('--ac', hex);
       document.documentElement.style.setProperty('--ac-rgb', hexRgb(hex));
+      readPalette();
       saveConfig();
     };
 
@@ -420,37 +543,46 @@
     };
 
     // Render Swiss Watch Dial Ticks
-    (function drawDialTicks() {
+    function drawDialTicks() {
       const g = $('#dialTicks');
       if (!g) return;
-      let svgTicks = '';
-      for (let i = 0; i < 60; i++) {
-        const isHour = i % 5 === 0;
+      let svg = '<polygon class="tick-pip" points="150,21 145.5,12 154.5,12"/>';
+      for (let i = 1; i < 60; i++) {
         const deg = i * 6;
         const rad = (deg - 90) * Math.PI / 180;
-        const len = isHour ? 12 : 6;
-        const width = isHour ? 2.5 : 1;
-        const color = isHour ? '#faf7f2' : 'rgba(250,247,242,0.3)';
-        const r1 = 138;
-        const r2 = r1 - len;
-        const x1 = 150 + r1 * Math.cos(rad);
-        const y1 = 150 + r1 * Math.sin(rad);
-        const x2 = 150 + r2 * Math.cos(rad);
-        const y2 = 150 + r2 * Math.sin(rad);
-        svgTicks += `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="${color}" stroke-width="${width}" stroke-linecap="round"/>`;
+        let cls = 'tick', len = 6;
+        if (i % 15 === 0) { cls = 'tick tick--q'; len = 18; }
+        else if (i % 5 === 0) { cls = 'tick tick--h'; len = 12; }
+        const r1 = 138, r2 = r1 - len;
+        const x1 = 150 + r1 * Math.cos(rad), y1 = 150 + r1 * Math.sin(rad);
+        const x2 = 150 + r2 * Math.cos(rad), y2 = 150 + r2 * Math.sin(rad);
+        svg += `<line class="${cls}" x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}"/>`;
       }
-      g.innerHTML = svgTicks;
-    })();
+      g.innerHTML = svg;
+    }
+    drawDialTicks();
 
     // Modal Manager
+    let lastFocused = null;
     window.openModal = function(id) {
       const m = $('#modal-' + id);
-      if (m) m.classList.add('open');
-      if (id === 'globe') triggerGlobeResize();
+      if (!m) return;
+      lastFocused = document.activeElement;
+      m.classList.add('open');
+      const card = m.querySelector('.modal-card');
+      if (card) card.setAttribute('tabindex', '-1'), card.focus();
+      if (id === 'globe') {
+        readPalette();
+        triggerGlobeResize();
+        if (CFG.loc && typeof CFG.loc.lat === 'number' && typeof CFG.loc.lon === 'number') {
+          setGlobeView(CFG.loc.lat, CFG.loc.lon);
+        }
+      }
     };
     window.closeModal = function(id) {
       const m = $('#modal-' + id);
       if (m) m.classList.remove('open');
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
     };
     $$('.tool-modal').forEach(m => {
       m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
@@ -468,6 +600,7 @@
     let ntpOffset = 0;
     let anchorTs = null;
     let anchorPerf = null;
+    let lastNtpSync = 0;
 
     function getAtomicTime() {
       if (anchorTs !== null && anchorPerf !== null) {
@@ -486,7 +619,8 @@
         const race = await Promise.any(urls.map(async u => {
           const t0 = Date.now();
           const p0 = performance.now();
-          const res = await fetch(u + '?_=' + Math.random(), { cache: 'no-store' });
+          const sep = u.indexOf('?') === -1 ? '?' : '&';
+          const res = await fetch(u + sep + '_=' + Math.random(), { cache: 'no-store' });
           const d = await res.json();
           let ts = NaN;
           if (typeof d.unixtime === 'number') ts = d.unixtime * 1000 + (d.milliSeconds || 0);
@@ -495,30 +629,192 @@
           else if (typeof d.timestamp === 'number') ts = d.timestamp * (d.timestamp > 1e11 ? 1 : 1000);
           if (!Number.isFinite(ts)) throw new Error();
           const rtt = performance.now() - p0;
-          return { ts, perf: p0 + rtt / 2, off: Math.round(ts - (t0 + rtt / 2)) };
+          return { ts, perf: p0 + rtt / 2, off: Math.round(ts - (t0 + rtt / 2)), rtt };
         }));
 
         anchorTs = race.ts;
         anchorPerf = race.perf;
         ntpOffset = race.off;
+        lastNtpSync = Date.now();
         $('#sDot').className = 'dot-live';
-        $('#sText').textContent = 'Synced (±' + (Math.abs(ntpOffset) % 8 + 0.2).toFixed(1) + 'ms)';
+        $('#sText').textContent = 'Synced (±' + Math.max(1, Math.round(race.rtt / 2)) + 'ms)';
         $('#telOffset').textContent = (ntpOffset >= 0 ? '+' : '') + ntpOffset + ' ms · Locked';
       } catch(e) {
         $('#sDot').className = 'dot-live warn';
-        $('#sText').textContent = 'Local time';
+        $('#sText').textContent = 'Device clock · unsynced';
       }
     }
 
+    // ---- Location / timezone resolution (never trusts the device's OS timezone setting) ----
+
+    function isValidZone(z) {
+      if (!z) return false;
+      try { new Intl.DateTimeFormat('en-US', { timeZone: z }); return true; } catch(e) { return false; }
+    }
+    function labelFromZone(z) {
+      if (!z) return '';
+      const seg = z.split('/').pop() || z;
+      return seg.replace(/_/g, ' ');
+    }
+    function formatOffset(ms) {
+      const totalMin = Math.round(ms / 60000);
+      const sign = totalMin >= 0 ? '+' : '-';
+      const abs = Math.abs(totalMin);
+      return 'UTC' + sign + pad(Math.floor(abs / 60)) + ':' + pad(abs % 60);
+    }
+    function zoneOffsetMs(ts, zone) {
+      const dtf = new Intl.DateTimeFormat('en-US', {
+        timeZone: zone, hourCycle: 'h23',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+      const map = {};
+      dtf.formatToParts(new Date(ts)).forEach(p => { if (p.type !== 'literal') map[p.type] = p.value; });
+      const asUTC = Date.UTC(+map.year, +map.month - 1, +map.day, +map.hour, +map.minute, +map.second);
+      return asUTC - ts;
+    }
+    const offsetCache = { zone: null, bucket: -1, ms: 0 };
+    function getOffsetForTick(ts, zone) {
+      const bucket = Math.floor(ts / 1000);
+      if (offsetCache.zone !== zone || offsetCache.bucket !== bucket) {
+        offsetCache.ms = zone ? zoneOffsetMs(ts, zone) : 0;
+        offsetCache.zone = zone;
+        offsetCache.bucket = bucket;
+      }
+      return offsetCache.ms;
+    }
+
+    function fetchJSON(url, ms) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), ms);
+      return fetch(url, { cache: 'no-store', signal: ctrl.signal })
+        .then(r => r.json())
+        .catch(() => null)
+        .finally(() => clearTimeout(timer));
+    }
+    function getPositionAsync(opts) {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) { reject(new Error('no-geo')); return; }
+        navigator.geolocation.getCurrentPosition(resolve, reject, opts);
+      });
+    }
+    async function gpsPermissionGranted() {
+      try {
+        if (!navigator.permissions || !navigator.permissions.query) return false;
+        const status = await navigator.permissions.query({ name: 'geolocation' });
+        return status.state === 'granted';
+      } catch(e) { return false; }
+    }
+
+    async function resolveLocation(opts) {
+      opts = opts || {};
+      const explicit = !!opts.allowPrompt;
+
+      if (CFG.loc.mode === 'manual' || CFG.loc.mode === 'device') { applyLocation(); return; }
+
+      $('#locDeniedHint').style.display = 'none';
+
+      // Tier A — GPS (only if explicitly requested or already permitted)
+      let resolved = null;
+      if (explicit || await gpsPermissionGranted()) {
+        try {
+          const pos = await getPositionAsync({ enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 });
+          const lat = +pos.coords.latitude.toFixed(2);
+          const lon = +pos.coords.longitude.toFixed(2);
+          const tzData = await fetchJSON('https://timeapi.io/api/TimeZone/coordinate?latitude=' + lat + '&longitude=' + lon, 4000);
+          if (tzData && tzData.timeZone && isValidZone(tzData.timeZone)) {
+            resolved = { mode: 'auto', tz: tzData.timeZone, label: labelFromZone(tzData.timeZone), src: 'gps', acc: Math.round(pos.coords.accuracy || 0), lat, lon, at: Date.now() };
+          }
+        } catch(e) {
+          if (e && e.code === 1) {
+            $('#locDeniedHint').style.display = '';
+          }
+        }
+      }
+
+      // Tier B — IP geolocation
+      if (!resolved) {
+        const ip = await fetchJSON('https://ipwho.is/', 3500);
+        if (ip && ip.success && ip.timezone && ip.timezone.id && isValidZone(ip.timezone.id)) {
+          const label = ip.city ? (ip.city + (ip.country ? ', ' + ip.country : '')) : labelFromZone(ip.timezone.id);
+          resolved = { mode: 'auto', tz: ip.timezone.id, label, src: 'ip', lat: ip.latitude, lon: ip.longitude, at: Date.now() };
+        }
+      }
+
+      // Tier C — device timezone, explicitly labelled as such
+      if (!resolved) {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        resolved = { mode: 'auto', tz, label: labelFromZone(tz), src: 'device', at: Date.now() };
+      }
+
+      CFG.loc = resolved;
+      saveConfig();
+      applyLocation();
+    }
+
+    function applyLocation() {
+      const loc = CFG.loc || {};
+      const tz = loc.tz;
+      const label = loc.label;
+      const src = loc.mode === 'manual' ? 'manual' : (loc.mode === 'device' ? 'device' : (loc.src || null));
+
+      const srcChip = { gps: 'GPS', ip: 'IP', device: 'DEVICE TZ', manual: 'MANUAL' }[src] || '…';
+      const sourceLine = {
+        gps: 'Located via GPS' + (loc.acc ? ' · accurate to ±' + loc.acc + ' m' : ''),
+        ip: 'Located via IP address · city-level accuracy',
+        device: 'Device timezone · location unavailable',
+        manual: 'Manually set'
+      }[src] || 'Locating…';
+      const dotClass = 'dot-live' + (!src ? ' pending' : (src === 'device' ? ' warn' : ''));
+
+      $('#locPlace').textContent = label || 'Locating…';
+      $('#locSrc').textContent = srcChip;
+      $('#locDot').className = dotClass;
+
+      $('#locModalPlace').textContent = label || 'Locating…';
+      $('#locModalSourceText').textContent = sourceLine;
+      $('#locModalDot').className = dotClass;
+
+      const srcMeta = {
+        gps: 'GPS · ±' + (loc.acc != null ? loc.acc : '—') + ' m',
+        ip: 'IP address',
+        device: 'Device setting',
+        manual: 'Manual'
+      }[src] || 'Resolving…';
+      $('#telLocSrc').textContent = srcMeta;
+
+      if (tz) {
+        const off = getOffsetForTick(getAtomicTime(), tz);
+        $('#locModalZone').textContent = tz + ' · ' + formatOffset(off);
+      } else {
+        $('#locModalZone').textContent = '—';
+      }
+
+      $('#btnLocGps').style.display = src === 'gps' ? 'none' : '';
+
+      const sel = $('#locManual');
+      if (sel) {
+        if (loc.mode === 'manual') sel.value = tz;
+        else if (loc.mode === 'device') sel.value = 'device';
+        else sel.value = 'auto';
+      }
+
+      renderWorldList();
+    }
+
     // High Precision Animation Frame Loop
-    const daysArr = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-    const monthsArr = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+    const daysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const monthsArr = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    let lastTitleMinute = -1;
 
     function tick() {
       const ts = getAtomicTime();
+      const zone = (CFG.loc && CFG.loc.tz) || null;
+      const offMs = zone ? getOffsetForTick(ts, zone) : 0;
+      const d = new Date(ts + offMs);
+      const utc = new Date(ts);
 
-      const d = new Date(ts);
-      let hours = d.getHours();
+      let hours = d.getUTCHours();
       let ampm = '';
       if (!CFG.h24) {
         ampm = hours >= 12 ? 'PM' : 'AM';
@@ -526,22 +822,29 @@
       }
 
       $('#digH').textContent = pad(hours);
-      $('#digM').textContent = pad(d.getMinutes());
-      $('#digS').textContent = pad(d.getSeconds());
-      $('#digMs').textContent = '.' + pad(Math.floor(d.getMilliseconds()), 3);
+      $('#digM').textContent = pad(d.getUTCMinutes());
+      $('#digS').textContent = pad(d.getUTCSeconds());
+      $('#digMs').textContent = '.' + pad(Math.floor(d.getUTCMilliseconds()), 3);
       $('#digAmpm').textContent = ampm;
 
-      $('#timeSub').textContent = daysArr[d.getDay()] + ', ' + d.getDate() + '. ' + monthsArr[d.getMonth()] + ' ' + d.getFullYear();
+      $('#timeSub').textContent = daysArr[d.getUTCDay()] + ', ' + d.getUTCDate() + ' ' + monthsArr[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
 
-      const daySecs = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+      if (zone) {
+        const offStr = formatOffset(offMs);
+        const upperLabel = (CFG.loc.label || labelFromZone(zone)).toUpperCase();
+        $('#timeZoneLine').textContent = upperLabel + ' · ' + offStr;
+        $('#telZone').textContent = zone + ' · ' + offStr;
+      }
+
+      const daySecs = d.getUTCHours() * 3600 + d.getUTCMinutes() * 60 + d.getUTCSeconds();
       const dayPct = ((daySecs / 86400) * 100).toFixed(1);
       $('#dhFill').style.width = dayPct + '%';
       $('#dhText').textContent = dayPct + '% Day Elapsed';
 
-      const ms = d.getMilliseconds();
-      const secTotal = d.getSeconds() + ms / 1000;
-      const minTotal = d.getMinutes() + secTotal / 60;
-      const hourTotal = (d.getHours() % 12) + minTotal / 60;
+      const ms = d.getUTCMilliseconds();
+      const secTotal = d.getUTCSeconds() + ms / 1000;
+      const minTotal = d.getUTCMinutes() + secTotal / 60;
+      const hourTotal = (d.getUTCHours() % 12) + minTotal / 60;
 
       const degSec = secTotal * 6;
       const degMin = minTotal * 6;
@@ -554,22 +857,32 @@
       if (mHand) mHand.setAttribute('transform', `rotate(${degMin}, 150, 150)`);
       if (sWrap) sWrap.setAttribute('transform', `rotate(${degSec}, 150, 150)`);
       const aDate = $('#analogDateText');
-      if (aDate) aDate.textContent = d.getDate();
+      if (aDate) aDate.textContent = d.getUTCDate();
 
-      $('#telUtcTime').textContent = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()) + ' UTC';
-      $('#telEpoch').textContent = Math.floor(ts / 1000);
+      $('#telUtcTime').textContent = pad(utc.getUTCHours()) + ':' + pad(utc.getUTCMinutes()) + ':' + pad(utc.getUTCSeconds()) + ' UTC';
+      const epoch = Math.floor(ts / 1000);
+      $('#telEpoch').textContent = epoch;
+      $('#telEpochBtn').setAttribute('data-copy', String(epoch));
+
+      const curMinute = d.getUTCHours() * 60 + d.getUTCMinutes();
+      if (curMinute !== lastTitleMinute) {
+        lastTitleMinute = curMinute;
+        document.title = pad(hours) + ':' + pad(d.getUTCMinutes()) + (ampm ? ' ' + ampm : '') + ' — Precision Time // spanani.de';
+      }
     }
-    setInterval(tick, 16);
-    tick();
-    syncNTP();
-    setInterval(syncNTP, 180000);
 
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const ro = new Date().getTimezoneOffset();
-      const offsetStr = 'UTC' + (ro <= 0 ? '+' : '-') + pad(Math.abs(Math.floor(ro / 60))) + ':' + pad(Math.abs(ro % 60));
-      $('#telZone').textContent = tz + ' (' + offsetStr + ')';
-    } catch(e) {}
+    let rafId = null;
+    function loop() {
+      tick();
+      rafId = requestAnimationFrame(loop);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return;
+      if (Date.now() - lastNtpSync > 60000) syncNTP();
+      const locAge = Date.now() - (CFG.loc.at || 0);
+      if (CFG.loc.mode === 'auto' && locAge > 30 * 60 * 1000) resolveLocation({ allowPrompt: false });
+    });
 
     // Stopwatch Implementation
     let swRunning = false, swStart = 0, swElapsed = 0, swRaf = null, swLaps = [];
@@ -714,17 +1027,45 @@
       { name: 'São Paulo', tz: 'America/Sao_Paulo', lat: -23.55, lon: -46.63 }
     ];
 
+    function populateLocManualSelect() {
+      const grp = $('#locManualCities');
+      if (grp) grp.innerHTML = CITIES.map(c => `<option value="${c.tz}">${c.name}</option>`).join('');
+      const devOpt = $('#locManualDevice');
+      if (devOpt) {
+        try {
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          devOpt.textContent = 'Use device timezone (' + tz + ')';
+        } catch(e) {}
+      }
+    }
+    populateLocManualSelect();
+
     function renderWorldList() {
       const list = $('#worldList');
       if (!list) return;
       const now = new Date(getAtomicTime());
-      list.innerHTML = '';
+      let html = '';
+      const loc = CFG.loc || {};
+      if (loc.tz) {
+        let tStr = '--:--';
+        try { tStr = now.toLocaleTimeString('en-GB', { timeZone: loc.tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 }); } catch(e) {}
+        html += `
+          <div class="wl-card wl-card--here">
+            <div>
+              <div class="wl-city">${loc.label || 'Here'} <span class="wl-tag">HERE</span></div>
+              <div class="wl-tz">${loc.tz}</div>
+            </div>
+            <div class="wl-time">${tStr}</div>
+          </div>
+        `;
+      }
       CITIES.forEach(c => {
+        if (loc.tz && c.tz === loc.tz) return;
         let tStr = '--:--';
         try {
           tStr = now.toLocaleTimeString('en-GB', { timeZone: c.tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 });
         } catch(e) {}
-        list.innerHTML += `
+        html += `
           <div class="wl-card">
             <div>
               <div class="wl-city">${c.name}</div>
@@ -734,12 +1075,13 @@
           </div>
         `;
       });
+      list.innerHTML = html;
     }
-    renderWorldList();
     setInterval(renderWorldList, 1000);
 
     // 3D Canvas Globe Engine
     let triggerGlobeResize = () => {};
+    let setGlobeView = () => {};
     (function initGlobe() {
       const canvas = $('#globeCanvas');
       if (!canvas) return;
@@ -757,6 +1099,12 @@
       }
       triggerGlobeResize = resize;
       window.addEventListener('resize', resize);
+
+      setGlobeView = function(lat, lon) {
+        rotY = -lon * Math.PI / 180;
+        rotX = Math.max(-1.05, Math.min(1.05, lat * Math.PI / 180 * 0.6));
+        velX = 0;
+      };
 
       canvas.addEventListener('mousedown', e => { drag = true; lx = e.clientX; ly = e.clientY; velX = 0; });
       window.addEventListener('mousemove', e => {
@@ -795,12 +1143,12 @@
       for (let lon = -180; lon < 180; lon += 30) {
         const l = [];
         for (let lat = -84; lat <= 84; lat += 4) l.push(ll2v(lat, lon));
-        grat.push(l);
+        grat.push({ pts: l, major: lon === 0 });
       }
       for (let lat = -60; lat <= 60; lat += 30) {
         const l = [];
         for (let lon = -180; lon <= 180; lon += 4) l.push(ll2v(lat, lon));
-        grat.push(l);
+        grat.push({ pts: l, major: lat === 0 });
       }
 
       function drawFrame() {
@@ -811,11 +1159,11 @@
         ctx.clearRect(0, 0, W, H);
         if (!drag) { rotY += velX * 0.88; velX *= 0.88; }
 
-        const halo = ctx.createRadialGradient(cx, cy, GR * 0.7, cx, cy, GR * 1.3);
-        halo.addColorStop(0, 'rgba(250, 247, 242, 0.08)');
+        const halo = ctx.createRadialGradient(cx, cy, GR * 0.72, cx, cy, GR * 1.35);
+        halo.addColorStop(0, `rgba(${PAL.acRgb}, 0.10)`);
         halo.addColorStop(1, 'transparent');
         ctx.beginPath();
-        ctx.arc(cx, cy, GR * 1.3, 0, Math.PI * 2);
+        ctx.arc(cx, cy, GR * 1.35, 0, Math.PI * 2);
         ctx.fillStyle = halo;
         ctx.fill();
 
@@ -825,18 +1173,18 @@
         ctx.clip();
 
         const base = ctx.createRadialGradient(cx - GR * 0.2, cy - GR * 0.2, GR * 0.1, cx, cy, GR);
-        base.addColorStop(0, '#26221c');
-        base.addColorStop(0.7, '#14120f');
-        base.addColorStop(1, '#0a0908');
+        base.addColorStop(0, PAL.paperRaised);
+        base.addColorStop(0.62, PAL.paper);
+        base.addColorStop(1, PAL.paperSunk);
         ctx.fillStyle = base;
         ctx.fillRect(cx - GR, cy - GR, GR * 2, GR * 2);
 
-        ctx.strokeStyle = 'rgba(250, 247, 242, 0.1)';
-        ctx.lineWidth = 0.8;
-        for (const line of grat) {
+        for (const g of grat) {
+          ctx.strokeStyle = g.major ? `rgba(${PAL.acRgb}, 0.28)` : PAL.line;
+          ctx.lineWidth = g.major ? 1.1 : 0.8;
           ctx.beginPath();
           let pv = false;
-          for (const pt of line) {
+          for (const pt of g.pts) {
             const [rx, ry, rz] = rv(pt);
             if (rz > 0) {
               if (!pv) ctx.moveTo(cx + rx * GR, cy - ry * GR);
@@ -850,8 +1198,13 @@
 
         ctx.beginPath();
         ctx.arc(cx, cy, GR, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(250, 247, 242, 0.2)';
+        ctx.strokeStyle = `rgba(${PAL.acRgb}, 0.32)`;
         ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx, cy, GR * 0.992, 0, Math.PI * 2);
+        ctx.strokeStyle = PAL.line;
+        ctx.lineWidth = 1;
         ctx.stroke();
 
         const pins = $('#globePins');
@@ -863,8 +1216,8 @@
           const alpha = Math.min(1, (rz - 0.08) * 6);
           const sx = cx + rx * GR, sy = cy - ry * GR;
           ctx.beginPath();
-          ctx.arc(sx, sy, 3, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(250, 247, 242, ${0.9 * alpha})`;
+          ctx.arc(sx, sy, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${PAL.inkSoftRgb}, ${0.9 * alpha})`;
           ctx.fill();
 
           if (pins) {
@@ -882,9 +1235,78 @@
             pins.appendChild(pin);
           }
         }
+
+        // "You are here" pin, from the resolved location
+        const loc = CFG.loc || {};
+        if (typeof loc.lat === 'number' && typeof loc.lon === 'number') {
+          const [rx, ry, rz] = rv(ll2v(loc.lat, loc.lon));
+          if (rz > 0.02) {
+            const alpha = Math.min(1, (rz - 0.02) * 6);
+            const sx = cx + rx * GR, sy = cy - ry * GR;
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduced) {
+              ctx.beginPath();
+              ctx.arc(sx, sy, 9, 0, Math.PI * 2);
+              ctx.strokeStyle = `rgba(${PAL.acRgb}, 0.3)`;
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+            } else {
+              const cyc = (performance.now() % 1800) / 1800;
+              ctx.beginPath();
+              ctx.arc(sx, sy, 4 + cyc * 8, 0, Math.PI * 2);
+              ctx.strokeStyle = `rgba(${PAL.acRgb}, ${0.45 * (1 - cyc)})`;
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+            }
+            ctx.beginPath();
+            ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${PAL.acRgb}, ${0.95 * alpha})`;
+            ctx.fill();
+
+            if (pins) {
+              let ts2 = '--:--';
+              try { ts2 = now.toLocaleTimeString('en-GB', { timeZone: loc.tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 }); } catch(e) {}
+              const cr2 = cont.getBoundingClientRect();
+              const pin = document.createElement('div');
+              pin.className = 'cpin cpin--here';
+              pin.style.left = (sx / W * cr2.width) + 'px';
+              pin.style.top = (sy / H * cr2.height) + 'px';
+              pin.style.opacity = alpha;
+              pin.innerHTML = `<div class="cp-time">${ts2}</div><div class="cp-name">${loc.label || 'You'}</div>`;
+              pins.appendChild(pin);
+            }
+          }
+        }
       }
       requestAnimationFrame(drawFrame);
     })();
+
+    // Location UI wiring
+    $('#btnLocGps').addEventListener('click', () => {
+      CFG.loc.mode = 'auto';
+      resolveLocation({ allowPrompt: true });
+    });
+    $('#btnLocRefresh').addEventListener('click', () => {
+      resolveLocation({ allowPrompt: false });
+    });
+    $('#locManual').addEventListener('change', e => {
+      const v = e.target.value;
+      if (v === 'auto') {
+        CFG.loc = { mode: 'auto' };
+        saveConfig();
+        resolveLocation({ allowPrompt: false });
+      } else if (v === 'device') {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        CFG.loc = { mode: 'device', tz, label: labelFromZone(tz), src: 'device', at: Date.now() };
+        saveConfig();
+        applyLocation();
+      } else {
+        const city = CITIES.find(c => c.tz === v);
+        CFG.loc = { mode: 'manual', tz: v, label: city ? city.name : labelFromZone(v), src: 'manual', lat: city ? city.lat : undefined, lon: city ? city.lon : undefined, at: Date.now() };
+        saveConfig();
+        applyLocation();
+      }
+    });
 
     // Settings Modal Form Event Handlers
     $('#cfg24h').addEventListener('change', e => { CFG.h24 = e.target.checked; saveConfig(); });
@@ -908,9 +1330,15 @@
     // Keyboard Shortcuts
     document.addEventListener('keydown', e => {
       const tag = document.activeElement.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-      if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
-      if (e.key === 'Escape') { $$('.tool-modal').forEach(m => m.classList.remove('open')); }
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      const k = e.key.toLowerCase();
+      if (k === 'f') { e.preventDefault(); toggleFullscreen(); }
+      else if (k === 's') { openModal('stopwatch'); }
+      else if (k === 't') { openModal('timer'); }
+      else if (k === 'g') { openModal('globe'); }
+      else if (k === 'w') { openModal('world'); }
+      else if (k === 'l') { openModal('location'); }
+      else if (e.key === 'Escape') { $$('.tool-modal').forEach(m => m.classList.remove('open')); }
     });
 
     // Apply Saved Config
@@ -924,6 +1352,20 @@
     $('#c1').classList.toggle('static', !CFG.blink);
     $('#c2').classList.toggle('static', !CFG.blink);
     $('#dayHorizon').style.display = CFG.dayBar ? 'flex' : 'none';
+
+    // Boot: apply any cached location instantly (zero-flicker), then paint, then sync/resolve
+    applyLocation();
+    tick();
+    rafId = requestAnimationFrame(loop);
+    syncNTP();
+    setInterval(syncNTP, 180000);
+
+    const locAgeAtBoot = Date.now() - (CFG.loc.at || 0);
+    if (CFG.loc.mode === 'auto' && (!CFG.loc.tz || locAgeAtBoot > 12 * 3600 * 1000)) {
+      resolveLocation({ allowPrompt: false });
+    } else if (CFG.loc.mode === 'device' || CFG.loc.mode === 'manual') {
+      applyLocation();
+    }
   })();
   </script>
 

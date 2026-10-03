@@ -49,7 +49,7 @@
 
   <main id="main">
 
-    <section class="section">
+    <section class="section intro-grid">
       <div class="container">
         <div class="section-head reveal">
           <h1 class="section-title">Everything I've built and still keep running</h1>
@@ -58,31 +58,40 @@
 
         <div class="grid-2" data-reveal-stagger>
 
-          <a class="card card--feature reveal" href="/clock">
-            <div>
-              <span class="card-tag">Precision time</span>
-              <h2 class="card-title">Atomic Precision Clock</h2>
-              <p class="card-desc">A network-synced clock that measures and compensates for your device's own drift. Includes a Swiss-style analog dial, an interactive 3D globe, world clocks, a stopwatch and a timer — plus a settings panel that remembers everything locally.</p>
+          <a class="card card--feature has-media reveal" href="/clock">
+            <div class="card-media"><img src="/assets/img/projects/clock.webp" width="960" height="720" alt="The Atomic Precision Clock's digital display, showing a network-synced time and location telemetry bar" loading="lazy"></div>
+            <div class="card-body">
+              <div>
+                <span class="card-tag">Precision time</span>
+                <h2 class="card-title">Atomic Precision Clock</h2>
+                <p class="card-desc">A network-synced clock that measures and compensates for your device's own drift. Includes a Swiss-style analog dial, an interactive 3D globe, world clocks, a stopwatch and a timer — plus a settings panel that remembers everything locally.</p>
+              </div>
+              <p class="stack-meta">vanilla JS · SVG &amp; canvas · NTP-style offset sync · zero dependencies</p>
             </div>
-            <p class="stack-meta">vanilla JS · SVG &amp; canvas · NTP-style offset sync · zero dependencies</p>
           </a>
 
-          <a class="card card--feature reveal" href="/rust">
-            <div>
-              <span class="card-tag">Game logistics</span>
-              <h2 class="card-title">Rust Raid Calculator</h2>
-              <p class="card-desc">Exact explosive and sulfur costs across 13 structure tiers, with soft-side/hard-side logic, an arsenal picker that recalculates the cheapest viable path, and a user-customizable accent colour.</p>
+          <a class="card card--feature has-media reveal" href="/rust">
+            <div class="card-media"><img src="/assets/img/projects/rust.webp" width="960" height="720" alt="The Rust Raid Calculator's structure selection and materials breakdown" loading="lazy"></div>
+            <div class="card-body">
+              <div>
+                <span class="card-tag">Game logistics</span>
+                <h2 class="card-title">Rust Raid Calculator</h2>
+                <p class="card-desc">Exact explosive and sulfur costs across 13 structure tiers, with soft-side/hard-side logic, an arsenal picker that recalculates the cheapest viable path, and a user-customizable accent colour.</p>
+              </div>
+              <p class="stack-meta">vanilla JS · localStorage state</p>
             </div>
-            <p class="stack-meta">vanilla JS · localStorage state</p>
           </a>
 
-          <a class="card card--feature reveal" href="/tennis">
-            <div>
-              <span class="card-tag">Performance tracking</span>
-              <h2 class="card-title">Tennis Match Tracker</h2>
-              <p class="card-desc">An offline-first scorekeeper built for actually holding a phone courtside: point-by-point entry, full set timelines, ace and double-fault counts, and a head-to-head momentum view that shows who was winning which stretch of the match.</p>
+          <a class="card card--feature has-media reveal" href="/tennis">
+            <div class="card-media"><img src="/assets/img/projects/tennis.webp" width="430" height="322" alt="The Tennis Match Tracker's match list, showing two tracked matches with live scores" loading="lazy"></div>
+            <div class="card-body">
+              <div>
+                <span class="card-tag">Performance tracking</span>
+                <h2 class="card-title">Tennis Match Tracker</h2>
+                <p class="card-desc">An offline-first scorekeeper built for actually holding a phone courtside: point-by-point entry, full set timelines, ace and double-fault counts, and a head-to-head momentum view that shows who was winning which stretch of the match.</p>
+              </div>
+              <p class="stack-meta">vanilla JS · mobile-first · offline-first · German UI</p>
             </div>
-            <p class="stack-meta">vanilla JS · mobile-first · offline-first · German UI</p>
           </a>
 
           <a class="card card--feature reveal" href="https://github.com/spananide/spananirust" target="_blank" rel="noopener">

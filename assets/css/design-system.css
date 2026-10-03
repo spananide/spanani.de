@@ -628,6 +628,75 @@ ul { list-style: none; }
 }
 .card:hover .card-arrow { color: var(--accent); transform: translate(3px, -3px); }
 
+/* --- Intro dot-grid texture (hero + page-intro sections only) ------------
+   A faint, masked dot pattern for the one or two sections per page that
+   should feel like a "cover" rather than flat black. Deliberately not used
+   site-wide — the rest of the site stays flat on purpose. --------------- */
+.intro-grid { position: relative; isolation: isolate; }
+.intro-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--line-strong) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 28% 25%, black 0%, transparent 72%);
+  mask-image: radial-gradient(ellipse 60% 55% at 28% 25%, black 0%, transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+}
+.intro-grid > .container { position: relative; z-index: 1; }
+
+/* --- Status strip (honest, factual trust line under the hero) ------------ */
+.status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.status-strip .dot-live { flex-shrink: 0; }
+.status-sep { color: var(--ink-faint); }
+
+/* --- Project cards with a real screenshot (homepage + /projects) --------- */
+.card--feature.has-media { padding: 0; overflow: hidden; }
+.card-media {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--paper-sunk);
+  border-bottom: 1px solid var(--line);
+}
+.card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--dur-slow) var(--ease);
+}
+.card:hover .card-media img { transform: scale(1.04); }
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: 32px;
+  flex: 1;
+}
+
+/* --- Typing-cursor flourish (hero code panel) ----------------------------- */
+.type-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 1em;
+  background: var(--ac, var(--accent));
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  animation: blinkCursor 1s step-end infinite;
+}
+@keyframes blinkCursor { 50% { opacity: 0; } }
+
 /* --- Legal links (no footer — Impressum/Datenschutz must still be
    reachable from every page, so this small fixed link replaces it) ------- */
 .legal-links {
@@ -1061,4 +1130,5 @@ ul { list-style: none; }
     opacity: 1 !important;
     transform: none !important;
   }
+  .type-cursor { animation: none !important; }
 }

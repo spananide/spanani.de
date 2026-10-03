@@ -53,7 +53,7 @@
 
   <main id="main">
 
-    <section class="hero">
+    <section class="hero intro-grid">
       <div class="container">
         <div class="hero-grid">
           <div class="hero-inner">
@@ -63,20 +63,25 @@
               <a class="btn btn-primary btn-lg" href="/services">See what I build</a>
               <a class="btn btn-secondary btn-lg" href="/projects">Browse my projects</a>
             </div>
+            <div class="status-strip">
+              <span class="dot-live"></span>
+              <span>Taking new projects</span>
+              <span class="status-sep">·</span>
+              <span>Solo, no subcontractors</span>
+              <span class="status-sep">·</span>
+              <span>4 live projects, all real</span>
+              <span class="status-sep">·</span>
+              <span>Replies within a day</span>
+            </div>
           </div>
           <div class="code-panel reveal" aria-hidden="true">
             <div class="code-panel-head">
               <span class="code-panel-dot"></span>
               <span class="code-panel-dot"></span>
               <span class="code-panel-dot"></span>
-              <span class="code-panel-name">bot.js</span>
+              <span class="code-panel-name" data-typing-filename>bot.js</span>
             </div>
-            <pre><span class="tok-com">// spanani / discord-bot</span>
-client.<span class="tok-fn">on</span>(<span class="tok-str">'interactionCreate'</span>, <span class="tok-kw">async</span> i =&gt; {
-  <span class="tok-kw">if</span> (!i.isChatInputCommand()) <span class="tok-kw">return</span>;
-  <span class="tok-kw">const</span> cmd = commands.<span class="tok-fn">get</span>(i.commandName);
-  <span class="tok-kw">await</span> cmd.<span class="tok-fn">execute</span>(i);
-});</pre>
+            <pre data-typing-pre><div><span class="tok-com">// spanani / discord-bot</span></div><div>client.<span class="tok-fn">on</span>(<span class="tok-str">'interactionCreate'</span>, <span class="tok-kw">async</span> i =&gt; {</div><div>&nbsp;&nbsp;<span class="tok-kw">if</span> (!i.isChatInputCommand()) <span class="tok-kw">return</span>;</div><div>&nbsp;&nbsp;<span class="tok-kw">const</span> cmd = commands.<span class="tok-fn">get</span>(i.commandName);</div><div>&nbsp;&nbsp;<span class="tok-kw">await</span> cmd.<span class="tok-fn">execute</span>(i);</div><div>});<span class="type-cursor"></span></div></pre>
           </div>
         </div>
       </div>
@@ -147,22 +152,28 @@ client.<span class="tok-fn">on</span>(<span class="tok-str">'interactionCreate'<
         </div>
         <div class="grid-2" data-reveal-stagger>
 
-          <a class="card card--feature reveal" href="/clock">
-            <div>
-              <span class="card-tag">Precision time</span>
-              <h3 class="card-title">Atomic Precision Clock</h3>
-              <p class="card-desc">A network-synced clock with drift compensation, a Swiss analog dial, an interactive 3D globe, world clocks, a stopwatch and a timer.</p>
+          <a class="card card--feature has-media reveal" href="/clock">
+            <div class="card-media"><img src="/assets/img/projects/clock.webp" width="960" height="720" alt="The Atomic Precision Clock's digital display, showing a network-synced time and location telemetry bar" loading="lazy"></div>
+            <div class="card-body">
+              <div>
+                <span class="card-tag">Precision time</span>
+                <h3 class="card-title">Atomic Precision Clock</h3>
+                <p class="card-desc">A network-synced clock with drift compensation, a Swiss analog dial, an interactive 3D globe, world clocks, a stopwatch and a timer.</p>
+              </div>
+              <p class="stack-meta"><span data-local-clock>--:--:--</span> · vanilla JS · no dependencies</p>
             </div>
-            <p class="stack-meta"><span data-local-clock>--:--:--</span> · vanilla JS · no dependencies</p>
           </a>
 
-          <a class="card card--feature reveal" href="/rust">
-            <div>
-              <span class="card-tag">Game logistics</span>
-              <h3 class="card-title">Rust Raid Calculator</h3>
-              <p class="card-desc">Exact explosive and sulfur costs across 13 structure tiers, with soft/hard-side logic and a custom accent picker.</p>
+          <a class="card card--feature has-media reveal" href="/rust">
+            <div class="card-media"><img src="/assets/img/projects/rust.webp" width="960" height="720" alt="The Rust Raid Calculator's structure selection and materials breakdown" loading="lazy"></div>
+            <div class="card-body">
+              <div>
+                <span class="card-tag">Game logistics</span>
+                <h3 class="card-title">Rust Raid Calculator</h3>
+                <p class="card-desc">Exact explosive and sulfur costs across 13 structure tiers, with soft/hard-side logic and a custom accent picker.</p>
+              </div>
+              <p class="stack-meta">vanilla JS · localStorage state</p>
             </div>
-            <p class="stack-meta">vanilla JS · localStorage state</p>
           </a>
 
         </div>
@@ -218,6 +229,86 @@ client.<span class="tok-fn">on</span>(<span class="tok-str">'interactionCreate'<
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  (function () {
+    'use strict';
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var pre = document.querySelector('[data-typing-pre]');
+    var nameEl = document.querySelector('[data-typing-filename]');
+    if (!pre) return;
+
+    var files = ['bot.js', 'raid-calc.js', 'clock.js'];
+    var snippets = [
+      [
+        '<span class="tok-com">// spanani / discord-bot</span>',
+        'client.<span class="tok-fn">on</span>(<span class="tok-str">\'interactionCreate\'</span>, <span class="tok-kw">async</span> i =&gt; {',
+        '&nbsp;&nbsp;<span class="tok-kw">if</span> (!i.isChatInputCommand()) <span class="tok-kw">return</span>;',
+        '&nbsp;&nbsp;<span class="tok-kw">const</span> cmd = commands.<span class="tok-fn">get</span>(i.commandName);',
+        '&nbsp;&nbsp;<span class="tok-kw">await</span> cmd.<span class="tok-fn">execute</span>(i);',
+        '});'
+      ],
+      [
+        '<span class="tok-com">// spanani / raid-calculator</span>',
+        '<span class="tok-kw">const</span> cost = <span class="tok-fn">cheapestPath</span>(target, {',
+        '&nbsp;&nbsp;softSide: <span class="tok-kw">true</span>, arsenal',
+        '});',
+        '<span class="tok-fn">render</span>(cost); <span class="tok-com">// zero deps</span>'
+      ],
+      [
+        '<span class="tok-com">// spanani / atomic-clock</span>',
+        '<span class="tok-kw">const</span> t = <span class="tok-kw">await</span> <span class="tok-fn">syncNTP</span>();',
+        '<span class="tok-fn">renderClock</span>(t, <span class="tok-str">\'Europe/Berlin\'</span>);',
+        '<span class="tok-com">// not your device clock</span>'
+      ]
+    ];
+
+    var idx = 0;
+    var LINE_DELAY = 220;
+    var ERASE_DELAY = 70;
+    var DWELL = 3400;
+
+    function typeLines(lines, done) {
+      var li = 0;
+      function next() {
+        var prevLine = pre.lastElementChild;
+        if (prevLine) {
+          var cur = prevLine.querySelector('.type-cursor');
+          if (cur) cur.remove();
+        }
+        if (li >= lines.length) { done(); return; }
+        var row = document.createElement('div');
+        row.innerHTML = lines[li] + '<span class="type-cursor"></span>';
+        pre.appendChild(row);
+        li++;
+        setTimeout(next, LINE_DELAY);
+      }
+      next();
+    }
+
+    function eraseAll(done) {
+      function step() {
+        if (!pre.lastElementChild) { done(); return; }
+        pre.removeChild(pre.lastElementChild);
+        setTimeout(step, ERASE_DELAY);
+      }
+      step();
+    }
+
+    function cycle() {
+      idx = (idx + 1) % snippets.length;
+      eraseAll(function () {
+        if (nameEl) nameEl.textContent = files[idx];
+        typeLines(snippets[idx], function () {
+          setTimeout(cycle, DWELL);
+        });
+      });
+    }
+
+    setTimeout(cycle, DWELL);
+  })();
+  </script>
 
 </body>
 </html>

@@ -129,6 +129,14 @@ main { flex: 1; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0
 .chk { position: absolute; top: 7px; left: 7px; width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--bh); }
 .acard.on .chk { background: var(--ac); border-color: var(--ac); }
 .agroup + .agroup { margin-top: 18px; }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.presets .btn { font-size: 11.5px; padding: 6px 12px; }
+.glyph { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; background: var(--bg3); border: 1px solid var(--bh); font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--mu); }
+.acard .glyph { width: 38px; height: 38px; }
+.acard.on .glyph { color: var(--ac); border-color: rgba(var(--ac-rgb), .5); }
+.crow .glyph { width: 30px; height: 30px; font-size: 10px; }
+.bhead .glyph { width: 26px; height: 26px; font-size: 9px; }
+.mcard .glyph { width: 30px; height: 30px; margin-bottom: 4px; font-size: 10px; }
 .agroup-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .linkbtn { border: none; background: none; color: var(--ac); font-size: 11px; padding: 2px 0; }
 
@@ -324,15 +332,19 @@ footer a:hover { color: var(--text); }
     <details class="info">
       <summary><span>How raiding in Rust works</span><span>+</span></summary>
       <p>Every building block, door and deployable has a fixed amount of <b>health</b>, and every explosive does a fixed amount of damage to it. How much depends on <b>what the target is made of</b>: a rocket does the same damage to a stone, sheet metal or armored wall, but those walls have 500, 1,000 and 2,000 HP. Doors take damage differently from walls, which is why an armored door (1,000 HP) only needs 2 C4.</p>
-      <p>The numbers this calculator uses for C4, rockets, satchels, explosive 5.56 and beancans are the vanilla raid values (the same counts RustLabs lists). Things marked <span class="badge">≈</span> are estimates; check them on your server before you farm for them.</p>
+      <p>The numbers this calculator uses for C4, rockets, satchels, explosive 5.56 and beancans are the vanilla raid values (the same counts RustLabs lists). Everything marked <span class="badge">≈</span> (eco, fire, melee, siege, HV/F1/40mm and deployables) is an estimate: no reliable published table exists for those. Check them on your server before you farm for them.</p>
       <ul>
-        <li><b>Always hit the hard side.</b> All counts assume you damage the side of a wall that faces outward. Soft sides (the inside of a wall) can be farmed down with melee tools instead.</li>
-        <li><b>Explosive 5.56 is only cheap if every bullet lands.</b> Missed shots cost sulfur. In practice, budget 10–20% extra.</li>
+        <li><b>Hard side vs. soft side.</b> Explosives do the same damage from either side. Melee tools only do real damage to the soft side (the inside face, with the support beams), so pick the "soft side" walls if you can reach the inside, e.g. through a window, a peek-down or from a neighbouring base.</li>
+        <li><b>Eco raiding</b> means getting in without sulfur, or with very little. Wooden doors and wood walls burn: 2 molotovs or 1 incendiary rocket open a wooden door, and fire arrows work too. A full hatchet, salvaged axe or a couple of wooden spears will chop through a wooden door. Beancans are the cheapest real explosive. Hit <b>Eco raid</b> above the tools to switch to these.</li>
+        <li><b>Melee counts</b> are in full-durability tools: "2 × Pickaxe" means you'll wear out about two pickaxes. Bring spares or repair at a workbench. It's slow and loud, so it works best on offline or abandoned bases.</li>
+        <li><b>Fire</b> only hurts wooden things, does nothing in rain, and stops when the owner puts it out or repairs. Fire counts are the most optimistic numbers here.</li>
+        <li><b>Siege weapons</b> (Primitive update): the battering ram takes about 10 hits on a stone wall and needs high-quality metal to repair between hits. Catapult propane bombs can also be placed by hand and lit with a torch, but they do less damage that way.</li>
+        <li><b>HV rockets and F1 grenades</b> are meant for players and turrets. They're listed so you can compare, but they're almost never worth it against buildings.</li>
+        <li><b>Explosive 5.56 is only cheap if every bullet lands.</b> Missed shots cost sulfur. In practice, budget 10–20% extra (there's an accuracy setting).</li>
         <li><b>Satchels can dud.</b> They sometimes fail to go off and have to be picked up and relit. The count here assumes they all go off.</li>
         <li><b>Floors, foundations, doorways and window frames</b> have the same HP as a wall of the same tier, so they cost the same to break.</li>
-        <li><b>Mixing:</b> when the cheapest single explosive overshoots a target's HP, finishing it with something smaller (for example, 3 C4 plus explosive ammo on a sheet metal wall) can save sulfur. The planner tries every two-explosive combination for each target. Mixed counts can be off by a round or two, so bring a few spare.</li>
+        <li><b>Mixing:</b> when the cheapest single explosive overshoots a target's HP, finishing it with something smaller (for example, 3 C4 plus explosive ammo on a sheet metal wall) can save sulfur. The planner tries every two-explosive combination for each target (melee and siege are never mixed). Mixed counts can be off by a round or two, so bring a few spare.</li>
         <li><b>Gunpowder:</b> 20 sulfur + 30 charcoal makes 10 gunpowder. 1 wood burns into about 1 charcoal.</li>
-        <li><b>Not included:</b> HV rockets and F1 grenades barely scratch building blocks, so they're never worth crafting for a raid. Siege weapons, incendiary rockets and other fire damage depend too much on the situation (rain, upkeep, repairs) to give a reliable count.</li>
       </ul>
     </details>
   </div>
@@ -347,7 +359,7 @@ footer a:hover { color: var(--text); }
         </div>
         <div class="mini">
           <div class="mstat"><b class="num" id="totGp">0</b><span>Gunpowder</span></div>
-          <div class="mstat"><b class="num" id="totItems">0</b><span>Explosives used</span></div>
+          <div class="mstat"><b class="num" id="totItems">0</b><span>Items thrown / shot</span></div>
           <div class="mstat"><b class="num" id="totTargets">0</b><span>Targets</span></div>
           <div class="mstat"><b class="num" id="totHp">0</b><span>Total HP</span></div>
         </div>
@@ -440,10 +452,12 @@ const RAW = {
   cloth:    { name: 'Cloth',        img: 'cloth.png' },
   tech:     { name: 'Tech Trash',   img: 'tech.png' },
   pipe:     { name: 'Metal Pipes',  img: 'pipes.png' },
-  wood:     { name: 'Wood (for charcoal)', img: 'wood.png' }
+  wood:     { name: 'Wood (incl. charcoal)', img: 'wood.png' },
+  stones:   { name: 'Stones',       img: null, glyph: 'ST' },
+  propane:  { name: 'Propane Tanks', img: null, glyph: 'PT' }
 };
 
-// Crafting recipes. `out` = how many one craft produces.
+// Crafting recipes. `out` = how many one craft produces.  ≈ = recipe not double-checked.
 const RECIPES = {
   gp:         { name: 'Gunpowder',   img: 'gp.png',      out: 10, in: { sulfur: 20, charcoal: 30 } },
   explosives: { name: 'Explosives',  img: 'gunpowder.png', out: 1, in: { gp: 50, lgf: 3, sulfur: 10, metal: 10 } },
@@ -454,42 +468,95 @@ const RECIPES = {
   rocket:     { out: 1, in: { explosives: 10, gp: 150, pipe: 2 } },
   satchel:    { out: 1, in: { beancan: 4, stash: 1, rope: 1 } },
   explo:      { out: 2, in: { gp: 20, sulfur: 10, metal: 20 } },
-  molotov:    { out: 1, in: { cloth: 10, lgf: 50 } }
+  hv:         { out: 1, in: { gp: 100, pipe: 1 } },
+  incen:      { out: 1, in: { gp: 150, lgf: 250, pipe: 2 } },          // ≈
+  f1:         { out: 1, in: { gp: 30, metal: 25 } },
+  bomb:       { out: 1, in: { propane: 1, gp: 150, explosives: 6 } },   // catapult propane bomb ≈
+  handmade:   { out: 2, in: { gp: 5, stones: 5 } },                      // ≈
+  molotov:    { out: 1, in: { cloth: 10, lgf: 50 } },
+  fireArrow:  { out: 1, in: { wood: 13, stones: 5, lgf: 5, cloth: 2 } }, // arrow + fuel ≈
+  pickaxe:    { out: 1, in: { wood: 100, metal: 125 } },
+  hatchet:    { out: 1, in: { wood: 100, metal: 75 } },
+  spear:      { out: 1, in: { wood: 300 } }
 };
 // Order in which crafted items get expanded into their ingredients (parents first).
-const EXPAND_ORDER = ['c4', 'rocket', 'satchel', 'explo', 'molotov', 'beancan', 'stash', 'rope', 'explosives', 'gp'];
+const EXPAND_ORDER = ['c4', 'rocket', 'incen', 'hv', 'bomb', 'satchel', 'explo', 'f1', 'handmade', 'molotov', 'fireArrow',
+  'pickaxe', 'hatchet', 'spear', 'beancan', 'stash', 'rope', 'explosives', 'gp'];
 
-// Raid tools.  group: what section it's listed under.  loot: can't be crafted (no sulfur counted).
-// approx: damage values are estimates, not table values.
+// Raid tools.
+//   group:  section in the arsenal.   loot: not craftable, nothing counted.
+//   unit:   'item' (default) = one thrown/shot/placed item, 'tool' = one full-durability melee tool,
+//           'hits' = swings of a siege weapon.   approx: damage values are estimates.
 const TOOLS = {
-  c4:      { name: 'Timed Explosive (C4)', short: 'C4',            img: 'c4.png',      group: 'main', needs: 'Workbench 3' },
-  rocket:  { name: 'Rocket',               short: 'Rocket',        img: 'rocket.png',  group: 'main', needs: 'Rocket Launcher · WB3' },
-  satchel: { name: 'Satchel Charge',       short: 'Satchel',       img: 'satchel.png', group: 'main', needs: 'Workbench 1' },
-  explo:   { name: 'Explosive 5.56 Ammo',  short: 'Explo Ammo',    img: 'explo.png',   group: 'main', needs: 'Any 5.56 rifle · WB3' },
-  beancan: { name: 'Beancan Grenade',      short: 'Beancan',       img: 'beancan.png', group: 'main', needs: 'Workbench 1' },
-  he40:    { name: '40mm HE Grenade',      short: '40mm HE',       img: '40mm_he.png', group: 'extra', needs: 'Grenade Launcher · loot', loot: true, approx: true },
-  molotov: { name: 'Molotov Cocktail',     short: 'Molotov',       img: 'molotov.png', group: 'extra', needs: 'Wooden targets only', approx: true }
-};
+  c4:        { name: 'Timed Explosive (C4)', short: 'C4',          img: 'c4.png',      group: 'main',  needs: 'Workbench 3' },
+  rocket:    { name: 'Rocket',               short: 'Rocket',      img: 'rocket.png',  group: 'main',  needs: 'Rocket Launcher · WB3' },
+  satchel:   { name: 'Satchel Charge',       short: 'Satchel',     img: 'satchel.png', group: 'main',  needs: 'Workbench 1' },
+  explo:     { name: 'Explosive 5.56 Ammo',  short: 'Explo Ammo',  img: 'explo.png',   group: 'main',  needs: 'Any 5.56 rifle · WB3' },
+  beancan:   { name: 'Beancan Grenade',      short: 'Beancan',     img: 'beancan.png', group: 'main',  needs: 'Workbench 1' },
 
-// Damage one item deals to a target of each damage profile.
+  he40:      { name: '40mm HE Grenade',      short: '40mm HE',     img: '40mm_he.png', group: 'launch', needs: 'Grenade Launcher · loot', loot: true, approx: true },
+  hv:        { name: 'High Velocity Rocket', short: 'HV Rocket',   img: 'hv.png',      group: 'launch', needs: 'Rocket Launcher · WB2', approx: true },
+  f1:        { name: 'F1 Grenade',           short: 'F1 Grenade',  img: 'f1.png',      group: 'launch', needs: 'Workbench 2', approx: true },
+
+  molotov:   { name: 'Molotov Cocktail',     short: 'Molotov',     img: 'molotov.png', group: 'fire',  needs: 'Wood only · Workbench 1', approx: true },
+  fireArrow: { name: 'Fire Arrow',           short: 'Fire Arrow',  img: null, glyph: 'FA', group: 'fire', needs: 'Any bow · wood only', approx: true },
+  incen:     { name: 'Incendiary Rocket',    short: 'Incen Rocket', img: 'incen.png',  group: 'fire',  needs: 'Rocket Launcher · wood only', approx: true },
+  handmade:  { name: 'Handmade Shell',       short: 'Handmade Shell', img: 'handmade.png', group: 'fire', needs: 'Shotgun · wooden door / TC', approx: true },
+
+  jackhammer:{ name: 'Jackhammer',           short: 'Jackhammer',  img: 'jackhammer.png', group: 'melee', unit: 'tool', needs: 'Loot · soft side', loot: true, approx: true },
+  hatchet:   { name: 'Hatchet',              short: 'Hatchet',     img: null, glyph: 'HA', group: 'melee', unit: 'tool', needs: 'Workbench 1 · soft side', approx: true },
+  pickaxe:   { name: 'Pickaxe',              short: 'Pickaxe',     img: 'pickaxe.png', group: 'melee', unit: 'tool', needs: 'Workbench 1 · soft side', approx: true },
+  salvAxe:   { name: 'Salvaged Axe',         short: 'Salvaged Axe', img: null, glyph: 'SA', group: 'melee', unit: 'tool', needs: 'Loot / WB1 · soft side', loot: true, approx: true },
+  spear:     { name: 'Wooden Spear',         short: 'Wooden Spear', img: null, glyph: 'SP', group: 'melee', unit: 'tool', needs: 'No workbench · wood only', approx: true },
+
+  ram:       { name: 'Battering Ram',        short: 'Ram',         img: null, glyph: 'BR', group: 'siege', unit: 'hits', needs: 'Siege weapon · HQM to repair', loot: true, lootText: 'build a ram', approx: true },
+  bomb:      { name: 'Catapult Propane Bomb', short: 'Propane Bomb', img: null, glyph: 'PB', group: 'siege', needs: 'Catapult (or placed by hand)', approx: true }
+};
+const GROUPS = [
+  ['main',   'Explosives'],
+  ['launch', 'Launchers & grenades'],
+  ['fire',   'Fire & shotgun (eco)'],
+  ['melee',  'Melee (eco) · walls only from the soft side'],
+  ['siege',  'Siege weapons']
+];
+const PRESETS = {
+  boom: ['c4', 'rocket', 'satchel', 'explo', 'beancan'],
+  // Eco = things you can craft without much sulfur. Loot (jackhammer, salvaged axe) and siege stay off until you say you have them.
+  eco:  ['molotov', 'fireArrow', 'incen', 'handmade', 'hatchet', 'pickaxe', 'spear', 'beancan', 'satchel'],
+  all:  Object.keys(TOOLS)
+};
+const unitOf = k => TOOLS[k].unit || 'item';
+
+// Damage one unit deals to a target of each damage profile.
 // Main explosives are fitted to the vanilla raid tables (count = ceil(HP / damage)).
+// Everything else is an estimate (melee = damage over one tool's full durability, ram = per hit).
+const BOOM = {
+  //            C4    Rocket  Satchel Explo   Beancan  | estimates →
+  wood:     { c4: 275, rocket: 137.5, satchel: 100, explo: 5.15,  beancan: 19.5, he40: 55,  hv: 60,  f1: 25, bomb: 250, ram: 100, molotov: 85,  fireArrow: 15, incen: 250 },
+  stone:    { c4: 275, rocket: 137.5, satchel: 52,  explo: 2.71,  beancan: 11,   he40: 36,  hv: 30,  f1: 8,  bomb: 170, ram: 50 },
+  metal:    { c4: 275, rocket: 137.5, satchel: 44,  explo: 2.504, beancan: 8.98, he40: 34,  hv: 25,  f1: 6,  bomb: 140, ram: 40 },
+  hqm:      { c4: 275, rocket: 137.5, satchel: 44,  explo: 2.504, beancan: 8.98, he40: 34,  hv: 25,  f1: 6,  bomb: 140, ram: 40 },
+  woodDoor: { c4: 400, rocket: 210,   satchel: 110, explo: 10.6,  beancan: 35,   he40: 70,  hv: 120, f1: 50, bomb: 300, ram: 100, molotov: 110, fireArrow: 20, incen: 250, handmade: 4.5,
+              jackhammer: 600, pickaxe: 250, salvAxe: 400, hatchet: 200, spear: 100 },
+  sheetDoor:{ c4: 400, rocket: 140,   satchel: 70,  explo: 3.98,  beancan: 14,   he40: 38,  hv: 50,  f1: 15, bomb: 170, ram: 50 },
+  garage:   { c4: 320, rocket: 210,   satchel: 70,  explo: 4.01,  beancan: 14.4, he40: 38,  hv: 50,  f1: 15, bomb: 170, ram: 50 },
+  armorDoor:{ c4: 550, rocket: 260,   satchel: 85,  explo: 5.01,  beancan: 17.5, he40: 40,  hv: 40,  f1: 12, bomb: 200, ram: 40 },
+  tc:       { c4: 300, rocket: 200,   satchel: 120, explo: 12,    beancan: 40,   he40: 60,  hv: 100, f1: 50, molotov: 100, fireArrow: 10, handmade: 5,
+              jackhammer: 400, pickaxe: 200, salvAxe: 200, hatchet: 200, spear: 100 },
+  turret:   { c4: 550, rocket: 275,   satchel: 100, explo: 10,    beancan: 30,   he40: 100, hv: 150, f1: 30 }
+};
+// Soft side of a wall: explosives do the same damage, but melee tools work too.
 const DMG = {
-  //            C4    Rocket  Satchel Explo   Beancan  40mm HE≈  Molotov≈
-  wood:     { c4: 275, rocket: 137.5, satchel: 100, explo: 5.15,  beancan: 19.5, he40: 55 },
-  stone:    { c4: 275, rocket: 137.5, satchel: 52,  explo: 2.71,  beancan: 11,   he40: 36 },
-  metal:    { c4: 275, rocket: 137.5, satchel: 44,  explo: 2.504, beancan: 8.98, he40: 34 },
-  hqm:      { c4: 275, rocket: 137.5, satchel: 44,  explo: 2.504, beancan: 8.98, he40: 34 },
-  woodDoor: { c4: 400, rocket: 210,   satchel: 110, explo: 10.6,  beancan: 35,   he40: 70, molotov: 110 },
-  sheetDoor:{ c4: 400, rocket: 140,   satchel: 70,  explo: 3.98,  beancan: 14,   he40: 38 },
-  garage:   { c4: 320, rocket: 210,   satchel: 70,  explo: 4.01,  beancan: 14.4, he40: 38 },
-  armorDoor:{ c4: 550, rocket: 260,   satchel: 85,  explo: 5.01,  beancan: 17.5, he40: 40 },
-  tc:       { c4: 300, rocket: 200,   satchel: 120, explo: 12,    beancan: 40,   he40: 60 },
-  turret:   { c4: 550, rocket: 275,   satchel: 100, explo: 10,    beancan: 30,   he40: 100 }
+  ...BOOM,
+  woodSoft:  { ...BOOM.wood,  jackhammer: 600, pickaxe: 300, salvAxe: 400, hatchet: 250, spear: 125 },
+  stoneSoft: { ...BOOM.stone, jackhammer: 500, pickaxe: 170, salvAxe: 100, hatchet: 70 },
+  metalSoft: { ...BOOM.metal, jackhammer: 250, pickaxe: 80,  salvAxe: 50,  hatchet: 35 },
+  hqmSoft:   { ...BOOM.hqm,   jackhammer: 200, pickaxe: 60,  salvAxe: 40,  hatchet: 25 }
 };
 
 // Targets.  p = damage profile.  approx = whole target is an estimate.
 const CATS = [
-  { id: 'build',  name: 'Building', note: 'Walls, floors, foundations, doorways and window frames of the same tier all share the same HP.' },
+  { id: 'build',  name: 'Building', note: 'Walls, floors, foundations, doorways and window frames of the same tier all share the same HP. The soft side is the inside face of a wall (the side with the support beams); only there can melee tools do real damage.' },
   { id: 'doors',  name: 'Doors' },
   { id: 'ext',    name: 'Externals', note: 'High external walls and gates.' },
   { id: 'deploy', name: 'Deployables', note: 'Deployable values are estimates. Turrets and the TC are usually shot down with regular guns instead.' }
@@ -499,6 +566,10 @@ const TARGETS = [
   { id: 'sWall',  cat: 'build', name: 'Stone Wall',           hp: 500,  p: 'stone', img: 'stone_wall.png' },
   { id: 'mWall',  cat: 'build', name: 'Sheet Metal Wall',     hp: 1000, p: 'metal', img: 'metal_wall.png' },
   { id: 'aWall',  cat: 'build', name: 'Armored Wall',         hp: 2000, p: 'hqm',   img: 'armored_wall.png' },
+  { id: 'wWallS', cat: 'build', name: 'Wood Wall · soft side',        hp: 250,  p: 'woodSoft',  img: 'wood_wall.png' },
+  { id: 'sWallS', cat: 'build', name: 'Stone Wall · soft side',       hp: 500,  p: 'stoneSoft', img: 'stone_wall.png' },
+  { id: 'mWallS', cat: 'build', name: 'Sheet Metal Wall · soft side', hp: 1000, p: 'metalSoft', img: 'metal_wall.png' },
+  { id: 'aWallS', cat: 'build', name: 'Armored Wall · soft side',     hp: 2000, p: 'hqmSoft',   img: 'armored_wall.png' },
 
   { id: 'wDoor',  cat: 'doors', name: 'Wooden Door',          hp: 200,  p: 'woodDoor',  img: 'wood_door.png' },
   { id: 'wDDoor', cat: 'doors', name: 'Wooden Double Door',   hp: 200,  p: 'woodDoor',  img: 'wood_door.png' },
@@ -567,7 +638,7 @@ const toolSulfur = k => TOOLS[k].loot ? 0 : (unitRaw(k).sulfur || 0);
 // ============================================================
 const KEY = 'spananiRaidV2';
 const DEF = { ac: '#8b7dff', rate: 1, acc: 100, goal: 'sulfur', mix: true, cat: 'build',
-  tools: { c4: true, rocket: true, satchel: true, explo: true, beancan: true, he40: false, molotov: false },
+  tools: Object.fromEntries(Object.keys(TOOLS).map(k => [k, PRESETS.boom.includes(k)])),
   qty: {}, force: {} };
 let S = structuredClone(DEF);
 
@@ -649,8 +720,9 @@ function bestPlan(t) {
     const da = dmgOf(t, a), na = countFor(t.hp, da);
     consider({ [a]: na });
     if (!S.mix) continue;
+    if (unitOf(a) !== 'item') continue;
     for (const b of allowed) {
-      if (b === a) continue;
+      if (b === a || unitOf(b) !== 'item') continue;
       const db = dmgOf(t, b);
       for (let i = 1; i < na; i++) {
         const rest = t.hp - i * da;
@@ -677,18 +749,36 @@ function calc() {
   const craftBag = {};
   for (const [k, n] of Object.entries(total)) if (!TOOLS[k].loot) craftBag[k] = n;
   const { raw, crafted } = expand(craftBag);
-  raw.wood = raw.charcoal || 0;
+  raw.wood = (raw.wood || 0) + (raw.charcoal || 0);
   return { rows, total, raw, crafted, blocked, nTargets, hp };
 }
 
 // ============================================================
 // RENDER
 // ============================================================
-function img(file, alt = '') {
-  return file ? `<img src="${IMG}${file}" alt="${esc(alt)}" loading="lazy" onerror="this.style.visibility='hidden'">` : '';
+function img(file, alt = '', glyph = '') {
+  if (file) return `<img src="${IMG}${file}" alt="${esc(alt)}" loading="lazy" onerror="this.style.visibility='hidden'">`;
+  return glyph ? `<span class="glyph" aria-hidden="true">${esc(glyph)}</span>` : '';
+}
+const toolImg = k => img(TOOLS[k].img, TOOLS[k].name, TOOLS[k].glyph);
+function unitText(k, n) {
+  const T = TOOLS[k];
+  if (unitOf(k) === 'hits') return `${fmt(n)} ${T.short} hit${n === 1 ? '' : 's'}`;
+  if (unitOf(k) === 'tool') return `${fmt(n)} × ${T.short} (full durability)`;
+  return `${fmt(n)} × ${T.short}`;
 }
 function comboText(combo) {
-  return Object.entries(combo).map(([k, n]) => `${fmt(n)} × ${TOOLS[k].short}`).join(' + ');
+  return Object.entries(combo).map(([k, n]) => unitText(k, n)).join(' + ');
+}
+// Short cost line for an arsenal card: sulfur if it uses any, otherwise its main material.
+function costLabel(k) {
+  const T = TOOLS[k];
+  if (T.loot) return { text: T.lootText || 'loot', free: true };
+  const s = toolSulfur(k);
+  if (s) return { text: fmt(s) + ' sulfur', free: false };
+  const r = unitRaw(k);
+  const main = ['lgf', 'metal', 'wood', 'cloth'].find(m => r[m]);
+  return { text: main ? `${fmt(r[main])} ${RAW[main].name.replace(/ \(.*\)/, '').toLowerCase()}` : 'no sulfur', free: true };
 }
 
 function renderTabs() {
@@ -726,17 +816,22 @@ function renderArsenal() {
       <div class="agroup-h"><span class="hint">${title}</span><button class="linkbtn" data-group="${g}">${allOn ? 'Block all' : 'Allow all'}</button></div>
       <div class="agrid">${keys.map(k => {
         const T = TOOLS[k];
-        const s = toolSulfur(k);
+        const c = costLabel(k);
         return `<button class="acard ${S.tools[k] ? 'on' : ''}" data-tool="${k}" title="${esc(T.name)} — ${esc(T.needs)}">
           <span class="chk"></span>${T.approx ? '<span class="badge">≈</span>' : ''}
-          ${img(T.img, T.name)}
+          ${toolImg(k)}
           <span class="aname">${esc(T.short)}</span>
-          <span class="acost ${s ? '' : 'free'} num">${T.loot ? 'loot' : s ? fmt(s) + ' sulfur' : 'no sulfur'}</span>
+          <span class="acost ${c.free ? 'free' : ''} num">${esc(c.text)}${unitOf(k) === 'tool' ? ' / tool' : ''}</span>
         </button>`;
       }).join('')}</div>
     </div>`;
   };
-  $('#arsenal').innerHTML = group('main', 'Explosives') + group('extra', 'Situational');
+  const presets = `<div class="presets">
+    <button class="btn" data-preset="boom">Boom only</button>
+    <button class="btn" data-preset="eco">Eco raid</button>
+    <button class="btn" data-preset="all">Everything</button>
+  </div>`;
+  $('#arsenal').innerHTML = presets + GROUPS.map(([g, t]) => group(g, t)).join('');
 }
 
 function renderOpts() {
@@ -748,7 +843,7 @@ function renderResults() {
   const R = calc();
   const sulfur = R.raw.sulfur || 0;
   const gp = R.crafted.gp || 0;
-  const items = Object.values(R.total).reduce((a, b) => a + b, 0);
+  const items = Object.entries(R.total).reduce((a, [k, n]) => a + (unitOf(k) === 'item' ? n : 0), 0);
 
   $('#totSulfur').textContent = fmt(sulfur);
   $('#totGp').textContent = fmt(gp);
@@ -766,24 +861,26 @@ function renderResults() {
     let html = list.map(([k, n]) => {
       const T = TOOLS[k];
       const made = k === 'explo' && R.crafted.explo > n ? ` · crafts ${fmt(R.crafted.explo)} (comes in 2s)` : '';
+      const unit = unitOf(k) === 'tool' ? ' · full-durability tools' : unitOf(k) === 'hits' ? ' · hits' : '';
+      const s = toolSulfur(k) * n;
       return `<div class="crow">
-        ${img(T.img, T.name)}
-        <div class="cn"><b>${esc(T.name)}</b><span>${esc(T.needs)}${made}</span></div>
-        <span class="cs num">${T.loot ? 'from loot' : fmt(toolSulfur(k) * n) + ' S'}</span>
+        ${toolImg(k)}
+        <div class="cn"><b>${esc(T.name)}</b><span>${esc(T.needs)}${unit}${made}</span></div>
+        <span class="cs num">${T.loot ? (T.lootText || 'from loot') : s ? fmt(s) + ' S' : 'no sulfur'}</span>
         <span class="cq num">${fmt(n)}</span>
       </div>`;
     }).join('');
     if (R.blocked.length) {
-      html += `<div class="empty bad">No allowed explosive can break: ${R.blocked.map(t => esc(t.name)).join(', ')}. Allow more tools.</div>`;
+      html += `<div class="empty bad">Nothing you allowed can break: ${R.blocked.map(t => esc(t.name)).join(', ')}. Allow more tools.</div>`;
     }
     craft.innerHTML = html || '<div class="empty bad">Nothing allowed can break these targets.</div>';
     $('#craftHint').textContent = S.acc < 100 && R.total.explo ? `explo at ${S.acc}% accuracy` : '';
   }
 
   // Raw materials
-  $('#matGrid').innerHTML = Object.entries(RAW).map(([k, r]) => {
+  $('#matGrid').innerHTML = Object.entries(RAW).filter(([k, r]) => !r.glyph || R.raw[k]).map(([k, r]) => {
     const v = R.raw[k] || 0;
-    return `<div class="mcard ${v ? '' : 'zero'}">${img(r.img, r.name)}<b class="num">${fmt(v)}</b><span>${r.name}</span></div>`;
+    return `<div class="mcard ${v ? '' : 'zero'}">${img(r.img, r.name, r.glyph)}<b class="num">${fmt(v)}</b><span>${r.name}</span></div>`;
   }).join('');
 
   const inter = ['gp', 'explosives', 'beancan', 'stash', 'rope'].map(k => {
@@ -886,8 +983,11 @@ $('#targetList').addEventListener('focusout', e => {
 $('#targetList').addEventListener('focusin', e => { if (e.target.classList.contains('qin')) e.target.select(); });
 
 $('#arsenal').addEventListener('click', e => {
+  const pr = e.target.closest('[data-preset]');
   const g = e.target.closest('[data-group]');
-  if (g) {
+  if (pr) {
+    Object.keys(TOOLS).forEach(k => S.tools[k] = PRESETS[pr.dataset.preset].includes(k));
+  } else if (g) {
     const keys = Object.keys(TOOLS).filter(k => TOOLS[k].group === g.dataset.group);
     const allOn = keys.every(k => S.tools[k]);
     keys.forEach(k => S.tools[k] = !allOn);

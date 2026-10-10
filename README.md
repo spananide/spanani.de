@@ -34,7 +34,7 @@ framework, no build step, no backend — deployed on GitHub Pages from
 | `/contact` | Discord and email, both click-to-copy. No contact form, because there's nothing behind it to send one to. |
 | `/impressum`, `/datenschutz` | The German legal pages a site like this needs. |
 | `/clock` | A network-synced clock: digital and analog dial, a 3D-globe world clock, a stopwatch, a timer, settings that stick via `localStorage`. |
-| `/rust` | A raid-cost calculator for the game Rust. Sulfur, explosives, structure tiers, the lot. |
+| `/rust` | A raid calculator for the game Rust: pick walls, doors and deployables, choose which explosives you can use, and get the cheapest raid path (mixed combos included) with sulfur, gunpowder and every raw material. |
 | `/tennis` | An offline-first match tracker built mobile-first. |
 | `/rustempire` | A separate Rust server-management tool, kept in its own corner of this repo. |
 

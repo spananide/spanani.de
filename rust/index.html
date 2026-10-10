@@ -2,900 +2,947 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- ================= SEO OPTIMIZATION ================= -->
-<title>Rust Raid Calculator 2026 - Plan Your Wipe | spanani</title>
-<meta name="description" content="The most advanced Rust Raid Calculator. Calculate exact Sulfur, Gunpowder, Node, and Explosive costs for raiding doors, walls, and deployables in Rust. Find the cheapest path.">
-<meta name="keywords" content="Rust Raid Calculator, Rust Calculator, Raid Calculator, Rust Sulfur Calculator, Rust Explosives, C4, Rockets, Satchel, Rust Wipe, spanani">
+<title>Rust Raid Calculator 2026 – Sulfur, C4, Rockets & Explo | spanani</title>
+<meta name="description" content="Rust raid calculator: pick walls, doors and deployables, choose your explosives, and get the cheapest raid path — exact C4, rocket, satchel, explosive ammo and beancan counts, sulfur, gunpowder and every raw material.">
+<meta name="keywords" content="Rust Raid Calculator, Rust Sulfur Calculator, Rust C4, Rust Rockets, Satchel, Explosive Ammo, Rust Raid Cost, spanani">
 <meta name="author" content="spanani">
 <meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0c0b10">
+<link rel="canonical" href="https://spanani.de/rust">
 
-<!-- Open Graph / Social Media -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Ultimate Rust Raid Calculator">
-<meta property="og:description" content="Calculate your Rust raid costs instantly. Find the cheapest sulfur and gunpowder path for your next offline or online raid.">
+<meta property="og:title" content="Rust Raid Calculator">
+<meta property="og:description" content="Cheapest raid path for any base: explosives, sulfur, gunpowder and raw materials, with mixed-explosive combos.">
 <meta property="og:site_name" content="spanani.de">
+<meta property="og:url" content="https://spanani.de/rust">
 
-<!-- JSON-LD Schema (Tells Google this is a Web Tool) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "Rust Raid Calculator",
-  "url": "https://spanani.de/",
-  "description": "Calculate exact explosive, sulfur, and gunpowder costs for raiding in the game Rust.",
-  "applicationCategory": "GameUtility",
+  "url": "https://spanani.de/rust",
+  "description": "Calculate the cheapest explosives, sulfur and gunpowder needed to raid walls, doors and deployables in the game Rust.",
+  "applicationCategory": "GameApplication",
   "operatingSystem": "Any",
-  "offers": {
-    "@type": "Offer",
-    "price": "0"
-  },
-  "author": {
-    "@type": "Person",
-    "name": "spanani"
-  }
+  "offers": { "@type": "Offer", "price": "0" },
+  "author": { "@type": "Person", "name": "spanani" }
 }
 </script>
 <script>
-  if (typeof window !== 'undefined' && window.location && window.location.pathname && window.location.pathname.endsWith('/index.html')) {
-    const cleanPath = window.location.pathname.replace(/\/index\.html$/, '') || '/rust';
-    window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+  if (location.pathname.endsWith('/index.html')) {
+    history.replaceState(null, '', location.pathname.replace(/\/index\.html$/, '/') + location.search + location.hash);
   }
 </script>
-<!-- ==================================================== -->
 
 <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/assets/fonts/inter-400.woff2') format('woff2'); }
-@font-face { font-family: 'Inter'; font-style: normal; font-weight: 500; font-display: swap; src: url('/assets/fonts/inter-500.woff2') format('woff2'); }
-@font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/assets/fonts/inter-600.woff2') format('woff2'); }
-@font-face { font-family: 'Inter'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/inter-700.woff2') format('woff2'); }
-@font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 500; font-display: swap; src: url('/assets/fonts/space-grotesk-500.woff2') format('woff2'); }
-@font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/space-grotesk-700.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 400; font-display: swap; src: url('/assets/fonts/inter-400.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 500; font-display: swap; src: url('/assets/fonts/inter-500.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 600; font-display: swap; src: url('/assets/fonts/inter-600.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 700; font-display: swap; src: url('/assets/fonts/inter-700.woff2') format('woff2'); }
+@font-face { font-family: 'Space Grotesk'; font-weight: 500; font-display: swap; src: url('/assets/fonts/space-grotesk-500.woff2') format('woff2'); }
+@font-face { font-family: 'Space Grotesk'; font-weight: 700; font-display: swap; src: url('/assets/fonts/space-grotesk-700.woff2') format('woff2'); }
+
 :root {
-  --bg: #0c0b10; --bg1: #15141d; --bg2: #1d1b27;
+  --bg: #0c0b10; --bg1: #15141d; --bg2: #1d1b27; --bg3: #262333;
   --border: rgba(243,241,247,0.08); --bh: rgba(243,241,247,0.18);
-  --text: #f3f1f7; --mu: #a8a4b8; --mu2: #5f5c6e;
+  --text: #f3f1f7; --mu: #a8a4b8; --mu2: #6c6880;
   --ac: #8b7dff; --ac-rgb: 139,125,255;
-  --r: 16px; --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --sulfur: #f2c94c; --warn: #f0a35e; --bad: #ff6b60;
+  --r: 14px; --rs: 8px; --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-font-smoothing: antialiased; }
 body {
   background: var(--bg); color: var(--text);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1.6;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1.5;
   min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden;
-  touch-action: manipulation; padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-body.hc { cursor: none; }
-::selection { background: rgba(var(--ac-rgb), .2); }
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--mu2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--mu); }
+::selection { background: rgba(var(--ac-rgb), .25); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+img { display: block; }
+.num { font-variant-numeric: tabular-nums; }
 
-.noise { display: none; }
-.grid-bg { display: none; }
-
-/* Custom Cursor */
-#cur, #cur-ring { display: none; }
-body.hc #cur { display: block; position: fixed; width: 6px; height: 6px; background: var(--ac); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: difference; transition: width .18s var(--ease), height .18s var(--ease), opacity .3s; }
-body.hc #cur.hide { opacity: 0; } body.hc #cur.big { width: 12px; height: 12px; }
-body.hc #cur-ring { display: block; position: fixed; width: 32px; height: 32px; border: 1px solid rgba(var(--ac-rgb), .22); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: width .24s var(--ease), height .24s var(--ease), opacity .3s; }
-body.hc #cur-ring.hide { opacity: 0; } body.hc #cur-ring.big { width: 50px; height: 50px; border-color: rgba(var(--ac-rgb), .38); }
-
-/* Navigation */
-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 64px; border-bottom: 1px solid var(--border); position: relative; z-index: 50; flex-shrink: 0; background: var(--bg); }
-.logo { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 700; font-size: 20px; color: var(--text); text-decoration: none; transition: opacity .2s; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
-.logo i { color: var(--ac); font-size: 20px; transition: color .3s; }
-.logo em { font-style: italic; color: var(--ac); transition: color .3s; }
-.nav-r { display: flex; align-items: center; gap: 12px; }
-.back { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); text-decoration: none; display: flex; align-items: center; gap: 7px; transition: color .2s; }
+/* Nav */
+nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 32px; height: 64px; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 50; }
+.logo { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+.logo em { font-style: normal; color: var(--ac); }
+.logo-mark { width: 26px; height: 26px; }
+.nav-r { display: flex; align-items: center; gap: 8px; }
+.back { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); text-decoration: none; padding: 8px 10px; transition: color .2s; }
 .back:hover { color: var(--text); }
+.btn { font-size: 12px; font-weight: 500; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg1); color: var(--text); display: inline-flex; align-items: center; gap: 8px; transition: border-color .2s, background .2s; white-space: nowrap; }
+.btn:hover { border-color: var(--bh); }
+.btn.primary { background: var(--ac); border-color: var(--ac); color: #0c0b10; }
+.btn svg { width: 14px; height: 14px; }
 
-/* Beautiful Navbar Color Picker */
-.nav-theme-btn { position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--r); cursor: pointer; transition: border-color .2s; background: var(--bg1); }
-.nav-theme-btn:hover { border-color: var(--bh); }
-.nav-theme-swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--ac); transition: background .3s; box-shadow: 0 0 8px rgba(var(--ac-rgb), 0.4); }
-.nav-theme-label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); }
-.nav-theme-btn input[type="color"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+/* Layout */
+main { flex: 1; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 24px; padding: 28px 32px 48px; max-width: 1440px; width: 100%; margin: 0 auto; align-items: start; }
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel { background: var(--bg1); border: 1px solid var(--border); border-radius: var(--r); padding: 18px; }
+.ph { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.pt { font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--mu); font-weight: 500; }
+.hint { font-size: 11.5px; color: var(--mu2); }
 
-.btn { font-weight: 500; font-size: 13px; padding: 10px 20px; border-radius: 30px; border: 1px solid var(--border); background: var(--bg1); color: var(--text); cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
-.btn:hover { color: var(--text); border-color: var(--bh); }
+/* Tabs */
+.tabs { display: flex; gap: 4px; background: var(--bg2); padding: 4px; border-radius: 10px; border: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: 1; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--mu); padding: 8px 12px; border: 1px solid transparent; border-radius: 7px; background: transparent; transition: all .2s; white-space: nowrap; }
+.tab:hover { color: var(--text); }
+.tab.on { color: var(--text); background: var(--bg1); border-color: var(--border); }
+.tab .cnt { display: inline-block; min-width: 16px; padding: 0 5px; margin-left: 6px; border-radius: 8px; background: var(--ac); color: #0c0b10; font-size: 10px; font-weight: 700; letter-spacing: 0; }
 
-/* Settings Drawer */
-.sov { position: fixed; inset: 0; z-index: 800; background: rgba(0,0,0,.72); backdrop-filter: blur(10px); opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; display: flex; justify-content: flex-end; }
+/* Target cards */
+.tlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; margin-top: 14px; }
+.tcard { display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 12px; border: 1px solid var(--border); border-radius: var(--rs); background: var(--bg2); transition: border-color .2s, background .2s; min-width: 0; }
+.tcard.on { border-color: rgba(var(--ac-rgb), .5); background: rgba(var(--ac-rgb), .07); }
+.ticon { width: 40px; height: 40px; flex-shrink: 0; border-radius: 6px; background: var(--bg3); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.ticon img { width: 36px; height: 36px; object-fit: contain; }
+.tinfo { flex: 1; min-width: 0; }
+.tname { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tmeta { font-size: 11px; color: var(--mu); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.badge { font-size: 9.5px; letter-spacing: .04em; padding: 1px 6px; border-radius: 6px; border: 1px solid rgba(240,163,94,.35); color: var(--warn); }
+.qty { display: flex; align-items: center; background: var(--bg1); border: 1px solid var(--border); border-radius: 7px; flex-shrink: 0; }
+.qbtn { width: 30px; height: 30px; border: none; background: transparent; color: var(--mu); font-size: 17px; line-height: 1; border-radius: 6px; }
+.qbtn:hover { color: var(--text); background: var(--bg3); }
+.qin { width: 34px; height: 30px; border: none; background: transparent; text-align: center; font-weight: 600; color: var(--ac); outline: none; -moz-appearance: textfield; appearance: textfield; }
+.qin::-webkit-inner-spin-button, .qin::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.tnote { font-size: 11.5px; color: var(--mu2); margin-top: 10px; }
+
+/* Arsenal */
+.agrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.acard { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 8px 10px; border: 1px solid var(--border); border-radius: var(--rs); background: var(--bg2); transition: all .2s; text-align: center; }
+.acard:hover { border-color: var(--bh); }
+.acard.on { border-color: rgba(var(--ac-rgb), .55); background: rgba(var(--ac-rgb), .07); }
+.acard img { width: 38px; height: 38px; object-fit: contain; opacity: .35; filter: grayscale(1); transition: all .2s; }
+.acard.on img { opacity: 1; filter: none; }
+.aname { font-size: 11.5px; font-weight: 500; color: var(--mu); line-height: 1.2; }
+.acard.on .aname { color: var(--text); }
+.acost { font-size: 10.5px; color: var(--sulfur); }
+.acost.free { color: var(--mu); }
+.acard .badge { position: absolute; top: 6px; right: 6px; font-size: 8.5px; }
+.chk { position: absolute; top: 7px; left: 7px; width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--bh); }
+.acard.on .chk { background: var(--ac); border-color: var(--ac); }
+.agroup + .agroup { margin-top: 18px; }
+.agroup-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.linkbtn { border: none; background: none; color: var(--ac); font-size: 11px; padding: 2px 0; }
+
+/* Options */
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.opt { display: flex; flex-direction: column; gap: 6px; }
+.opt label { font-size: 11px; color: var(--mu); }
+.seg { display: flex; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 3px; }
+.seg button { flex: 1; border: none; background: transparent; color: var(--mu); padding: 7px 6px; border-radius: 6px; font-size: 12px; white-space: nowrap; }
+.seg button.on { background: var(--bg1); color: var(--text); box-shadow: inset 0 0 0 1px var(--border); }
+.field { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; outline: none; width: 100%; }
+.field:focus { border-color: rgba(var(--ac-rgb), .5); }
+
+/* Summary */
+.hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; align-items: end; }
+.big { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: clamp(38px, 4.6vw, 58px); font-weight: 700; letter-spacing: -0.03em; line-height: 1; display: flex; align-items: center; gap: 12px; }
+.big img { width: 38px; height: 38px; object-fit: contain; }
+.big-l { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mu); margin-top: 10px; }
+.mini { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mstat { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--rs); padding: 10px 12px; }
+.mstat b { display: block; font-size: 18px; font-weight: 600; }
+.mstat span { font-size: 10.5px; color: var(--mu); }
+
+.craft { display: flex; flex-direction: column; gap: 6px; }
+.crow { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--rs); background: var(--bg2); }
+.crow img { width: 30px; height: 30px; object-fit: contain; }
+.crow .cn { flex: 1; min-width: 0; }
+.crow .cn b { display: block; font-size: 13px; font-weight: 500; }
+.crow .cn span { font-size: 11px; color: var(--mu); }
+.crow .cq { font-size: 20px; font-weight: 600; }
+.crow .cs { font-size: 11px; color: var(--sulfur); text-align: right; min-width: 72px; }
+.empty { text-align: center; color: var(--mu); padding: 22px 8px; font-size: 13px; }
+.empty.bad { color: var(--bad); }
+
+.mgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.mcard { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 12px 6px; border: 1px solid var(--border); border-radius: var(--rs); background: var(--bg2); transition: opacity .3s; }
+.mcard.zero { opacity: .3; }
+.mcard img { width: 30px; height: 30px; object-fit: contain; margin-bottom: 4px; }
+.mcard b { font-size: 15px; font-weight: 600; }
+.mcard span { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--mu); }
+.subhead { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--mu2); margin: 16px 0 8px; }
+.inter { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--bg2); border: 1px solid var(--border); font-size: 12px; }
+.chip b { font-weight: 600; }
+.chip img { width: 18px; height: 18px; object-fit: contain; }
+.nodes { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding: 14px 16px; border-radius: var(--rs); border: 1px solid var(--border); background: var(--bg2); }
+.nodes .l { display: flex; align-items: center; gap: 12px; }
+.nodes img { width: 28px; height: 28px; }
+.nodes b { font-size: 28px; font-weight: 600; color: var(--ac); }
+
+/* Breakdown */
+.brk { display: flex; flex-direction: column; gap: 6px; }
+.bitem { border: 1px solid var(--border); border-radius: var(--rs); background: var(--bg2); overflow: hidden; }
+.bhead { display: flex; align-items: center; gap: 10px; padding: 10px 12px; width: 100%; border: none; background: transparent; text-align: left; }
+.bhead img { width: 26px; height: 26px; object-fit: contain; }
+.bname { flex: 1; min-width: 0; font-size: 13px; }
+.bname small { display: block; color: var(--mu); font-size: 11.5px; }
+.bsul { font-size: 12px; color: var(--sulfur); white-space: nowrap; }
+.chev { width: 14px; height: 14px; color: var(--mu); transition: transform .2s; flex-shrink: 0; }
+.bitem.open .chev { transform: rotate(180deg); }
+.bbody { display: none; padding: 0 12px 12px; }
+.bitem.open .bbody { display: block; }
+.mselect { margin: 2px 0 10px; display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--mu); }
+.mselect select { flex: 1; background: var(--bg1); border: 1px solid var(--border); border-radius: 7px; padding: 6px 8px; outline: none; }
+table.alt { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.alt th { text-align: left; font-weight: 500; color: var(--mu2); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 4px 6px; border-bottom: 1px solid var(--border); }
+table.alt td { padding: 6px; border-bottom: 1px solid var(--border); }
+table.alt td.r, table.alt th.r { text-align: right; }
+table.alt tr.best td { color: var(--ac); }
+table.alt tr.off td { color: var(--mu2); }
+
+/* Info */
+details.info { background: var(--bg1); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 18px; }
+details.info summary { cursor: pointer; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--mu); list-style: none; display: flex; justify-content: space-between; }
+details.info summary::-webkit-details-marker { display: none; }
+details.info[open] summary { margin-bottom: 12px; }
+.info p, .info li { font-size: 12.5px; color: var(--mu); line-height: 1.6; }
+.info ul { padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.info p + p, .info p + ul, .info ul + p { margin-top: 8px; }
+.info b { color: var(--text); font-weight: 500; }
+
+/* Settings drawer */
+.sov { position: fixed; inset: 0; z-index: 800; background: rgba(0,0,0,.6); backdrop-filter: blur(8px); opacity: 0; visibility: hidden; transition: opacity .25s, visibility .25s; display: flex; justify-content: flex-end; }
 .sov.open { opacity: 1; visibility: visible; }
-.sdr { width: 380px; max-width: 100vw; height: 100vh; background: var(--bg1); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform .38s var(--ease); display: flex; flex-direction: column; overflow-y: auto; }
+.sdr { width: 360px; max-width: 100vw; height: 100%; background: var(--bg1); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform .35s var(--ease); display: flex; flex-direction: column; overflow-y: auto; }
 .sov.open .sdr { transform: none; }
-.shead { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-.stit { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--mu); }
-.scls { color: var(--mu); background: none; border: none; cursor: pointer; display: flex; transition: color .2s; padding: 3px; }
-.scls:hover { color: var(--text); }
-.sbody { padding: 24px; display: flex; flex-direction: column; gap: 32px; flex: 1; }
-.sg { display: flex; flex-direction: column; gap: 12px; }
-.sgl { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--mu2); margin-bottom: 4px; }
-.sr { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.sl { font-size: 12px; color: var(--mu); }
+.shead { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.sbody { padding: 22px; display: flex; flex-direction: column; gap: 26px; flex: 1; }
+.sg { display: flex; flex-direction: column; gap: 10px; }
+.sgl { font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--mu2); }
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sw { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; }
+.sw.on { border-color: var(--text); }
+.swc { position: relative; width: 28px; height: 28px; border-radius: 50%; border: 1px dashed var(--bh); overflow: hidden; }
+.swc input { position: absolute; inset: -4px; opacity: 0; cursor: pointer; }
+.sftr { padding: 16px 22px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+.sres { flex: 1; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); border: 1px solid var(--border); border-radius: 8px; background: transparent; padding: 10px; }
+.sres:hover { color: var(--bad); border-color: rgba(255,107,96,.35); }
+.iconbtn { border: none; background: none; color: var(--mu); padding: 4px; display: flex; }
+.iconbtn:hover { color: var(--text); }
+.iconbtn svg { width: 18px; height: 18px; }
 
-/* Toggle */
-.tog { position: relative; width: 34px; height: 18px; flex-shrink: 0; }
-.tog input { opacity: 0; width: 0; height: 0; }
-.ts2 { position: absolute; inset: 0; border-radius: 9px; background: var(--mu2); cursor: pointer; transition: background .3s; }
-.ts2::after { content: ''; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: #f3f1f7; transition: transform .3s var(--ease); }
-.tog input:checked + .ts2 { background: var(--ac); }
-.tog input:checked + .ts2::after { transform: translateX(16px); }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 12.5px; font-weight: 500; opacity: 0; pointer-events: none; transition: all .3s var(--ease); z-index: 900; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-/* Custom Inputs */
-.ssel { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); color: var(--text); font-family: 'Inter', sans-serif; font-size: 12px; padding: 6px 10px; cursor: text; outline: none; transition: border-color .2s; width: 80px; text-align: center; }
-.ssel:focus { border-color: rgba(var(--ac-rgb), .5); }
-.ssel::-webkit-inner-spin-button, .ssel::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-
-.sftr { padding: 16px 24px; border-top: 1px solid var(--border); flex-shrink: 0; display: flex; gap: 8px; }
-.sres { width: 100%; font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); border: 1px solid var(--border); border-radius: var(--r); background: transparent; padding: 9px; cursor: pointer; transition: all .2s; }
-.sres:hover { color: #ff6b60; border-color: rgba(255,107,96,.3); }
-
-/* Beautiful Color Cards (Settings) */
-.theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.theme-card { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--r); background: var(--bg2); cursor: pointer; transition: all 0.2s; }
-.theme-card:hover { border-color: var(--bh); background: var(--bg); }
-.theme-card.active { border-color: var(--ac); background: rgba(var(--ac-rgb), 0.05); }
-.theme-card-color { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-.theme-card-name { font-size: 11px; color: var(--mu); transition: color 0.2s; }
-.theme-card.active .theme-card-name { color: var(--text); }
-
-/* Main Layout */
-main { flex: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; padding: 48px; max-width: 1400px; width: 100%; margin: 0 auto; align-items: start; }
-
-/* Panels */
-.card { background: var(--bg1); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: all 0.2s var(--ease); position: relative; overflow: hidden; }
-.p-title { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--mu); border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-
-/* Main Navigation Tabs */
-.main-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
-.m-tab { flex: 1; text-align: center; font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg1); cursor: pointer; transition: all .3s; }
-.m-tab:hover { color: var(--text); border-color: var(--bh); }
-.m-tab.on { color: var(--bg); background: var(--ac); border-color: var(--ac); font-weight: 500; }
-
-/* Sub Tabs */
-.sub-tabs { display: flex; gap: 4px; background: var(--bg2); padding: 4px; border-radius: 6px; border: 1px solid var(--border); }
-.s-tab { font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); padding: 6px 12px; border: none; border-radius: 4px; background: transparent; cursor: pointer; transition: all .2s; }
-.s-tab.on { color: var(--text); background: var(--bg1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid var(--border); }
-
-/* Target Cards */
-.t-grid { display: flex; flex-direction: column; gap: 8px; }
-.t-card { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg2); transition: all 0.3s; }
-.t-card.active { border-color: rgba(var(--ac-rgb), 0.4); background: rgba(var(--ac-rgb), 0.05); }
-.t-info { display: flex; align-items: center; gap: 16px; }
-.t-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
-.t-icon img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6)); }
-.t-name { font-size: 13px; color: var(--text); font-weight: 400; }
-.t-hp { font-size: 10px; color: var(--mu); margin-top: 2px; letter-spacing: 0.05em; }
-.t-ctrl { display: flex; align-items: center; gap: 4px; background: var(--bg1); border: 1px solid var(--border); border-radius: 6px; padding: 4px; }
-.t-btn { width: 32px; height: 32px; background: transparent; border: 1px solid transparent; color: var(--mu); cursor: pointer; transition: all 0.2s; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-.t-btn:hover { color: var(--text); background: var(--bg2); border-color: var(--border); }
-.t-btn:active { transform: scale(0.9); }
-.t-qty { width: 28px; text-align: center; font-size: 14px; font-weight: 500; color: var(--ac); font-variant-numeric: tabular-nums; }
-
-/* Arsenal Cards */
-.a-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 8px; margin-bottom: 24px; }
-.a-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg2); cursor: pointer; transition: all 0.3s; gap: 12px; }
-.a-card:hover { border-color: var(--bh); }
-.a-card.on { border-color: rgba(var(--ac-rgb), 0.5); background: rgba(var(--ac-rgb), 0.05); }
-.a-card .t-icon { width: 36px; height: 36px; opacity: 0.3; filter: grayscale(100%); transition: all 0.3s; }
-.a-card.on .t-icon { opacity: 1; filter: none; }
-.a-name { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--mu); text-align: center; line-height: 1.2; transition: color 0.3s; }
-.a-card.on .a-name { color: var(--text); }
-.a-cost { font-size: 9px; color: var(--mu2); margin-top: auto; border-top: 1px solid var(--border); padding-top: 8px; width: 100%; text-align: center; transition: color 0.3s; }
-
-/* Right Panel Typography & Layout */
-.sum-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 8px; }
-.sum-box { display: flex; flex-direction: column; }
-.page-title { font-size: clamp(34px, 5vw, 48px); font-weight: 600; letter-spacing: -1px; text-align: center; margin-bottom: 8px; }
-.r-huge { font-family: 'Inter', sans-serif; font-size: clamp(42px, 5vw, 64px); font-weight: 400; letter-spacing: -0.02em; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; display: flex; align-items: center; gap: 16px; }
-.r-huge img { width: 36px; height: 36px; object-fit: contain; }
-.item-name { font-size: 14px; font-weight: 500; color: var(--text); }
-.r-label { font-size: 10px; color: var(--mu); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 12px; }
-
-/* Material Grid */
-.m-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.m-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg2); transition: opacity 0.4s, background 0.4s, border-color 0.4s; text-align: center; }
-.m-card img { width: 32px; height: 32px; margin-bottom: 12px; object-fit: contain; }
-.m-val { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 4px; font-variant-numeric: tabular-nums; }
-.m-name { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mu); }
-
-/* Blueprint List */
-.bp-list { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 8px; }
-.bp-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg2); }
-.bp-left { display: flex; align-items: center; gap: 16px; }
-.bp-left img { width: 24px; height: 24px; object-fit: contain; }
-.bp-name { font-size: 12px; color: var(--text); }
-.res-val { font-size: 16px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
-
-/* Node Box */
-.node-box { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; background: var(--bg1); border: 1px solid var(--border); border-radius: 6px; margin-top: 24px; }
-.node-left { display: flex; align-items: center; gap: 16px; }
-.node-left img { width: 28px; height: 28px; }
-.node-val { font-family: 'Inter', sans-serif; font-size: 42px; color: var(--ac); line-height: 1; font-variant-numeric: tabular-nums; }
-
-footer { border-top: 1px solid var(--border); padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 50; position: relative; margin-top: auto; background: var(--bg); }
-footer span, footer a { font-size: 11px; color: var(--mu); text-decoration: none; transition: color .2s; letter-spacing: 0.05em; }
+footer { border-top: 1px solid var(--border); padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+footer span, footer a { font-size: 11px; color: var(--mu); text-decoration: none; letter-spacing: .04em; }
 footer a:hover { color: var(--text); }
-.egg {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--mu2);
-  transition: all 0.3s;
-  display: inline-block;
-  cursor: pointer;
-}
-.egg:hover {
-  background: var(--text);
-  transform: scale(1.4);
-}
-
-/* Mobile */
-@media(max-width: 900px) {
-  main { grid-template-columns: 1fr; padding: 24px 16px; }
-  nav { padding: 0 16px; height: 60px; }
-  .logo { font-size: 20px; }
-  .back span { display: none; }
-  .sdr { width: 100vw; }
-  .m-grid { grid-template-columns: repeat(3, 1fr); }
-  .sum-row { grid-template-columns: 1fr; gap: 20px; }
-  .r-huge { font-size: 42px; }
-  .node-box { padding: 16px; }
-  .node-val { font-size: 32px; }
-  footer { padding: 20px; flex-wrap: wrap; gap: 8px; justify-content: center; }
-  .nav-theme-label { display: none; }
-}
-@media(max-width: 450px) {
-  .m-grid { grid-template-columns: repeat(2, 1fr); }
-  .a-grid { grid-template-columns: repeat(2, 1fr); }
-  .sub-tabs { width: 100%; }
-  .s-tab { flex: 1; text-align: center; padding: 6px 0; }
-  .t-name { font-size: 12px; }
-  .t-info { gap: 10px; }
-  .theme-grid { grid-template-columns: 1fr; }
-}
+.egg { width: 6px; height: 6px; border-radius: 50%; background: var(--mu2); display: inline-block; transition: all .3s; }
+.egg:hover { background: var(--text); transform: scale(1.4); }
 
 .hidden { display: none !important; }
-.fade-in { animation: fadeIn 0.3s ease-out forwards; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 980px) {
+  main { grid-template-columns: 1fr; padding: 16px 16px 40px; }
+  nav { padding: 0 16px; height: 58px; }
+  .back span, .btn .lbl { display: none; }
+  footer { padding: 18px 16px; }
+}
+@media (max-width: 560px) {
+  .logo { font-size: 16px; }
+  .logo-mark { display: none; }
+  .tlist { grid-template-columns: 1fr; }
+  .hero { grid-template-columns: 1fr; }
+  .mgrid { grid-template-columns: repeat(3, 1fr); }
+  .opts { grid-template-columns: 1fr; }
+  .agrid { grid-template-columns: repeat(2, 1fr); }
+  .crow .cs { display: none; }
+}
 </style>
 </head>
 <body>
-<div class="noise"></div>
-<div class="grid-bg" id="gridBg"></div>
-<div id="cur"></div><div id="cur-ring"></div>
-
-<!-- Settings Drawer -->
-<div class="sov" id="sov">
-  <div class="sdr">
-    <div class="shead">
-      <span class="stit">Settings</span>
-      <button class="scls" id="scls"><i class="fa-solid fa-xmark text-lg"></i></button>
-    </div>
-    <div class="sbody">
-      
-      <!-- Raid Config -->
-      <div class="sg">
-        <div class="sgl">Raid Configuration</div>
-        <div class="sr" style="align-items: flex-start; flex-direction: column; gap: 6px;">
-          <span class="sl">Gather Rate Multiplier</span>
-          <div style="display:flex; align-items:center; width:100%; gap: 12px;">
-            <input type="number" id="setting-rate" value="1" min="0.1" step="0.5" class="ssel" style="width: 100px; font-size: 16px; padding: 8px;">
-            <span style="color: var(--mu2); font-size: 11px;">x Server Rate</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Theme Config (NEW BEAUTIFUL COLOR PICKER) -->
-      <div class="sg">
-        <div class="sgl">Accent Theme</div>
-        <div class="theme-grid" id="theme-selector">
-            <!-- Theme Cards injected here -->
-        </div>
-        <div style="margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 12px;">
-            <span class="sl" style="margin-bottom: 6px; display: block;">Custom Hex</span>
-            <div class="nav-theme-btn" style="width: fit-content;">
-                <div class="nav-theme-swatch" id="drawer-custom-swatch"></div>
-                <span class="nav-theme-label">Pick Color</span>
-                <input type="color" id="drawer-cpi" value="#e2e2e2">
-            </div>
-        </div>
-      </div>
-
-      <!-- Appearance -->
-      <div class="sg">
-        <div class="sgl">Appearance</div>
-        <div class="sr"><span class="sl">Grid background</span><label class="tog"><input type="checkbox" id="tgrid" checked><div class="ts2"></div></label></div>
-        <div class="sr"><span class="sl">Noise overlay</span><label class="tog"><input type="checkbox" id="tnoise" checked><div class="ts2"></div></label></div>
-        <div class="sr"><span class="sl">Custom cursor</span><label class="tog"><input type="checkbox" id="tcur" checked><div class="ts2"></div></label></div>
-      </div>
-
-    </div>
-    <div class="sftr">
-      <button class="sres" onclick="resetAll()">Reset App Data</button>
-      <button class="sres" id="hardReset" style="color:var(--text); border-color:var(--border);">Default Settings</button>
-    </div>
-  </div>
-</div>
 
 <nav>
-  <div style="display:flex; align-items:center; gap:12px;">
-    <h1 class="logo"><i class="fa-solid fa-bomb" style="font-size: 18px;"></i> Rust <em>Raid</em> Calculator</h1>
-  </div>
-  
+  <h1 class="logo">
+    <svg class="logo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" style="color:var(--ac)"><circle cx="11" cy="14" r="7"/><path d="M15.5 8.5 18 6"/><path d="M19 3v2M21 5h-2M20.4 3.6l-1 1"/></svg>
+    Rust <em>Raid</em> Calculator
+  </h1>
   <div class="nav-r">
-    <a href="/" class="back"><i class="fa-solid fa-arrow-left"></i><span>spanani.de</span></a>
-    
-    <!-- Navbar Custom Color Picker -->
-    <div class="nav-theme-btn">
-      <div class="nav-theme-swatch" id="nav-swatch"></div>
-      <span class="nav-theme-label">Color</span>
-      <input type="color" id="cpi" value="#e2e2e2">
-    </div>
-
-    <button class="btn" id="setbtn">
-      <i class="fa-solid fa-sliders"></i>
-      <span>Settings</span>
+    <a href="/" class="back">← <span>spanani.de</span></a>
+    <button class="btn" id="shareBtn" title="Copy a link to this raid">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+      <span class="lbl">Share</span>
+    </button>
+    <button class="btn" id="setBtn" title="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+      <span class="lbl">Settings</span>
     </button>
   </div>
 </nav>
 
 <main>
-  <!-- LEFT COLUMN -->
-  <div style="display:flex; flex-direction: column; gap: 20px;">
-    
-    <div class="main-tabs">
-      <button class="m-tab on" id="tab-targets" onclick="switchMainTab('targets')">Targets</button>
-      <button class="m-tab" id="tab-arsenal" onclick="switchMainTab('arsenal')">Arsenal</button>
-    </div>
-
-    <!-- TARGETS VIEW -->
-    <div class="card fade-in" id="view-targets">
-      <div class="p-title">
-        <span>Select Structures</span>
-        <div class="sub-tabs">
-          <button class="s-tab on" id="cat-doors" onclick="setSubCat('doors')">Doors</button>
-          <button class="s-tab" id="cat-walls" onclick="setSubCat('walls')">Walls</button>
-          <button class="s-tab" id="cat-deployables" onclick="setSubCat('deployables')">Deployables</button>
-        </div>
+  <!-- LEFT -->
+  <div class="col">
+    <section class="panel">
+      <div class="ph">
+        <span class="pt">1 · What are you raiding?</span>
+        <button class="linkbtn" id="clearBtn">Clear all</button>
       </div>
-      <div class="t-grid" id="targets-container"></div>
-    </div>
+      <div class="tabs" id="catTabs"></div>
+      <div class="tlist" id="targetList"></div>
+      <p class="tnote" id="catNote"></p>
+    </section>
 
-    <!-- ARSENAL VIEW -->
-    <div class="card hidden fade-in" id="view-arsenal">
-      <div class="p-title">
-        <span>Allowed Explosives</span>
-        <span style="font-size: 9px; text-transform: none; color: var(--mu2);">Click category to toggle</span>
+    <section class="panel">
+      <div class="ph">
+        <span class="pt">2 · What can you use?</span>
+        <span class="hint">Tap to allow / block</span>
       </div>
-      
-      <div style="margin-bottom: 20px;">
-        <div class="p-title" style="cursor:pointer; border:none; margin-bottom:4px;" onclick="toggleCategory('high')">
-          <span style="color:var(--text);">High Explosives</span>
-        </div>
-        <div class="a-grid" id="arsenal-high"></div>
-      </div>
+      <div id="arsenal"></div>
+    </section>
 
-      <div style="margin-bottom: 20px;">
-        <div class="p-title" style="cursor:pointer; border:none; margin-bottom:4px;" onclick="toggleCategory('siege')">
-          <span style="color:var(--text);">Siege Weapons</span>
-        </div>
-        <div class="a-grid" id="arsenal-siege"></div>
-      </div>
-
-      <div>
-        <div class="p-title" style="cursor:pointer; border:none; margin-bottom:4px;" onclick="toggleCategory('eco')">
-          <span style="color:var(--text);">Close Range & Eco</span>
-        </div>
-        <div class="a-grid" id="arsenal-eco"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- RIGHT COLUMN -->
-  <div style="display:flex; flex-direction: column; gap: 24px;">
-    
-    <div class="card fade-in">
-      <div class="sum-row">
-        <div class="sum-box">
-          <div class="r-huge"><img src="https://raw.githubusercontent.com/spananide/spanani.de/main/rust/images/gp.png" alt="GP"><span id="total-gp">0</span></div>
-          <div class="r-label">Total Gunpowder</div>
-        </div>
-        <div class="sum-box">
-          <div class="r-huge"><img src="https://raw.githubusercontent.com/spananide/spanani.de/main/rust/images/sulfur.png" alt="Sulfur"><span id="total-pure-sulfur">0</span></div>
-          <div class="r-label">Sulfur Cost</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card fade-in">
-      <div class="p-title">Crafting Blueprint</div>
-      <div class="bp-list" id="crafting-list">
-        <div style="text-align:center; color:var(--mu); padding: 20px 0;">Add targets to generate layout.</div>
-      </div>
-    </div>
-
-    <div class="card fade-in">
-      <div class="p-title">
-        <span>Raw Materials</span>
-        <div style="display:flex; align-items:center; gap:8px; cursor:pointer;" onclick="toggleRawMode()">
-          <span style="font-size:9px;" id="label-raw-mode">Show Total Base Cost</span>
-          <label class="tog" style="pointer-events:none;"><input type="checkbox" id="switch-raw-mode"><div class="ts2"></div></label>
-        </div>
-      </div>
-      <div class="m-grid" id="materials-container"></div>
-      
-      <div class="node-box">
-        <div class="node-left">
-          <img src="https://raw.githubusercontent.com/spananide/spanani.de/main/rust/images/node.png" alt="Node">
-          <div>
-            <div class="r-label" style="margin:0; color:var(--text);">Nodes to Farm</div>
-            <div style="font-size: 10px; color: var(--mu); margin-top: 2px;">Based on <span id="ui-rate-display" style="color:var(--ac)">1x</span> rate</div>
+    <section class="panel">
+      <div class="ph"><span class="pt">3 · How should it plan?</span></div>
+      <div class="opts">
+        <div class="opt">
+          <label>Optimise for</label>
+          <div class="seg" id="optGoal">
+            <button data-v="sulfur">Least sulfur</button>
+            <button data-v="count">Fewest items</button>
           </div>
         </div>
-        <div class="node-val" id="farm-nodes">0</div>
+        <div class="opt">
+          <label>Mix explosives on one target</label>
+          <div class="seg" id="optMix">
+            <button data-v="1">Allow mixing</button>
+            <button data-v="0">One type only</button>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
 
+    <details class="info">
+      <summary><span>How raiding in Rust works</span><span>+</span></summary>
+      <p>Every building block, door and deployable has a fixed amount of <b>health</b>, and every explosive does a fixed amount of damage to it. How much depends on <b>what the target is made of</b>: a rocket does the same damage to a stone, sheet metal or armored wall, but those walls have 500, 1,000 and 2,000 HP. Doors take damage differently from walls, which is why an armored door (1,000 HP) only needs 2 C4.</p>
+      <p>The numbers this calculator uses for C4, rockets, satchels, explosive 5.56 and beancans are the vanilla raid values (the same counts RustLabs lists). Things marked <span class="badge">≈</span> are estimates; check them on your server before you farm for them.</p>
+      <ul>
+        <li><b>Always hit the hard side.</b> All counts assume you damage the side of a wall that faces outward. Soft sides (the inside of a wall) can be farmed down with melee tools instead.</li>
+        <li><b>Explosive 5.56 is only cheap if every bullet lands.</b> Missed shots cost sulfur. In practice, budget 10–20% extra.</li>
+        <li><b>Satchels can dud.</b> They sometimes fail to go off and have to be picked up and relit. The count here assumes they all go off.</li>
+        <li><b>Floors, foundations, doorways and window frames</b> have the same HP as a wall of the same tier, so they cost the same to break.</li>
+        <li><b>Mixing:</b> when the cheapest single explosive overshoots a target's HP, finishing it with something smaller (for example, 3 C4 plus explosive ammo on a sheet metal wall) can save sulfur. The planner tries every two-explosive combination for each target. Mixed counts can be off by a round or two, so bring a few spare.</li>
+        <li><b>Gunpowder:</b> 20 sulfur + 30 charcoal makes 10 gunpowder. 1 wood burns into about 1 charcoal.</li>
+        <li><b>Not included:</b> HV rockets and F1 grenades barely scratch building blocks, so they're never worth crafting for a raid. Siege weapons, incendiary rockets and other fire damage depend too much on the situation (rain, upkeep, repairs) to give a reliable count.</li>
+      </ul>
+    </details>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="col">
+    <section class="panel">
+      <div class="hero">
+        <div>
+          <div class="big num"><img src="/rust/images/sulfur.png" alt=""><span id="totSulfur">0</span></div>
+          <div class="big-l">Total sulfur</div>
+        </div>
+        <div class="mini">
+          <div class="mstat"><b class="num" id="totGp">0</b><span>Gunpowder</span></div>
+          <div class="mstat"><b class="num" id="totItems">0</b><span>Explosives used</span></div>
+          <div class="mstat"><b class="num" id="totTargets">0</b><span>Targets</span></div>
+          <div class="mstat"><b class="num" id="totHp">0</b><span>Total HP</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="ph"><span class="pt">What to craft</span><span class="hint" id="craftHint"></span></div>
+      <div class="craft" id="craftList"></div>
+    </section>
+
+    <section class="panel">
+      <div class="ph"><span class="pt">Raw materials</span></div>
+      <div class="mgrid" id="matGrid"></div>
+      <div class="subhead">Crafted along the way</div>
+      <div class="inter" id="interList"></div>
+      <div class="nodes">
+        <div class="l">
+          <img src="/rust/images/node.png" alt="">
+          <div>
+            <div style="font-size:12.5px">Sulfur nodes to farm</div>
+            <div class="hint">at <span id="rateLbl">1x</span> gather rate · 300 sulfur per node</div>
+          </div>
+        </div>
+        <b class="num" id="nodeCount">0</b>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="ph"><span class="pt">Per target</span><span class="hint">Tap a target to compare or force a method</span></div>
+      <div class="brk" id="breakdown"></div>
+    </section>
   </div>
 </main>
 
+<!-- Settings -->
+<div class="sov" id="sov">
+  <div class="sdr" role="dialog" aria-label="Settings">
+    <div class="shead">
+      <span class="pt">Settings</span>
+      <button class="iconbtn" id="sClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="sbody">
+      <div class="sg">
+        <div class="sgl">Server gather rate</div>
+        <input type="number" id="rateIn" class="field num" min="0.1" step="0.5" value="1">
+        <span class="hint">Only changes how many sulfur nodes you need to hit.</span>
+      </div>
+      <div class="sg">
+        <div class="sgl">Explosive ammo accuracy</div>
+        <input type="number" id="accIn" class="field num" min="10" max="100" step="5" value="100">
+        <span class="hint">Percent of explosive 5.56 rounds that actually hit. 100 = perfect; 85 is a realistic budget.</span>
+      </div>
+      <div class="sg">
+        <div class="sgl">Accent colour</div>
+        <div class="swatches" id="swatches"></div>
+      </div>
+    </div>
+    <div class="sftr">
+      <button class="sres" id="resetBtn">Reset everything</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <footer>
   <a href="/">spanani.de</a>
-  <span>rust logistics engine · 2026</span>
+  <span>rust raid calculator · vanilla values</span>
   <a href="https://lambacher.netlify.net" target="_blank" class="egg" title="easter egg" aria-label="Easter Egg"></a>
 </footer>
 
 <script>
-// ==========================================
-// PORTFOLIO STYLE JS (Cursor, Theme, Toggles)
-// ==========================================
+'use strict';
 const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-const lerp = (a,b,t) => a+(b-a)*t;
-const root = document.documentElement;
-const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+const IMG = '/rust/images/';
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-// NEW PRESET THEMES (Aesthetic)
-const presetThemes = [
-    { name: 'Brand Violet', hex: '#8b7dff' },
-    { name: 'Rust Orange',  hex: '#f97316' },
-    { name: 'Toxic Green',  hex: '#34d399' },
-    { name: 'Neon Cyan',    hex: '#22d3ee' },
-    { name: 'Amethyst',     hex: '#c4b5fd' },
-    { name: 'Rose Pink',    hex: '#f472b6' },
-    { name: 'Gold',         hex: '#fcd34d' }
+// ============================================================
+// GAME DATA (vanilla)
+// ============================================================
+
+// Raw resources shown in the materials grid.
+const RAW = {
+  sulfur:   { name: 'Sulfur',       img: 'sulfur.png' },
+  charcoal: { name: 'Charcoal',     img: 'charcoal.png' },
+  metal:    { name: 'Metal Frags',  img: 'metal.png' },
+  lgf:      { name: 'Low Grade',    img: 'lgf.png' },
+  cloth:    { name: 'Cloth',        img: 'cloth.png' },
+  tech:     { name: 'Tech Trash',   img: 'tech.png' },
+  pipe:     { name: 'Metal Pipes',  img: 'pipes.png' },
+  wood:     { name: 'Wood (for charcoal)', img: 'wood.png' }
+};
+
+// Crafting recipes. `out` = how many one craft produces.
+const RECIPES = {
+  gp:         { name: 'Gunpowder',   img: 'gp.png',      out: 10, in: { sulfur: 20, charcoal: 30 } },
+  explosives: { name: 'Explosives',  img: 'gunpowder.png', out: 1, in: { gp: 50, lgf: 3, sulfur: 10, metal: 10 } },
+  beancan:    { name: 'Beancan Grenade', img: 'beancan.png', out: 1, in: { gp: 60, metal: 20 } },
+  stash:      { name: 'Small Stash', img: null,          out: 1, in: { cloth: 10 } },
+  rope:       { name: 'Rope',        img: null,          out: 1, in: { cloth: 15 } },
+  c4:         { out: 1, in: { explosives: 20, cloth: 5, tech: 2 } },
+  rocket:     { out: 1, in: { explosives: 10, gp: 150, pipe: 2 } },
+  satchel:    { out: 1, in: { beancan: 4, stash: 1, rope: 1 } },
+  explo:      { out: 2, in: { gp: 20, sulfur: 10, metal: 20 } },
+  molotov:    { out: 1, in: { cloth: 10, lgf: 50 } }
+};
+// Order in which crafted items get expanded into their ingredients (parents first).
+const EXPAND_ORDER = ['c4', 'rocket', 'satchel', 'explo', 'molotov', 'beancan', 'stash', 'rope', 'explosives', 'gp'];
+
+// Raid tools.  group: what section it's listed under.  loot: can't be crafted (no sulfur counted).
+// approx: damage values are estimates, not table values.
+const TOOLS = {
+  c4:      { name: 'Timed Explosive (C4)', short: 'C4',            img: 'c4.png',      group: 'main', needs: 'Workbench 3' },
+  rocket:  { name: 'Rocket',               short: 'Rocket',        img: 'rocket.png',  group: 'main', needs: 'Rocket Launcher · WB3' },
+  satchel: { name: 'Satchel Charge',       short: 'Satchel',       img: 'satchel.png', group: 'main', needs: 'Workbench 1' },
+  explo:   { name: 'Explosive 5.56 Ammo',  short: 'Explo Ammo',    img: 'explo.png',   group: 'main', needs: 'Any 5.56 rifle · WB3' },
+  beancan: { name: 'Beancan Grenade',      short: 'Beancan',       img: 'beancan.png', group: 'main', needs: 'Workbench 1' },
+  he40:    { name: '40mm HE Grenade',      short: '40mm HE',       img: '40mm_he.png', group: 'extra', needs: 'Grenade Launcher · loot', loot: true, approx: true },
+  molotov: { name: 'Molotov Cocktail',     short: 'Molotov',       img: 'molotov.png', group: 'extra', needs: 'Wooden targets only', approx: true }
+};
+
+// Damage one item deals to a target of each damage profile.
+// Main explosives are fitted to the vanilla raid tables (count = ceil(HP / damage)).
+const DMG = {
+  //            C4    Rocket  Satchel Explo   Beancan  40mm HE≈  Molotov≈
+  wood:     { c4: 275, rocket: 137.5, satchel: 100, explo: 5.15,  beancan: 19.5, he40: 55 },
+  stone:    { c4: 275, rocket: 137.5, satchel: 52,  explo: 2.71,  beancan: 11,   he40: 36 },
+  metal:    { c4: 275, rocket: 137.5, satchel: 44,  explo: 2.504, beancan: 8.98, he40: 34 },
+  hqm:      { c4: 275, rocket: 137.5, satchel: 44,  explo: 2.504, beancan: 8.98, he40: 34 },
+  woodDoor: { c4: 400, rocket: 210,   satchel: 110, explo: 10.6,  beancan: 35,   he40: 70, molotov: 110 },
+  sheetDoor:{ c4: 400, rocket: 140,   satchel: 70,  explo: 3.98,  beancan: 14,   he40: 38 },
+  garage:   { c4: 320, rocket: 210,   satchel: 70,  explo: 4.01,  beancan: 14.4, he40: 38 },
+  armorDoor:{ c4: 550, rocket: 260,   satchel: 85,  explo: 5.01,  beancan: 17.5, he40: 40 },
+  tc:       { c4: 300, rocket: 200,   satchel: 120, explo: 12,    beancan: 40,   he40: 60 },
+  turret:   { c4: 550, rocket: 275,   satchel: 100, explo: 10,    beancan: 30,   he40: 100 }
+};
+
+// Targets.  p = damage profile.  approx = whole target is an estimate.
+const CATS = [
+  { id: 'build',  name: 'Building', note: 'Walls, floors, foundations, doorways and window frames of the same tier all share the same HP.' },
+  { id: 'doors',  name: 'Doors' },
+  { id: 'ext',    name: 'Externals', note: 'High external walls and gates.' },
+  { id: 'deploy', name: 'Deployables', note: 'Deployable values are estimates. Turrets and the TC are usually shot down with regular guns instead.' }
 ];
+const TARGETS = [
+  { id: 'wWall',  cat: 'build', name: 'Wood Wall',            hp: 250,  p: 'wood',  img: 'wood_wall.png' },
+  { id: 'sWall',  cat: 'build', name: 'Stone Wall',           hp: 500,  p: 'stone', img: 'stone_wall.png' },
+  { id: 'mWall',  cat: 'build', name: 'Sheet Metal Wall',     hp: 1000, p: 'metal', img: 'metal_wall.png' },
+  { id: 'aWall',  cat: 'build', name: 'Armored Wall',         hp: 2000, p: 'hqm',   img: 'armored_wall.png' },
 
-const DEF = { ac:'#8b7dff', grid:true, noise:true, cur:true, rawMode: false, rate: 1, tools: {} };
-let C = { ...DEF };
+  { id: 'wDoor',  cat: 'doors', name: 'Wooden Door',          hp: 200,  p: 'woodDoor',  img: 'wood_door.png' },
+  { id: 'wDDoor', cat: 'doors', name: 'Wooden Double Door',   hp: 200,  p: 'woodDoor',  img: 'wood_door.png' },
+  { id: 'sDoor',  cat: 'doors', name: 'Sheet Metal Door',     hp: 250,  p: 'sheetDoor', img: 'sheet_door.png' },
+  { id: 'sDDoor', cat: 'doors', name: 'Sheet Metal Double Door', hp: 250, p: 'sheetDoor', img: 'sheet_door.png' },
+  { id: 'hatch',  cat: 'doors', name: 'Ladder Hatch',         hp: 250,  p: 'sheetDoor', img: 'ladder_hatch.png' },
+  { id: 'gDoor',  cat: 'doors', name: 'Garage Door',          hp: 600,  p: 'garage',    img: 'garage_door.png' },
+  { id: 'aDoor',  cat: 'doors', name: 'Armored Door',         hp: 1000, p: 'armorDoor', img: 'armored_door.png' },
+  { id: 'aDDoor', cat: 'doors', name: 'Armored Double Door',  hp: 1000, p: 'armorDoor', img: 'armored_door.png' },
 
-function loadCfg() {
-  try { const s = localStorage.getItem('spananiRaidV14'); if(s) C = {...DEF, ...JSON.parse(s)}; } catch(e) {}
-}
-function saveCfg() {
-  try { localStorage.setItem('spananiRaidV14', JSON.stringify(C)); } catch(e) {}
-}
+  { id: 'hwWall', cat: 'ext', name: 'High External Wood Wall',  hp: 500, p: 'wood',  img: 'wood_wall.png', approx: true },
+  { id: 'hwGate', cat: 'ext', name: 'High External Wood Gate',  hp: 500, p: 'wood',  img: 'wood_wall.png', approx: true },
+  { id: 'hsWall', cat: 'ext', name: 'High External Stone Wall', hp: 500, p: 'stone', img: 'high_stone.png' },
+  { id: 'hsGate', cat: 'ext', name: 'High External Stone Gate', hp: 500, p: 'stone', img: 'high_stone.png' },
 
-function h2r(h) { return parseInt(h.slice(1,3),16)+','+parseInt(h.slice(3,5),16)+','+parseInt(h.slice(5,7),16); }
+  { id: 'tc',     cat: 'deploy', name: 'Tool Cupboard',          hp: 100,  p: 'tc',     img: 'tc.png',     approx: true },
+  { id: 'turret', cat: 'deploy', name: 'Auto Turret',            hp: 1000, p: 'turret', img: 'turret.png', approx: true },
+  { id: 'glass',  cat: 'deploy', name: 'Reinforced Glass Window', hp: 500, p: 'metal',  img: 'glass.png',  approx: true }
+];
+const TBY = Object.fromEntries(TARGETS.map(t => [t.id, t]));
 
-function applyColor(hex) {
-  root.style.setProperty('--ac', hex);
-  root.style.setProperty('--ac-rgb', h2r(hex));
-  
-  // Update Nav & Drawer color inputs
-  const ns = $('#nav-swatch'); if(ns) ns.style.background = hex;
-  const ds = $('#drawer-custom-swatch'); if(ds) ds.style.background = hex;
-  const cp = $('#cpi'); if(cp) cp.value = hex;
-  const dcp = $('#drawer-cpi'); if(dcp) dcp.value = hex;
+// ============================================================
+// COST MODEL
+// ============================================================
 
-  // Render Theme Grid
-  const themeGrid = $('#theme-selector');
-  if(themeGrid) {
-      themeGrid.innerHTML = '';
-      presetThemes.forEach(t => {
-          const isActive = t.hex.toLowerCase() === hex.toLowerCase();
-          themeGrid.innerHTML += `
-              <div class="theme-card ${isActive ? 'active' : ''}" onclick="applyColor('${t.hex}')">
-                  <div class="theme-card-color" style="background: ${t.hex}"></div>
-                  <span class="theme-card-name">${t.name}</span>
-              </div>
-          `;
-      });
+// Expand a bag of crafted items into raw materials, rounding up per craft batch.
+function expand(bag) {
+  const need = { ...bag };
+  const crafted = {};
+  for (const k of EXPAND_ORDER) {
+    const q = need[k] || 0;
+    if (q <= 0) continue;
+    const r = RECIPES[k];
+    if (!r) continue;
+    const crafts = Math.ceil(q / r.out);
+    crafted[k] = crafts * r.out;
+    delete need[k];
+    for (const [ing, n] of Object.entries(r.in)) need[ing] = (need[ing] || 0) + n * crafts;
   }
-
-  C.ac = hex; saveCfg();
+  return { raw: need, crafted };
 }
 
-function applySettings() {
-  applyColor(C.ac);
-  const gb = $('#gridBg'); if(gb) gb.style.opacity = C.grid ? '0.03' : '0';
-  const nz = $('.noise'); if(nz) nz.style.opacity = C.noise ? '0.025' : '0';
-  if(!isTouch) { C.cur ? document.body.classList.add('hc') : document.body.classList.remove('hc'); }
-  
-  const tv = (id, v) => { const e = $(id); if(e) e.checked = v; };
-  tv('#tgrid', C.grid); tv('#tnoise', C.noise); tv('#tcur', C.cur); tv('#switch-raw-mode', C.rawMode);
-  
-  const label = $('#label-raw-mode');
-  if(label) label.style.color = C.rawMode ? 'var(--ac)' : 'var(--mu)';
-  
-  const rt = $('#setting-rate'); if(rt) rt.value = C.rate;
-  const dr = $('#ui-rate-display'); if(dr) dr.textContent = C.rate + 'x';
+// Fractional per-unit cost (no batch rounding) — used to rank strategies.
+const unitCache = {};
+function unitRaw(item) {
+  if (unitCache[item]) return unitCache[item];
+  const r = RECIPES[item];
+  const out = {};
+  if (!r) { out[item] = 1; return unitCache[item] = out; }
+  for (const [ing, n] of Object.entries(r.in)) {
+    for (const [raw, m] of Object.entries(unitRaw(ing))) out[raw] = (out[raw] || 0) + n * m / r.out;
+  }
+  return unitCache[item] = out;
 }
-
-// Settings Drawer
-const sov = $('#sov');
-$('#setbtn').addEventListener('click', () => sov.classList.toggle('open'));
-$('#scls').addEventListener('click', () => sov.classList.remove('open'));
-sov.addEventListener('click', e => { if(e.target === sov) sov.classList.remove('open'); });
-
-function bindToggle(id, key) {
-  const e = $(id); if(!e) return;
-  e.addEventListener('change', () => { C[key] = e.checked; saveCfg(); applySettings(); if(key==='rawMode') calculateEngine(); });
+function unitGp(item) {
+  const r = RECIPES[item];
+  if (!r || item === 'gp') return item === 'gp' ? 1 : 0;
+  let g = 0;
+  for (const [ing, n] of Object.entries(r.in)) g += n * unitGp(ing) / r.out;
+  return g;
 }
-bindToggle('#tgrid', 'grid'); bindToggle('#tnoise', 'noise'); bindToggle('#tcur', 'cur');
+const toolSulfur = k => TOOLS[k].loot ? 0 : (unitRaw(k).sulfur || 0);
 
-$('#cpi').addEventListener('input', e => applyColor(e.target.value));
-$('#drawer-cpi').addEventListener('input', e => applyColor(e.target.value));
+// ============================================================
+// STATE
+// ============================================================
+const KEY = 'spananiRaidV2';
+const DEF = { ac: '#8b7dff', rate: 1, acc: 100, goal: 'sulfur', mix: true, cat: 'build',
+  tools: { c4: true, rocket: true, satchel: true, explo: true, beancan: true, he40: false, molotov: false },
+  qty: {}, force: {} };
+let S = structuredClone(DEF);
 
-$('#hardReset').addEventListener('click', () => {
-    C = {...DEF};
-    try{ localStorage.removeItem('spananiRaidV14'); }catch(e){}
-    applySettings();
-    calculateEngine();
-});
-
-// Custom Cursor
-if(!isTouch) {
-  const cr = $('#cur'), cr2 = $('#cur-ring');
-  let mx = -100, my = -100, rx = -100, ry = -100, v = false;
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cr.style.left = mx+'px'; cr.style.top = my+'px'; if(!v) { v=true; cr.classList.remove('hide'); cr2.classList.remove('hide'); } });
-  document.addEventListener('mouseleave', () => { v=false; cr.classList.add('hide'); cr2.classList.add('hide'); });
-  document.addEventListener('mouseenter', () => { v=true; cr.classList.remove('hide'); cr2.classList.remove('hide'); });
-  (function raf() { rx = lerp(rx,mx,.15); ry = lerp(ry,my,.15); cr2.style.left = rx+'px'; cr2.style.top = ry+'px'; requestAnimationFrame(raf); })();
-  
-  document.body.addEventListener('mouseover', e => {
-    if(e.target.closest('button, a, .cpw, .nav-theme-btn, .theme-card, .t-btn, .a-card, .tog, input, .scls, .sres')) {
-      cr.classList.add('big'); cr2.classList.add('big');
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s) S = { ...structuredClone(DEF), ...s, tools: { ...DEF.tools, ...(s.tools || {}) } };
+  } catch (e) {}
+  // A shared link (#t=id:n,id:n&x=tool,tool) overrides the stored targets.
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.has('t')) {
+    S.qty = {};
+    h.get('t').split(',').forEach(p => { const [id, n] = p.split(':'); if (TBY[id] && +n > 0) S.qty[id] = Math.min(999, Math.floor(+n)); });
+    if (h.has('x')) {
+      const on = new Set(h.get('x').split(','));
+      Object.keys(TOOLS).forEach(k => S.tools[k] = on.has(k));
     }
-  });
-  document.body.addEventListener('mouseout', e => {
-    if(e.target.closest('button, a, .cpw, .nav-theme-btn, .theme-card, .t-btn, .a-card, .tog, input, .scls, .sres')) {
-      cr.classList.remove('big'); cr2.classList.remove('big');
+    S.force = {};
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+// ============================================================
+// PLANNER
+// ============================================================
+
+function dmgOf(t, tool) {
+  let d = DMG[t.p][tool];
+  if (!d) return 0;
+  if (tool === 'explo') d *= Math.max(0.1, Math.min(1, S.acc / 100));
+  return d;
+}
+const countFor = (hp, d) => Math.ceil(hp / d - 1e-9);
+
+function stratCost(combo) {
+  let s = 0, n = 0;
+  for (const [k, q] of Object.entries(combo)) { s += toolSulfur(k) * q; n += q; }
+  return { sulfur: s, count: n };
+}
+function better(a, b) {
+  if (!b) return true;
+  const ka = S.goal === 'count' ? [a.count, a.sulfur] : [a.sulfur, a.count];
+  const kb = S.goal === 'count' ? [b.count, b.sulfur] : [b.sulfur, b.count];
+  if (ka[0] !== kb[0]) return ka[0] < kb[0];
+  if (ka[1] !== kb[1]) return ka[1] < kb[1];
+  return Object.keys(a.combo).length < Object.keys(b.combo).length;
+}
+
+// Every single-tool option for a target, whether allowed or not (for the comparison table).
+function singles(t) {
+  return Object.keys(TOOLS).map(k => {
+    const d = dmgOf(t, k);
+    if (!d) return null;
+    const q = countFor(t.hp, d);
+    return { tool: k, combo: { [k]: q }, ...stratCost({ [k]: q }) };
+  }).filter(Boolean);
+}
+
+// Best plan for one target using the allowed tools.
+function bestPlan(t) {
+  const allowed = Object.keys(TOOLS).filter(k => S.tools[k] && dmgOf(t, k) > 0);
+  const forced = S.force[t.id];
+  if (forced) {
+    const d = dmgOf(t, forced);
+    if (!d) return null;
+    const combo = { [forced]: countFor(t.hp, d) };
+    return { combo, ...stratCost(combo), forced: true };
+  }
+  if (!allowed.length) return null;
+  let best = null;
+  const consider = combo => {
+    for (const k in combo) if (!combo[k]) delete combo[k];
+    if (!Object.keys(combo).length) return;
+    const c = { combo, ...stratCost(combo) };
+    if (better(c, best)) best = c;
+  };
+  for (const a of allowed) {
+    const da = dmgOf(t, a), na = countFor(t.hp, da);
+    consider({ [a]: na });
+    if (!S.mix) continue;
+    for (const b of allowed) {
+      if (b === a) continue;
+      const db = dmgOf(t, b);
+      for (let i = 1; i < na; i++) {
+        const rest = t.hp - i * da;
+        consider({ [a]: i, [b]: countFor(rest, db) });
+      }
     }
-  });
+  }
+  return best;
 }
 
-// ==========================================
-// RAID ENGINE JS 
-// ==========================================
-const GITHUB_IMAGES_URL = "https://raw.githubusercontent.com/spananide/spanani.de/main/rust/images/";
-
-const resImgs = {
-    sulfur: { img: 'sulfur.png', name: 'Sulfur' },
-    charcoal: { img: 'charcoal.png', name: 'Charcoal' },
-    metal: { img: 'metal.png', name: 'Metal Frags' },
-    lgf: { img: 'lgf.png', name: 'Low Grade' },
-    pipes: { img: 'pipes.png', name: 'Pipes' },
-    tech: { img: 'tech.png', name: 'Tech Trash' },
-    cloth: { img: 'cloth.png', name: 'Cloth' },
-    wood: { img: 'wood.png', name: 'Wood' }
-};
-
-const explosivesData = {
-    c4: { name: 'C4 Charge', img: 'c4.png', cat: 'high', cost: { sulfur: 2200, gp: 1000, charcoal: 3000, metal: 200, pipes: 0, tech: 2, lgf: 20, cloth: 0, wood: 0 } },
-    rocket: { name: 'Rocket', img: 'rocket.png', cat: 'high', cost: { sulfur: 1400, gp: 650, charcoal: 1950, metal: 100, pipes: 2, tech: 0, lgf: 10, cloth: 0, wood: 0 } },
-    satchel: { name: 'Satchel', img: 'satchel.png', cat: 'high', cost: { sulfur: 480, gp: 240, charcoal: 720, metal: 80, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
-    explo: { name: 'Explo Ammo', img: 'explo.png', cat: 'high', cost: { sulfur: 25, gp: 10, charcoal: 30, metal: 10, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
-    beancan: { name: 'Beancan', img: 'beancan.png', cat: 'high', cost: { sulfur: 120, gp: 60, charcoal: 160, metal: 20, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
-    
-    he40: { name: '40mm HE', img: '40mm_he.png', cat: 'siege', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
-    hv: { name: 'HV Rocket', img: 'hv.png', cat: 'siege', cost: { sulfur: 200, gp: 100, charcoal: 300, metal: 100, pipes: 1, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
-    incen: { name: 'Incen Rocket', img: 'incen.png', cat: 'siege', cost: { sulfur: 110, gp: 50, charcoal: 150, metal: 10, pipes: 2, tech: 0, lgf: 253, cloth: 0, wood: 0 } },
-    f1: { name: 'F1 Grenade', img: 'f1.png', cat: 'siege', cost: { sulfur: 60, gp: 30, charcoal: 90, metal: 15, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
-
-    jackhammer: { name: 'Jackhammer', img: 'jackhammer.png', cat: 'eco', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } },
-    pickaxe: { name: 'Pickaxe', img: 'pickaxe.png', cat: 'eco', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 125, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 100 } },
-    sword: { name: 'Salvaged Sword', img: 'sword.png', cat: 'eco', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 15, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } }, 
-    molotov: { name: 'Molotov', img: 'molotov.png', cat: 'eco', cost: { sulfur: 0, gp: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 40, cloth: 10, wood: 0 } },
-    handmade: { name: 'Handmade Shell', img: 'handmade.png', cat: 'eco', cost: { sulfur: 10, gp: 5, charcoal: 15, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 } }
-};
-
-const dbItems = [
-    { id: 'woodDoor', name: 'Wooden Door', cat: 'doors', hp: 200, img: 'wood_door.png', strats: [{ jackhammer: 1 }, { sword: 18 }, { pickaxe: 7 }, { molotov: 2 }, { handmade: 45 }, { satchel: 2 }, { beancan: 6 }, { explo: 19 }, { c4: 1 }, { rocket: 1 }] },
-    { id: 'sheetDoor', name: 'Sheet Metal Door', cat: 'doors', hp: 250, img: 'sheet_door.png', strats: [{ jackhammer: 4 }, { he40: 12 }, { satchel: 4 }, { beancan: 18 }, { explo: 63 }, { rocket: 1, explo: 8 }, { c4: 1 }, { rocket: 2 }] },
-    { id: 'garageDoor', name: 'Garage Door', cat: 'doors', hp: 600, img: 'garage_door.png', strats: [{ jackhammer: 10 }, { he40: 25 }, { c4: 1, explo: 40 }, { satchel: 9 }, { beancan: 42 }, { explo: 150 }, { c4: 2 }, { rocket: 3 }] },
-    { id: 'armoredDoor', name: 'Armored Door', cat: 'doors', hp: 1000, img: 'armored_door.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 12 }, { explo: 250 }] },
-    { id: 'ladderHatch', name: 'Ladder Hatch', cat: 'doors', hp: 250, img: 'ladder_hatch.png', strats: [{ he40: 12 }, { satchel: 4 }, { explo: 63 }, { rocket: 1, explo: 8 }, { c4: 1 }, { rocket: 2 }] },
-    { id: 'stoneWallSoft', name: 'Stone Wall (Soft)', cat: 'walls', hp: 500, img: 'stone_wall.png', strats: [{ jackhammer: 2 }, { pickaxe: 7 }, { sword: 23 }, { c4: 2 }, { rocket: 4 }] },
-    { id: 'stoneWall', name: 'Stone Wall', cat: 'walls', hp: 500, img: 'stone_wall.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 10 }, { explo: 185 }] },
-    { id: 'metalWall', name: 'Metal Wall', cat: 'walls', hp: 1000, img: 'metal_wall.png', strats: [{ c4: 4 }, { rocket: 8 }, { satchel: 23 }, { explo: 400 }] },
-    { id: 'armoredWall', name: 'Armored Wall', cat: 'walls', hp: 2000, img: 'armored_wall.png', strats: [{ c4: 8 }, { rocket: 15 }, { satchel: 46 }, { explo: 799 }] },
-    { id: 'tc', name: 'Tool Cupboard', cat: 'deployables', hp: 100, img: 'tc.png', strats: [{ jackhammer: 1 }, { pickaxe: 2 }, { sword: 7 }, { molotov: 1 }, { f1: 3 }, { handmade: 20 }, { satchel: 3 }, { explo: 9 }, { c4: 1 }, { rocket: 1 }] },
-    { id: 'turret', name: 'Auto Turret', cat: 'deployables', hp: 1000, img: 'turret.png', strats: [{ hv: 3 }, { incen: 4 }, { he40: 10 }, { rocket: 4 }, { c4: 1 }, { explo: 100 }] },
-    { id: 'vending', name: 'Vending Machine', cat: 'deployables', hp: 2500, img: 'vending.png', strats: [{ c4: 3 }, { rocket: 10 }, { satchel: 23 }] },
-    { id: 'windowGlass', name: 'Reinf. Glass', cat: 'deployables', hp: 500, img: 'glass.png', strats: [{ c4: 2 }, { rocket: 4 }, { satchel: 12 }, { explo: 200 }] }
-];
-
-let targetsData = {};
-let currentCat = 'doors';
-
-function initRaid() {
-    loadCfg();
-    applySettings();
-
-    if (Object.keys(C.tools).length === 0) {
-        Object.keys(explosivesData).forEach(k => { C.tools[k] = (explosivesData[k].cat === 'high'); });
-        saveCfg();
-    }
-    
-    try { const t = localStorage.getItem('spananiTargetsV14'); if(t) targetsData = JSON.parse(t); } catch(e) {}
-    if(Object.keys(targetsData).length === 0) { dbItems.forEach(i => targetsData[i.id] = 0); }
-
-    buildMaterialGrid();
-    renderTargets();
-    renderArsenal();
-    calculateEngine();
+function calc() {
+  const rows = [];
+  const total = {};
+  let blocked = [], nTargets = 0, hp = 0;
+  for (const t of TARGETS) {
+    const q = S.qty[t.id] || 0;
+    if (!q) continue;
+    nTargets += q; hp += t.hp * q;
+    const plan = bestPlan(t);
+    if (!plan) { blocked.push(t); rows.push({ t, q, plan: null }); continue; }
+    rows.push({ t, q, plan });
+    for (const [k, n] of Object.entries(plan.combo)) total[k] = (total[k] || 0) + n * q;
+  }
+  const craftBag = {};
+  for (const [k, n] of Object.entries(total)) if (!TOOLS[k].loot) craftBag[k] = n;
+  const { raw, crafted } = expand(craftBag);
+  raw.wood = raw.charcoal || 0;
+  return { rows, total, raw, crafted, blocked, nTargets, hp };
 }
 
-function saveTargets() { localStorage.setItem('spananiTargetsV14', JSON.stringify(targetsData)); }
-
-function buildImg(imgFile) {
-    return `<img src="${GITHUB_IMAGES_URL}${imgFile}" onerror="this.style.opacity=0">`;
+// ============================================================
+// RENDER
+// ============================================================
+function img(file, alt = '') {
+  return file ? `<img src="${IMG}${file}" alt="${esc(alt)}" loading="lazy" onerror="this.style.visibility='hidden'">` : '';
+}
+function comboText(combo) {
+  return Object.entries(combo).map(([k, n]) => `${fmt(n)} × ${TOOLS[k].short}`).join(' + ');
 }
 
-function switchMainTab(tab) {
-    $$('#tab-targets, #tab-arsenal').forEach(t => t.classList.remove('on'));
-    $(`#tab-${tab}`).classList.add('on');
-    $('#view-targets').classList.toggle('hidden', tab !== 'targets');
-    $('#view-arsenal').classList.toggle('hidden', tab !== 'arsenal');
-}
-
-function setSubCat(cat) {
-    currentCat = cat;
-    $$('#cat-doors, #cat-walls, #cat-deployables').forEach(t => t.classList.remove('on'));
-    $(`#cat-${cat}`).classList.add('on');
-    renderTargets();
-}
-
-function toggleRawMode() {
-    C.rawMode = !C.rawMode;
-    saveCfg(); applySettings(); calculateEngine();
-}
-
-function updateQty(id, change) {
-    if (targetsData[id] + change >= 0) {
-        targetsData[id] += change;
-        saveTargets(); renderTargets(); calculateEngine();
-    }
-}
-
-function toggleTool(key) {
-    C.tools[key] = !C.tools[key];
-    saveCfg(); renderArsenal(); calculateEngine();
-}
-
-function toggleCategory(catId) {
-    const toolsInCat = Object.keys(explosivesData).filter(k => explosivesData[k].cat === catId);
-    const allActive = toolsInCat.every(k => C.tools[k]);
-    toolsInCat.forEach(k => C.tools[k] = !allActive);
-    saveCfg(); renderArsenal(); calculateEngine();
-}
-
-function buildMaterialGrid() {
-    const container = $('#materials-container');
-    container.innerHTML = '';
-    ['sulfur','charcoal','metal','lgf','pipes','tech','cloth','wood'].forEach(key => {
-        const res = resImgs[key];
-        container.innerHTML += `
-            <div class="m-card" id="mat-card-${key}">
-                <div style="width:32px; height:32px; margin:0 auto 12px;">${buildImg(res.img)}</div>
-                <span class="m-val" id="mat-${key}">0</span>
-                <span class="m-name" id="mat-label-${key}">${res.name}</span>
-            </div>
-        `;
-    });
+function renderTabs() {
+  const counts = {};
+  TARGETS.forEach(t => { counts[t.cat] = (counts[t.cat] || 0) + (S.qty[t.id] || 0); });
+  $('#catTabs').innerHTML = CATS.map(c =>
+    `<button class="tab ${S.cat === c.id ? 'on' : ''}" data-cat="${c.id}">${c.name}${counts[c.id] ? `<span class="cnt">${counts[c.id]}</span>` : ''}</button>`).join('');
+  const cat = CATS.find(c => c.id === S.cat);
+  $('#catNote').textContent = cat.note || '';
 }
 
 function renderTargets() {
-    const container = $('#targets-container');
-    container.innerHTML = '';
-    dbItems.filter(i => i.cat === currentCat).forEach(item => {
-        const qty = targetsData[item.id] || 0;
-        container.innerHTML += `
-            <div class="t-card ${qty > 0 ? 'active' : ''}">
-                <div class="t-info">
-                    <div class="t-icon">${buildImg(item.img)}</div>
-                    <div>
-                        <div class="t-name">${item.name}</div>
-                        <div class="t-hp">${item.hp} HP</div>
-                    </div>
-                </div>
-                <div class="t-ctrl">
-                    <button onclick="updateQty('${item.id}', -1)" class="t-btn"><i class="fa-solid fa-minus" style="font-size:12px;"></i></button>
-                    <span class="t-qty">${qty}</span>
-                    <button onclick="updateQty('${item.id}', 1)" class="t-btn"><i class="fa-solid fa-plus" style="font-size:12px;"></i></button>
-                </div>
-            </div>
-        `;
-    });
+  $('#targetList').innerHTML = TARGETS.filter(t => t.cat === S.cat).map(t => {
+    const q = S.qty[t.id] || 0;
+    return `<div class="tcard ${q ? 'on' : ''}" data-id="${t.id}">
+      <div class="ticon">${img(t.img, t.name)}</div>
+      <div class="tinfo">
+        <div class="tname" title="${esc(t.name)}">${esc(t.name)}</div>
+        <div class="tmeta"><span class="num">${fmt(t.hp)} HP</span>${t.approx ? '<span class="badge" title="Estimated values">≈ est.</span>' : ''}</div>
+      </div>
+      <div class="qty">
+        <button class="qbtn" data-act="dec" aria-label="Remove one">−</button>
+        <input class="qin num" type="number" inputmode="numeric" min="0" max="999" value="${q}" aria-label="${esc(t.name)} quantity">
+        <button class="qbtn" data-act="inc" aria-label="Add one">+</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderArsenal() {
-    ['high', 'siege', 'eco'].forEach(category => {
-        const container = $(`#arsenal-${category}`);
-        if(!container) return;
-        container.innerHTML = '';
-        
-        Object.keys(explosivesData).filter(k => explosivesData[k].cat === category).forEach(key => {
-            const exp = explosivesData[key];
-            const active = C.tools[key];
-            
-            let costStr = [];
-            if(exp.cost.sulfur > 0) costStr.push(`<span style="color:#f59e0b">${exp.cost.sulfur} S</span>`);
-            if(exp.cost.gp > 0) costStr.push(`<span style="color:#9ca3af">${exp.cost.gp} GP</span>`);
-            if(costStr.length === 0) {
-                if(exp.cost.metal > 0) costStr.push(`<span style="color:#60a5fa">${exp.cost.metal} F</span>`);
-                if(exp.cost.wood > 0) costStr.push(`<span style="color:#16a34a">${exp.cost.wood} W</span>`);
-                if(exp.cost.lgf > 0) costStr.push(`<span style="color:#ef4444">${exp.cost.lgf} L</span>`);
-            }
-            const costDisplay = costStr.join(' <br/> ');
-
-            container.innerHTML += `
-                <div onclick="toggleTool('${key}')" class="a-card ${active ? 'on' : ''}">
-                    <div class="t-icon">${buildImg(exp.img)}</div>
-                    <span class="a-name">${exp.name}</span>
-                    <div class="a-cost">${costDisplay || '<span style="color:var(--mu)">Free</span>'}</div>
-                </div>
-            `;
-        });
-    });
+  const group = (g, title) => {
+    const keys = Object.keys(TOOLS).filter(k => TOOLS[k].group === g);
+    const allOn = keys.every(k => S.tools[k]);
+    return `<div class="agroup">
+      <div class="agroup-h"><span class="hint">${title}</span><button class="linkbtn" data-group="${g}">${allOn ? 'Block all' : 'Allow all'}</button></div>
+      <div class="agrid">${keys.map(k => {
+        const T = TOOLS[k];
+        const s = toolSulfur(k);
+        return `<button class="acard ${S.tools[k] ? 'on' : ''}" data-tool="${k}" title="${esc(T.name)} — ${esc(T.needs)}">
+          <span class="chk"></span>${T.approx ? '<span class="badge">≈</span>' : ''}
+          ${img(T.img, T.name)}
+          <span class="aname">${esc(T.short)}</span>
+          <span class="acost ${s ? '' : 'free'} num">${T.loot ? 'loot' : s ? fmt(s) + ' sulfur' : 'no sulfur'}</span>
+        </button>`;
+      }).join('')}</div>
+    </div>`;
+  };
+  $('#arsenal').innerHTML = group('main', 'Explosives') + group('extra', 'Situational');
 }
 
-function resetAll() {
-    if(!confirm("Reset targets?")) return;
-    dbItems.forEach(i => targetsData[i.id] = 0);
-    saveTargets(); renderTargets(); calculateEngine();
+function renderOpts() {
+  document.querySelectorAll('#optGoal button').forEach(b => b.classList.toggle('on', b.dataset.v === S.goal));
+  document.querySelectorAll('#optMix button').forEach(b => b.classList.toggle('on', (b.dataset.v === '1') === S.mix));
 }
 
-$('#setting-rate').addEventListener('input', e => {
-    let val = parseFloat(e.target.value);
-    if (isNaN(val) || val <= 0) return;
-    C.rate = val; saveCfg(); applySettings(); calculateEngine();
+function renderResults() {
+  const R = calc();
+  const sulfur = R.raw.sulfur || 0;
+  const gp = R.crafted.gp || 0;
+  const items = Object.values(R.total).reduce((a, b) => a + b, 0);
+
+  $('#totSulfur').textContent = fmt(sulfur);
+  $('#totGp').textContent = fmt(gp);
+  $('#totItems').textContent = fmt(items);
+  $('#totTargets').textContent = fmt(R.nTargets);
+  $('#totHp').textContent = fmt(R.hp);
+
+  // Craft list
+  const craft = $('#craftList');
+  if (!R.nTargets) {
+    craft.innerHTML = '<div class="empty">Add something to raid on the left.</div>';
+    $('#craftHint').textContent = '';
+  } else {
+    const list = Object.entries(R.total).sort((a, b) => toolSulfur(b[0]) * b[1] - toolSulfur(a[0]) * a[1]);
+    let html = list.map(([k, n]) => {
+      const T = TOOLS[k];
+      const made = k === 'explo' && R.crafted.explo > n ? ` · crafts ${fmt(R.crafted.explo)} (comes in 2s)` : '';
+      return `<div class="crow">
+        ${img(T.img, T.name)}
+        <div class="cn"><b>${esc(T.name)}</b><span>${esc(T.needs)}${made}</span></div>
+        <span class="cs num">${T.loot ? 'from loot' : fmt(toolSulfur(k) * n) + ' S'}</span>
+        <span class="cq num">${fmt(n)}</span>
+      </div>`;
+    }).join('');
+    if (R.blocked.length) {
+      html += `<div class="empty bad">No allowed explosive can break: ${R.blocked.map(t => esc(t.name)).join(', ')}. Allow more tools.</div>`;
+    }
+    craft.innerHTML = html || '<div class="empty bad">Nothing allowed can break these targets.</div>';
+    $('#craftHint').textContent = S.acc < 100 && R.total.explo ? `explo at ${S.acc}% accuracy` : '';
+  }
+
+  // Raw materials
+  $('#matGrid').innerHTML = Object.entries(RAW).map(([k, r]) => {
+    const v = R.raw[k] || 0;
+    return `<div class="mcard ${v ? '' : 'zero'}">${img(r.img, r.name)}<b class="num">${fmt(v)}</b><span>${r.name}</span></div>`;
+  }).join('');
+
+  const inter = ['gp', 'explosives', 'beancan', 'stash', 'rope'].map(k => {
+    // Beancans you throw are already in the craft list; only show the ones that go into satchels.
+    const n = (R.crafted[k] || 0) - (k === 'beancan' ? (R.total.beancan || 0) : 0);
+    return n > 0 ? `<span class="chip">${img(RECIPES[k].img)}<b class="num">${fmt(n)}</b> ${RECIPES[k].name}${k === 'beancan' ? ' (for satchels)' : ''}</span>` : '';
+  }).join('');
+  $('#interList').innerHTML = inter || '<span class="hint">Nothing yet.</span>';
+
+  $('#rateLbl').textContent = S.rate + 'x';
+  $('#nodeCount').textContent = fmt(Math.ceil(sulfur / (300 * S.rate)));
+
+  renderBreakdown(R);
+}
+
+const openRows = new Set();
+function renderBreakdown(R) {
+  const el = $('#breakdown');
+  if (!R.rows.length) { el.innerHTML = '<div class="empty">Each target you add shows up here with its cheapest way in.</div>'; return; }
+  el.innerHTML = R.rows.map(({ t, q, plan }) => {
+    const opts = singles(t).sort((a, b) => a.sulfur - b.sulfur || a.count - b.count);
+    const bestKey = plan ? JSON.stringify(plan.combo) : '';
+    const table = `<table class="alt">
+      <thead><tr><th>Method (one target)</th><th class="r">Sulfur</th><th class="r">× ${q}</th></tr></thead>
+      <tbody>
+      ${plan && Object.keys(plan.combo).length > 1 ? `<tr class="best"><td>${comboText(plan.combo)} <span class="hint">(mixed)</span></td><td class="r num">${fmt(plan.sulfur)}</td><td class="r num">${fmt(plan.sulfur * q)}</td></tr>` : ''}
+      ${opts.map(o => {
+        const allowed = S.tools[o.tool];
+        const isBest = JSON.stringify(o.combo) === bestKey;
+        const T = TOOLS[o.tool];
+        return `<tr class="${isBest ? 'best' : allowed ? '' : 'off'}"><td>${comboText(o.combo)}${T.approx || t.approx ? ' <span class="badge">≈</span>' : ''}${allowed ? '' : ' <span class="hint">(blocked)</span>'}</td>
+          <td class="r num">${T.loot ? 'loot' : fmt(o.sulfur)}</td><td class="r num">${T.loot ? '—' : fmt(o.sulfur * q)}</td></tr>`;
+      }).join('')}
+      </tbody></table>`;
+    const select = `<div class="mselect">Method
+      <select data-force="${t.id}">
+        <option value="">Auto (${S.goal === 'count' ? 'fewest items' : 'least sulfur'})</option>
+        ${opts.map(o => `<option value="${o.tool}" ${S.force[t.id] === o.tool ? 'selected' : ''}>${TOOLS[o.tool].name} only</option>`).join('')}
+      </select></div>`;
+    return `<div class="bitem ${openRows.has(t.id) ? 'open' : ''}" data-row="${t.id}">
+      <button class="bhead">
+        ${img(t.img, t.name)}
+        <span class="bname">${q} × ${esc(t.name)}
+          <small>${plan ? (plan.forced ? 'Forced: ' : '') + comboText(plan.combo) + ' each' : '<span style="color:var(--bad)">blocked — allow more tools</span>'}</small></span>
+        <span class="bsul num">${plan ? fmt(plan.sulfur * q) + ' S' : ''}</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="bbody">${select}${table}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSettings() {
+  const presets = ['#8b7dff', '#f97316', '#34d399', '#22d3ee', '#f472b6', '#fcd34d', '#ef4444'];
+  $('#swatches').innerHTML = presets.map(c =>
+    `<button class="sw ${c === S.ac ? 'on' : ''}" data-color="${c}" style="background:${c}" aria-label="Accent ${c}"></button>`).join('')
+    + `<label class="swc" title="Custom colour"><input type="color" id="customColor" value="${S.ac}"></label>`;
+  $('#rateIn').value = S.rate;
+  $('#accIn').value = S.acc;
+}
+
+function applyAccent() {
+  const h = S.ac;
+  document.documentElement.style.setProperty('--ac', h);
+  document.documentElement.style.setProperty('--ac-rgb', [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).join(','));
+}
+
+function renderAll() { renderTabs(); renderTargets(); renderArsenal(); renderOpts(); renderResults(); }
+function update() { save(); renderTabs(); renderResults(); }
+
+// ============================================================
+// EVENTS
+// ============================================================
+function setQty(id, n) {
+  n = Math.max(0, Math.min(999, Math.floor(+n) || 0));
+  if (n) S.qty[id] = n; else { delete S.qty[id]; delete S.force[id]; }
+  const card = document.querySelector(`.tcard[data-id="${id}"]`);
+  if (card) { card.classList.toggle('on', n > 0); const inp = card.querySelector('.qin'); if (+inp.value !== n) inp.value = n; }
+  update();
+}
+
+$('#catTabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-cat]'); if (!b) return;
+  S.cat = b.dataset.cat; save(); renderTabs(); renderTargets();
+});
+$('#targetList').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const id = b.closest('.tcard').dataset.id;
+  setQty(id, (S.qty[id] || 0) + (b.dataset.act === 'inc' ? 1 : -1));
+});
+$('#targetList').addEventListener('input', e => {
+  if (!e.target.classList.contains('qin')) return;
+  const id = e.target.closest('.tcard').dataset.id;
+  if (e.target.value === '') return;
+  setQty(id, e.target.value);
+});
+$('#targetList').addEventListener('focusout', e => {
+  if (e.target.classList.contains('qin') && e.target.value === '') e.target.value = S.qty[e.target.closest('.tcard').dataset.id] || 0;
+});
+$('#targetList').addEventListener('focusin', e => { if (e.target.classList.contains('qin')) e.target.select(); });
+
+$('#arsenal').addEventListener('click', e => {
+  const g = e.target.closest('[data-group]');
+  if (g) {
+    const keys = Object.keys(TOOLS).filter(k => TOOLS[k].group === g.dataset.group);
+    const allOn = keys.every(k => S.tools[k]);
+    keys.forEach(k => S.tools[k] = !allOn);
+  } else {
+    const b = e.target.closest('[data-tool]'); if (!b) return;
+    S.tools[b.dataset.tool] = !S.tools[b.dataset.tool];
+  }
+  renderArsenal(); update();
+});
+$('#optGoal').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.goal = b.dataset.v; renderOpts(); update(); });
+$('#optMix').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.mix = b.dataset.v === '1'; renderOpts(); update(); });
+
+$('#breakdown').addEventListener('click', e => {
+  const h = e.target.closest('.bhead'); if (!h) return;
+  const row = h.closest('.bitem'); const id = row.dataset.row;
+  row.classList.toggle('open');
+  row.classList.contains('open') ? openRows.add(id) : openRows.delete(id);
+});
+$('#breakdown').addEventListener('change', e => {
+  const s = e.target.closest('[data-force]'); if (!s) return;
+  if (s.value) S.force[s.dataset.force] = s.value; else delete S.force[s.dataset.force];
+  update();
 });
 
-$('#setting-rate').addEventListener('blur', e => {
-    let val = parseFloat(e.target.value);
-    if (isNaN(val) || val <= 0) { e.target.value = 1; C.rate = 1; saveCfg(); applySettings(); calculateEngine(); }
+$('#clearBtn').addEventListener('click', () => { S.qty = {}; S.force = {}; save(); renderTabs(); renderTargets(); renderResults(); });
+
+// Settings
+const sov = $('#sov');
+$('#setBtn').addEventListener('click', () => { renderSettings(); sov.classList.add('open'); });
+$('#sClose').addEventListener('click', () => sov.classList.remove('open'));
+sov.addEventListener('click', e => { if (e.target === sov) sov.classList.remove('open'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') sov.classList.remove('open'); });
+$('#rateIn').addEventListener('input', e => { const v = parseFloat(e.target.value); if (v > 0) { S.rate = v; update(); } });
+$('#accIn').addEventListener('input', e => { const v = parseFloat(e.target.value); if (v >= 10 && v <= 100) { S.acc = v; update(); } });
+$('#swatches').addEventListener('click', e => { const b = e.target.closest('[data-color]'); if (!b) return; S.ac = b.dataset.color; applyAccent(); save(); renderSettings(); });
+$('#swatches').addEventListener('input', e => { if (e.target.id === 'customColor') { S.ac = e.target.value; applyAccent(); save(); } });
+$('#resetBtn').addEventListener('click', () => {
+  if (!confirm('Reset targets, tools and settings?')) return;
+  S = structuredClone(DEF); save(); applyAccent(); renderSettings(); renderAll();
 });
 
-function calculateEngine() {
-    let requiredExp = {}; 
-    let hasTargets = false;
-    let invalidPath = false;
+// Share
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2200); }
+$('#shareBtn').addEventListener('click', async () => {
+  const t = Object.entries(S.qty).map(([id, n]) => `${id}:${n}`).join(',');
+  if (!t) { toast('Add a target first'); return; }
+  const x = Object.keys(TOOLS).filter(k => S.tools[k]).join(',');
+  const url = `${location.origin}${location.pathname}#t=${t}&x=${x}`;
+  try { await navigator.clipboard.writeText(url); toast('Link copied'); }
+  catch (e) { prompt('Copy this link:', url); }
+});
 
-    dbItems.forEach(item => {
-        const qty = targetsData[item.id];
-        if (qty > 0) {
-            hasTargets = true;
-            const allowedStrats = item.strats.filter(strat => {
-                for(const expKey in strat) { if(!C.tools[expKey]) return false; }
-                return true;
-            });
-
-            if(allowedStrats.length === 0) { invalidPath = true; return; }
-
-            let cheapestCost = Infinity;
-            let bestStrat = null;
-
-            allowedStrats.forEach(strat => {
-                let cost = 0;
-                for(const [expKey, expQty] of Object.entries(strat)) {
-                    cost += (explosivesData[expKey].cost.sulfur * expQty);
-                }
-                if(cost < cheapestCost) { cheapestCost = cost; bestStrat = strat; }
-            });
-
-            if(bestStrat) {
-                for(const [expKey, expQty] of Object.entries(bestStrat)) {
-                    if(!requiredExp[expKey]) requiredExp[expKey] = 0;
-                    requiredExp[expKey] += (expQty * qty);
-                }
-            }
-        }
-    });
-
-    const craftList = $('#crafting-list');
-    craftList.innerHTML = '';
-    
-    if(!hasTargets) {
-        craftList.innerHTML = `<div style="text-align:center; color:var(--mu); padding:20px 0;">Add targets to generate layout.</div>`;
-    } else if (invalidPath) {
-        craftList.innerHTML = `<div style="text-align:center; color:#ff6b60; padding:20px 0;">Path blocked. Enable more tools in Arsenal.</div>`;
-    } else {
-        for(const [key, req] of Object.entries(requiredExp)) {
-            const expDef = explosivesData[key];
-            craftList.innerHTML += `
-                <div class="bp-item fade-in">
-                    <div class="bp-left">
-                        <div style="width:28px;height:28px;">${buildImg(expDef.img)}</div>
-                        <span class="bp-name">${expDef.name}</span>
-                    </div>
-                    <span class="bp-val">${req}</span>
-                </div>
-            `;
-        }
-    }
-
-    let matTotals = { sulfur: 0, pureSulfur: 0, gp: 0, charcoal: 0, metal: 0, pipes: 0, tech: 0, lgf: 0, cloth: 0, wood: 0 };
-    
-    if(!invalidPath) {
-        for (const [key, qty] of Object.entries(requiredExp)) {
-            const cost = explosivesData[key].cost;
-            matTotals.sulfur += cost.sulfur * qty;
-            matTotals.gp += cost.gp * qty;
-            matTotals.pureSulfur += (cost.sulfur - (cost.gp * 2)) * qty; 
-            matTotals.charcoal += cost.charcoal * qty;
-            matTotals.metal += cost.metal * qty;
-            matTotals.pipes += cost.pipes * qty;
-            matTotals.tech += cost.tech * qty;
-            matTotals.lgf += cost.lgf * qty;
-            matTotals.cloth += cost.cloth * qty;
-            matTotals.wood += cost.wood * qty; 
-        }
-    }
-
-    $('#total-gp').innerText = matTotals.gp.toLocaleString();
-    $('#total-pure-sulfur').innerText = matTotals.pureSulfur.toLocaleString();
-
-    let displaySulfur = C.rawMode ? matTotals.sulfur : matTotals.pureSulfur;
-    let displayLabel = C.rawMode ? "Total Sulfur" : "Pure Sulfur";
-
-    $('#mat-sulfur').innerText = displaySulfur.toLocaleString();
-    $('#mat-label-sulfur').innerText = displayLabel;
-    
-    const hideHidden = C.rawMode;
-    const totalWood = matTotals.wood + matTotals.charcoal;
-
-    ['charcoal','metal','pipes','tech','lgf','cloth','wood'].forEach(mat => {
-        const el = $(`#mat-${mat}`);
-        const card = $(`#mat-card-${mat}`);
-        
-        if(el && card) {
-            if (mat === 'charcoal' || mat === 'wood') {
-                if (!hideHidden) { 
-                    card.style.display = 'none';
-                    return; 
-                } else {
-                    card.style.display = 'flex';
-                }
-            }
-
-            const val = mat === 'wood' ? totalWood : matTotals[mat];
-            el.innerText = val.toLocaleString();
-            card.style.opacity = val > 0 ? '1' : '0.2';
-        }
-    });
-    
-    const sulfurCard = $('#mat-card-sulfur');
-    if(sulfurCard) {
-        sulfurCard.style.opacity = displaySulfur > 0 ? '1' : '0.2';
-    }
-
-    const nodeYield = 300 * C.rate;
-    $('#farm-nodes').innerText = Math.ceil(matTotals.sulfur / nodeYield).toLocaleString();
-}
-
-window.addEventListener('DOMContentLoaded', initRaid);
+load();
+applyAccent();
+renderAll();
 </script>
 </body>
 </html>

@@ -428,7 +428,7 @@ footer a:hover { color: var(--text); }
 
 <footer>
   <a href="/">spanani.de</a>
-  <span>rust raid calculator · vanilla values</span>
+  <span>rust raid calculator · vanilla values · some icons by <a href="https://game-icons.net" target="_blank" rel="noopener">game-icons.net</a> (CC BY 3.0)</span>
   <a href="https://lambacher.netlify.net" target="_blank" class="egg" title="easter egg" aria-label="Easter Egg"></a>
 </footer>
 
@@ -453,8 +453,8 @@ const RAW = {
   tech:     { name: 'Tech Trash',   img: 'tech.png' },
   pipe:     { name: 'Metal Pipes',  img: 'pipes.png' },
   wood:     { name: 'Wood (incl. charcoal)', img: 'wood.png' },
-  stones:   { name: 'Stones',       img: null, glyph: 'ST' },
-  propane:  { name: 'Propane Tanks', img: null, glyph: 'PT' }
+  stones:   { optional: true, name: 'Stones',       img: 'stones.svg', glyph: 'ST' },
+  propane:  { optional: true, name: 'Propane Tanks', img: 'propane_tank.svg', glyph: 'PT' }
 };
 
 // Crafting recipes. `out` = how many one craft produces.  ≈ = recipe not double-checked.
@@ -499,18 +499,18 @@ const TOOLS = {
   f1:        { name: 'F1 Grenade',           short: 'F1 Grenade',  img: 'f1.png',      group: 'launch', needs: 'Workbench 2', approx: true },
 
   molotov:   { name: 'Molotov Cocktail',     short: 'Molotov',     img: 'molotov.png', group: 'fire',  needs: 'Wood only · Workbench 1', approx: true },
-  fireArrow: { name: 'Fire Arrow',           short: 'Fire Arrow',  img: null, glyph: 'FA', group: 'fire', needs: 'Any bow · wood only', approx: true },
+  fireArrow: { name: 'Fire Arrow',           short: 'Fire Arrow',  img: 'fire_arrow.svg', glyph: 'FA', group: 'fire', needs: 'Any bow · wood only', approx: true },
   incen:     { name: 'Incendiary Rocket',    short: 'Incen Rocket', img: 'incen.png',  group: 'fire',  needs: 'Rocket Launcher · wood only', approx: true },
   handmade:  { name: 'Handmade Shell',       short: 'Handmade Shell', img: 'handmade.png', group: 'fire', needs: 'Shotgun · wooden door / TC', approx: true },
 
   jackhammer:{ name: 'Jackhammer',           short: 'Jackhammer',  img: 'jackhammer.png', group: 'melee', unit: 'tool', needs: 'Loot · soft side', loot: true, approx: true },
-  hatchet:   { name: 'Hatchet',              short: 'Hatchet',     img: null, glyph: 'HA', group: 'melee', unit: 'tool', needs: 'Workbench 1 · soft side', approx: true },
+  hatchet:   { name: 'Hatchet',              short: 'Hatchet',     img: 'hatchet.svg', glyph: 'HA', group: 'melee', unit: 'tool', needs: 'Workbench 1 · soft side', approx: true },
   pickaxe:   { name: 'Pickaxe',              short: 'Pickaxe',     img: 'pickaxe.png', group: 'melee', unit: 'tool', needs: 'Workbench 1 · soft side', approx: true },
-  salvAxe:   { name: 'Salvaged Axe',         short: 'Salvaged Axe', img: null, glyph: 'SA', group: 'melee', unit: 'tool', needs: 'Loot / WB1 · soft side', loot: true, approx: true },
-  spear:     { name: 'Wooden Spear',         short: 'Wooden Spear', img: null, glyph: 'SP', group: 'melee', unit: 'tool', needs: 'No workbench · wood only', approx: true },
+  salvAxe:   { name: 'Salvaged Axe',         short: 'Salvaged Axe', img: 'salvaged_axe.svg', glyph: 'SA', group: 'melee', unit: 'tool', needs: 'Loot / WB1 · soft side', loot: true, approx: true },
+  spear:     { name: 'Wooden Spear',         short: 'Wooden Spear', img: 'wooden_spear.svg', glyph: 'SP', group: 'melee', unit: 'tool', needs: 'No workbench · wood only', approx: true },
 
-  ram:       { name: 'Battering Ram',        short: 'Ram',         img: null, glyph: 'BR', group: 'siege', unit: 'hits', needs: 'Siege weapon · HQM to repair', loot: true, lootText: 'build a ram', approx: true },
-  bomb:      { name: 'Catapult Propane Bomb', short: 'Propane Bomb', img: null, glyph: 'PB', group: 'siege', needs: 'Catapult (or placed by hand)', approx: true }
+  ram:       { name: 'Battering Ram',        short: 'Ram',         img: 'battering_ram.svg', glyph: 'BR', group: 'siege', unit: 'hits', needs: 'Siege weapon · HQM to repair', loot: true, lootText: 'build a ram', approx: true },
+  bomb:      { name: 'Catapult Propane Bomb', short: 'Propane Bomb', img: 'propane_bomb.svg', glyph: 'PB', group: 'siege', needs: 'Catapult (or placed by hand)', approx: true }
 };
 const GROUPS = [
   ['main',   'Explosives'],
@@ -878,7 +878,7 @@ function renderResults() {
   }
 
   // Raw materials
-  $('#matGrid').innerHTML = Object.entries(RAW).filter(([k, r]) => !r.glyph || R.raw[k]).map(([k, r]) => {
+  $('#matGrid').innerHTML = Object.entries(RAW).filter(([k, r]) => !r.optional || R.raw[k]).map(([k, r]) => {
     const v = R.raw[k] || 0;
     return `<div class="mcard ${v ? '' : 'zero'}">${img(r.img, r.name, r.glyph)}<b class="num">${fmt(v)}</b><span>${r.name}</span></div>`;
   }).join('');

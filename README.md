@@ -48,6 +48,11 @@ because that's what actually proves I can build something.
 `/rust` and `/tennis` run their own independent color systems and
 aren't affected by any of this.
 
+**Icons on `/rust`:** the item pictures in `rust/images` are Rust's own icons, except the
+`.svg` ones (fire arrow, hatchet, salvaged axe, wooden spear, battering ram, propane
+bomb, stones, propane tank), which come from [game-icons.net](https://game-icons.net)
+and are licensed under CC BY 3.0.
+
 **Fonts:** DM Mono for the homepage headline and anything that's
 actually data (timestamps, digits, labels), Space Grotesk for every
 other heading, Inter for body copy. All self-hosted under

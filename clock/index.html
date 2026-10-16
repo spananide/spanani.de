@@ -258,8 +258,8 @@
       </nav>
       <div class="nav-tool-controls" style="display:flex; align-items:center; gap:12px;">
         <div class="time-pill">
-          <span class="dot-live" id="sDot"></span>
-          <span id="sText">Synced (±0ms)</span>
+          <span class="dot-live pending" id="sDot"></span>
+          <span id="sText">Syncing...</span>
         </div>
         <div class="mode-switch">
           <button class="mode-btn active" id="btnModeDig" onclick="setWatchMode('digital')"><span>Digital</span></button>
@@ -270,6 +270,7 @@
   </header>
 
   <main>
+    <noscript><p class="note-pill">This clock needs JavaScript to sync with the time servers and show the time. Turn JavaScript on to use it.</p></noscript>
     <div class="clock-stage">
 
       <div class="clock-panel">
@@ -285,7 +286,7 @@
             <span class="time-ms" id="digMs">.000</span>
             <span class="time-ampm" id="digAmpm"></span>
           </div>
-          <div class="time-subtitle" id="timeSub">Thursday, 1 January 2026</div>
+          <div class="time-subtitle" id="timeSub"></div>
           <div class="day-horizon" id="dayHorizon">
             <div class="dh-track"><div class="dh-fill" id="dhFill"></div></div>
             <div class="dh-meta"><span>00:00</span><span id="dhText">--% Day Elapsed</span><span>24:00</span></div>

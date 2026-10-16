@@ -527,8 +527,6 @@ a.time-pill:hover { border-color: var(--line-strong); color: var(--ink); }
   padding-block: clamp(40px, 6vw, 64px);
   border-top: 1px solid var(--line);
 }
-.project--text { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
-.project--text .project-text { grid-column: 2; }
 .project-media { display: block; }
 .project-text h2 { margin-bottom: var(--space-4); }
 .project-text p { color: var(--ink-soft); margin-bottom: var(--space-4); }
@@ -758,11 +756,9 @@ a.time-pill:hover { border-color: var(--line-strong); color: var(--ink); }
   .feature,
   .feature--bleed,
   .principles,
-  .project,
-  .project--text { grid-template-columns: 1fr; }
+  .project { grid-template-columns: 1fr; }
   .feature--bleed .feature-media { order: 0; margin-right: 0; }
   .feature--bleed .feature-media img { border-radius: var(--radius-md); border-right: 1px solid var(--line); }
-  .project--text .project-text { grid-column: auto; }
   .intro-aside { margin-top: 0; }
 }
 @media (max-width: 860px) {

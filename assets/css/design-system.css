@@ -538,13 +538,14 @@ a.time-pill:hover { border-color: var(--line-strong); color: var(--ink); }
 .reach-list { margin-top: var(--space-6); }
 .reach-row {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) auto;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) minmax(0, 4fr);
   gap: var(--space-3) var(--space-6);
   align-items: center;
   padding-block: var(--space-6);
   border-top: 1px solid var(--line);
 }
 .reach-row:last-child { border-bottom: 1px solid var(--line); }
+.reach-row > :last-child { justify-self: end; }
 .reach-row h2 { font-size: var(--fs-h3); }
 .reach-row .handle-value { display: block; margin-bottom: var(--space-1); overflow-wrap: anywhere; }
 .reach-row p { color: var(--ink-soft); font-size: var(--fs-sm); }
@@ -577,6 +578,9 @@ a.time-pill:hover { border-color: var(--line-strong); color: var(--ink); }
   border-top: 1px solid var(--line);
 }
 .legal-links a { color: var(--ink-soft); text-decoration: none; }
+.legal-note { color: var(--ink-faint); margin-right: auto; }
+.handle-chip { font-family: var(--font-mono); font-weight: 600; color: var(--ink-soft); }
+.actions--secondary { margin-top: var(--space-3); }
 .legal-links a:hover { color: var(--ink); text-decoration: underline; }
 
 .toast {

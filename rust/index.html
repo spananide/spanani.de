@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Rust Raid Calculator 2026 – Sulfur, C4, Rockets &amp; Explo — spanani</title>
-<meta name="description" content="Rust raid calculator: pick walls, doors and deployables, choose your explosives, and get the cheapest raid path — exact C4, rocket, satchel, explosive ammo and beancan counts, sulfur, gunpowder and every raw material.">
+<meta name="description" content="Rust raid calculator: pick walls, doors and deployables, choose your explosives, and get the cheapest raid path with C4, rocket, satchel, explosive ammo and beancan counts, sulfur, gunpowder and every raw material. Values marked ≈ are estimates.">
 <link rel="canonical" href="https://spanani.de/rust/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="spanani">
@@ -285,9 +285,9 @@ footer a:hover { color: var(--text); }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
       <span class="lbl">Share</span>
     </button>
-    <button class="btn" id="setBtn" title="Settings">
+    <button class="btn" id="setBtn" title="Preferences">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
-      <span class="lbl">Settings</span>
+      <span class="lbl">Preferences</span>
     </button>
   </div>
 </nav>
@@ -317,7 +317,7 @@ footer a:hover { color: var(--text); }
       <div class="ph"><span class="pt">3 · How should it plan?</span></div>
       <div class="opts">
         <div class="opt">
-          <label>Optimise for</label>
+          <label>Optimize for</label>
           <div class="seg" id="optGoal">
             <button data-v="sulfur">Least sulfur</button>
             <button data-v="count">Fewest items</button>
@@ -401,9 +401,9 @@ footer a:hover { color: var(--text); }
 
 <!-- Settings -->
 <div class="sov" id="sov">
-  <div class="sdr" role="dialog" aria-label="Settings">
+  <div class="sdr" role="dialog" aria-label="Preferences">
     <div class="shead">
-      <span class="pt">Settings</span>
+      <span class="pt">Preferences</span>
       <button class="iconbtn" id="sClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="sbody">
@@ -418,7 +418,7 @@ footer a:hover { color: var(--text); }
         <span class="hint">Percent of explosive 5.56 rounds that actually hit. 100 = perfect; 85 is a realistic budget.</span>
       </div>
       <div class="sg">
-        <div class="sgl">Accent colour</div>
+        <div class="sgl">Accent color</div>
         <div class="swatches" id="swatches"></div>
       </div>
     </div>
@@ -941,7 +941,7 @@ function renderSettings() {
   const presets = ['#8b7dff', '#f97316', '#34d399', '#22d3ee', '#f472b6', '#fcd34d', '#ef4444'];
   $('#swatches').innerHTML = presets.map(c =>
     `<button class="sw ${c === S.ac ? 'on' : ''}" data-color="${c}" style="background:${c}" aria-label="Accent ${c}"></button>`).join('')
-    + `<label class="swc" title="Custom colour"><input type="color" id="customColor" value="${S.ac}"></label>`;
+    + `<label class="swc" title="Custom color"><input type="color" id="customColor" value="${S.ac}"></label>`;
   $('#rateIn').value = S.rate;
   $('#accIn').value = S.acc;
 }

@@ -69,6 +69,21 @@
     }, 1800);
   }
 
+  function selectFallback(trigger, value) {
+    var scope = trigger.closest('.actions, .handle, .reach-row, .service') || document;
+    var target = scope.querySelector('[data-copy-target]');
+    if (target && window.getSelection) {
+      var range = document.createRange();
+      range.selectNodeContents(target);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      showToast('Couldn’t copy automatically. ' + value + ' is selected, copy it from there.');
+    } else {
+      showToast('Couldn’t copy automatically. The text is: ' + value);
+    }
+  }
+
   function initCopyButtons() {
     document.addEventListener('click', function (event) {
       var trigger = event.target.closest ? event.target.closest('[data-copy]') : null;
@@ -78,7 +93,7 @@
       var message = trigger.getAttribute('data-copy-message') || ('Copied ' + value);
       copyText(value).then(
         function () { showToast(message); markCopied(trigger); },
-        function () { showToast('Copying didn’t work. The text is: ' + value); }
+        function () { selectFallback(trigger, value); }
       );
     });
   }
@@ -89,6 +104,8 @@
     var input = root.querySelector('.cmd-input');
     var items = Array.prototype.slice.call(root.querySelectorAll('.cmd-item'));
     var empty = root.querySelector('.cmd-empty');
+    var hint = root.querySelector('[data-touch-hint]');
+    if (hint && window.matchMedia('(pointer: coarse)').matches) hint.textContent = hint.getAttribute('data-touch-hint');
 
     function visible() {
       return items.filter(function (a) { return !a.parentElement.hidden; });

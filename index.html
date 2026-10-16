@@ -62,16 +62,20 @@
           <p class="lead">For communities and small teams that outgrew the off-the-shelf stuff. One developer scopes it, writes it and keeps it running, from your first message to the last fix.</p>
           <div class="actions">
             <button class="btn btn-primary btn-lg" type="button" data-copy="spanani" data-copy-message="Copied &quot;spanani&quot;. Add me on Discord.">Copy Discord handle</button>
-            <a class="btn btn-secondary btn-lg" href="mailto:webmaster@spanani.de?subject=Project%20enquiry">Email me</a>
+            <span class="handle-chip">@<span data-copy-target>spanani</span></span>
+          </div>
+          <div class="actions actions--secondary">
+            <a class="btn btn-secondary" href="https://discord.com/users/723110232263491635" target="_blank" rel="noopener">Open in Discord</a>
+            <a class="btn btn-secondary" href="mailto:webmaster@spanani.de?subject=Project%20enquiry">Email me</a>
           </div>
         </div>
         <div class="intro-aside">
           <div class="cmd" data-cmd>
             <label class="cmd-field"><span class="cmd-slash" aria-hidden="true">/</span><input class="cmd-input" id="cmd-input" type="search" placeholder="what do you need?" autocomplete="off" spellcheck="false" aria-label="Filter what I build" aria-describedby="cmd-hint" aria-controls="cmd-list"></label>
-            <p class="cmd-hint" id="cmd-hint">Five things I build. Type to filter, use the arrow keys to pick, press Enter to open.</p>
+            <p class="cmd-hint" id="cmd-hint" data-touch-hint="Five things I build. Tap one to open.">Five things I build. Type to filter, use the arrow keys to pick, press Enter to open.</p>
             <ul class="cmd-list" id="cmd-list" aria-label="What I build">
               <li><a class="cmd-item" href="/services/#discord-bots" style="--i:0"><span class="cmd-name">/discord-bot</span><span class="cmd-desc">Moderation, tickets, leveling, giveaways, or something nobody has built yet.</span></a></li>
-              <li><a class="cmd-item" href="/services/#minecraft-mods" style="--i:1"><span class="cmd-name">/minecraft-mod</span><span class="cmd-desc">Fabric or Forge mods, Paper or Spigot plugins that fit your world.</span></a></li>
+              <li><a class="cmd-item" href="/services/#minecraft-mods" style="--i:1"><span class="cmd-name">/minecraft-mod</span><span class="cmd-desc">Fabric, NeoForge or Forge mods, Paper or Spigot plugins that fit your world.</span></a></li>
               <li><a class="cmd-item" href="/services/#server-setup" style="--i:2"><span class="cmd-name">/server-setup</span><span class="cmd-desc">Channels, roles, permissions and onboarding that make sense to new members.</span></a></li>
               <li><a class="cmd-item" href="/services/#websites" style="--i:3"><span class="cmd-name">/website</span><span class="cmd-desc">Hand-built, fast sites for communities, game servers and small businesses.</span></a></li>
               <li><a class="cmd-item" href="/services/#custom" style="--i:4"><span class="cmd-name">/custom-tool</span><span class="cmd-desc">Calculators, trackers, dashboards, automation scripts and API glue.</span></a></li>
@@ -137,7 +141,7 @@
         <p class="lead">Tell me roughly what you need and roughly when. I'll tell you whether I'm the right person for it, what it would involve and how long it would take.</p>
         <div class="handle">
           <span class="handle-label">Discord</span>
-          <span class="handle-value">spanani</span>
+          <span class="handle-value">@<span data-copy-target>spanani</span></span>
           <button class="btn btn-primary" type="button" data-copy="spanani" data-copy-message="Copied &quot;spanani&quot;. Add me on Discord.">Copy Discord handle</button>
         </div>
         <p class="reach-alt">Prefer email? Write to <a href="mailto:webmaster@spanani.de?subject=Project%20enquiry">webmaster@spanani.de</a>.</p>
@@ -147,6 +151,7 @@
   </main>
 
   <div class="legal-links" lang="de">
+    <span class="legal-note" lang="en">I work in German and English.</span>
     <a href="/impressum/">Impressum</a>
     <a href="/datenschutz/">Datenschutz</a>
   </div>

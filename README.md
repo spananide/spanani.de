@@ -24,7 +24,7 @@ framework, no build step — deployed on GitHub Pages from `main`, with
 "no backend" is `/pausenklau`, whose accounts run on a small Cloudflare
 Worker (see below).
 
-**Looking to hire me?** → [spanani.de/services](https://spanani.de/services) · [spanani.de/contact](https://spanani.de/contact)
+**Looking to hire me?** → [spanani.de/services](https://spanani.de/services/) · [spanani.de/contact](https://spanani.de/contact/)
 
 ## Structure
 

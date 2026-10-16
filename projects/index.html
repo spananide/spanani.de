@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Projects — spanani</title>
-  <meta name="description" content="Four things spanani built and still maintains: an atomic precision clock, a Rust raid calculator, an offline tennis match tracker and the Rust Empire server tooling.">
+  <meta name="description" content="Six things spanani built and still maintains: the Bauchgefühl food and symptom diary, the Pausenklau school tool, an atomic precision clock, a Rust raid calculator, an offline tennis match tracker and the Rust Empire server tooling.">
   <meta name="author" content="spanani">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://spanani.de/projects/">
   <meta property="og:title" content="Projects — spanani">
-  <meta property="og:description" content="An atomic precision clock, a Rust raid calculator, an offline tennis match tracker and the Rust Empire server tooling.">
+  <meta property="og:description" content="A food and symptom diary, a school timetable tool, an atomic precision clock, a Rust raid calculator, an offline tennis match tracker and the Rust Empire server tooling.">
   <meta name="theme-color" content="#faf9fb" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0c0b10" media="(prefers-color-scheme: dark)">
 
@@ -53,10 +53,34 @@
       <div class="container">
         <div class="section-head reveal">
           <h1 class="section-title">Everything I've built and still keep running</h1>
-          <p class="section-lead">These are my own projects, not client work — which makes them the most honest thing I can show you. Every one of them is live, maintained, and written from scratch without a framework. Open any of them and poke at it.</p>
+          <p class="section-lead">These are my own projects, not client work — which makes them the most honest thing I can show you. Every one of them is live and maintained, and most are written from scratch without a framework. Open any of them and poke at it.</p>
         </div>
 
         <div class="grid-2" data-reveal-stagger>
+
+          <a class="card card--feature has-media reveal" href="https://bauchgefuehl.spanani.workers.dev" target="_blank" rel="noopener">
+            <div class="card-media"><img src="/assets/img/projects/bauchgefuehl.webp" width="960" height="720" alt="The Bauchgefühl landing page: headline about finding repeating patterns, sign-up buttons and a sample meal entry" loading="lazy"></div>
+            <div class="card-body">
+              <div>
+                <span class="card-tag">Health tracking · SaaS</span>
+                <h2 class="card-title">Bauchgefühl</h2>
+                <p class="card-desc">A food and symptom diary for sensitive stomachs. Describe a meal in one sentence and AI breaks it into ingredients and nutrients, or scan a barcode for real Open Food Facts data. One tap logs a stomach ache, and over time it shows which patterns repeat in your own data. Patterns, never diagnoses. German and English, with a Stripe subscription for the premium analysis.</p>
+              </div>
+              <p class="stack-meta">Next.js · Supabase · Cloudflare Workers AI · Stripe · German &amp; English</p>
+            </div>
+          </a>
+
+          <a class="card card--feature has-media reveal" href="/pausenklau">
+            <div class="card-media"><img src="/assets/img/projects/pausenklau.webp" width="960" height="720" alt="Pausenklau with demo data: a red overtime counter at plus three minutes above a week timetable" loading="lazy"></div>
+            <div class="card-body">
+              <div>
+                <span class="card-tag">School tool</span>
+                <h2 class="card-title">Pausenklau</h2>
+                <p class="card-desc">Upload a photo of your timetable and AI reads every lesson with its real start and end time, A/B weeks included. A live countdown to the bell turns into a red overtime counter when the teacher keeps going, and one tap logs it. A leaderboard shows who eats the most of your break, with school holidays for every German state built in.</p>
+              </div>
+              <p class="stack-meta">vanilla JS · Cloudflare Workers + D1 · Workers AI vision · German UI</p>
+            </div>
+          </a>
 
           <a class="card card--feature has-media reveal" href="/clock">
             <div class="card-media"><img src="/assets/img/projects/clock.webp" width="960" height="720" alt="The Atomic Precision Clock's digital display, showing a network-synced time and location telemetry bar" loading="lazy"></div>

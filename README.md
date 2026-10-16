@@ -31,7 +31,7 @@ Worker (see below).
 | Page | What's there |
 |---|---|
 | `/` | Homepage — name-first hero with a code snippet, a grid of what I build, featured projects, and a way to get in touch. |
-| `/projects` | Every side project in one place: the clock, the Rust raid calculator, the tennis tracker, and Rust Empire. |
+| `/projects` | Every side project in one place: Bauchgefühl, Pausenklau, the clock, the Rust raid calculator, the tennis tracker, and Rust Empire. |
 | `/services` | What I take on for other people: Discord bots, Minecraft mods/plugins, server setup, websites, custom tools. No prices listed — every project's different, message me and we'll figure it out. |
 | `/contact` | Discord and email, both click-to-copy. No contact form, because there's nothing behind it to send one to. |
 | `/impressum`, `/datenschutz` | The German legal pages a site like this needs. |

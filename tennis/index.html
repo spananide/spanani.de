@@ -16,9 +16,13 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="The Tennis Match Tracker match list with two scored matches">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#0c0b10" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0c0b10" media="(prefers-color-scheme: dark)">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23ccff00'/%3E%3Cpath d='M6 10c6 2 10 7 10 16M26 10c-6 2-10 7-10 16' stroke='%23000' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#f4f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#16121d" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preload" href="/assets/fonts/bricolage-grotesque-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/atkinson-next-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/design-system.css">
+  <script src="/assets/js/site.js" defer></script>
   <script>
     if (typeof window !== 'undefined' && window.location && window.location.pathname && window.location.pathname.endsWith('/index.html')) {
       const cleanPath = window.location.pathname.replace(/index\.html$/, '');
@@ -26,44 +30,39 @@
     }
   </script>
   <style>
-    @font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/space-grotesk-700.woff2') format('woff2'); }
     :root {
-      --bg: #0c0b10;
-      --card: #15141d;
-      --card-elevated: #232130;
-      --border: #322f3f;
-      --border-subtle: #1e1c28;
-      --accent: #ccff00; /* Tennis Volt — functional: "you". Do not rebrand. */
-      --accent-dim: rgba(204, 255, 0, 0.12);
-      --accent-opp: #ff9500; /* Functional: "opponent". Do not rebrand. */
-      --accent-opp-dim: rgba(255, 149, 0, 0.12);
-      --text: #f3f1f7;
-      --text-muted: #a8a4b8;
-      --text-dim: #837f94;
+      --bg: var(--paper);
+      --card: var(--paper-raised);
+      --card-elevated: color-mix(in srgb, var(--paper-raised) 88%, var(--ink));
+      --border: var(--line-strong);
+      --border-subtle: var(--line);
+      --you: var(--accent);
+      --you-dim: var(--accent-soft);
+      --opp: #ff9500;
+      --opp-dim: rgba(255, 149, 0, 0.14);
+      --text: var(--ink);
+      --text-muted: var(--ink-soft);
+      --text-dim: var(--ink-faint);
+    }
+    @media (prefers-color-scheme: light) {
+      :root { --opp: #b45309; --opp-dim: rgba(180, 83, 9, 0.12); }
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; font-variant-numeric: tabular-nums; }
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-variant-numeric: tabular-nums; padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
 
-    .app { width: 100%; max-width: 440px; min-height: 100vh; display: flex; flex-direction: column; }
+    .app { width: 100%; max-width: 440px; margin: 0 auto; flex: 1; display: flex; flex-direction: column; }
 
-    /* Navigation Bar */
-    .nav {
-      height: 52px;
-      padding: 0 16px;
+    .appbar {
+      padding: 20px 16px 4px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border-subtle);
-      background: rgba(21, 20, 29, 0.85);
-      backdrop-filter: blur(20px);
-      position: sticky;
-      top: 0;
-      z-index: 20;
+      gap: 12px;
     }
-    .nav-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+    .nav-title { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
     .nav-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
-    .btn-nav { background: none; border: none; color: var(--accent); font-size: 14px; font-weight: 600; cursor: pointer; padding: 6px 0; }
+    .btn-nav { background: none; border: none; color: var(--you); font-size: 14px; font-weight: 600; cursor: pointer; padding: 6px 0; }
 
     .view { padding: 16px; flex: 1; }
     .hidden { display: none !important; }
@@ -81,13 +80,13 @@
       cursor: pointer;
     }
     .match-row:active { background: var(--card-elevated); }
-    .match-meta { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 2px; }
+    .match-meta { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
     .match-players { font-size: 15px; font-weight: 600; }
     .match-score {
       font-size: 16px;
       font-weight: 800;
-      color: var(--accent);
-      background: var(--accent-dim);
+      color: var(--you);
+      background: var(--you-dim);
       padding: 6px 12px;
       border-radius: 8px;
     }
@@ -100,12 +99,12 @@
       width: 52px;
       height: 52px;
       border-radius: 26px;
-      background: var(--accent);
-      color: #000;
+      background: var(--you);
+      color: var(--on-accent);
       font-size: 24px;
       font-weight: 700;
       border: none;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      box-shadow: var(--shadow-md);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -125,9 +124,7 @@
     .section-label {
       font-size: 11px;
       font-weight: 700;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
+      color: var(--text-muted);
       margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
@@ -147,14 +144,14 @@
       padding: 0 12px;
       outline: none;
     }
-    .input:focus { border-color: var(--accent); }
+    .input:focus { border-color: var(--you); }
 
     /* Buttons */
     .btn-primary {
       width: 100%;
       height: 48px;
-      background: var(--accent);
-      color: #000;
+      background: var(--you);
+      color: var(--on-accent);
       border: none;
       border-radius: 10px;
       font-size: 14px;
@@ -194,8 +191,8 @@
       border-radius: 7px;
       cursor: pointer;
     }
-    .seg-btn.active-you { background: var(--card); color: var(--accent); }
-    .seg-btn.active-opp { background: var(--card); color: var(--accent-opp); }
+    .seg-btn.active-you { background: var(--card); color: var(--you); }
+    .seg-btn.active-opp { background: var(--card); color: var(--opp); }
 
     /* Live Score Display */
     .live-card {
@@ -207,6 +204,7 @@
       margin-bottom: 12px;
     }
     .live-score {
+      font-family: var(--font-display);
       font-size: 48px;
       font-weight: 800;
       letter-spacing: -1px;
@@ -251,7 +249,7 @@
       justify-content: center;
       gap: 2px;
     }
-    .btn-point.you { background: var(--accent); color: #000; }
+    .btn-point.you { background: var(--you); color: var(--on-accent); }
     .btn-point.opp { background: var(--card-elevated); color: var(--text); border: 1px solid var(--border); }
     .btn-point span { font-size: 11px; font-weight: 500; opacity: 0.8; }
     .btn-undo {
@@ -311,24 +309,23 @@
     }
     .node-slot { height: 20px; font-size: 10px; font-weight: 800; display: flex; align-items: center; }
     .node-bar { width: 100%; height: 3px; background: var(--border); border-radius: 1px; margin: 3px 0; }
-    .node-bar.you { background: var(--accent); }
-    .node-bar.opp { background: var(--accent-opp); }
+    .node-bar.you { background: var(--you); }
+    .node-bar.opp { background: var(--opp); }
     .node-num { font-size: 10px; color: var(--text-dim); font-weight: 700; }
 
     /* Comparison Bars */
     .h2h-row { margin-bottom: 12px; }
     .h2h-meta { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
-    .h2h-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+    .h2h-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
     .h2h-track { height: 4px; background: var(--card-elevated); border-radius: 2px; display: flex; overflow: hidden; gap: 1px; }
-    .h2h-fill-you { background: var(--accent); height: 100%; }
-    .h2h-fill-opp { background: var(--accent-opp); height: 100%; }
+    .h2h-fill-you { background: var(--you); height: 100%; }
+    .h2h-fill-opp { background: var(--opp); height: 100%; }
 
     /* Clean Detail Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(8px);
+      background: var(--scrim);
       display: flex;
       align-items: flex-end;
       justify-content: center;
@@ -337,7 +334,7 @@
     .modal-sheet {
       width: 100%;
       max-width: 440px;
-      background: #1a1825;
+      background: var(--paper-raised);
       border-top: 1px solid var(--border);
       border-radius: 18px 18px 0 0;
       padding: 20px 16px 32px 16px;
@@ -346,7 +343,7 @@
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .modal-title { font-size: 16px; font-weight: 700; }
-    .modal-close { background: var(--card-elevated); border: none; color: var(--text); width: 28px; height: 28px; border-radius: 14px; font-size: 12px; cursor: pointer; }
+    .modal-close { background: var(--card-elevated); border: none; color: var(--text); width: 28px; height: 28px; padding: 0; border-radius: 14px; font-size: 12px; cursor: pointer; align-items: center; justify-content: center; }
 
     .modal-stats {
       display: grid;
@@ -355,7 +352,7 @@
       margin-bottom: 14px;
     }
     .stat-chip { background: var(--card); border: 1px solid var(--border-subtle); padding: 8px 10px; border-radius: 8px; font-size: 12px; }
-    .stat-chip-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+    .stat-chip-label { font-size: 11px; color: var(--text-muted); font-weight: 700; }
     .stat-chip-val { font-size: 13px; font-weight: 700; margin-top: 2px; }
 
     .point-feed {
@@ -372,39 +369,31 @@
     .point-node-bar { height: 3px; background: var(--border); border-radius: 1px; margin: 3px 0; }
     .point-node-tag { font-size: 11px; font-weight: 800; background: var(--card-elevated); padding: 2px 4px; border-radius: 4px; margin: 2px 0; }
 
-    footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 24px 16px;
-      font-size: 11px;
-      color: var(--text-dim);
-      border-top: 1px solid var(--border-subtle);
-      margin-top: auto;
-    }
-    footer a {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    footer a:hover { color: var(--text); }
   </style>
 </head>
 <body>
 
+<header class="site-nav">
+    <div class="nav-inner">
+      <a href="/" class="brand"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><g transform="translate(3.4,3.7) scale(0.065)"><path fill="var(--brand)" fill-rule="evenodd" d="M 1 85.550 L 1 170.099 45.414 214.800 C 69.842 239.385, 90.098 259.768, 90.427 260.096 C 90.756 260.424, 81.124 270.774, 69.022 283.096 L 47.018 305.500 47.009 280.992 L 47 256.484 24 233.500 L 1 210.516 1 294.758 L 1 379 19.307 379 L 37.614 379 151.751 264.689 L 265.888 150.377 301.150 185.650 C 320.544 205.049, 336.206 221.134, 335.956 221.392 C 326.956 230.678, 284.700 273.491, 245.042 313.506 C 216.694 342.109, 190.474 368.659, 186.775 372.506 L 180.050 379.500 267.275 379.273 C 315.249 379.148, 362.038 379.035, 371.250 379.023 L 388 379 388 293.837 L 388 208.674 343.422 163.821 C 318.904 139.152, 298.992 118.563, 299.172 118.068 C 299.585 116.936, 340.785 75, 341.485 75 C 341.768 75, 342 85.628, 342 98.618 L 342 122.236 364.154 144.868 C 376.339 157.316, 386.689 167.650, 387.154 167.833 C 387.619 168.017, 388 130.554, 388 84.583 L 388 1 317.242 1 L 246.484 1 223.500 24 L 200.516 47 252.770 47 L 305.025 47 214.262 137.469 L 123.500 227.937 88.250 192.724 C 68.862 173.357, 53 157.237, 53 156.902 C 53 156.567, 86.862 122.187, 128.250 80.501 C 169.637 38.816, 204.088 3.875, 204.807 2.855 C 206.077 1.052, 203.240 1, 103.557 1 L 1 1 1 85.550 M 47.005 72.750 L 47.010 98.500 64.518 81 C 74.148 71.375, 85.430 59.788, 89.589 55.250 L 97.151 47 72.075 47 L 47 47 47.005 72.750 M 156.027 91.750 C 149.844 98.213, 132.798 115.538, 118.148 130.252 L 91.511 157.003 107.525 173.018 L 123.540 189.032 177.520 134.966 C 207.209 105.229, 231.687 80.697, 231.917 80.450 C 232.146 80.202, 217.694 80, 199.802 80 L 167.270 80 156.027 91.750 M 210.855 244.332 L 157.210 298.500 188.855 298.791 L 220.500 299.081 258.680 260.291 L 296.859 221.500 281.191 205.750 C 272.574 197.088, 265.293 190.037, 265.012 190.082 C 264.730 190.127, 240.360 214.539, 210.855 244.332 M 337.500 284.478 C 335.850 286.259, 324.379 297.905, 312.008 310.358 L 289.517 333 315.758 333 L 342 333 342 307 C 342 292.700, 341.663 281.054, 341.250 281.120 C 340.837 281.186, 339.150 282.697, 337.500 284.478 M 100.242 355.258 C 87.459 368.050, 77 378.737, 76.999 379.008 C 76.999 379.279, 91.511 379.383, 109.249 379.240 L 141.500 378.980 164.500 355.487 L 187.500 331.994 155.492 331.997 L 123.484 332 100.242 355.258"/></g></svg>spanani<span class="brand-sub">/ tennis</span></a>
+      <nav class="nav-links" lang="en" aria-label="Primary">
+        <a class="nav-link" href="/projects/">Projects</a>
+        <a class="nav-link" href="/services/">Services</a>
+        <a class="nav-link" href="/contact/">Contact</a>
+      </nav>
+      <a class="time-pill" lang="en" href="/clock/" aria-label="Current time in Berlin, open the clock"><span data-berlin-clock>--:--:--</span> Berlin</a>
+    </div>
+  </header>
+
 <div class="app">
 
-  <!-- Header Navigation -->
-  <header class="nav">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <a href="/" style="font-family:'Space Grotesk',-apple-system,sans-serif;font-weight:700;font-size:16px;color:var(--text);text-decoration:none;letter-spacing:-0.4px;">spanani <span style="font-weight:400;color:var(--text-muted);font-size:12px;font-family:inherit;">/ tennis</span></a>
-    </div>
-    <div style="text-align:right;">
-      <div class="nav-title" id="navTitle">Matches</div>
+  <div class="appbar">
+    <div>
+      <h1 class="nav-title" id="navTitle">Matches</h1>
       <div class="nav-sub" id="navSub"></div>
     </div>
     <button class="btn-nav hidden" id="btnBack" onclick="navigate('home')">Zurück</button>
-  </header>
+  </div>
 
   <!-- VIEW 1: MATCH-LISTE -->
   <main id="viewHome" class="view">
@@ -419,7 +408,7 @@
     <div class="section-box">
       <div class="section-label">
         <span>Satzverlauf</span>
-        <span style="color: var(--accent);">■ DU &nbsp; <span style="color: var(--accent-opp);">■ GEGNER</span></span>
+        <span style="color: var(--you);">■ DU &nbsp; <span style="color: var(--opp);">■ GEGNER</span></span>
       </div>
       <div class="timeline" id="matchTimeline"></div>
     </div>
@@ -480,7 +469,7 @@
 
     <!-- Live Score Center -->
     <div class="live-card">
-      <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Punktestand</div>
+      <div style="font-size: 12px; color: var(--text-muted); font-weight: 700;">Punktestand</div>
       <div class="live-score" id="liveScore">0 - 0</div>
       <div class="score-pills" id="scorePills"></div>
     </div>
@@ -532,13 +521,12 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer>
-    <a href="/">spanani.de</a>
-    <span>tennis match tracker</span>
-    <span><a href="/impressum/" lang="de">Impressum</a> · <a href="/datenschutz/" lang="de">Datenschutz</a></span>
-  </footer>
+</div>
 
+<div class="legal-links">
+  <span class="legal-note" lang="en">I work in German and English.</span>
+  <a href="/impressum/">Impressum</a>
+  <a href="/datenschutz/">Datenschutz</a>
 </div>
 
 <script>
@@ -786,9 +774,9 @@
     return `
       <div class="h2h-row">
         <div class="h2h-meta">
-          <span style="color: var(--accent);">${vy}</span>
+          <span style="color: var(--you);">${vy}</span>
           <span class="h2h-label">${label}</span>
-          <span style="color: var(--accent-opp);">${vo}</span>
+          <span style="color: var(--opp);">${vo}</span>
         </div>
         <div class="h2h-track">
           <div class="h2h-fill-you" style="width: ${py}%;"></div>
@@ -814,7 +802,7 @@
       node.className = 'point-node';
       node.innerHTML = `
         <div class="point-node-slot">${pt.winner === 'you' ? '●' : ''}</div>
-        <div class="point-node-bar" style="background:${pt.winner === 'you' ? 'var(--accent)' : 'var(--accent-opp)'}"></div>
+        <div class="point-node-bar" style="background:${pt.winner === 'you' ? 'var(--you)' : 'var(--opp)'}"></div>
         <div class="point-node-tag">${pt.tag}</div>
         <div class="point-node-slot">${pt.winner === 'opp' ? '●' : ''}</div>
       `;

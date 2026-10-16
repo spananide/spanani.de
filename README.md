@@ -64,9 +64,11 @@ Licensed under the SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
 - `/pausenklau` talks to `workers/pausenklau-api`: a Cloudflare Worker
   with a D1 database (accounts with salted PBKDF2 password hashes,
   hashed session tokens, timetable and entries) and Workers AI
-  (Mistral Small 3.1) for reading timetable photos. The page cuts the
-  photo into one image per weekday before sending it, because the model
-  mixes up columns when it sees the whole week at once. Holidays come
+  (GLM-5.3 Flash, low reasoning effort) for reading timetable photos:
+  every lesson comes back with its own start and end time, so days with
+  different period or break lengths just work. In a benchmark on real
+  screenshots it got 119/120 lessons exactly right; Mistral Small 3.1
+  and Llama 4 Scout mixed up days and lengths. Holidays come
   from the [OpenHolidays API](https://openholidaysapi.org). Deploy with
   `npx wrangler deploy` inside `workers/pausenklau-api`; schema changes
   go in `migrations/` (`npx wrangler d1 migrations apply pausenklau-db --remote`).

@@ -2,9 +2,12 @@
 // Frontend: https://spanani.de/pausenklau. Auth is a bearer token, not a cookie, so it
 // keeps working cross-site in Safari.
 
-const MODEL = '@cf/mistralai/mistral-small-3.1-24b-instruct';
+// Benchmarked on real timetable screenshots: GLM-5.3 Flash with low reasoning effort got
+// 119/120 lessons exactly right (day, course, start, end) from the whole week at once.
+// Mistral Small 3.1 and Llama 4 Scout mixed up days and lesson lengths.
+const MODEL = '@cf/zai-org/glm-5.3-flash';
 const SESSION_DAYS = 180;
-const AI_PER_DAY = 8; // uploads (images) per user and day; Workers AI's free quota is shared
+const AI_PER_DAY = 8; // images per user and day (~100–350 neurons each); Workers AI's free quota is shared
 const PBKDF2_ITER = 100000; // Workers caps PBKDF2 at 100k iterations
 
 const enc = new TextEncoder();
@@ -66,51 +69,43 @@ async function checkPassword(env, username, password) {
 }
 
 // ---------- Timetable extraction ----------
-const COL_PROMPT = `This image shows ONE day of a school timetable: the time axis is on the left, the lessons of that day are on the right.
-List every lesson box from top to bottom. For each box:
-- start: the time-axis label at the height of the box's top edge
-- end: the time-axis label at the height of the box's bottom edge. Look at where the box really stops: tall boxes span two or more periods and their bottom edge is far below the top.
-- heightRatio: the box's height divided by the height of the smallest box in this image (1 = single period, about 2 = double period).
+const PROMPT = `This image is a school timetable for one week (Monday to Friday columns, a time axis on the left).
+For EVERY lesson box output its weekday column, start time and end time (read them from where the box's top and bottom edges line up with the labels on the time axis; tall boxes span several periods), and its text lines.
+Lessons that are crossed out, highlighted or marked with icons are still lessons. Times are 24-hour HH:MM.
 Return JSON only:
-{"lessons":[{"start":"HH:MM","end":"HH:MM","heightRatio":1,"course":"bold first line","teacher":"short code","teacherName":"name in brackets or empty","room":"last line or empty"}]}
-If the day has no lessons return {"lessons":[]}. Do not invent lessons.`;
-const AXIS_PROMPT = `This image is the left edge of a school timetable with its time axis. List every clock time printed on it, from top to bottom, as HH:MM.
-Return JSON only: {"times":["08:00","08:45"]}`;
+{"lessons":[{"day":"Mo|Di|Mi|Do|Fr","start":"HH:MM","end":"HH:MM","course":"first line","teacher":"short code","teacherName":"name in brackets or empty","room":"last line or empty"}]}`;
 
-function parseModelJson(out) {
-  if (out && typeof out === 'object' && !('response' in out)) return out;
-  const r = out?.response;
-  if (r && typeof r === 'object') return r;
-  const s = String(r ?? '');
+// Workers AI answers either {response} or an OpenAI-style chat completion
+function modelText(out) {
+  if (typeof out?.response === 'string') return out.response;
+  const choice = out?.choices?.[0];
+  if (choice?.finish_reason === 'length' && !choice.message?.content) throw new HttpError(502, 'Die KI ist nicht fertig geworden. Versuch es nochmal.');
+  return choice?.message?.content ?? '';
+}
+function parseJson(s) {
   try { return JSON.parse(s.slice(s.indexOf('{'), s.lastIndexOf('}') + 1)); } catch { return null; }
 }
-async function vision(env, prompt, image) {
-  const out = await env.AI.run(MODEL, {
-    max_tokens: 2048, temperature: 0,
-    messages: [{ role: 'user', content: [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: image } }] }],
-  });
-  return parseModelJson(out);
-}
-const isImage = s => typeof s === 'string' && s.length < 2e6 && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(s);
+const isImage = s => typeof s === 'string' && s.length < 3e6 && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(s);
 
 async function extract(req, env, username) {
-  const b = await body(req, 8e6);
-  if (!isImage(b.axis) || !Array.isArray(b.cols) || b.cols.length !== 5 || !b.cols.every(isImage)) throw new HttpError(400, 'Bild fehlt oder ist ungültig');
+  const b = await body(req, 3.2e6);
+  if (!isImage(b.image)) throw new HttpError(400, 'Bild fehlt oder ist ungültig');
   const today = new Date().toISOString().slice(0, 10);
   const ok = await env.DB.prepare(`UPDATE users SET ai_count = CASE WHEN ai_day = ?1 THEN ai_count + 1 ELSE 1 END, ai_day = ?1
     WHERE username = ?2 AND (ai_day != ?1 OR ai_count < ?3) RETURNING ai_count`).bind(today, username, AI_PER_DAY).first();
   if (!ok) throw new HttpError(429, `Heute schon ${AI_PER_DAY} Bilder ausgelesen. Morgen geht es wieder, oder trag die Stunden selbst ein.`);
 
-  const str = v => typeof v === 'string' ? v.slice(0, 60) : '';
-  const [axis, ...cols] = await Promise.all([vision(env, AXIS_PROMPT, b.axis), ...b.cols.map(c => vision(env, COL_PROMPT, c))].map(p => p.catch(e => { console.error(e); return null; })));
-  return json({
-    times: (axis?.times || []).filter(t => /^\d{1,2}:\d{2}$/.test(t)),
-    days: cols.map(c => (Array.isArray(c?.lessons) ? c.lessons : []).slice(0, 20).map(l => ({
-      start: str(l.start), end: str(l.end), heightRatio: Number(l.heightRatio) || 1,
-      course: str(l.course), teacher: str(l.teacher), teacherName: str(l.teacherName), room: str(l.room),
-    }))),
-    failed: cols.filter(c => !c).length + (axis ? 0 : 1),
+  const out = await env.AI.run(MODEL, {
+    max_tokens: 16000, temperature: 0, reasoning_effort: 'low',
+    messages: [{ role: 'user', content: [{ type: 'text', text: PROMPT }, { type: 'image_url', image_url: { url: b.image } }] }],
   });
+  const j = parseJson(modelText(out));
+  if (!Array.isArray(j?.lessons)) throw new HttpError(502, 'Die KI hat keinen lesbaren Stundenplan geliefert. Versuch es nochmal oder mit einem schärferen Bild.');
+  const str = v => typeof v === 'string' ? v.trim().slice(0, 60) : '';
+  return json({ lessons: j.lessons.slice(0, 80).map(l => ({
+    day: str(l.day), start: str(l.start), end: str(l.end),
+    course: str(l.course), teacher: str(l.teacher), teacherName: str(l.teacherName), room: str(l.room),
+  })) });
 }
 
 // ---------- Router ----------

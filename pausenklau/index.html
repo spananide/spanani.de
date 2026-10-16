@@ -70,31 +70,22 @@
     .up h3 { font-size: 18px; }
     .drop { display: grid; place-items: center; text-align: center; border: 1.5px dashed var(--line-strong); border-radius: var(--radius-sm); padding: 22px 12px; cursor: pointer; color: var(--ink-soft); font-size: var(--fs-sm); }
     .drop:hover { border-color: var(--accent); color: var(--ink); }
-    .crop-img { position: relative; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); }
-    .crop-img img { width: 100%; display: block; }
-    .crop-axis { position: absolute; top: 0; bottom: 0; left: 0; background: rgba(var(--accent-rgb), 0.18); border-right: 2px solid var(--accent); }
-    .crop-cols { position: absolute; top: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr); border-right: 2px solid var(--accent); }
-    .crop-cols span { border-left: 1px dashed var(--accent); display: flex; justify-content: center; padding-top: 4px; }
-    .crop-cols span b { font-family: var(--font-mono); font-size: 10px; color: var(--on-accent); background: var(--accent); padding: 1px 5px; border-radius: 4px; height: fit-content; }
-    .up input[type=range] { width: 100%; accent-color: var(--accent); }
+    .up img { width: 100%; display: block; border-radius: var(--radius-sm); border: 1px solid var(--line); }
     .status { font-size: var(--fs-sm); color: var(--ink-soft); min-height: 1.4em; }
     .status.ok { color: var(--success); } .status.bad { color: var(--danger); }
 
     /* Editor */
     .ed-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: var(--space-5); align-items: start; }
+    .ed-layout:has(> .ed-photo[hidden]) { grid-template-columns: 1fr; }
     .ed-photo { position: sticky; top: 90px; border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; background: var(--paper-sunk); }
     .ed-photo img { width: 100%; }
     .ed-photo figcaption { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); padding: 8px 12px; }
     .ed-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: var(--space-4); }
     details.box { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 12px 16px; margin-top: var(--space-4); background: var(--paper-raised); }
     details.box summary { cursor: pointer; font-weight: 600; }
-    .slot-list, .teacher-list { display: grid; gap: 6px; margin-top: 12px; }
-    .slot-row, .teacher-row { display: grid; align-items: center; gap: 8px; }
-    .slot-row { grid-template-columns: 32px 1fr 1fr 40px; }
-    .teacher-row { grid-template-columns: 90px 1fr; }
-    .slot-row .num { color: var(--ink-faint); }
-    .x { background: none; border: 1px solid var(--line); border-radius: var(--radius-sm); height: 44px; color: var(--ink-soft); cursor: pointer; }
-    .x:hover { color: var(--danger); border-color: var(--danger); }
+    .teacher-list { display: grid; gap: 6px; margin-top: 12px; }
+    .teacher-row { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 8px; }
+    .axis span { line-height: 1.15; text-align: right; }
 
     /* Live panel */
     .live { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: var(--space-5); display: grid; gap: 12px; box-shadow: var(--shadow-sm); }
@@ -322,7 +313,7 @@
       <div data-step="3" class="stack" hidden>
         <span class="card-tag">Schritt 3 von 4</span>
         <h2>Lad deinen Stundenplan hoch</h2>
-        <p class="lead">Ein Screenshot oder Foto deiner Woche (Montag bis Freitag). Schieb danach die zwei Regler so, dass die fünf lila Spalten genau auf Mo bis Fr liegen und links nur die Uhrzeiten bleiben. Dann liest die Seite jeden Tag einzeln aus, das dauert etwa 15 Sekunden.</p>
+        <p class="lead">Ein Screenshot oder Foto deiner Woche, Montag bis Freitag, mit der Uhrzeit-Leiste am Rand. Eine KI liest daraus jede Stunde mit Beginn und Ende aus, auch wenn Stunden- und Pausenlängen an verschiedenen Tagen unterschiedlich sind. Das dauert meist 30 Sekunden bis 2 Minuten; lass die Seite so lange offen.</p>
         <div class="uploads" id="uploads"></div>
         <div class="row-btns"><button class="btn btn-ghost" id="oBack3">Zurück</button><span class="sp"></span><button class="btn btn-ghost" id="oManual">Ohne Foto, selbst eintragen</button><button class="btn btn-primary" id="oToReview" disabled>Weiter zum Prüfen</button></div>
       </div>
@@ -333,7 +324,7 @@
       <div class="steps" id="edSteps"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
       <div class="rankhead"><div><span class="card-tag" id="edTag">Schritt 4 von 4</span><h2 id="edTitle">Stimmt alles?</h2></div>
         <div class="row-btns"><button class="btn btn-ghost" id="edCancel">Abbrechen</button><button class="btn btn-primary" id="edSave">Fertig</button></div></div>
-      <p class="lead" id="edLead">Vergleich den Plan mit deinem Foto. Tipp auf eine Stunde, um sie zu ändern. Besonders bei Doppelstunden lohnt ein Blick, ob die Länge stimmt.</p>
+      <p class="lead" id="edLead">Vergleich den Plan mit deinem Foto. Tipp auf eine Stunde, um sie zu ändern. Zeiten liest die KI meist genau; verlesene Lehrernamen korrigierst du am schnellsten unten unter „Lehrer“, das gilt dann für alle Stunden.</p>
       <div class="ed-layout">
         <figure class="ed-photo" id="edPhoto" hidden><img alt="Dein hochgeladener Stundenplan"><figcaption>Dein Foto zum Vergleich</figcaption></figure>
         <div>
@@ -347,9 +338,6 @@
           <details class="box"><summary>Lehrer (<span id="edTCount">0</span>)</summary>
             <p class="fine" style="margin-top:8px">Kürzel und voller Name. Ein Kürzel umbenennen ändert es in allen Stunden; gleiche Kürzel werden zusammengelegt.</p>
             <div class="teacher-list" id="edTeachers"></div></details>
-          <details class="box"><summary>Stundenzeiten (<span id="edSCount">0</span> Stunden)</summary>
-            <div class="slot-list" id="edSlots"></div>
-            <button class="btn btn-ghost" id="edSlotAdd" style="margin-top:10px">+ Stunde am Ende</button></details>
         </div>
       </div>
     </section>
@@ -454,8 +442,8 @@
       <p class="meta" id="pMeta"></p>
       <div class="f3 field">
         <div><label class="lbl" for="pDay">Tag</label><select class="inp" id="pDay"></select></div>
-        <div><label class="lbl" for="pFrom">Von Std.</label><select class="inp" id="pFrom"></select></div>
-        <div><label class="lbl" for="pTo">Bis Std.</label><select class="inp" id="pTo"></select></div>
+        <div><label class="lbl" for="pS">Beginn</label><input class="inp" type="time" id="pS" required></div>
+        <div><label class="lbl" for="pE">Ende</label><input class="inp" type="time" id="pE" required></div>
       </div>
       <div class="field"><label class="lbl" for="pCourse">Kurs / Fach</label><input class="inp" id="pCourse" maxlength="40" required placeholder="z. B. M-LK2 oder Mathe"></div>
       <div class="f2 field">
@@ -518,7 +506,6 @@
 const API = 'https://pausenklau-api.spanani.workers.dev';
 const DAYS = ['Mo','Di','Mi','Do','Fr'];
 const STATES = {BW:'Baden-Württemberg',BY:'Bayern',BE:'Berlin',BB:'Brandenburg',HB:'Bremen',HH:'Hamburg',HE:'Hessen',MV:'Mecklenburg-Vorpommern',NI:'Niedersachsen',NW:'Nordrhein-Westfalen',RP:'Rheinland-Pfalz',SL:'Saarland',SN:'Sachsen',ST:'Sachsen-Anhalt',SH:'Schleswig-Holstein',TH:'Thüringen'};
-const DEFAULT_SLOTS = [['08:00','08:45'],['08:50','09:35'],['09:55','10:40'],['10:45','11:30'],['11:45','12:30'],['12:35','13:20'],['13:30','14:15'],['14:15','15:00']].map(([s, e]) => ({ s, e }));
 const K = 1.5; // px pro Minute im Wochenraster
 
 // ---------- Helfer ----------
@@ -571,7 +558,22 @@ const nowMin = () => { const n = now(); return n.getHours()*60 + n.getMinutes();
 const todayIso = () => iso(now());
 
 // ---------- Zustand ----------
-const blankProfile = () => ({ v: 2, onboarded: false, state: '', ab: false, anchor: '', flips: [], slots: DEFAULT_SLOTS, plans: { A: [], B: [] }, teachers: {} });
+// Eine Stunde im Plan: { d: 0–4 (Mo–Fr), s: 'HH:MM', e: 'HH:MM', c: Kurs, te: Lehrer-Kürzel, r: Raum }.
+// Jede Stunde hat eigene Zeiten, damit Stunden- und Pausenlängen je Tag verschieden sein dürfen.
+const blankProfile = () => ({ v: 3, onboarded: false, state: '', ab: false, anchor: '', flips: [], plans: { A: [], B: [] }, teachers: {} });
+// v2 hatte ein festes Stundenraster (slots) und Stunden als Nummern f..t; Einträge hießen "Tag-Stundennummer"
+function migrateV2(profile, weeks) {
+  if (profile.v !== 2 || !profile.slots) return false;
+  const S = profile.slots;
+  for (const v in profile.plans) profile.plans[v] = profile.plans[v].filter(l => S[l.f - 1] && S[l.t - 1]).map(({ d, f, t, c, te, r }) => ({ d, s: S[f - 1].s, e: S[t - 1].e, c, te, r }));
+  for (const w of Object.values(weeks)) {
+    const e = {};
+    for (const [k, x] of Object.entries(w.e || {})) { const [d, f] = k.split('-'); e[S[f - 1] ? `${d}-${S[f - 1].s}` : k] = x; }
+    w.e = e;
+  }
+  delete profile.slots; profile.v = 3;
+  return true;
+}
 const today0 = now();
 const state = { token: lsGet('pk-token'), username: '', profile: blankProfile(), weeks: {}, holidays: [],
   view: 'week', sort: 'over', navigated: false,
@@ -585,12 +587,12 @@ function isA(mon) {
   const f = P().flips.filter(x => x <= iso(mon)).length;
   return ((w + f) % 2 + 2) % 2 === 0;
 }
-// Stunden eines Plans mit Uhrzeiten; mon (optional) liefert zusätzlich das Datum
-function lessonsFor(plan, slots, mon) {
-  return plan.filter(l => slots[l.f - 1] && slots[l.t - 1]).map(l => ({ ...l, key: l.d + '-' + l.f,
-    start: slots[l.f - 1].s, end: slots[l.t - 1].e, date: mon ? iso(addDays(mon, l.d)) : '' })).sort((a, b) => a.d - b.d || a.f - b.f);
+// Stunden eines Plans sortiert; mon (optional) liefert zusätzlich das Datum. key = "Tag-Beginn" benennt die Einträge.
+function lessonsFor(plan, mon) {
+  return plan.map(l => ({ ...l, key: l.d + '-' + l.s, start: l.s, end: l.e, date: mon ? iso(addDays(mon, l.d)) : '' }))
+    .sort((a, b) => a.d - b.d || toMin(a.s) - toMin(b.s));
 }
-const lessonsOf = mon => lessonsFor(P().plans[isA(mon) ? 'A' : 'B'] || [], P().slots, mon);
+const lessonsOf = mon => lessonsFor(P().plans[isA(mon) ? 'A' : 'B'] || [], mon);
 const teacherName = te => P().teachers[te] || '';
 const teacherLabel = te => teacherName(te) ? `${te} (${teacherName(te)})` : te;
 function builtinOff(ds) {
@@ -601,35 +603,26 @@ const customOff = ds => state.weeks[iso(mondayOf(fromIso(ds)))]?.off?.[ds] || nu
 const offReason = ds => builtinOff(ds) || customOff(ds);
 const editWeek = mk => { const w = state.weeks[mk] ||= {}; w.e ??= {}; w.off ??= {}; return w; };
 
-// Zeitachse → Stunden: Abschnitte zwischen zwei Zeiten, die 30 bis 100 min lang sind; kürzere sind Pausen
-function buildSlots(times) {
-  const T = [...new Set(times.filter(isHM).map(toMin))].sort((a, b) => a - b), out = [];
-  for (let i = 0; i < T.length - 1; i++) if (T[i + 1] - T[i] >= 30 && T[i + 1] - T[i] <= 100) out.push({ s: fromMin(T[i]), e: fromMin(T[i + 1]) });
-  return out;
-}
-// KI-Ergebnis (pro Tag eine Liste) → Plan. Startzeit wird auf die nächste Stunde gerundet,
-// die Länge kommt aus dem Höhenverhältnis und endet spätestens vor der nächsten Stunde des Tages.
-function planFromDays(days, slots) {
-  const snap = hm => { const i = isHM(hm) ? slots.findIndex(s => toMin(s.s) >= toMin(hm) - 3) : -1; return i < 0 ? slots.length : i + 1; };
-  const byName = {}, teachers = {}, plan = [];
-  days.forEach((day, d) => {
-    const ls = day.filter(l => l.course?.trim()).map(l => {
-      const name = (l.teacherName || '').trim();
-      let te = (l.teacher || name || '?').trim().replace(/\s*\(.*\)$/, '');
-      if (name) { te = byName[name] ||= te; teachers[te] ||= name; } // gleicher Name = gleiches Kürzel (z. B. SÜ/SU)
-      return { d, f: snap(l.start), n: clamp(l.heightRatio || 1, 1, 3), c: l.course.trim(), te, r: (l.room || '').trim() };
-    }).sort((a, b) => a.f - b.f).filter((l, i, a) => !i || l.f !== a[i - 1].f);
-    ls.forEach((l, i) => plan.push({ d, f: l.f, t: Math.max(l.f, Math.min(l.f + l.n - 1, (ls[i + 1]?.f ?? slots.length + 1) - 1, slots.length)), c: l.c, te: l.te, r: l.r }));
-  });
-  return { plan, teachers };
-}
-// Stunden, in denen in keinem Plan Unterricht liegt, am Rand entfernen und Nummern anpassen
-function trimSlots(slots, plans) {
-  const used = slots.map((_, i) => Object.values(plans).flat().some(l => l.f <= i + 1 && l.t >= i + 1));
-  const first = used.indexOf(true), last = used.lastIndexOf(true);
-  if (first < 0) return slots;
-  for (const p of Object.values(plans)) for (const l of p) { l.f -= first; l.t -= first; }
-  return slots.slice(first, last + 1);
+// KI-Ergebnis → Plan. Ungültige Zeiten fallen raus, Überschneidungen am selben Tag auch (die frühere gewinnt).
+// ctx wird über A- und B-Woche geteilt, damit derselbe Lehrer nicht doppelt auftaucht.
+const hm = s => isHM(s) ? fromMin(toMin(s)) : ''; // "8:00" → "08:00"
+const cleanText = s => (s || '').replace(/[()]/g, '').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').trim(); // "MÜ-", "(Müller)" → "MÜ", "Müller"
+function planFromAI(lessons, ctx = { byName: {}, byCourse: {}, teachers: {} }) {
+  const plan = [];
+  for (const l of lessons) {
+    const d = DAYS.findIndex(x => (l.day || '').toLowerCase().startsWith(x.toLowerCase()));
+    const s = hm(l.start), e = hm(l.end), c = cleanText(l.course);
+    if (d < 0 || !s || !e || toMin(e) <= toMin(s) || !c) continue;
+    const name = cleanText(l.teacherName);
+    let te = cleanText((l.teacher || '').replace(/\(.*\)/, '')) || name || '?';
+    // Ein Kurs hat einen Lehrer: so bleiben auch verlesene Kürzel (durchgestrichen, SÜ/SU) beim ersten, sauberen Fund
+    if (ctx.byCourse[c]) te = ctx.byCourse[c];
+    else { if (name) te = ctx.byName[name] ||= te; ctx.byCourse[c] = te; }
+    if (name) ctx.teachers[te] ||= name;
+    plan.push({ d, s, e, c, te, r: cleanText(l.room) });
+  }
+  plan.sort((a, b) => a.d - b.d || toMin(a.s) - toMin(b.s));
+  return { plan: plan.filter((l, i) => !plan.slice(0, i).some(x => x.d === l.d && toMin(x.e) > toMin(l.s))), teachers: ctx.teachers };
 }
 
 // ---------- Live-Status: Countdown bis Stundenende, danach +Zeit ----------
@@ -711,8 +704,9 @@ async function refresh() {
   try {
     const d = await api('GET', '/me');
     state.username = d.username;
-    state.profile = { ...blankProfile(), ...d.profile };
+    state.profile = { ...blankProfile(), ...d.profile, v: d.profile.v || 3 };
     state.weeks = d.weeks || {};
+    if (migrateV2(state.profile, state.weeks)) { pending.profile = true; Object.keys(state.weeks).forEach(mk => pending.weeks.add(mk)); flush(); }
     cacheLocal(); setSync('');
     loadHolidays(); show();
   } catch (e) { if (e.offline) setSync('Offline'); }
@@ -822,93 +816,59 @@ function renderUploads() {
     <div class="up" data-v="${v}">
       <h3>${P().ab ? v + '-Woche' : 'Dein Stundenplan'}</h3>
       <label class="drop" for="file${v}">Foto oder Screenshot wählen<input type="file" id="file${v}" accept="image/*" hidden></label>
-      <div class="crop" hidden>
-        <div class="crop-img"><img alt="Vorschau ${v}"><div class="crop-axis"></div><div class="crop-cols">${DAYS.map(d => `<span><b>${d}</b></span>`).join('')}</div></div>
-        <label class="lbl" for="L${v}" style="margin-top:12px">Zeitachse endet, Montag beginnt</label><input type="range" id="L${v}" min="0" max="40" step="0.25" data-k="L">
-        <label class="lbl" for="R${v}">Freitag endet</label><input type="range" id="R${v}" min="50" max="100" step="0.25" data-k="R">
-        <button class="btn btn-primary" data-read style="margin-top:10px">Auslesen</button>
-      </div>
+      <img alt="Vorschau ${v}" hidden>
+      <button class="btn btn-primary" data-read hidden>Auslesen</button>
       <p class="status"></p>
     </div>`).join('');
   for (const v of variants()) {
-    const u = ob.uploads[v];
-    if (u) { setUploadImage(v, u.url); }
-    if (ob.results[v]) setStatus(v, `Ausgelesen: ${ob.results[v].days.flat().length} Stunden erkannt.`, 'ok');
+    if (ob.uploads[v]) setUploadImage(v, ob.uploads[v].url);
+    if (ob.results[v]) setStatus(v, `Ausgelesen: ${ob.results[v].length} Stunden erkannt.`, 'ok');
   }
   updateReviewBtn();
 }
 function updateReviewBtn() { $('#oToReview').disabled = !variants().every(v => ob.results[v]); }
 function setStatus(v, msg, cls = '') { const s = $(`.up[data-v="${v}"] .status`); s.textContent = msg; s.className = 'status ' + cls; }
 function setUploadImage(v, url) {
-  const box = $(`.up[data-v="${v}"]`), u = ob.uploads[v] ||= { L: 4, R: 99.5 };
-  u.url = url;
-  box.querySelector('.crop').hidden = false;
+  const box = $(`.up[data-v="${v}"]`);
+  (ob.uploads[v] ||= {}).url = url;
   box.querySelector('img').src = url;
-  box.querySelector('[data-k=L]').value = u.L; box.querySelector('[data-k=R]').value = u.R;
-  drawGuides(v);
-}
-function drawGuides(v) {
-  const box = $(`.up[data-v="${v}"]`), u = ob.uploads[v];
-  box.querySelector('.crop-axis').style.width = u.L + '%';
-  Object.assign(box.querySelector('.crop-cols').style, { left: u.L + '%', width: (u.R - u.L) + '%' });
+  box.querySelector('img').hidden = box.querySelector('[data-read]').hidden = false;
 }
 $('#uploads').addEventListener('change', e => {
-  const box = e.target.closest('.up'); if (!box) return;
+  const box = e.target.closest('.up'); if (!box || !e.target.files?.[0]) return;
   const v = box.dataset.v;
-  if (e.target.type === 'file' && e.target.files[0]) {
-    if (ob.uploads[v]?.url) URL.revokeObjectURL(ob.uploads[v].url);
-    delete ob.results[v]; updateReviewBtn(); setStatus(v, '');
-    setUploadImage(v, URL.createObjectURL(e.target.files[0]));
-  }
-});
-$('#uploads').addEventListener('input', e => {
-  const box = e.target.closest('.up'); if (!box || e.target.type !== 'range') return;
-  const u = ob.uploads[box.dataset.v];
-  u[e.target.dataset.k] = +e.target.value;
-  if (u.R - u.L < 20) { e.target.dataset.k === 'L' ? u.L = u.R - 20 : u.R = u.L + 20; e.target.value = u[e.target.dataset.k]; }
-  drawGuides(box.dataset.v);
+  if (ob.uploads[v]?.url) URL.revokeObjectURL(ob.uploads[v].url);
+  delete ob.results[v]; updateReviewBtn(); setStatus(v, '');
+  setUploadImage(v, URL.createObjectURL(e.target.files[0]));
 });
 $('#uploads').addEventListener('click', async e => {
   const b = e.target.closest('[data-read]'); if (!b) return;
-  const v = b.closest('.up').dataset.v;
-  b.disabled = true; setStatus(v, 'Liest Mo bis Fr aus… (etwa 15 Sekunden)');
+  const v = b.closest('.up').dataset.v, t0 = Date.now();
+  b.disabled = true;
+  const tick = () => setStatus(v, `Liest aus… ${fmtS((Date.now() - t0) / 1000)} (meist 30 Sekunden bis 2 Minuten, Seite offen lassen)`);
+  tick(); const timer = setInterval(tick, 1000);
   try {
-    const res = await api('POST', '/extract', cropForAI(b.closest('.up').querySelector('img'), ob.uploads[v]));
-    const n = res.days.flat().length;
-    if (!n) throw new Error('Keine Stunden erkannt. Prüf die Regler oder versuch ein schärferes Bild.');
-    ob.results[v] = res;
-    setStatus(v, `Ausgelesen: ${n} Stunden erkannt.${res.failed ? ` ${res.failed} Teil(e) konnten nicht gelesen werden.` : ''}`, 'ok');
+    const res = await api('POST', '/extract', { image: imageForAI(b.closest('.up').querySelector('img')) });
+    const n = planFromAI(res.lessons).plan.length;
+    if (!n) throw new Error('Keine Stunden erkannt. Versuch es mit einem schärferen Bild, auf dem die Uhrzeiten zu sehen sind.');
+    ob.results[v] = res.lessons;
+    setStatus(v, `Ausgelesen: ${n} Stunden erkannt.`, 'ok');
   } catch (err) { setStatus(v, err.message, 'bad'); }
-  finally { b.disabled = false; updateReviewBtn(); }
+  finally { clearInterval(timer); b.disabled = false; updateReviewBtn(); }
 });
-// Bild in Zeitachse + 5 Tagesspalten zerlegen; jede Spalte bekommt die Zeitachse links angeheftet,
-// damit das Modell nur einen Tag sieht und Tage nicht verwechseln kann.
-function cropForAI(img, u) {
-  const W = img.naturalWidth, H = img.naturalHeight, L = Math.round(W * u.L / 100), R = W * u.R / 100, cw = (R - L) / 5;
-  const sc = Math.min(1, 1400 / H), ax = Math.max(1, L);
-  const shot = (parts, w) => {
-    const c = document.createElement('canvas');
-    c.width = Math.max(1, Math.round(w * sc)); c.height = Math.round(H * sc);
-    const g = c.getContext('2d'); let x = 0;
-    for (const [sx, sw] of parts) { g.drawImage(img, sx, 0, sw, H, x * sc, 0, sw * sc, H * sc); x += sw; }
-    return c.toDataURL('image/jpeg', 0.85);
-  };
-  return { axis: shot([[0, ax]], ax), cols: DAYS.map((_, d) => shot([[0, ax], [L + d * cw, cw]], ax + cw)) };
+// Auf höchstens 2000 px verkleinern und als JPEG schicken (auch HEIC-Fotos vom iPhone landen so als JPEG)
+function imageForAI(img) {
+  const sc = Math.min(1, 2000 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement('canvas');
+  c.width = Math.round(img.naturalWidth * sc); c.height = Math.round(img.naturalHeight * sc);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', 0.88);
 }
 $('#oToReview').onclick = () => {
-  // Zeiten von der Zeitachse sind verlässlich; die je Stunde geschätzten nur, wenn die Achse nicht lesbar war
-  const rs = variants().map(v => ob.results[v]);
-  let times = rs.flatMap(r => r.times);
-  if (times.length < 4) times = times.concat(rs.flatMap(r => r.days.flat().flatMap(l => [l.start, l.end])));
-  let slots = buildSlots(times);
-  if (slots.length < 3) slots = structuredClone(DEFAULT_SLOTS);
-  const plans = {}, teachers = {};
-  for (const v of variants()) { const x = planFromDays(ob.results[v].days, slots); plans[v] = x.plan; Object.assign(teachers, x.teachers); }
-  if (!plans.B) plans.B = [];
-  slots = trimSlots(slots, plans);
-  openEditor({ slots, plans, teachers }, ob.uploads);
+  const plans = { A: [], B: [] }, ctx = { byName: {}, byCourse: {}, teachers: {} };
+  for (const v of variants()) plans[v] = planFromAI(ob.results[v], ctx).plan;
+  openEditor({ plans, teachers: ctx.teachers }, ob.uploads);
 };
-$('#oManual').onclick = () => openEditor({ slots: structuredClone(P().slots), plans: structuredClone(P().plans), teachers: structuredClone(P().teachers) }, {});
+$('#oManual').onclick = () => openEditor({ plans: structuredClone(P().plans), teachers: structuredClone(P().teachers) }, {});
 
 // ---------- Editor ----------
 let editing = null; // { draft, photos, v }
@@ -930,18 +890,13 @@ function renderEditor() {
   $('#edPhoto').hidden = !photo;
   if (photo) $('#edPhoto img').src = photo;
   $('#edLead').hidden = !photo;
-  const ls = lessonsFor(draft.plans[v] || [], draft.slots);
-  $('#edGrid').innerHTML = draft.slots.length ? gridHtml({ lessons: ls, slots: draft.slots, preview: true, teachers: draft.teachers }) : '<p class="muted">Leg unten zuerst Stundenzeiten an.</p>';
+  const ls = lessonsFor(draft.plans[v] || []);
+  $('#edGrid').innerHTML = ls.length ? gridHtml({ lessons: ls, preview: true, teachers: draft.teachers }) : '<p class="muted">Noch keine Stunden. Leg mit „+ Stunde“ die erste an.</p>';
   $('#edDaytabs').innerHTML = DAYS.map((n, d) => `<button data-d="${d}" class="${d === state.day ? 'sel' : ''}">${n}</button>`).join('');
   // Lehrer
   const codes = [...new Set(Object.values(draft.plans).flat().map(l => l.te))].sort();
   $('#edTCount').textContent = codes.length;
   $('#edTeachers').innerHTML = codes.map(c => `<div class="teacher-row"><input class="inp" value="${esc(c)}" data-tcode="${esc(c)}" aria-label="Kürzel"><input class="inp" value="${esc(draft.teachers[c] || '')}" data-tname="${esc(c)}" placeholder="Name (optional)" aria-label="Name von ${esc(c)}"></div>`).join('') || '<p class="fine">Noch keine Stunden eingetragen.</p>';
-  // Stundenzeiten
-  $('#edSCount').textContent = draft.slots.length;
-  $('#edSlots').innerHTML = draft.slots.map((s, i) => `<div class="slot-row"><span class="num">${i + 1}.</span>
-    <input class="inp" type="time" value="${s.s}" data-slot="${i}" data-se="s" aria-label="Beginn ${i + 1}. Stunde"><input class="inp" type="time" value="${s.e}" data-slot="${i}" data-se="e" aria-label="Ende ${i + 1}. Stunde">
-    <button class="x" data-slotdel="${i}" aria-label="${i + 1}. Stunde entfernen">×</button></div>`).join('');
 }
 $('#edVariant').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) { editing.v = b.dataset.v; renderEditor(); } });
 $('#edDaytabs').addEventListener('click', e => { const b = e.target.closest('[data-d]'); if (b) { state.day = +b.dataset.d; renderEditor(); } });
@@ -959,33 +914,15 @@ $('#edTeachers').addEventListener('change', e => {
   }
   renderEditor();
 });
-$('#edSlots').addEventListener('change', e => {
-  const i = e.target.dataset.slot; if (i == null || !isHM(e.target.value)) return;
-  editing.draft.slots[i][e.target.dataset.se] = e.target.value;
-  renderEditor();
-});
-$('#edSlots').addEventListener('click', e => {
-  const b = e.target.closest('[data-slotdel]'); if (!b) return;
-  const i = +b.dataset.slotdel + 1, d = editing.draft;
-  d.slots.splice(i - 1, 1);
-  for (const v in d.plans) d.plans[v] = d.plans[v].filter(l => !(l.f === i && l.t === i)).map(l => ({ ...l, f: l.f > i ? l.f - 1 : l.f, t: l.t >= i ? Math.max(l.t - 1, l.f > i ? l.f - 1 : l.f) : l.t }));
-  renderEditor();
-});
-$('#edSlotAdd').onclick = () => {
-  const s = editing.draft.slots, last = s.at(-1), st = last ? toMin(last.e) + 5 : 480;
-  s.push({ s: fromMin(st), e: fromMin(st + 45) });
-  renderEditor();
-};
 $('#edCancel').onclick = () => {
   if (!P().onboarded) { editing = null; goStep(3); return show(); }
   editing = null; show();
 };
 $('#edSave').onclick = () => {
   const d = editing.draft;
-  for (const s of d.slots) if (toMin(s.e) <= toMin(s.s)) return toast('Eine Stunde endet vor ihrem Beginn. Prüf die Stundenzeiten.');
   if (!Object.values(d.plans).flat().length) return toast('Trag mindestens eine Stunde ein.');
   const first = !P().onboarded;
-  Object.assign(P(), { slots: d.slots, plans: { A: d.plans.A || [], B: P().ab ? d.plans.B || [] : [] }, teachers: d.teachers, onboarded: true });
+  Object.assign(P(), { v: 3, plans: { A: d.plans.A || [], B: P().ab ? d.plans.B || [] : [] }, teachers: d.teachers, onboarded: true });
   if (first) migrateOldLocalData();
   saveProfile();
   editing = null; ob.results = {}; ob.reupload = false;
@@ -1003,11 +940,13 @@ function migrateOldLocalData() {
 
 let curPlan = -1;
 function openPlanLesson(idx) {
-  const d = editing.draft, plan = d.plans[editing.v] ||= [], l = plan[idx] || { d: state.day, f: 1, t: 1, c: '', te: '', r: '' };
+  const d = editing.draft, plan = d.plans[editing.v] ||= [];
+  // Neue Stunde: 5 min nach der letzten Stunde des gewählten Tags, 45 min lang
+  const lastEnd = Math.max(475, ...plan.filter(x => x.d === state.day).map(x => toMin(x.e)));
+  const l = plan[idx] || { d: state.day, s: fromMin(lastEnd + 5), e: fromMin(lastEnd + 50), c: '', te: '', r: '' };
   curPlan = idx;
-  const opts = (sel) => d.slots.map((s, i) => `<option value="${i + 1}"${i + 1 === sel ? ' selected' : ''}>${i + 1}. (${s.s})</option>`).join('');
   $('#pDay').innerHTML = DAYS.map((n, i) => `<option value="${i}"${i === l.d ? ' selected' : ''}>${n}</option>`).join('');
-  $('#pFrom').innerHTML = opts(l.f); $('#pTo').innerHTML = opts(l.t);
+  $('#pS').value = l.s; $('#pE').value = l.e;
   $('#pCourse').value = l.c; $('#pTe').value = l.te; $('#pName').value = d.teachers[l.te] || ''; $('#pRoom').value = l.r;
   $('#pTitle').textContent = idx < 0 ? 'Neue Stunde' : l.c;
   $('#pMeta').textContent = P().ab ? `${editing.v}-Woche` : 'Stundenplan';
@@ -1017,9 +956,10 @@ function openPlanLesson(idx) {
 $('#pf').addEventListener('submit', e => {
   e.preventDefault();
   const d = editing.draft, plan = d.plans[editing.v];
-  const f = +$('#pFrom').value, t = Math.max(f, +$('#pTo').value), te = $('#pTe').value.trim(), name = $('#pName').value.trim();
-  const l = { d: +$('#pDay').value, f, t, c: $('#pCourse').value.trim(), te, r: $('#pRoom').value.trim() };
-  const clash = plan.find((x, i) => i !== curPlan && x.d === l.d && x.f <= t && x.t >= f);
+  const s = hm($('#pS').value), en = hm($('#pE').value), te = $('#pTe').value.trim(), name = $('#pName').value.trim();
+  if (!s || !en || toMin(en) <= toMin(s)) return toast('Das Ende muss nach dem Beginn liegen.');
+  const l = { d: +$('#pDay').value, s, e: en, c: $('#pCourse').value.trim(), te, r: $('#pRoom').value.trim() };
+  const clash = plan.find((x, i) => i !== curPlan && x.d === l.d && toMin(x.s) < toMin(en) && toMin(x.e) > toMin(s));
   if (clash) return toast(`Überschneidet sich mit ${clash.c}. Ändere zuerst die andere Stunde.`);
   curPlan < 0 ? plan.push(l) : plan[curPlan] = l;
   if (name) d.teachers[te] = name;
@@ -1028,16 +968,24 @@ $('#pf').addEventListener('submit', e => {
 $('#pDel').onclick = () => { editing.draft.plans[editing.v].splice(curPlan, 1); $('#pdlg').close(); renderEditor(); };
 
 // ---------- Wochenraster ----------
-function gridHtml({ mon, lessons, slots, preview, teachers }) {
-  const D0 = toMin(slots[0].s), D1 = Math.max(...slots.map(s => toMin(s.e))), H = (D1 - D0) * K;
-  const marks = [...new Set(slots.map(s => s.s).concat(slots.at(-1).e))];
+// Zeitachse aus allen Beginn- und Endzeiten; Zeiten, die keine 10 min auseinander liegen, teilen sich ein Label
+function axisMarks(lessons) {
+  const T = [...new Set(lessons.flatMap(l => [toMin(l.start), toMin(l.end)]))].sort((a, b) => a - b), groups = [];
+  for (const t of T) (groups.length && t - groups.at(-1).at(-1) < 10 ? groups.at(-1) : groups[groups.length] = []).push(t);
+  return { lines: T, labels: groups };
+}
+function gridHtml({ mon, lessons, preview, teachers }) {
+  const { lines, labels } = axisMarks(lessons.length ? lessons : [{ start: '08:00', end: '13:00' }]);
+  const D0 = lines[0], D1 = lines.at(-1), H = (D1 - D0) * K;
   const td = todayIso(), nm = nowMin(), entries = mon ? state.weeks[iso(mon)]?.e || {} : {};
   let h = '<div></div>';
   for (let d = 0; d < 5; d++) {
     const ds = mon ? iso(addDays(mon, d)) : '', off = mon && offReason(ds);
     h += `<button class="dayhead${ds === td ? ' today' : ''}${d === state.day ? ' sel' : ''}" data-d="${d}" data-day="${ds}" ${preview ? 'tabindex="-1"' : ''}>${DAYS[d]}${mon ? ' ' + fmtD(addDays(mon, d)) : ''}${off ? `<small>${esc(off)}</small>` : ''}</button>`;
   }
-  h += `<div class="axis" style="height:${H}px">${marks.map(m => `<span style="top:${(toMin(m) - D0) * K}px">${m}</span>`).join('')}</div>`;
+  const mid = g => ((g[0] + g.at(-1)) / 2 - D0) * K;
+  h += `<div class="axis" style="height:${H}px">${labels.map(g => `<span style="top:${mid(g)}px">${g.map(fromMin).join('<br>')}</span>`).join('')}</div>`;
+  const marks = lines.map(fromMin);
   for (let d = 0; d < 5; d++) {
     const ds = mon ? iso(addDays(mon, d)) : '', off = mon && offReason(ds);
     h += `<div class="col${off ? ' off' : ''}${d === state.day ? ' sel' : ''}" data-d="${d}" style="height:${H}px">`;
@@ -1054,8 +1002,8 @@ function gridHtml({ mon, lessons, slots, preview, teachers }) {
         else badge = `<span class="b ${e.end > 0 ? 'over' : e.end < 0 ? 'early' : 'zero'}">${sgn(e.end)}${e.late ? ` · ${e.late}′ spät` : ''}</span>`;
         if (e?.n) badge = `<span class="note">${esc(e.n)}</span>` + badge;
         if (ds === td && nm >= s - 5 && nm <= en + 15) cls += ' live';
-      } else badge = `<span class="b open">${L.f === L.t ? L.f + '.' : L.f + '.–' + L.t + '.'}</span>`;
-      const idx = preview ? editing.draft.plans[editing.v].findIndex(x => x.d === L.d && x.f === L.f) : -1;
+      } else badge = `<span class="t num">${L.start}–${L.end}</span>`;
+      const idx = preview ? editing.draft.plans[editing.v].findIndex(x => x.d === L.d && x.s === L.s) : -1;
       h += `<button class="lesson ${cls}" data-key="${L.key}" data-idx="${idx}" style="top:${(s - D0) * K}px;height:${(en - s) * K}px">
         <span class="c">${esc(L.c)}</span><span class="t">${esc(name ? `${L.te} (${name})` : L.te)}${L.r ? ' · ' + esc(L.r) : ''}</span>${badge}</button>`;
     }
@@ -1073,7 +1021,7 @@ function renderWeek() {
   $('#abchip').textContent = a ? 'A-Woche' : 'B-Woche';
   $('#abchip').className = 'chip' + (a ? ' a' : '');
   const lessons = lessonsOf(mon);
-  $('#grid').innerHTML = gridHtml({ mon, lessons, slots: P().slots });
+  $('#grid').innerHTML = gridHtml({ mon, lessons });
   $('#daytabs').innerHTML = DAYS.map((n, d) => `<button data-d="${d}" class="${d === state.day ? 'sel' : ''}${iso(addDays(mon, d)) === td ? ' today' : ''}">${n}</button>`).join('');
   let over = 0, under = 0, canc = 0, open = 0;
   const entries = state.weeks[mk]?.e || {}, nm = nowMin();
@@ -1125,10 +1073,11 @@ function renderRank() {
 function renderSettings() {
   $('#sUser').textContent = state.username;
   const n = v => (P().plans[v] || []).length;
-  $('#sPlanInfo').textContent = `${P().slots.length} Stunden am Tag, ${P().ab ? `A-Woche ${n('A')} und B-Woche ${n('B')}` : n('A')} Einträge im Plan.`;
-  $('#sState').innerHTML = Object.entries(STATES).map(([k, v]) => `<option value="${k}"${k === P().state ? ' selected' : ''}>${v}</option>`).join('');
+  $('#sPlanInfo').textContent = P().ab ? `A-Woche: ${n('A')} Stunden, B-Woche: ${n('B')} Stunden.` : `${n('A')} Stunden pro Woche.`;
+  $('#sState').innerHTML = (P().state ? '' : '<option value="">Bitte wählen</option>') + Object.entries(STATES).map(([k, v]) => `<option value="${k}"${k === P().state ? ' selected' : ''}>${v}</option>`).join('');
   $('#sAb').value = P().ab ? '1' : '0';
-  $('#sHolInfo').textContent = state.holidays.length ? `${state.holidays.length} Ferien- und Feiertage für ${STATES[P().state]} geladen (Quelle: OpenHolidays).` : 'Ferien werden geladen…';
+  $('#sHolInfo').textContent = !P().state ? 'Wähl dein Bundesland, damit Ferien und Feiertage erkannt werden.'
+    : state.holidays.length ? `${state.holidays.length} Ferien- und Feiertage für ${STATES[P().state]} geladen (Quelle: OpenHolidays).` : 'Ferien werden geladen…';
 }
 
 function render() {
@@ -1326,7 +1275,7 @@ $('#sExport').onclick = () => {
   a.href = URL.createObjectURL(blob); a.download = `pausenklau-${state.username}-${todayIso()}.json`;
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 };
-$('#sEdit').onclick = () => openEditor({ slots: structuredClone(P().slots), plans: structuredClone({ A: P().plans.A, B: P().plans.B || [] }), teachers: structuredClone(P().teachers) }, {});
+$('#sEdit').onclick = () => openEditor({ plans: structuredClone({ A: P().plans.A, B: P().plans.B || [] }), teachers: structuredClone(P().teachers) }, {});
 $('#sReupload').onclick = () => { ob.results = {}; ob.reupload = true; $('#onb').dataset.ready = '1'; show(); goStep(3); };
 $('#sState').onchange = () => { P().state = $('#sState').value; state.holidays = []; saveProfile(); loadHolidays().then(renderSettings); };
 $('#sAb').onchange = () => {
@@ -1359,8 +1308,9 @@ resync();
 state.username = lsGet('pk-user') || '';
 const cached = state.token && state.username && lsGet(cacheKey());
 if (cached) {
-  state.profile = { ...blankProfile(), ...cached.profile }; state.weeks = cached.weeks || {};
+  state.profile = { ...blankProfile(), ...cached.profile, v: cached.profile?.v || 3 }; state.weeks = cached.weeks || {};
   pending.profile = !!cached.pending?.profile; (cached.pending?.weeks || []).forEach(w => pending.weeks.add(w));
+  if (migrateV2(state.profile, state.weeks)) { pending.profile = true; Object.keys(state.weeks).forEach(mk => pending.weeks.add(mk)); }
   loadHolidays();
 }
 if (!state.token || cached) show();

@@ -103,7 +103,6 @@ a warm, editorial, light-first identity:
 - Nav and card links to `/clock`, `/rust`, `/tennis`, `/rustempire` are
   all kept, restyled to the new design. `/rust`, `/tennis`, `/rustempire`
   pages themselves are not modified.
-- Footer easter egg link (`lambacher.netlify.net`) is preserved as-is
   (it's an intentional in-joke, not a redesign concern).
 
 ## Backend: Contact Form

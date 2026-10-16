@@ -801,7 +801,6 @@ cards, forms, modals, dock) for the portfolio and clock redesign."
   <footer class="site-footer">
     <a href="/">spanani.de</a>
     <span>&copy; 2026</span>
-    <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
   </footer>
 
   <div class="toast" id="toast">Copied webmaster@spanani.de to clipboard</div>
@@ -1514,7 +1513,6 @@ function) is untouched.
   <footer class="site-footer">
     <a href="/">spanani.de</a>
     <span>atomic timekeeping engine · 2026</span>
-    <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
   </footer>
 
   <!-- Task 7 replaces this comment with the reused script block -->

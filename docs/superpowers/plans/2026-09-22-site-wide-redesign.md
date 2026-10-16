@@ -1904,7 +1904,6 @@ git commit -m "feat(js): add shared site.js for nav, clocks, clipboard and revea
       </nav>
       <span class="footer-meta">
         <span>&copy; 2026</span>
-        <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
       </span>
     </div>
   </footer>
@@ -2103,7 +2102,6 @@ git commit -m "feat(home): rebuild homepage on the new design system"
       </nav>
       <span class="footer-meta">
         <span>&copy; 2026</span>
-        <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
       </span>
     </div>
   </footer>
@@ -2397,7 +2395,6 @@ Every `mailto:` on this page uses the same shared body stub, URL-encoded:
       </nav>
       <span class="footer-meta">
         <span>&copy; 2026</span>
-        <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
       </span>
     </div>
   </footer>
@@ -2587,7 +2584,6 @@ There is **no form** on this page — the contact form backend was deliberately 
       </nav>
       <span class="footer-meta">
         <span>&copy; 2026</span>
-        <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
       </span>
     </div>
   </footer>
@@ -2738,7 +2734,7 @@ Structure follows the standard German pattern: § 5 DDG (the law that replaced �
           <p>Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz: [VAT ID, or delete this whole section if not applicable]</p>
 
           <h2>EU-Streitschlichtung</h2>
-          <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr/</a>. Meine E-Mail-Adresse finden Sie oben im Impressum.</p>
+          <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: (entfernt: die OS-Plattform wurde am 20. Juli 2025 eingestellt). Meine E-Mail-Adresse finden Sie oben im Impressum.</p>
 
           <h2>Verbraucherstreitbeilegung / Universalschlichtungsstelle</h2>
           <p>Ich bin nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
@@ -2774,7 +2770,6 @@ Structure follows the standard German pattern: § 5 DDG (the law that replaced �
       </nav>
       <span class="footer-meta">
         <span>&copy; 2026</span>
-        <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
       </span>
     </div>
   </footer>
@@ -2991,7 +2986,6 @@ This page describes what this site **actually** does, which is what makes it use
       </nav>
       <span class="footer-meta">
         <span>&copy; 2026</span>
-        <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
       </span>
     </div>
   </footer>
@@ -3187,7 +3181,6 @@ Replace the existing `<footer class="site-footer"> … </footer>` block (current
       </nav>
       <span class="footer-meta">
         <span>atomic clock · 2026</span>
-        <a href="https://lambacher.netlify.net" target="_blank" rel="noopener" class="egg" aria-label="Easter egg"></a>
       </span>
     </div>
   </footer>

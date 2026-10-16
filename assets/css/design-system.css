@@ -578,16 +578,6 @@ a.time-pill:hover { border-color: var(--line-strong); color: var(--ink); }
 }
 .legal-links a { color: var(--ink-soft); text-decoration: none; }
 .legal-links a:hover { color: var(--ink); text-decoration: underline; }
-.egg {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--ink-faint);
-  display: inline-block;
-  cursor: pointer;
-  transition: background-color var(--dur-fast);
-}
-.egg:hover { background: var(--brand); }
 
 .toast {
   position: fixed;

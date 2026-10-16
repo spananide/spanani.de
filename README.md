@@ -50,8 +50,10 @@ and light mode, the brand purple used sparingly, text left-aligned, no
 card grids, no scroll animations. The full rules and tokens are in
 [`CLAUDE.md`](CLAUDE.md).
 
-`/rust` and `/tennis` run their own independent color systems and
-aren't affected by any of this.
+`/rust` and `/tennis` use the same design system: their own page tokens
+map onto the shared ones, so they get the same fonts, colors, nav and
+footer, including light mode. Tennis keeps orange as the opponent's color
+next to the site accent for "you".
 
 **Fonts:** Bricolage Grotesque for headings, Atkinson Hyperlegible Next
 for body text, Atkinson Hyperlegible Mono only for real code (command

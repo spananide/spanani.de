@@ -35,6 +35,10 @@ Purple is the brand (deliberate, see git history). Use it sparingly: one primary
 - No cards-in-a-grid layouts for content. Each section gets its own structure (picker, feature rows, principle list, contact rows).
 - Text is left-aligned. Project screenshots stay inside the container; on the homepage the clock and Bauchgefühl rows alternate sides and use the same image size.
 
+### Tool pages
+- `/rust` and `/tennis` load `design-system.css` and `site.js` and use the shared nav and footer. Their own `:root` tokens (`--bg`, `--text`, `--card`, …) only map onto the shared tokens; never give them literal colors again. Exceptions with a job: Rust's sulfur/warning colors, the visitor-chosen `--ac` accent (default brand `#9955e7`), and Tennis's `--opp` orange for the opponent (`--you` is the site accent).
+- No all-caps labels there either. `/clock` and `/pausenklau` inherit the tokens the same way.
+
 ### Motion
 - One orchestrated moment: the command list fades in item by item on load (`--i` stagger, under 600ms).
 - Otherwise only responses: hover colors, the picker's keyboard focus, the copy button turning into "Copied".

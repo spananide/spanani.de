@@ -277,13 +277,16 @@ address a:hover { text-decoration-thickness: 2px; }
   font-size: var(--fs-xs);
   font-variant-numeric: tabular-nums;
   color: var(--ink-soft);
+  background: transparent;
   border: 1px solid var(--line);
   padding: 5px 10px;
   border-radius: var(--radius-sm);
   text-decoration: none;
   transition: border-color var(--dur-fast), color var(--dur-fast);
 }
-a.time-pill:hover { border-color: var(--line-strong); color: var(--ink); }
+a.time-pill:hover,
+button.time-pill:hover { border-color: var(--line-strong); color: var(--ink); }
+button.time-pill { cursor: pointer; }
 .dot-live {
   width: 6px;
   height: 6px;

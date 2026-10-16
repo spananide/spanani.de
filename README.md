@@ -43,19 +43,21 @@ Worker (see below).
 
 ## Design
 
-Black, white, one purple accent. Dark by default, flips to light
-if your system asks for it. No gradients, no animated backgrounds —
-the only visual flourish on the homepage is a static code snippet,
-because that's what actually proves I can build something.
+Direction "Slash Command": the homepage is built around a working
+slash-command picker (`/discord-bot`, `/minecraft-mod`, …), because the
+people who hire me live in Discord. Obsidian and quartz grounds in dark
+and light mode, the brand purple used sparingly, text left-aligned, no
+card grids, no scroll animations. The full rules and tokens are in
+[`CLAUDE.md`](CLAUDE.md).
 
 `/rust` and `/tennis` run their own independent color systems and
 aren't affected by any of this.
 
-**Fonts:** DM Mono for the homepage headline and anything that's
-actually data (timestamps, digits, labels), Space Grotesk for every
-other heading, Inter for body copy. All self-hosted under
-`/assets/fonts` — no Google Fonts, no third-party font requests.
-Licensed under the SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
+**Fonts:** Bricolage Grotesque for headings, Atkinson Hyperlegible Next
+for body text, Atkinson Hyperlegible Mono only for real code (command
+names, handles, times), Fraunces for the clock digits. All self-hosted
+under `/assets/fonts`, no third-party font requests. Licensed under the
+SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
 
 ## Notes
 
@@ -72,7 +74,8 @@ Licensed under the SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
   from the [OpenHolidays API](https://openholidaysapi.org). Deploy with
   `npx wrangler deploy` inside `workers/pausenklau-api`; schema changes
   go in `migrations/` (`npx wrangler d1 migrations apply pausenklau-db --remote`).
-- `/clock` pings a couple of public time APIs to stay in sync and
+- The nav shows the current time in Berlin (your device clock, shown in
+  Berlin time). `/clock` pings a couple of public time APIs to stay in sync and
   falls back to your device's own clock if none of them respond.
 - Settings (clock display, accent color) persist per-browser via
   `localStorage`.

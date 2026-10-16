@@ -1,0 +1,20 @@
+{
+  "name": "pausenklau-api",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": true,
+  "ai": { "binding": "AI" },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "pausenklau-db",
+      "database_id": "ffb8142b-43e8-4185-9026-0384d0a08624",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Login/Registrierung: 10 Versuche pro Minute und IP bzw. Benutzername
+  "ratelimits": [
+    { "name": "AUTH_LIMIT", "namespace_id": "4201", "simple": { "limit": 10, "period": 60 } }
+  ],
+  "observability": { "enabled": true }
+}

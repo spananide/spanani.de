@@ -1,3 +1,3 @@
 .worktrees/
 .wrangler/
-pausenklau/plan.private.json
+node_modules/

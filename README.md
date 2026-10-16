@@ -4,7 +4,7 @@
   <p>
     <a href="https://spanani.de"><img src="https://img.shields.io/badge/live-spanani.de-9955e7?style=flat-square&labelColor=0a0a0d" alt="Live site"></a>
     <img src="https://img.shields.io/badge/stack-HTML%2FCSS%2FJS-0a0a0d?style=flat-square" alt="Stack: HTML/CSS/JS">
-    <img src="https://img.shields.io/badge/backend-none-0a0a0d?style=flat-square" alt="No backend">
+    <img src="https://img.shields.io/badge/backend-Cloudflare%20Workers%20(pausenklau%20only)-0a0a0d?style=flat-square" alt="Backend: Cloudflare Workers, Pausenklau only">
     <a href="LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-0a0a0d?style=flat-square" alt="License: MIT"></a>
   </p>
 </div>
@@ -19,8 +19,10 @@ writing the code.
 
 This repo is both my portfolio and the site itself: [spanani.de](https://spanani.de)
 is a fully static build — plain HTML, CSS, and vanilla JavaScript, no
-framework, no build step, no backend — deployed on GitHub Pages from
-`main`, with `spanani.de` set as the custom domain via `CNAME`.
+framework, no build step — deployed on GitHub Pages from `main`, with
+`spanani.de` set as the custom domain via `CNAME`. The one exception to
+"no backend" is `/pausenklau`, whose accounts run on a small Cloudflare
+Worker (see below).
 
 **Looking to hire me?** → [spanani.de/services](https://spanani.de/services) · [spanani.de/contact](https://spanani.de/contact)
 
@@ -37,7 +39,7 @@ framework, no build step, no backend — deployed on GitHub Pages from
 | `/rust` | A raid calculator for the game Rust: pick walls, doors and deployables, choose which explosives you can use, and get the cheapest raid path (mixed combos included) with sulfur, gunpowder and every raw material. |
 | `/tennis` | An offline-first match tracker built mobile-first. |
 | `/rustempire` | A separate Rust server-management tool, kept in its own corner of this repo. |
-| `/pausenklau` | A private, password-locked school tool: live countdown to the bell, tracking how far each teacher runs over (or stops early), A/B weeks, NRW holidays and a leaderboard. The timetable ships only as AES-GCM ciphertext (`plan.enc.json`); `scripts/pausenklau-encrypt.mjs` re-encrypts it, and the plaintext never enters the repo. |
+| `/pausenklau` | A school tool with accounts: upload a photo of your timetable (A/B weeks supported), it gets read in automatically, then you track how far each teacher runs over or stops early. Live countdown to the bell on network time, school holidays for every German state, a leaderboard, sync across devices. |
 
 ## Design
 
@@ -57,8 +59,17 @@ Licensed under the SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
 
 ## Notes
 
-- No backend, no forms that go anywhere, no server-side code of any
-  kind — everything you see is exactly what gets served.
+- Apart from `/pausenklau`, there is no backend and no forms that go
+  anywhere — everything you see is exactly what gets served.
+- `/pausenklau` talks to `workers/pausenklau-api`: a Cloudflare Worker
+  with a D1 database (accounts with salted PBKDF2 password hashes,
+  hashed session tokens, timetable and entries) and Workers AI
+  (Mistral Small 3.1) for reading timetable photos. The page cuts the
+  photo into one image per weekday before sending it, because the model
+  mixes up columns when it sees the whole week at once. Holidays come
+  from the [OpenHolidays API](https://openholidaysapi.org). Deploy with
+  `npx wrangler deploy` inside `workers/pausenklau-api`; schema changes
+  go in `migrations/` (`npx wrangler d1 migrations apply pausenklau-db --remote`).
 - `/clock` pings a couple of public time APIs to stay in sync and
   falls back to your device's own clock if none of them respond.
 - Settings (clock display, accent color) persist per-browser via

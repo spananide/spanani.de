@@ -37,6 +37,7 @@ framework, no build step, no backend — deployed on GitHub Pages from
 | `/rust` | A raid calculator for the game Rust: pick walls, doors and deployables, choose which explosives you can use, and get the cheapest raid path (mixed combos included) with sulfur, gunpowder and every raw material. |
 | `/tennis` | An offline-first match tracker built mobile-first. |
 | `/rustempire` | A separate Rust server-management tool, kept in its own corner of this repo. |
+| `/pausenklau` | A private, password-locked school tool: live countdown to the bell, tracking how far each teacher runs over (or stops early), A/B weeks, NRW holidays and a leaderboard. The timetable ships only as AES-GCM ciphertext (`plan.enc.json`); `scripts/pausenklau-encrypt.mjs` re-encrypts it, and the plaintext never enters the repo. |
 
 ## Design
 

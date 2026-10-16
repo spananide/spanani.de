@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Pausenklau // spanani.de</title>
+  <meta name="description" content="Privater Tracker für überzogene und unterzogene Unterrichtszeit, mit Live-Countdown, A/B-Wochen, NRW-Ferien und Rangliste.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#faf9fb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0b10" media="(prefers-color-scheme: dark)">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preload" href="/assets/fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/design-system.css">
+
+  <script>
+    if (window.location.pathname.endsWith('/index.html')) {
+      const cleanPath = window.location.pathname.replace(/\/index\.html$/, '') || '/pausenklau';
+      window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+    }
+  </script>
+  <script src="/assets/js/site.js" defer></script>
+
+  <style>
+    /* Pausenklau: built on the site design system. Overtime = --danger, ended early = --success,
+       live / current lesson = --accent. Time-proportional week grid like the school planner. */
+    [hidden] { display: none !important; }
+    body { padding-bottom: 64px; }
+    main { flex: 1; width: 100%; max-width: var(--container); margin-inline: auto; padding: var(--space-5) var(--gutter) var(--space-7); }
+    .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+    .muted { color: var(--ink-soft); }
+    .nav-tool-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .lock-btn { background: none; border: 0; color: var(--ink-faint); font-family: var(--font-mono); font-size: var(--fs-xs); cursor: pointer; padding: 6px 4px; }
+    .lock-btn:hover { color: var(--ink); }
+
+    /* Lock screen */
+    .lock { max-width: 440px; margin: clamp(24px, 8vh, 96px) auto 0; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: clamp(24px, 5vw, 36px); box-shadow: var(--shadow-md); position: relative; overflow: hidden; }
+    .lock::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--accent); }
+    .lock h1 { font-size: clamp(28px, 5vw, 36px); margin: 6px 0 var(--space-3); }
+    .lock p { color: var(--ink-soft); font-size: var(--fs-sm); margin-bottom: var(--space-5); }
+    .lock form { display: grid; gap: var(--space-3); }
+    .check { display: flex; align-items: center; gap: 10px; font-size: var(--fs-sm); color: var(--ink-soft); cursor: pointer; }
+    .check input { accent-color: var(--accent); width: 16px; height: 16px; }
+    .err { color: var(--danger); font-size: var(--fs-sm); min-height: 1.4em; }
+
+    /* Inputs */
+    .inp { width: 100%; background: var(--paper-sunk); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink); font: inherit; font-size: 16px; padding: 10px 12px; min-height: 44px; }
+    .inp:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+    .lbl { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+
+    /* Live panel */
+    .live { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: var(--space-5); display: grid; gap: 12px; box-shadow: var(--shadow-sm); }
+    .lv-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-soft); }
+    .lv-main { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 20px; }
+    .lv-what { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 3vw, 28px); letter-spacing: -0.02em; line-height: 1.15; min-width: 0; }
+    .lv-what small { display: block; font-family: var(--font-sans); font-weight: 400; font-size: var(--fs-sm); letter-spacing: 0; color: var(--ink-soft); margin-top: 4px; }
+    .lv-time { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 500; font-size: clamp(40px, 7vw, 56px); line-height: 1; letter-spacing: -0.02em; }
+    .lv-time small { font-size: var(--fs-sm); color: var(--ink-faint); margin-right: 8px; letter-spacing: 0; }
+    .lv-time.over { color: var(--danger); } .lv-time.early { color: var(--success); }
+    .lv-prog { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+    .lv-prog i { display: block; height: 100%; background: var(--accent); }
+    .lv-act { display: flex; flex-wrap: wrap; gap: 8px; }
+    .linkbtn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font: inherit; }
+
+    /* Week nav */
+    .wnav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: var(--space-4); }
+    .arrow { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-sm); width: 38px; height: 38px; cursor: pointer; color: var(--ink-soft); font-size: 18px; }
+    .arrow:hover { color: var(--ink); border-color: var(--line-strong); }
+    .range { font-family: var(--font-mono); font-weight: 500; font-size: 15px; }
+    .chip { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: var(--radius-pill); border: 1px solid var(--line); color: var(--ink-soft); }
+    .chip.a { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.4); background: var(--accent-soft); }
+    .wnav .btn { margin-left: auto; padding: 8px 16px; min-height: 38px; }
+    .weeksum { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: var(--space-4); font-size: var(--fs-sm); color: var(--ink-soft); }
+    .weeksum b { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+    .abfix { margin-top: var(--space-2); font-size: var(--fs-xs); color: var(--ink-faint); max-width: none; }
+
+    /* Grid */
+    .daytabs { display: none; gap: 4px; margin-bottom: 10px; }
+    .daytabs button { flex: 1; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 7px 0; font-weight: 600; font-size: var(--fs-sm); color: var(--ink-soft); cursor: pointer; }
+    .daytabs button.sel { color: var(--ink); border-color: var(--ink); }
+    .daytabs button.today::after { content: ''; display: block; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); margin: 3px auto 0; }
+    .grid { display: grid; grid-template-columns: 44px repeat(5, minmax(0, 1fr)); gap: 0 8px; }
+    .dayhead { background: none; border: 0; padding: 4px 0 12px; text-align: center; color: var(--ink-soft); font-weight: 600; font-size: var(--fs-sm); min-width: 0; cursor: pointer; }
+    .dayhead:hover { color: var(--ink); }
+    .dayhead.today { color: var(--accent); }
+    .dayhead small { display: block; font-family: var(--font-mono); font-size: 10px; font-weight: 400; letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .axis, .col { position: relative; }
+    .axis span { position: absolute; right: 4px; transform: translateY(-50%); font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-faint); }
+    .col { border-radius: var(--radius-sm); }
+    .col.off { background: repeating-linear-gradient(135deg, var(--paper-raised) 0 8px, var(--paper) 8px 16px); }
+    .col .hl { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line); }
+    .offlabel { position: absolute; top: 40%; left: 0; right: 0; text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 15px; padding: 0 6px; }
+    .nowline { position: absolute; left: -4px; right: 0; border-top: 2px solid var(--accent); z-index: 2; pointer-events: none; }
+    .nowline::before { content: ''; position: absolute; left: -1px; top: -5px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .lesson { position: absolute; left: 0; right: 0; background: var(--paper-raised); border: 1px solid var(--line); border-left: 3px solid var(--ink-soft); border-radius: 4px var(--radius-sm) var(--radius-sm) 4px; padding: 6px 9px; text-align: left; overflow: hidden; display: flex; flex-direction: column; gap: 1px; cursor: pointer; line-height: 1.35; transition: border-color var(--dur-fast), background var(--dur-fast); }
+    .lesson:hover { border-color: var(--line-strong); background: var(--paper-sunk); }
+    .lesson .c { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; }
+    .lesson .t { font-size: 11.5px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lesson .note { font-size: 11px; color: var(--ink-faint); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lesson .b { position: absolute; top: 6px; right: 6px; font-family: var(--font-mono); font-size: 11.5px; font-weight: 500; padding: 1px 6px; border-radius: 6px; background: var(--paper-sunk); border: 1px solid var(--line); }
+    .b.over { color: var(--danger); } .b.early { color: var(--success); } .b.zero { color: var(--ink); } .b.open { color: var(--ink-faint); font-family: var(--font-sans); font-size: 10.5px; }
+    .lesson.cancelled { border-left-color: var(--ink-faint); background: repeating-linear-gradient(135deg, var(--paper-raised) 0 6px, var(--paper) 6px 12px); }
+    .lesson.cancelled .c { text-decoration: line-through; color: var(--ink-faint); }
+    .lesson.skipped { opacity: 0.5; border-left-style: dashed; }
+    .lesson.open { border-left-color: var(--line-strong); }
+    .lesson.live { border-color: var(--accent); border-left-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 6px 18px rgba(var(--accent-rgb), 0.22); }
+    .lesson.live .b { color: var(--accent); }
+
+    /* Rangliste */
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: var(--space-5); }
+    .tile { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 16px 18px; box-shadow: var(--shadow-sm); }
+    .tile .k, .award .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+    .tile .v { font-family: var(--font-mono); font-weight: 500; font-size: 34px; line-height: 1.1; margin-top: 6px; letter-spacing: -0.02em; }
+    .tile .v small { font-family: var(--font-sans); font-size: 13px; color: var(--ink-faint); margin-left: 4px; letter-spacing: 0; }
+    .tile .s { font-size: var(--fs-xs); color: var(--ink-soft); }
+    .awards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: var(--space-6); }
+    .award { border: 1px dashed var(--line-strong); border-radius: var(--radius-md); padding: 14px 18px; }
+    .award .k { color: var(--accent); }
+    .award .n { font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -0.01em; margin-top: 2px; }
+    .award .s { font-size: var(--fs-xs); color: var(--ink-soft); }
+    .rankhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: var(--space-3); }
+    .rankhead h2 { font-size: clamp(22px, 3vw, 28px); }
+    .sorts { display: inline-flex; flex-wrap: wrap; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: var(--fs-xs); color: var(--ink-soft); margin-bottom: 10px; }
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+    ol.rank { list-style: none; display: grid; gap: 8px; }
+    .row { display: grid; grid-template-columns: 30px minmax(0, 1.1fr) minmax(0, 2fr) 120px; align-items: center; gap: 14px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 12px 18px; }
+    .row.nodata { opacity: 0.45; }
+    .row .pos { font-family: var(--font-mono); font-size: 16px; color: var(--ink-faint); }
+    .row:first-child:not(.nodata) { border-color: rgba(var(--accent-rgb), 0.5); }
+    .row:first-child:not(.nodata) .pos { color: var(--accent); }
+    .row .who b { display: block; font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+    .row .who small { color: var(--ink-faint); font-family: var(--font-mono); font-size: 11px; }
+    .div { display: grid; grid-template-columns: 1fr 2px 1fr; align-items: center; height: 18px; }
+    .div .mid { height: 18px; background: var(--line-strong); }
+    .div .l, .div .r { height: 12px; }
+    .div .l { justify-self: end; background: var(--success); border-radius: 4px 0 0 4px; margin-right: 2px; }
+    .div .r { justify-self: start; background: var(--danger); border-radius: 0 4px 4px 0; margin-left: 2px; }
+    .vals { text-align: right; font-size: var(--fs-xs); color: var(--ink-soft); line-height: 1.4; }
+    .vals .num { font-size: 15px; color: var(--ink); }
+    .empty { margin-bottom: var(--space-6); }
+    .backup { margin-top: var(--space-7); border-top: 1px solid var(--line); padding-top: var(--space-5); }
+    .backup h3 { margin-bottom: var(--space-2); }
+    .backup p { color: var(--ink-soft); font-size: var(--fs-sm); margin-bottom: var(--space-4); }
+    .backup .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    /* Dialogs (styled like the site's modal-card) */
+    dialog { background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 26px; width: min(460px, calc(100% - 32px)); box-shadow: var(--shadow-lg); margin: auto; }
+    dialog::backdrop { background: var(--scrim); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    dialog h3 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+    dialog .meta { color: var(--ink-soft); font-size: var(--fs-sm); margin: 4px 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); max-width: none; }
+    .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 3px; margin-bottom: 18px; background: var(--paper-raised); }
+    .seg legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .seg label { text-align: center; border-radius: var(--radius-pill); padding: 7px 4px; font-size: 13px; font-weight: 500; color: var(--ink-soft); cursor: pointer; }
+    .seg input { position: absolute; opacity: 0; }
+    .seg label:has(input:checked) { background: var(--ink); color: var(--paper); }
+    .seg label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .field { margin-bottom: 16px; }
+    .stepper { display: grid; grid-template-columns: repeat(2, 44px) minmax(0, 1fr) repeat(2, 44px); gap: 4px; }
+    .stepper button { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-sm); height: 44px; font-family: var(--font-mono); cursor: pointer; }
+    .stepper button:hover { border-color: var(--line-strong); }
+    .stepper .inp { text-align: center; font-family: var(--font-mono); font-size: 18px; padding-inline: 4px; }
+    .hintrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 13px; }
+    .hint.over { color: var(--danger); } .hint.early { color: var(--success); } .hint.zero { color: var(--ink-soft); }
+    .nowbtn { background: var(--accent-soft); border: 1px solid rgba(var(--accent-rgb), 0.35); color: var(--accent); border-radius: var(--radius-pill); padding: 5px 12px; font-family: var(--font-mono); font-size: 11px; cursor: pointer; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .actions .sp { flex: 1; }
+    .actions .btn { padding: 10px 16px; min-height: 42px; }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 44px minmax(0, 1fr); }
+      .grid > [data-d]:not(.sel) { display: none; }
+      .daytabs { display: flex; }
+      .row { grid-template-columns: 24px minmax(0, 1fr) auto; }
+      .row .div { grid-column: 1 / -1; order: 3; }
+    }
+    @media (prefers-reduced-motion: no-preference) { .lesson.live { animation: livePulse 2.4s ease-in-out infinite; } }
+    @keyframes livePulse { 50% { box-shadow: 0 0 0 1px var(--accent), 0 0 0 5px var(--accent-soft); } }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <header class="site-nav site-nav--tool">
+    <div class="nav-inner">
+      <a href="/" class="brand"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><g transform="translate(3.4,3.7) scale(0.065)"><path fill="var(--accent)" fill-rule="evenodd" d="M 1 85.550 L 1 170.099 45.414 214.800 C 69.842 239.385, 90.098 259.768, 90.427 260.096 C 90.756 260.424, 81.124 270.774, 69.022 283.096 L 47.018 305.500 47.009 280.992 L 47 256.484 24 233.500 L 1 210.516 1 294.758 L 1 379 19.307 379 L 37.614 379 151.751 264.689 L 265.888 150.377 301.150 185.650 C 320.544 205.049, 336.206 221.134, 335.956 221.392 C 326.956 230.678, 284.700 273.491, 245.042 313.506 C 216.694 342.109, 190.474 368.659, 186.775 372.506 L 180.050 379.500 267.275 379.273 C 315.249 379.148, 362.038 379.035, 371.250 379.023 L 388 379 388 293.837 L 388 208.674 343.422 163.821 C 318.904 139.152, 298.992 118.563, 299.172 118.068 C 299.585 116.936, 340.785 75, 341.485 75 C 341.768 75, 342 85.628, 342 98.618 L 342 122.236 364.154 144.868 C 376.339 157.316, 386.689 167.650, 387.154 167.833 C 387.619 168.017, 388 130.554, 388 84.583 L 388 1 317.242 1 L 246.484 1 223.500 24 L 200.516 47 252.770 47 L 305.025 47 214.262 137.469 L 123.500 227.937 88.250 192.724 C 68.862 173.357, 53 157.237, 53 156.902 C 53 156.567, 86.862 122.187, 128.250 80.501 C 169.637 38.816, 204.088 3.875, 204.807 2.855 C 206.077 1.052, 203.240 1, 103.557 1 L 1 1 1 85.550 M 47.005 72.750 L 47.010 98.500 64.518 81 C 74.148 71.375, 85.430 59.788, 89.589 55.250 L 97.151 47 72.075 47 L 47 47 47.005 72.750 M 156.027 91.750 C 149.844 98.213, 132.798 115.538, 118.148 130.252 L 91.511 157.003 107.525 173.018 L 123.540 189.032 177.520 134.966 C 207.209 105.229, 231.687 80.697, 231.917 80.450 C 232.146 80.202, 217.694 80, 199.802 80 L 167.270 80 156.027 91.750 M 210.855 244.332 L 157.210 298.500 188.855 298.791 L 220.500 299.081 258.680 260.291 L 296.859 221.500 281.191 205.750 C 272.574 197.088, 265.293 190.037, 265.012 190.082 C 264.730 190.127, 240.360 214.539, 210.855 244.332 M 337.500 284.478 C 335.850 286.259, 324.379 297.905, 312.008 310.358 L 289.517 333 315.758 333 L 342 333 342 307 C 342 292.700, 341.663 281.054, 341.250 281.120 C 340.837 281.186, 339.150 282.697, 337.500 284.478 M 100.242 355.258 C 87.459 368.050, 77 378.737, 76.999 379.008 C 76.999 379.279, 91.511 379.383, 109.249 379.240 L 141.500 378.980 164.500 355.487 L 187.500 331.994 155.492 331.997 L 123.484 332 100.242 355.258"/></g></svg>spanani<span class="brand-sub">/ pausenklau</span></a>
+      <nav class="nav-links" aria-label="Primary">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/projects">Projects</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/contact">Contact</a>
+      </nav>
+      <div class="nav-tool-controls">
+        <div class="time-pill"><span class="dot-live pending" id="sDot"></span><span id="sText">Zeit wird synchronisiert…</span></div>
+        <div class="mode-switch" id="tabs" hidden>
+          <button class="mode-btn active" id="tabWeek">Woche</button>
+          <button class="mode-btn" id="tabRank">Rangliste</button>
+        </div>
+        <button class="lock-btn" id="lockBtn" hidden>Sperren</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="lock" id="lock" hidden>
+      <span class="card-tag">Privat</span>
+      <h1>Pausenklau</h1>
+      <p>Der Stundenplan ist verschlüsselt. Mit dem Passwort wird er nur hier in deinem Browser entschlüsselt.</p>
+      <form id="lockForm">
+        <div>
+          <label class="lbl" for="pw">Passwort</label>
+          <input class="inp" type="password" id="pw" autocomplete="current-password" required>
+        </div>
+        <label class="check"><input type="checkbox" id="remember" checked>Auf diesem Gerät angemeldet bleiben</label>
+        <div class="err" id="lockErr" role="alert"></div>
+        <button class="btn btn-primary btn-lg" type="submit" id="lockSubmit">Entsperren</button>
+      </form>
+    </section>
+
+    <div id="app" hidden>
+      <section class="live" id="live"></section>
+
+      <section id="viewWeek">
+        <div class="wnav">
+          <button class="arrow" id="prev" aria-label="Vorherige Woche">‹</button>
+          <span class="range" id="range"></span>
+          <button class="arrow" id="next" aria-label="Nächste Woche">›</button>
+          <span class="chip" id="abchip"></span>
+          <button class="btn btn-secondary" id="today">Heute</button>
+        </div>
+        <div class="daytabs" id="daytabs"></div>
+        <div class="grid" id="grid"></div>
+        <div class="weeksum" id="weeksum"></div>
+        <p class="abfix">A/B-Woche stimmt nicht? <button class="linkbtn" id="flip">Ab dieser Woche tauschen</button> · Tipp auf einen Tag, um ihn schulfrei zu machen.</p>
+      </section>
+
+      <section id="viewRank" hidden>
+        <div class="tiles" id="tiles"></div>
+        <div id="awards"></div>
+        <div class="rankhead">
+          <h2>Rangliste</h2>
+          <div class="mode-switch sorts" id="sorts">
+            <button class="mode-btn active" data-sort="over">Überzogen</button>
+            <button class="mode-btn" data-sort="under">Unterzogen</button>
+            <button class="mode-btn" data-sort="net">Bilanz</button>
+            <button class="mode-btn" data-sort="avg">Ø/Std</button>
+            <button class="mode-btn" data-sort="cancel">Ausfälle</button>
+          </div>
+        </div>
+        <div class="legend"><span><i style="background:var(--success)"></i>Unterzogen (früher Schluss + später Beginn)</span><span><i style="background:var(--danger)"></i>Überzogen (in die Pause)</span></div>
+        <ol class="rank" id="rank"></ol>
+
+        <div class="backup">
+          <h3>Daten sichern</h3>
+          <p>Deine Einträge liegen nur in diesem Browser. Exportier sie ab und zu als Datei, damit nichts verloren geht. Mit Import holst du sie auf ein anderes Gerät.</p>
+          <div class="acts">
+            <button class="btn btn-secondary" id="exportBtn">Exportieren</button>
+            <label class="btn btn-ghost" for="importIn">Importieren</label>
+            <input type="file" id="importIn" accept="application/json,.json" hidden>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="dlg">
+    <form id="lf">
+      <h3 id="dTitle"></h3>
+      <p class="meta" id="dMeta"></p>
+      <fieldset class="seg">
+        <legend>Was ist passiert?</legend>
+        <label><input type="radio" name="s" value="ok" id="s-ok">Fand statt</label>
+        <label><input type="radio" name="s" value="cancelled" id="s-cancelled">Ausgefallen</label>
+        <label><input type="radio" name="s" value="skipped" id="s-skipped">Geskippt</label>
+      </fieldset>
+      <div id="okFields">
+        <div class="field">
+          <label class="lbl" for="endIn">Schluss (+ überzogen, − früher)</label>
+          <div class="stepper">
+            <button type="button" data-step="end:-5">−5</button><button type="button" data-step="end:-1">−1</button>
+            <input class="inp" type="number" id="endIn" step="1" min="-120" max="120" inputmode="numeric">
+            <button type="button" data-step="end:1">+1</button><button type="button" data-step="end:5">+5</button>
+          </div>
+          <div class="hintrow"><span class="hint" id="endHint"></span><button type="button" class="nowbtn" data-now="end">Jetzt ist Schluss</button></div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="lateIn">Später angefangen (min)</label>
+          <div class="stepper">
+            <button type="button" data-step="late:-5">−5</button><button type="button" data-step="late:-1">−1</button>
+            <input class="inp" type="number" id="lateIn" step="1" min="0" max="120" inputmode="numeric">
+            <button type="button" data-step="late:1">+1</button><button type="button" data-step="late:5">+5</button>
+          </div>
+          <div class="hintrow"><span></span><button type="button" class="nowbtn" data-now="late">Jetzt geht's los</button></div>
+        </div>
+      </div>
+      <label class="lbl" for="noteIn">Notiz</label>
+      <input class="inp" type="text" id="noteIn" maxlength="120" placeholder="z. B. Klausur zurückgegeben">
+      <div class="actions">
+        <button type="button" class="btn btn-danger" id="delBtn">Löschen</button>
+        <span class="sp"></span>
+        <button type="button" class="btn btn-ghost" data-close>Abbrechen</button>
+        <button type="submit" class="btn btn-primary">Speichern</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="ddlg">
+    <form id="df">
+      <h3 id="ddTitle"></h3>
+      <p class="meta" id="ddInfo"></p>
+      <div id="ddEdit">
+        <label class="lbl" for="ddReason">Grund</label>
+        <input class="inp" type="text" id="ddReason" list="reasons" maxlength="40" placeholder="Beweglicher Ferientag">
+        <datalist id="reasons"><option>Beweglicher Ferientag</option><option>Wandertag</option><option>Pädagogischer Tag</option><option>Klausurtag</option><option>Exkursion</option><option>Krank</option></datalist>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="ddClear">Wieder Schultag</button>
+        <span class="sp"></span>
+        <button type="button" class="btn btn-ghost" data-close>Abbrechen</button>
+        <button type="submit" class="btn btn-primary" id="ddSave">Schulfrei</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="cdlg">
+    <form id="cf">
+      <h3>Uhr stellen</h3>
+      <p class="meta">Keine Zeitquelle im Netz erreichbar. Stell die deutsche Uhrzeit einmal richtig ein, die Seite merkt sich den Unterschied auf diesem Gerät.</p>
+      <label class="lbl" for="cDate">Datum</label>
+      <input class="inp" type="date" id="cDate" required>
+      <label class="lbl" for="cTime" style="margin-top:12px">Uhrzeit</label>
+      <input class="inp" type="time" id="cTime" step="1" required>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="cReset">Gerätezeit nutzen</button>
+        <span class="sp"></span>
+        <button type="button" class="btn btn-ghost" data-close>Abbrechen</button>
+        <button type="submit" class="btn btn-primary">Übernehmen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="legal-links" lang="de">
+    <a href="/impressum">Impressum</a>
+    <a href="/datenschutz">Datenschutz</a>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ---------- Stundenplan: kommt verschlüsselt aus plan.enc.json (siehe scripts/pausenklau-encrypt.mjs) ----------
+let TEACHERS = {}, PLAN = [], AB = {}, COURSES = {};
+function setPlan(p) {
+  TEACHERS = p.teachers; PLAN = p.plan; AB = p.ab; COURSES = {};
+  for (const r of PLAN.concat([[4, 8, 9, ...AB.B]])) if (r[3] !== 'AB') (COURSES[r[4]] ??= new Set()).add(r[3]);
+}
+const SLOTS = {1:['08:00','08:45'],2:['08:50','09:35'],3:['09:55','10:40'],4:['10:45','11:30'],5:['11:45','12:30'],6:['12:35','13:20'],7:['13:30','14:15'],8:['14:15','15:00'],9:['15:00','15:45']};
+// Freitag 8./9. Stunde: A-Woche Informatik, B-Woche Mathe. Woche ab 07.09.2026 = A.
+const ANCHOR = new Date(2026, 8, 7);
+// Ferien & Feiertage NRW (Schulministerium NRW)
+const FERIEN = [
+  ['2026-07-20','2026-09-01','Sommerferien'], ['2026-10-17','2026-10-31','Herbstferien'],
+  ['2026-12-23','2027-01-06','Weihnachtsferien'], ['2027-03-22','2027-04-03','Osterferien'],
+  ['2027-05-18','2027-05-18','Pfingstferien'], ['2027-07-19','2027-08-31','Sommerferien'],
+  ['2027-10-23','2027-11-06','Herbstferien'], ['2027-12-24','2028-01-08','Weihnachtsferien'],
+];
+const FEIERTAGE = {'2026-10-03':'Tag der Deutschen Einheit','2026-11-01':'Allerheiligen','2027-03-26':'Karfreitag','2027-03-29':'Ostermontag','2027-05-01':'Tag der Arbeit','2027-05-06':'Christi Himmelfahrt','2027-05-17':'Pfingstmontag','2027-05-27':'Fronleichnam','2027-10-03':'Tag der Deutschen Einheit','2027-11-01':'Allerheiligen'};
+const DAYS = ['Mo','Di','Mi','Do','Fr'];
+const K = 1.5, D0 = 480, D1 = 945; // px pro Minute, 08:00 bis 15:45
+const LS = 'pausenklau-v1';
+
+// ---------- Helfer ----------
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const mondayOf = d => addDays(d, -((d.getDay() + 6) % 7));
+const fromIso = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const toMin = s => { const [h,m] = s.split(':').map(Number); return h*60 + m; };
+const fmtD = d => `${pad(d.getDate())}.${pad(d.getMonth()+1)}.`;
+const sgn = n => n > 0 ? '+' + n : n < 0 ? '−' + (-n) : '±0';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, Math.round(+v || 0)));
+
+// ---------- Uhr: Netzwerkzeit in Europe/Berlin, nie Gerätezeit oder Geräte-Zeitzone ----------
+// Wie /clock: Zeit-APIs im Rennen, Anker auf performance.now(), damit eine falsch gestellte
+// oder springende Geräteuhr egal ist. Fallback: Date-Header von spanani.de, dann manuell.
+let anchor = null, clockSrc = 'pending', manualOffset = null;
+try { const o = localStorage.getItem(LS + '-offset'); if (o !== null) manualOffset = +o; } catch {}
+const atomicMs = () => anchor ? anchor.ts + (performance.now() - anchor.perf) : Date.now() + (manualOffset ?? 0);
+const BERLIN = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+// Liefert ein Date, dessen lokale Getter die deutsche Wanduhrzeit zeigen
+function now() {
+  const ms = atomicMs(), p = {};
+  for (const x of BERLIN.formatToParts(ms)) p[x.type] = x.value;
+  return new Date(+p.year, p.month - 1, +p.day, +p.hour, +p.minute, +p.second, Math.floor(ms) % 1000);
+}
+async function timed(url, parse) {
+  const p0 = performance.now();
+  const res = await fetch(url + (url.includes('?') ? '&' : '?') + '_=' + Math.random(), { cache: 'no-store' });
+  const p1 = performance.now();
+  const ts = await parse(res);
+  if (!Number.isFinite(ts)) throw new Error('bad time');
+  return { ts, perf: (p0 + p1) / 2 };
+}
+async function syncClock() {
+  try {
+    anchor = await Promise.any([
+      timed('https://timeapi.io/api/Time/current/zone?timeZone=UTC', async r => { const d = await r.json(); return Date.parse(d.dateTime + 'Z'); }),
+      timed('https://worldtimeapi.org/api/timezone/Etc/UTC', async r => Date.parse((await r.json()).utc_datetime)),
+    ]).catch(() => timed('/favicon.svg', async r => Date.parse(r.headers.get('date') || '') + 500 + 1000 * (+r.headers.get('age') || 0)));
+    clockSrc = 'net';
+    return true;
+  } catch {
+    clockSrc = manualOffset !== null ? 'manual' : 'device';
+    return false;
+  }
+}
+const nowMin = () => { const n = now(); return n.getHours()*60 + n.getMinutes(); };
+const todayIso = () => iso(now());
+
+const today0 = now();
+const state = { weeks:{}, flips:[], view:'week', sort:'over', navigated:false,
+  mon: mondayOf(today0), day: today0.getDay() >= 1 && today0.getDay() <= 5 ? today0.getDay() - 1 : 0 };
+
+function isA(mon) {
+  const w = Math.round((mon - ANCHOR) / 6048e5);
+  const f = state.flips.filter(x => x <= iso(mon)).length;
+  return ((w + f) % 2 + 2) % 2 === 0;
+}
+function builtinOff(ds) {
+  for (const [a, b, n] of FERIEN) if (ds >= a && ds <= b) return n;
+  return FEIERTAGE[ds] || null;
+}
+const customOff = ds => state.weeks[iso(mondayOf(fromIso(ds)))]?.off?.[ds] || null;
+const offReason = ds => builtinOff(ds) || customOff(ds);
+function lessonsOf(mon) {
+  const ab = isA(mon) ? 'A' : 'B';
+  return PLAN.map(([d, f, t, c, te, r]) => {
+    if (c === 'AB') [c, te, r] = AB[ab];
+    return { d, key: d + '-' + f, c, te, r, start: SLOTS[f][0], end: SLOTS[t][1], date: iso(addDays(mon, d)) };
+  });
+}
+function editWeek(mk) {
+  const w = state.weeks[mk] ||= {};
+  w.e ??= {}; w.off ??= {};
+  return w;
+}
+
+// ---------- Live-Status: Countdown bis Stundenende, danach +Zeit ----------
+const secOf = hm => toMin(hm) * 60;
+function liveState() {
+  const n = now(), ds = iso(n), dow = (n.getDay() + 6) % 7, mon = mondayOf(n);
+  const sec = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds() + n.getMilliseconds() / 1000;
+  const off = dow > 4 ? 'Wochenende' : offReason(ds);
+  if (off) return { k: 'free', n, sec, title: off, sub: 'Heute keine Schule' };
+  const ls = lessonsOf(mon).filter(l => l.d === dow); // PLAN ist pro Tag chronologisch
+  const cur = ls.find(l => sec >= secOf(l.start) && sec < secOf(l.end));
+  const prev = ls.filter(l => secOf(l.end) <= sec).pop(), next = ls.find(l => secOf(l.start) > sec);
+  const e = l => state.weeks[iso(mon)]?.e?.[l.key];
+  if (cur) return { k: 'lesson', n, sec, mon, L: cur, e: e(cur) };
+  // +Zeit läuft bis zur nächsten Stunde, höchstens 20 min
+  if (prev && sec - secOf(prev.end) < Math.min(1200, next ? secOf(next.start) - secOf(prev.end) : 1200)) return { k: 'over', n, sec, mon, L: prev, e: e(prev), next };
+  if (next) return { k: 'break', n, sec, mon, next };
+  return { k: 'free', n, sec, title: ls.length ? 'Schulschluss' : 'Heute kein Unterricht', sub: '' };
+}
+const fmtS = s => { s = Math.max(0, Math.floor(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return (h ? h + ':' + pad(m) : pad(m)) + ':' + pad(s % 60); };
+
+// ---------- Statistik ----------
+function stats() {
+  const by = {};
+  for (const k in TEACHERS) by[k] = { k, over:0, early:0, late:0, n:0, nOver:0, cancel:0, skip:0 };
+  let rec = null;
+  for (const [mk, w] of Object.entries(state.weeks)) for (const [key, e] of Object.entries(w.e || {})) {
+    const ds = iso(addDays(fromIso(mk), +key.split('-')[0]));
+    const t = by[e.t];
+    if (!t || offReason(ds)) continue;
+    if (e.s === 'cancelled') { t.cancel++; continue; }
+    if (e.s === 'skipped') { t.skip++; continue; }
+    t.n++;
+    if (e.end > 0) { t.over += e.end; t.nOver++; if (!rec || e.end > rec.end) rec = { ...e, ds }; } else t.early -= e.end;
+    t.late += e.late || 0;
+  }
+  return { rec, rows: Object.values(by).map(t => ({ ...t, under: t.early + t.late, net: t.over - t.early - t.late, avg: t.n ? (t.over - t.early - t.late) / t.n : 0 })) };
+}
+
+// ---------- DOM ----------
+function persist() { try { localStorage.setItem(LS, JSON.stringify({ weeks: state.weeks, flips: state.flips })); } catch { toast('Speichern fehlgeschlagen: Browser-Speicher voll oder gesperrt'); } }
+function toast(msg) { window.spananiSite ? window.spananiSite.showToast(msg) : console.log(msg); }
+
+function renderWeek() {
+  const mon = state.mon, mk = iso(mon), td = todayIso(), nm = nowMin();
+  $('#range').textContent = `${fmtD(mon)} – ${fmtD(addDays(mon, 4))}${addDays(mon, 4).getFullYear()}`;
+  const a = isA(mon);
+  $('#abchip').textContent = a ? 'A-Woche · Fr IF' : 'B-Woche · Fr M';
+  $('#abchip').className = 'chip' + (a ? ' a' : '');
+
+  const lessons = lessonsOf(mon), entries = state.weeks[mk]?.e || {};
+  const marks = Object.values(SLOTS).map(s => s[0]).concat('15:45');
+  let h = '<div></div>';
+  for (let d = 0; d < 5; d++) {
+    const ds = iso(addDays(mon, d)), off = offReason(ds);
+    h += `<button class="dayhead${ds === td ? ' today' : ''}${d === state.day ? ' sel' : ''}" data-d="${d}" data-day="${ds}">${DAYS[d]} ${fmtD(addDays(mon, d))}${off ? `<small>${esc(off)}</small>` : ''}</button>`;
+  }
+  h += `<div class="axis" style="height:${(D1 - D0) * K}px">${marks.map(m => `<span style="top:${(toMin(m) - D0) * K}px">${m}</span>`).join('')}</div>`;
+  let over = 0, under = 0, canc = 0, open = 0;
+  for (let d = 0; d < 5; d++) {
+    const ds = iso(addDays(mon, d)), off = offReason(ds);
+    h += `<div class="col${off ? ' off' : ''}${d === state.day ? ' sel' : ''}" data-d="${d}" style="height:${(D1 - D0) * K}px">`;
+    h += marks.map(m => `<i class="hl" style="top:${(toMin(m) - D0) * K}px"></i>`).join('');
+    if (off) h += `<div class="offlabel">${esc(off)}</div>`;
+    else for (const L of lessons.filter(l => l.d === d)) {
+      const e = entries[L.key], s = toMin(L.start), en = toMin(L.end);
+      const past = ds < td || (ds === td && nm > en);
+      let cls = '', badge = '';
+      if (!e) { if (past) { cls = 'open'; badge = '<span class="b open">eintragen</span>'; open++; } }
+      else if (e.s === 'cancelled') { cls = 'cancelled'; badge = '<span class="b open">Ausfall</span>'; canc++; }
+      else if (e.s === 'skipped') { cls = 'skipped'; badge = '<span class="b open">geskippt</span>'; }
+      else {
+        const k = e.end > 0 ? 'over' : e.end < 0 ? 'early' : 'zero';
+        badge = `<span class="b ${k}">${sgn(e.end)}${e.late ? ` · ${e.late}′ spät` : ''}</span>`;
+        if (e.end > 0) over += e.end; else under -= e.end;
+        under += e.late || 0;
+      }
+      if (ds === td && nm >= s - 5 && nm <= en + 15) cls += ' live';
+      h += `<button class="lesson ${cls}" data-key="${L.key}" style="top:${(s - D0) * K}px;height:${(en - s) * K}px">
+        <span class="c">${esc(L.c)}</span><span class="t">${esc(L.te)} (${esc(TEACHERS[L.te])}) · ${esc(L.r)}</span>
+        ${e?.n ? `<span class="note">${esc(e.n)}</span>` : ''}${badge}</button>`;
+    }
+    if (ds === td && nm >= D0 && nm <= D1) h += `<i class="nowline" style="top:${(nm - D0) * K}px"></i>`;
+    h += '</div>';
+  }
+  $('#grid').innerHTML = h;
+  $('#daytabs').innerHTML = DAYS.map((n, d) => `<button data-d="${d}" class="${d === state.day ? 'sel' : ''}${iso(addDays(mon, d)) === td ? ' today' : ''}">${n}</button>`).join('');
+  $('#weeksum').innerHTML = `<span>Diese Woche: <b>${sgn(over)}</b> min überzogen</span><span><b>${under}</b> min unterzogen</span><span><b>${canc}</b> Ausfälle</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
+}
+
+const fmt1 = n => (Math.round(n * 10) / 10).toLocaleString('de-DE');
+function renderRank() {
+  const { rows, rec } = stats();
+  const sum = f => rows.reduce((a, r) => a + r[f], 0);
+  const tracked = sum('n'), skips = sum('skip');
+  $('#tiles').innerHTML = `
+    <div class="tile"><div class="k">Pause verloren</div><div class="v">${sum('over')}<small>min</small></div><div class="s">durch Überziehen</div></div>
+    <div class="tile"><div class="k">Unterzogen</div><div class="v">${sum('under')}<small>min</small></div><div class="s">früher Schluss + später Beginn</div></div>
+    <div class="tile"><div class="k">Ausfälle</div><div class="v">${sum('cancel')}</div><div class="s">Stunden</div></div>
+    <div class="tile"><div class="k">Erfasst</div><div class="v">${tracked}</div><div class="s">Stunden${skips ? ` · ${skips} geskippt` : ''}</div></div>`;
+
+  const withData = rows.filter(r => r.n);
+  const top = f => withData.filter(r => r[f] > 0).sort((a, b) => b[f] - a[f])[0];
+  const king = top('over'), friend = top('under');
+  const clock = withData.filter(r => r.n >= 3).sort((a, b) => (a.over + a.under) / a.n - (b.over + b.under) / b.n)[0];
+  const aw = (k, r, s) => r ? `<div class="award"><div class="k">${k}</div><div class="n">${esc(TEACHERS[r.k])}</div><div class="s">${s}</div></div>` : '';
+  $('#awards').innerHTML = !tracked
+    ? `<p class="note-pill empty"><strong>Noch nichts eingetragen.</strong> Tipp in der Wochenansicht auf eine Stunde und trag ein, wie viele Minuten überzogen oder früher Schluss gemacht wurde. Oder nutz oben den Live-Countdown: „Jetzt ist Schluss“ rechnet die Minuten selbst aus.</p>`
+    : `<div class="awards">${aw('Überzieh-König', king, king && `${king.over} min in ${king.nOver} Stunden`)}${aw('Pausenfreund', friend, friend && `${friend.under} min früher raus`)}${aw('Uhrwerk', clock, clock && `Ø ${fmt1((clock.over + clock.under) / clock.n)} min daneben`)}${rec ? `<div class="award"><div class="k">Rekord</div><div class="n num">+${rec.end} min</div><div class="s">${esc(TEACHERS[rec.t])} · ${esc(rec.c)} · ${fmtD(fromIso(rec.ds))}</div></div>` : ''}</div>`;
+
+  const s = state.sort;
+  rows.sort((a, b) => (+!!(b.n || b.cancel) - +!!(a.n || a.cancel)) || (b[s] - a[s]) || (b.n - a.n));
+  const max = Math.max(1, ...rows.map(r => Math.max(r.over, r.under)));
+  $('#rank').innerHTML = rows.map((r, i) => {
+    const none = !r.n && !r.cancel;
+    const main = s === 'avg' ? `${r.avg > 0 ? '+' : r.avg < 0 ? '−' : '±'}${fmt1(Math.abs(r.avg))}` : s === 'cancel' ? r.cancel : s === 'net' ? sgn(r.net) : s === 'under' ? '−' + r.under : '+' + r.over;
+    return `<li class="row${none ? ' nodata' : ''}">
+      <span class="pos">${none ? '–' : pad(i + 1)}</span>
+      <div class="who"><b>${esc(TEACHERS[r.k])}</b><small>${esc(r.k)} · ${esc([...COURSES[r.k]].join(', '))}</small></div>
+      <div class="div" title="${esc(TEACHERS[r.k])}: ${r.under} min unterzogen, ${r.over} min überzogen"><span class="l" style="width:${r.under / max * 100}%"></span><span class="mid"></span><span class="r" style="width:${r.over / max * 100}%"></span></div>
+      <div class="vals"><span class="num">${none ? '—' : main}</span><br>${r.n} Std · ${r.cancel} Ausf.</div></li>`;
+  }).join('');
+}
+
+function render() {
+  $('#viewWeek').hidden = state.view !== 'week';
+  $('#viewRank').hidden = state.view !== 'rank';
+  $('#tabWeek').classList.toggle('active', state.view === 'week');
+  $('#tabRank').classList.toggle('active', state.view === 'rank');
+  state.view === 'week' ? renderWeek() : renderRank();
+}
+
+// ---------- Live-Panel ----------
+const WD = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+let liveSig = '';
+function renderClockPill() {
+  const n = now(), t = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  $('#sDot').className = 'dot-live' + (clockSrc === 'net' ? '' : clockSrc === 'pending' ? ' pending' : ' warn');
+  $('#sText').textContent = clockSrc === 'net' ? `${t} · Netzwerkzeit` : clockSrc === 'manual' ? `${t} · manuell` : clockSrc === 'device' ? `${t} · Gerätezeit` : 'Zeit wird synchronisiert…';
+}
+function tickLive() {
+  renderClockPill();
+  if ($('#app').hidden) return;
+  const st = liveState(), { n, sec } = st;
+  const early = st.k === 'lesson' && sec - secOf(st.L.start) < 20 * 60 && !st.e?.late;
+  const sig = [st.k, st.L?.key, st.next?.key, st.title, JSON.stringify(st.e || null), early, clockSrc].join('|');
+  if (sig !== liveSig) {
+    liveSig = sig;
+    const src = clockSrc === 'net' ? '<span>Netzwerkzeit · Europe/Berlin</span>'
+      : clockSrc === 'pending' ? '<span>Zeit wird synchronisiert…</span>'
+      : `<span style="color:var(--danger)">${clockSrc === 'manual' ? 'Manuell gestellt' : 'Gerätezeit, evtl. falsch'} · <button type="button" class="linkbtn" data-act="clock">Uhr stellen</button></span>`;
+    let what = '', time = '', prog = false, acts = '';
+    const who = l => `${esc(TEACHERS[l.te])} (${esc(l.te)}) · Raum ${esc(l.r)}`;
+    const status = e => e?.s === 'cancelled' ? 'Ausfall eingetragen' : e?.s === 'skipped' ? 'Geskippt' : e ? `Eingetragen: ${sgn(e.end)} min` : '';
+    if (st.k === 'lesson') {
+      what = `${esc(st.L.c)}<small>${who(st.L)} · ${st.L.start}–${st.L.end}${st.e ? ' · ' + status(st.e) : ''}</small>`;
+      time = '<span class="lv-time"><small>noch</small><span id="lvT"></span></span>'; prog = true;
+      if (!st.e || st.e.s === 'ok') acts = `<button type="button" class="btn btn-primary" data-act="end">Lehrer macht jetzt Schluss</button>${early ? '<button type="button" class="btn btn-ghost" data-act="start">Unterricht beginnt jetzt</button>' : ''}`;
+    } else if (st.k === 'over') {
+      const nx = st.next ? ` · danach ${esc(st.next.c)} um ${st.next.start}` : '';
+      if (st.e) {
+        what = `${esc(st.L.c)}<small>${status(st.e)}${nx}</small>`;
+        time = st.e.s === 'ok' ? `<span class="lv-time ${st.e.end > 0 ? 'over' : st.e.end < 0 ? 'early' : ''}">${sgn(st.e.end)}<small> min</small></span>` : '';
+      } else {
+        what = `${esc(st.L.c)} überzieht<small>Klingel war um ${st.L.end} · ${esc(TEACHERS[st.L.te])}${nx}</small>`;
+        time = '<span class="lv-time over">+<span id="lvT"></span></span>';
+        acts = '<button type="button" class="btn btn-primary" data-act="end">Jetzt ist Schluss</button><button type="button" class="btn btn-ghost" data-act="ontime">War pünktlich</button>';
+      }
+    } else if (st.k === 'break') {
+      what = `Pause<small>Nächste Stunde: ${esc(st.next.c)} · ${who(st.next)}</small>`;
+      time = '<span class="lv-time"><small>in</small><span id="lvT"></span></span>';
+    } else what = `${esc(st.title)}${st.sub ? `<small>${st.sub}</small>` : ''}`;
+    $('#live').innerHTML = `<div class="lv-top"><span id="lvC"></span>${src}</div>
+      <div class="lv-main"><div class="lv-what">${what}</div>${time}</div>
+      ${prog ? '<div class="lv-prog"><i id="lvP"></i></div>' : ''}${acts ? `<div class="lv-act">${acts}</div>` : ''}`;
+  }
+  $('#lvC').textContent = `${WD[n.getDay()]}, ${fmtD(n)}${n.getFullYear()} · ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  const t = $('#lvT');
+  if (t) t.textContent = fmtS(st.k === 'lesson' ? secOf(st.L.end) - sec : st.k === 'over' ? sec - secOf(st.L.end) : secOf(st.next.start) - sec);
+  const p = $('#lvP');
+  if (p) p.style.width = (sec - secOf(st.L.start)) / (secOf(st.L.end) - secOf(st.L.start)) * 100 + '%';
+}
+function record(L, mon, patch, msg) {
+  const w = editWeek(iso(mon)), old = w.e[L.key];
+  w.e[L.key] = { s: 'ok', end: 0, late: 0, n: '', ...(old?.s === 'ok' ? old : {}), c: L.c, t: L.te, ...patch };
+  persist(); render(); tickLive(); toast(msg);
+}
+$('#live').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act;
+  if (act === 'clock') {
+    const n = now();
+    $('#cDate').value = iso(n); $('#cTime').value = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+    return $('#cdlg').showModal();
+  }
+  const st = liveState(); if (!st.L) return;
+  if (act === 'start') { const late = clamp((st.sec - secOf(st.L.start)) / 60, 0, 120); record(st.L, st.mon, { late }, `${st.L.c}: ${late} min später angefangen`); }
+  else { const end = act === 'ontime' ? 0 : clamp((st.sec - secOf(st.L.end)) / 60, -120, 120); record(st.L, st.mon, { end }, `${st.L.c}: ${sgn(end)} min eingetragen`); }
+});
+$('#cf').addEventListener('submit', e => {
+  e.preventDefault();
+  const [y, m, d] = $('#cDate').value.split('-').map(Number), [hh, mm, ss = 0] = $('#cTime').value.split(':').map(Number);
+  manualOffset = (manualOffset ?? 0) + (new Date(y, m - 1, d, hh, mm, ss) - now()); // Differenz zur angezeigten Berlin-Zeit
+  anchor = null; clockSrc = 'manual';
+  try { localStorage.setItem(LS + '-offset', manualOffset); } catch {}
+  $('#cdlg').close(); goToday(); toast('Uhr gestellt');
+});
+$('#cReset').addEventListener('click', () => {
+  manualOffset = null; anchor = null; clockSrc = 'device';
+  try { localStorage.removeItem(LS + '-offset'); } catch {}
+  $('#cdlg').close(); goToday();
+});
+
+// ---------- Stunde bearbeiten ----------
+let cur = null;
+function endHint() {
+  const v = clamp($('#endIn').value, -120, 120);
+  $('#endHint').textContent = v > 0 ? `${v} min überzogen` : v < 0 ? `${-v} min früher Schluss` : 'pünktlich';
+  $('#endHint').className = 'hint ' + (v > 0 ? 'over' : v < 0 ? 'early' : 'zero');
+}
+function setStatus(s) { $('#s-' + s).checked = true; $('#okFields').hidden = s !== 'ok'; }
+function openLesson(key) {
+  const L = lessonsOf(state.mon).find(l => l.key === key);
+  if (!L) return;
+  cur = L;
+  const e = state.weeks[iso(state.mon)]?.e?.[key];
+  $('#dTitle').textContent = L.c;
+  $('#dMeta').textContent = `${TEACHERS[L.te]} (${L.te}) · Raum ${L.r} · ${DAYS[L.d]} ${fmtD(fromIso(L.date))} · ${L.start}–${L.end}`;
+  setStatus(e?.s || 'ok');
+  $('#endIn').value = e?.end ?? 0; $('#lateIn').value = e?.late ?? 0; $('#noteIn').value = e?.n || '';
+  $$('[data-now]').forEach(b => b.hidden = L.date !== todayIso());
+  $('#delBtn').hidden = !e;
+  endHint();
+  $('#dlg').showModal();
+}
+$('#lf').addEventListener('change', e => { if (e.target.name === 's') setStatus(e.target.value); });
+$('#endIn').addEventListener('input', endHint);
+$('#lf').addEventListener('click', e => {
+  const st = e.target.closest('[data-step]'), nw = e.target.closest('[data-now]');
+  if (st) {
+    const [f, n] = st.dataset.step.split(':'), inp = $('#' + f + 'In');
+    inp.value = f === 'end' ? clamp(+inp.value + +n, -120, 120) : clamp(+inp.value + +n, 0, 120);
+    endHint();
+  }
+  if (nw) {
+    if (nw.dataset.now === 'end') $('#endIn').value = clamp(nowMin() - toMin(cur.end), -120, 120);
+    else $('#lateIn').value = clamp(nowMin() - toMin(cur.start), 0, 120);
+    endHint();
+  }
+});
+$('#lf').addEventListener('submit', e => {
+  e.preventDefault();
+  const w = editWeek(iso(state.mon)), s = $('#lf').s.value;
+  w.e[cur.key] = { s, c: cur.c, t: cur.te,
+    end: s === 'ok' ? clamp($('#endIn').value, -120, 120) : 0,
+    late: s === 'ok' ? clamp($('#lateIn').value, 0, 120) : 0,
+    n: $('#noteIn').value.trim().slice(0, 120) };
+  persist(); $('#dlg').close(); render(); liveSig = ''; tickLive();
+});
+$('#delBtn').addEventListener('click', () => {
+  delete editWeek(iso(state.mon)).e[cur.key];
+  persist(); $('#dlg').close(); render(); liveSig = ''; tickLive();
+});
+
+// ---------- Tag schulfrei ----------
+let curDay = null;
+function openDay(ds) {
+  curDay = ds;
+  const b = builtinOff(ds), c = customOff(ds), d = fromIso(ds);
+  $('#ddTitle').textContent = `${DAYS[(d.getDay() + 6) % 7]} ${fmtD(d)}${d.getFullYear()}`;
+  $('#ddInfo').textContent = b ? `${b}: hier ist sowieso keine Schule.` : c ? `Schulfrei: ${c}` : 'Ganzer Tag fällt aus? Dann zählt hier keine Stunde mit.';
+  $('#ddEdit').hidden = $('#ddSave').hidden = !!b;
+  $('#ddClear').hidden = !c || !!b;
+  $('#ddReason').value = c || '';
+  $('#ddlg').showModal();
+}
+function setDayOff(reason) {
+  const w = editWeek(iso(mondayOf(fromIso(curDay))));
+  if (reason) w.off[curDay] = reason; else delete w.off[curDay];
+  persist(); $('#ddlg').close(); render(); liveSig = ''; tickLive();
+}
+$('#df').addEventListener('submit', e => { e.preventDefault(); setDayOff($('#ddReason').value.trim().slice(0, 40) || 'Schulfrei'); });
+$('#ddClear').addEventListener('click', () => setDayOff(null));
+$$('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+
+// ---------- Navigation ----------
+$('#grid').addEventListener('click', e => {
+  const l = e.target.closest('.lesson'), h = e.target.closest('.dayhead');
+  if (l) openLesson(l.dataset.key);
+  else if (h) openDay(h.dataset.day);
+});
+$('#daytabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.day = +b.dataset.d; state.navigated = true; render(); } });
+$('#prev').onclick = () => { state.mon = addDays(state.mon, -7); state.navigated = true; render(); };
+$('#next').onclick = () => { state.mon = addDays(state.mon, 7); state.navigated = true; render(); };
+function goToday() { const t = now(); state.mon = mondayOf(t); state.day = t.getDay() >= 1 && t.getDay() <= 5 ? t.getDay() - 1 : 0; state.navigated = false; if (!$('#app').hidden) render(); liveSig = ''; tickLive(); }
+$('#today').onclick = goToday;
+$('#tabWeek').onclick = () => { state.view = 'week'; render(); };
+$('#tabRank').onclick = () => { state.view = 'rank'; render(); };
+$('#sorts').addEventListener('click', e => {
+  const b = e.target.closest('[data-sort]'); if (!b) return;
+  state.sort = b.dataset.sort;
+  $$('#sorts button').forEach(x => x.classList.toggle('active', x === b));
+  render();
+});
+$('#flip').onclick = () => {
+  const mk = iso(state.mon);
+  state.flips = state.flips.includes(mk) ? state.flips.filter(x => x !== mk) : [...state.flips, mk].sort();
+  persist(); render(); liveSig = ''; tickLive();
+  toast(isA(state.mon) ? 'Ab hier: A-Woche (Informatik)' : 'Ab hier: B-Woche (Mathe)');
+};
+
+// ---------- Sichern ----------
+$('#exportBtn').onclick = () => {
+  const blob = new Blob([JSON.stringify({ app: 'pausenklau', v: 1, weeks: state.weeks, flips: state.flips }, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `pausenklau-${todayIso()}.json`;
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('#importIn').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (d.app !== 'pausenklau' || typeof d.weeks !== 'object') throw new Error();
+    if (!confirm('Import ersetzt alle Einträge in diesem Browser. Fortfahren?')) return;
+    state.weeks = d.weeks; state.flips = Array.isArray(d.flips) ? d.flips : [];
+    persist(); render(); liveSig = ''; tickLive(); toast('Daten importiert');
+  } catch { toast('Das ist keine Pausenklau-Sicherung'); }
+};
+
+// ---------- Entsperren ----------
+const PLAN_KEY = LS + '-plan';
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function decryptPlan(enc, pw) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(enc.salt), iterations: enc.iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(enc.iv) }, key, b64(enc.data))));
+}
+const fetchEnc = () => fetch('/pausenklau/plan.enc.json', { cache: 'no-store' }).then(r => r.json());
+function startApp(plan) {
+  setPlan(plan);
+  try { const l = JSON.parse(localStorage.getItem(LS)); if (l) { state.weeks = l.weeks || {}; state.flips = l.flips || []; } } catch {}
+  $('#lock').hidden = true; $('#app').hidden = false; $('#tabs').hidden = false; $('#lockBtn').hidden = false;
+  render(); liveSig = ''; tickLive();
+}
+$('#lockForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('#lockSubmit');
+  btn.disabled = true; btn.textContent = 'Entschlüssele…'; $('#lockErr').textContent = '';
+  try {
+    const enc = await fetchEnc();
+    const plan = await decryptPlan(enc, $('#pw').value);
+    if ($('#remember').checked) try { localStorage.setItem(PLAN_KEY, JSON.stringify({ iv: enc.iv, plan })); } catch {}
+    $('#pw').value = '';
+    startApp(plan);
+  } catch (err) {
+    $('#lockErr').textContent = err?.name === 'OperationError' ? 'Falsches Passwort.' : 'Stundenplan konnte nicht geladen werden. Bist du online?';
+  } finally { btn.disabled = false; btn.textContent = 'Entsperren'; }
+});
+$('#lockBtn').onclick = () => {
+  try { localStorage.removeItem(PLAN_KEY); } catch {}
+  location.reload();
+};
+
+// ---------- Start ----------
+setInterval(tickLive, 250);
+setInterval(() => { if (!$('#app').hidden && state.view === 'week') renderWeek(); }, 30000);
+const resync = () => syncClock().then(() => { if (!state.navigated) goToday(); else { liveSig = ''; tickLive(); } });
+setInterval(resync, 10 * 60e3);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) resync(); });
+resync();
+
+(async () => {
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(PLAN_KEY)); } catch {}
+  if (cached?.plan) {
+    startApp(cached.plan);
+    // Neuer Stundenplan oder neues Passwort hochgeladen? Dann einmal neu entsperren.
+    fetchEnc().then(enc => { if (enc.iv !== cached.iv) { localStorage.removeItem(PLAN_KEY); location.reload(); } }).catch(() => {});
+  } else {
+    $('#lock').hidden = false;
+    $('#pw').focus();
+  }
+})();
+</script>
+</body>
+</html>

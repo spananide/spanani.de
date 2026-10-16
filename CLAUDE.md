@@ -41,5 +41,5 @@ Purple is the brand (deliberate, see git history). Use it sparingly: one primary
 - No scroll reveals, no hover lifts, no parallax. Everything respects `prefers-reduced-motion`.
 
 ### Copy
-- Plain, specific, first person. Buttons say exactly what happens: "Copy Discord handle" (same label everywhere), "Email about a bot", "Open the clock".
+- Plain, specific, first person. Buttons say exactly what happens: "Open in Discord" is the main action everywhere (links to discord.com/users/723110232263491635); "Copy Discord handle" is only a secondary option next to the visible @spanani. Also "Email about a bot", "Open the clock".
 - Never invent numbers, testimonials or claims. Availability and reply-time statements need the owner's confirmation.

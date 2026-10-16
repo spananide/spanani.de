@@ -578,7 +578,8 @@ a.time-pill:hover { border-color: var(--line-strong); color: var(--ink); }
 .legal-links a { color: var(--ink-soft); text-decoration: none; }
 .legal-note { color: var(--ink-faint); margin-right: auto; }
 .handle-chip { font-family: var(--font-mono); font-weight: 600; color: var(--ink-soft); }
-.actions--secondary { margin-top: var(--space-3); }
+.handle-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-top: var(--space-4); font-size: var(--fs-sm); color: var(--ink-faint); }
+.btn-sm { min-height: 36px; padding: 6px 12px; font-size: var(--fs-xs); }
 .legal-links a:hover { color: var(--ink); text-decoration: underline; }
 
 .toast {

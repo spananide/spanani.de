@@ -70,7 +70,7 @@
   }
 
   function selectFallback(trigger, value) {
-    var scope = trigger.closest('.actions, .handle, .reach-row, .service') || document;
+    var scope = trigger.closest('.actions, .handle, .handle-line, .reach-row, .service') || document;
     var target = scope.querySelector('[data-copy-target]');
     if (target && window.getSelection) {
       var range = document.createRange();

@@ -33,7 +33,7 @@ Purple is the brand (deliberate, see git history). Use it sparingly: one primary
 - Page structure: no radius, no shadow. Sections and list items are separated by 1px `--line` rules only where they separate real items (services, projects, contact rows, principles).
 - Buttons and inputs: `--radius-sm` (6px). Screenshot frames: `--radius-md` (10px). The command picker, modals and the clock dock: `--radius-lg` (14px) plus `--shadow-lg`. Nothing else floats.
 - No cards-in-a-grid layouts for content. Each section gets its own structure (picker, feature rows, principle list, contact rows).
-- Text is left-aligned. The homepage clock screenshot bleeding off the right edge is the one deliberate grid break.
+- Text is left-aligned. Project screenshots stay inside the container; on the homepage the clock and Bauchgefühl rows alternate sides and use the same image size.
 
 ### Motion
 - One orchestrated moment: the command list fades in item by item on load (`--i` stagger, under 600ms).

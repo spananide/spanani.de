@@ -150,6 +150,8 @@ h1, h2, h3, h4 {
   line-height: var(--lh-head);
   letter-spacing: -0.02em;
   text-wrap: balance;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 h1 { font-size: var(--fs-display); font-weight: 760; line-height: var(--lh-tight); letter-spacing: -0.022em; }
 h2 { font-size: var(--fs-h2); letter-spacing: -0.02em; }

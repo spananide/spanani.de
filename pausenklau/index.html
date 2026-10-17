@@ -20,6 +20,11 @@
   <meta name="theme-color" content="#16121d" media="(prefers-color-scheme: dark)">
 
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/pausenklau/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/pausenklau/icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Pausenklau">
   <link rel="preload" href="/assets/fonts/bricolage-grotesque-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/atkinson-next-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/design-system.css">
@@ -109,6 +114,8 @@
     .lv-prog { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
     .lv-prog i { display: block; height: 100%; background: var(--accent); }
     .lv-act { display: flex; flex-wrap: wrap; gap: 8px; }
+    .lv-cds { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--fs-xs); color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 10px; }
+    .lv-cds b { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 500; color: var(--ink); margin-left: 6px; }
     .linkbtn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font: inherit; }
 
     /* Week nav */
@@ -131,6 +138,7 @@
     .dayhead { background: none; border: 0; padding: 4px 0 12px; text-align: center; color: var(--ink-soft); font-weight: 600; font-size: var(--fs-sm); min-width: 0; cursor: pointer; }
     .dayhead:hover { color: var(--ink); }
     .dayhead.today { color: var(--accent); }
+    .dayhead small.ev { color: var(--accent); }
     .dayhead small { display: block; font-family: var(--font-mono); font-size: 10px; font-weight: 400; letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .axis, .col { position: relative; }
     .axis span { position: absolute; right: 4px; transform: translateY(-50%); font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-faint); }
@@ -144,6 +152,7 @@
     .lesson:hover { border-color: var(--line-strong); background: var(--paper-sunk); }
     .lesson .c { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; }
     .lesson .t { font-size: 11.5px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lesson mark { background: none; color: var(--success); font-weight: 600; }
     .lesson .note { font-size: 11px; color: var(--ink-faint); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .lesson .b { position: absolute; top: 6px; right: 6px; font-family: var(--font-mono); font-size: 11.5px; font-weight: 500; padding: 1px 6px; border-radius: 6px; background: var(--paper-sunk); border: 1px solid var(--line); }
     .b.over { color: var(--danger); } .b.early { color: var(--success); } .b.zero { color: var(--ink); } .b.open { color: var(--ink-faint); font-family: var(--font-sans); font-size: 10.5px; }
@@ -194,6 +203,9 @@
     .set { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 20px 22px; display: grid; gap: 12px; }
     .set h3 { font-size: 18px; }
     .set p { color: var(--ink-soft); font-size: var(--fs-sm); }
+    .evlist { list-style: none; display: grid; gap: 6px; }
+    .evlist li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: var(--fs-sm); }
+    .evlist .sp { flex: 1; }
     .set.danger { border-color: rgba(255, 84, 104, 0.35); }
 
     /* Dialogs (styled like the site's modal-card) */
@@ -370,6 +382,14 @@
       </section>
 
       <section id="viewRank" hidden>
+        <div class="rankhead">
+          <span class="fine" id="rangeInfo"></span>
+          <div class="mode-switch sorts" id="ranges">
+            <button class="mode-btn active" data-range="all">Insgesamt</button>
+            <button class="mode-btn" data-range="half">Halbjahr</button>
+            <button class="mode-btn" data-range="month">Monat</button>
+          </div>
+        </div>
         <div class="tiles" id="tiles"></div>
         <div id="awards"></div>
         <div class="rankhead">
@@ -391,6 +411,10 @@
           <div class="row-btns"><button class="btn btn-secondary" id="sLogout">Abmelden</button><button class="btn btn-ghost" id="sExport">Daten exportieren</button></div></div>
         <div class="set"><h3>Stundenplan</h3><p id="sPlanInfo"></p>
           <div class="row-btns"><button class="btn btn-secondary" id="sEdit">Bearbeiten</button><button class="btn btn-ghost" id="sReupload">Neu hochladen</button></div></div>
+        <div class="set" id="sEv" hidden><h3>Termine</h3><p>Klausuren, Abgaben und alles mit Datum. Sie stehen im Stundenplan über dem Tag und oben mit Countdown.</p>
+          <ul class="evlist" id="sEvList"></ul>
+          <form id="sEvForm" class="row-btns"><input class="inp" type="date" id="evD" required style="width:auto"><input class="inp" type="time" id="evT" aria-label="Uhrzeit (optional)" style="width:auto"><input class="inp" id="evN" maxlength="40" required placeholder="z. B. Mathe-Klausur" style="flex:1;min-width:160px"><button class="btn btn-secondary" type="submit">Hinzufügen</button></form></div>
+        <div class="set" id="sApp"><h3>Als App</h3><p>Leg Pausenklau auf deinen Home-Bildschirm, dann öffnet es sich ohne Browserleiste. iPhone und iPad: in Safari auf Teilen und dann „Zum Home-Bildschirm“. Android: im Chrome-Menü „App installieren“. In der App meldest du dich einmal neu an.</p></div>
         <div class="set"><h3>Schule</h3>
           <div class="f2"><div><label class="lbl" for="sState">Bundesland</label><select class="inp" id="sState"></select></div>
           <div><label class="lbl" for="sAb">Wochen</label><select class="inp" id="sAb"><option value="0">Jede Woche gleich</option><option value="1">A- und B-Woche</option></select></div></div>
@@ -407,6 +431,7 @@
     <form id="lf">
       <h3 id="dTitle"></h3>
       <p class="meta" id="dMeta"></p>
+      <p class="fine" style="margin:-8px 0 14px"><button type="button" class="linkbtn" id="chOpen">Raum oder Lehrer nur diesmal ändern</button></p>
       <fieldset class="seg">
         <legend>Was ist passiert?</legend>
         <label><input type="radio" name="s" value="ok" id="s-ok">Fand statt</label>
@@ -465,6 +490,25 @@
         <span class="sp"></span>
         <button type="button" class="btn btn-ghost" data-close>Abbrechen</button>
         <button type="submit" class="btn btn-primary">Übernehmen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Raum oder Lehrer für eine einzelne Stunde -->
+  <dialog id="chdlg">
+    <form id="chf">
+      <h3>Nur diesmal anders</h3>
+      <p class="meta" id="chMeta"></p>
+      <div class="f2 field">
+        <div><label class="lbl" for="chR">Raum</label><input class="inp" id="chR" maxlength="20"></div>
+        <div><label class="lbl" for="chT">Vertretung (Kürzel)</label><input class="inp" id="chT" maxlength="20"></div>
+      </div>
+      <p class="fine">Gilt nur für diese eine Stunde. Leer heißt wie im Stundenplan.</p>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="chClear">Zurücksetzen</button>
+        <span class="sp"></span>
+        <button type="button" class="btn btn-ghost" data-close>Abbrechen</button>
+        <button type="submit" class="btn btn-primary">Speichern</button>
       </div>
     </form>
   </dialog>
@@ -586,9 +630,10 @@ function migrateV2(profile, weeks) {
 }
 const today0 = now();
 const state = { token: lsGet('pk-token'), username: '', profile: blankProfile(), weeks: {}, holidays: [],
-  view: 'week', sort: 'over', navigated: false,
+  view: 'week', sort: 'over', range: 'all', navigated: false,
   mon: mondayOf(today0), day: today0.getDay() >= 1 && today0.getDay() <= 5 ? today0.getDay() - 1 : 0 };
 const P = () => state.profile;
+const ME = () => state.username === 'spanani'; // Extras nur für das Konto des Betreibers, alle anderen sehen die normale Seite
 
 // ---------- Stundenplan-Logik ----------
 function isA(mon) {
@@ -602,7 +647,12 @@ function lessonsFor(plan, mon) {
   return plan.map(l => ({ ...l, key: l.d + '-' + l.s, start: l.s, end: l.e, date: mon ? iso(addDays(mon, l.d)) : '' }))
     .sort((a, b) => a.d - b.d || toMin(a.s) - toMin(b.s));
 }
-const lessonsOf = mon => lessonsFor(P().plans[isA(mon) ? 'A' : 'B'] || [], mon);
+// Mit den Änderungen dieser Woche (Raum oder Vertretung nur für eine Stunde)
+const lessonsOf = mon => {
+  const ch = state.weeks[iso(mon)]?.ch || {};
+  return lessonsFor(P().plans[isA(mon) ? 'A' : 'B'] || [], mon)
+    .map(l => ch[l.key] ? { ...l, r: ch[l.key].r || l.r, te: ch[l.key].te || l.te, chR: !!ch[l.key].r, chT: !!ch[l.key].te } : l);
+};
 const teacherName = te => P().teachers[te] || '';
 const teacherLabel = te => teacherName(te) ? `${te} (${teacherName(te)})` : te;
 function builtinOff(ds) {
@@ -611,7 +661,7 @@ function builtinOff(ds) {
 }
 const customOff = ds => state.weeks[iso(mondayOf(fromIso(ds)))]?.off?.[ds] || null;
 const offReason = ds => builtinOff(ds) || customOff(ds);
-const editWeek = mk => { const w = state.weeks[mk] ||= {}; w.e ??= {}; w.off ??= {}; return w; };
+const editWeek = mk => { const w = state.weeks[mk] ||= {}; w.e ??= {}; w.off ??= {}; w.ch ??= {}; return w; };
 
 // KI-Ergebnis → Plan. Ungültige Zeiten fallen raus, Überschneidungen am selben Tag auch (die frühere gewinnt).
 // ctx wird über A- und B-Woche geteilt, damit derselbe Lehrer nicht doppelt auftaucht.
@@ -647,21 +697,28 @@ function liveState() {
   const prev = ls.filter(l => secOf(l.end) <= sec).pop(), next = ls.find(l => secOf(l.start) > sec);
   const e = l => state.weeks[iso(mon)]?.e?.[l.key];
   if (cur) return { k: 'lesson', n, sec, mon, L: cur, e: e(cur) };
-  // +Zeit läuft bis zur nächsten Stunde, höchstens 20 min
-  if (prev && sec - secOf(prev.end) < Math.min(1200, next ? secOf(next.start) - secOf(prev.end) : 1200)) return { k: 'over', n, sec, mon, L: prev, e: e(prev), next };
-  if (next) return { k: 'break', n, sec, mon, next };
+  // +Zeit läuft bis zur nächsten Stunde, höchstens 20 min; ist das Ende schon eingetragen, ist Pause
+  if (prev && !(e(prev) && next) && sec - secOf(prev.end) < Math.min(1200, next ? secOf(next.start) - secOf(prev.end) : 1200)) return { k: 'over', n, sec, mon, L: prev, e: e(prev), next };
+  if (next) return { k: 'break', n, sec, mon, next, prev, pe: prev && e(prev) };
   return { k: 'free', n, sec, title: ls.length ? 'Schulschluss' : 'Heute kein Unterricht', sub: '' };
 }
 const fmtS = s => { s = Math.max(0, Math.floor(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return (h ? h + ':' + pad(m) : pad(m)) + ':' + pad(s % 60); };
 
 // ---------- Statistik ----------
+// Beginn des gewählten Zeitraums für die Rangliste ('' = alles). Halbjahre: August–Januar, Februar–Juli.
+function rangeFrom() {
+  const n = now(), y = n.getFullYear(), m = n.getMonth();
+  if (state.range === 'month') return iso(new Date(y, m, 1));
+  if (state.range === 'half') return iso(m >= 7 ? new Date(y, 7, 1) : m === 0 ? new Date(y - 1, 7, 1) : new Date(y, 1, 1));
+  return '';
+}
 function stats() {
-  const by = {}, add = te => by[te] ||= { k: te, over: 0, early: 0, late: 0, n: 0, nOver: 0, cancel: 0, skip: 0 };
+  const from = rangeFrom(), by = {}, add = te => by[te] ||= { k: te, over: 0, early: 0, late: 0, n: 0, nOver: 0, cancel: 0, skip: 0 };
   for (const v of ['A', 'B']) for (const l of P().plans[v] || []) add(l.te);
   let rec = null;
   for (const [mk, w] of Object.entries(state.weeks)) for (const [key, e] of Object.entries(w.e || {})) {
     const ds = iso(addDays(fromIso(mk), +key.split('-')[0]));
-    if (!e.t || offReason(ds)) continue;
+    if (!e.t || offReason(ds) || ds < from) continue;
     const t = add(e.t);
     if (e.s === 'cancelled') { t.cancel++; continue; }
     if (e.s === 'skipped') { t.skip++; continue; }
@@ -984,6 +1041,7 @@ function axisMarks(lessons) {
   for (const t of T) (groups.length && t - groups.at(-1).at(-1) < 10 ? groups.at(-1) : groups[groups.length] = []).push(t);
   return { lines: T, labels: groups };
 }
+const mark = (on, html) => on ? `<mark>${html}</mark>` : html; // nur diesmal geändert: grün wie im Schul-Stundenplan
 function gridHtml({ mon, lessons, preview, teachers }) {
   const { lines, labels } = axisMarks(lessons.length ? lessons : [{ start: '08:00', end: '13:00' }]);
   const D0 = lines[0], D1 = lines.at(-1), H = (D1 - D0) * K;
@@ -991,7 +1049,8 @@ function gridHtml({ mon, lessons, preview, teachers }) {
   let h = '<div></div>';
   for (let d = 0; d < 5; d++) {
     const ds = mon ? iso(addDays(mon, d)) : '', off = mon && offReason(ds);
-    h += `<button class="dayhead${ds === td ? ' today' : ''}${d === state.day ? ' sel' : ''}" data-d="${d}" data-day="${ds}" ${preview ? 'tabindex="-1"' : ''}>${DAYS[d]}${mon ? ' ' + fmtD(addDays(mon, d)) : ''}${mon ? `<small>${off ? esc(off) : '&nbsp;'}</small>` : ''}</button>`;
+    const evs = mon && !off ? (P().events || []).filter(x => x.d === ds).map(x => esc((x.t ? x.t + ' ' : '') + x.n)).join(', ') : '';
+    h += `<button class="dayhead${ds === td ? ' today' : ''}${d === state.day ? ' sel' : ''}" data-d="${d}" data-day="${ds}" ${preview ? 'tabindex="-1"' : ''}>${DAYS[d]}${mon ? ' ' + fmtD(addDays(mon, d)) : ''}${mon ? `<small${evs ? ` class="ev" title="${evs}"` : ''}>${off ? esc(off) : evs || '&nbsp;'}</small>` : ''}</button>`;
   }
   const mid = g => ((g[0] + g.at(-1)) / 2 - D0) * K;
   h += `<div class="axis" style="height:${H}px">${labels.map(g => `<span style="top:${mid(g)}px">${g.map(fromMin).join('<br>')}</span>`).join('')}</div>`;
@@ -1015,7 +1074,7 @@ function gridHtml({ mon, lessons, preview, teachers }) {
       } else badge = `<span class="t num">${L.start}–${L.end}</span>`;
       const idx = preview ? editing.draft.plans[editing.v].findIndex(x => x.d === L.d && x.s === L.s) : -1;
       h += `<button class="lesson ${cls}" data-key="${L.key}" data-idx="${idx}" style="top:${(s - D0) * K}px;height:${(en - s) * K}px">
-        <span class="c">${esc(L.c)}</span><span class="t">${esc(name ? `${L.te} (${name})` : L.te)}${L.r ? ' · ' + esc(L.r) : ''}</span>${badge}</button>`;
+        <span class="c">${esc(L.c)}</span><span class="t">${mark(L.chT, esc(name ? `${L.te} (${name})` : L.te))}${L.r ? ' · ' + mark(L.chR, esc(L.r)) : ''}</span>${badge}</button>`;
     }
     if (ds === td && nm >= D0 && nm <= D1) h += `<i class="nowline" style="top:${(nm - D0) * K}px"></i>`;
     h += '</div>';
@@ -1047,7 +1106,8 @@ function renderWeek() {
 
 const fmt1 = n => (Math.round(n * 10) / 10).toLocaleString('de-DE');
 function renderRank() {
-  const { rows, rec } = stats();
+  const { rows, rec } = stats(), from = rangeFrom();
+  $('#rangeInfo').textContent = from ? `Seit ${fmtD(fromIso(from))}${from.slice(0, 4)}` : 'Alle Einträge';
   const sum = f => rows.reduce((a, r) => a + r[f], 0);
   const tracked = sum('n'), skips = sum('skip');
   $('#tiles').innerHTML = `
@@ -1086,6 +1146,9 @@ function renderSettings() {
   $('#sPlanInfo').textContent = P().ab ? `A-Woche: ${n('A')} Stunden, B-Woche: ${n('B')} Stunden.` : `${n('A')} Stunden pro Woche.`;
   $('#sState').innerHTML = (P().state ? '' : '<option value="">Bitte wählen</option>') + Object.entries(STATES).map(([k, v]) => `<option value="${k}"${k === P().state ? ' selected' : ''}>${v}</option>`).join('');
   $('#sAb').value = P().ab ? '1' : '0';
+  $('#sApp').hidden = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  $('#sEv').hidden = !ME();
+  if (ME()) $('#sEvList').innerHTML = (P().events || []).map((x, i) => `<li><span class="num">${fmtD(fromIso(x.d))}${x.d.slice(0, 4)}${x.t ? ' ' + x.t : ''}</span><b>${esc(x.n)}</b><span class="sp"></span><button type="button" class="linkbtn" data-ev="${i}">Löschen</button></li>`).join('') || '<li class="fine">Noch keine Termine.</li>';
   $('#sHolInfo').textContent = !P().state ? 'Wähl dein Bundesland, damit Ferien und Feiertage erkannt werden.'
     : state.holidays.length ? `${state.holidays.length} Ferien- und Feiertage für ${STATES[P().state]} geladen (Quelle: OpenHolidays).` : 'Ferien werden geladen…';
 }
@@ -1099,6 +1162,22 @@ function render() {
 // ---------- Live-Panel ----------
 const WD = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 let liveSig = '';
+const fmtLong = s => s >= 86400 ? `${Math.floor(s / 86400)} T ${Math.floor(s % 86400 / 3600)}:${fmtS(s % 3600)}` : fmtS(s);
+const at = (ds, t) => { const d = fromIso(ds), [h, m] = t ? t.split(':').map(Number) : [0, 0]; return new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m); };
+// Countdowns im Live-Panel (nur ME): Schulschluss, Wochenende, Ferien, eigene Termine. Abgelaufene blendet tickLive aus.
+function countdowns() {
+  if (!ME()) return [];
+  const n = now(), ds = iso(n), out = [];
+  const ls = lessonsOf(mondayOf(n)).filter(l => !offReason(l.date));
+  const today = ls.filter(l => l.date === ds).at(-1), last = ls.at(-1);
+  if (today) out.push(['Schulschluss in', at(ds, today.end)]);
+  if (last) out.push(['Wochenende in', at(last.date, last.end)]);
+  const hol = state.holidays.filter(([a, b]) => b > a && b >= ds).sort((x, y) => x[0] < y[0] ? -1 : 1)[0];
+  if (hol) out.push(hol[0] <= ds ? [hol[2] + ' noch', addDays(fromIso(hol[1]), 1)] : [hol[2] + ' in', fromIso(hol[0])]);
+  const ev = (P().events || []).map(x => [x.n + ' in', at(x.d, x.t)]).filter(x => x[1] > n).sort((a, b) => a[1] - b[1])[0];
+  if (ev) out.push(ev);
+  return out;
+}
 function renderClockPill() {
   const n = now(), t = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   $('#sDot').className = 'dot-live' + (clockSrc === 'net' ? '' : clockSrc === 'pending' ? ' pending' : ' warn');
@@ -1109,7 +1188,7 @@ function tickLive() {
   if ($('#app').hidden) return;
   const st = liveState(), { n, sec } = st;
   const early = st.k === 'lesson' && sec - secOf(st.L.start) < 20 * 60 && !st.e?.late;
-  const sig = [st.k, st.L?.key, st.next?.key, st.title, JSON.stringify(st.e || null), early, clockSrc].join('|');
+  const sig = [st.k, st.L?.key, st.next?.key, st.title, JSON.stringify(st.e || null), JSON.stringify(st.pe || null), early, clockSrc, iso(n)].join('|');
   if (sig !== liveSig) {
     liveSig = sig;
     const src = clockSrc === 'net' ? '<span>Netzwerkzeit · Europe/Berlin</span>'
@@ -1133,13 +1212,21 @@ function tickLive() {
         acts = '<button type="button" class="btn btn-primary" data-act="end">Jetzt ist Schluss</button><button type="button" class="btn btn-ghost" data-act="ontime">War pünktlich</button>';
       }
     } else if (st.k === 'break') {
-      what = `Pause<small>Nächste Stunde: ${esc(st.next.c)} · ${who(st.next)}</small>`;
-      time = '<span class="lv-time"><small>in</small><span id="lvT"></span></span>';
+      // Pausenlänge laut Plan und wie viel davon das Überziehen gekostet hat
+      const gap = st.prev ? toMin(st.next.start) - toMin(st.prev.end) : 0;
+      const stolen = st.pe?.s === 'ok' && st.pe.end > 0 ? Math.min(st.pe.end, gap) : 0;
+      const title = !ME() ? 'Pause' : !st.prev ? `Erste Stunde um ${st.next.start}` : gap > 20 ? 'Freistunde' : 'Pause';
+      const info = st.prev ? `${gap} min ${title === 'Freistunde' ? 'frei' : 'Pause'}${stolen ? `, davon ${stolen} min von ${esc(st.prev.c)} geklaut` : ''} · ` : '';
+      what = `${title}<small>${info}Nächste Stunde: ${esc(st.next.c)} · ${who(st.next)}</small>`;
+      time = `<span class="lv-time"><small>${st.prev ? 'noch' : 'in'}</small><span id="lvT"></span></span>`;
     } else what = `${esc(st.title)}${st.sub ? `<small>${st.sub}</small>` : ''}`;
+    const cds = countdowns();
     $('#live').innerHTML = `<div class="lv-top"><span id="lvC"></span>${src}</div>
       <div class="lv-main"><div class="lv-what">${what}</div>${time}</div>
-      ${prog ? '<div class="lv-prog"><i id="lvP"></i></div>' : ''}${acts ? `<div class="lv-act">${acts}</div>` : ''}`;
+      ${prog ? '<div class="lv-prog"><i id="lvP"></i></div>' : ''}${acts ? `<div class="lv-act">${acts}</div>` : ''}
+      ${cds.length ? `<div class="lv-cds">${cds.map(([k, t]) => `<span data-to="${+t}">${esc(k)}<b></b></span>`).join('')}</div>` : ''}`;
   }
+  for (const c of $$('#live [data-to]')) { const s = (+c.dataset.to - +n) / 1000; c.hidden = s <= 0; c.lastChild.textContent = fmtLong(s); }
   $('#lvC').textContent = `${WD[n.getDay()]}, ${fmtD(n)}${n.getFullYear()} · ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   const t = $('#lvT');
   if (t) t.textContent = fmtS(st.k === 'lesson' ? secOf(st.L.end) - sec : st.k === 'over' ? sec - secOf(st.L.end) : secOf(st.next.start) - sec);
@@ -1227,6 +1314,24 @@ $('#delBtn').addEventListener('click', () => {
   saveWeek(mk); $('#dlg').close(); render(); liveSig = ''; tickLive();
 });
 
+// ---------- Raum oder Lehrer nur für diese Stunde ----------
+$('#chOpen').onclick = () => {
+  const ch = state.weeks[iso(state.mon)]?.ch?.[cur.key] || {};
+  const pl = (P().plans[isA(state.mon) ? 'A' : 'B'] || []).find(l => l.d + '-' + l.s === cur.key);
+  $('#chMeta').textContent = `${cur.c} · ${DAYS[cur.d]} ${fmtD(fromIso(cur.date))} · laut Plan ${teacherLabel(pl.te)}${pl.r ? ', Raum ' + pl.r : ''}`;
+  $('#chR').value = ch.r || ''; $('#chT').value = ch.te || '';
+  $('#dlg').close(); $('#chdlg').showModal();
+};
+function setChange(r, te) {
+  const mk = iso(state.mon), w = editWeek(mk), c = {};
+  if (r) c.r = r;
+  if (te) c.te = te;
+  if (r || te) w.ch[cur.key] = c; else delete w.ch[cur.key];
+  saveWeek(mk); $('#chdlg').close(); render(); liveSig = ''; tickLive();
+}
+$('#chf').addEventListener('submit', e => { e.preventDefault(); setChange($('#chR').value.trim(), $('#chT').value.trim()); });
+$('#chClear').onclick = () => setChange('', '');
+
 // ---------- Tag schulfrei ----------
 let curDay = null;
 function openDay(ds) {
@@ -1266,6 +1371,12 @@ $('#sorts').addEventListener('click', e => {
   $$('#sorts button').forEach(x => x.classList.toggle('active', x === b));
   render();
 });
+$('#ranges').addEventListener('click', e => {
+  const b = e.target.closest('[data-range]'); if (!b) return;
+  state.range = b.dataset.range;
+  $$('#ranges button').forEach(x => x.classList.toggle('active', x === b));
+  render();
+});
 $('#flip').onclick = () => {
   const mk = iso(state.mon);
   P().flips = P().flips.includes(mk) ? P().flips.filter(x => x !== mk) : [...P().flips, mk].sort();
@@ -1294,6 +1405,16 @@ $('#sAb').onchange = () => {
   saveProfile(); renderSettings();
   if (P().ab && !P().plans.B?.length) { toast('Trag jetzt die B-Woche ein'); $('#sEdit').click(); editing.v = 'B'; renderEditor(); }
 };
+$('#sEvForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const n = $('#evN').value.trim(); if (!n) return;
+  P().events = [...(P().events || []), { d: $('#evD').value, t: $('#evT').value, n }].sort((a, b) => (a.d + a.t < b.d + b.t ? -1 : 1));
+  $('#sEvForm').reset(); saveProfile(); renderSettings(); liveSig = '';
+});
+$('#sEvList').addEventListener('click', e => {
+  const b = e.target.closest('[data-ev]'); if (!b) return;
+  P().events.splice(+b.dataset.ev, 1); saveProfile(); renderSettings(); liveSig = '';
+});
 $('#sDelForm').addEventListener('submit', async e => {
   e.preventDefault();
   $('#sDelErr').textContent = '';

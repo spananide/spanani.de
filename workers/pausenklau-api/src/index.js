@@ -161,7 +161,7 @@ async function route(req, env) {
     const b = await body(req, 60000);
     const d = b.data;
     if (!d || typeof d !== 'object' || Array.isArray(d)) throw new HttpError(400, 'Ungültige Daten');
-    if (!Object.keys(d.e || {}).length && !Object.keys(d.off || {}).length) {
+    if (!Object.keys(d.e || {}).length && !Object.keys(d.off || {}).length && !Object.keys(d.ch || {}).length) {
       await env.DB.prepare('DELETE FROM weeks WHERE username = ? AND week = ?').bind(me.username, week).run();
     } else {
       await env.DB.prepare('INSERT INTO weeks (username, week, data) VALUES (?1, ?2, ?3) ON CONFLICT (username, week) DO UPDATE SET data = ?3')

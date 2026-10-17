@@ -6,6 +6,9 @@
   <title>Contact — spanani</title>
   <meta name="description" content="Get in touch with spanani on Discord (@spanani) or by email at webmaster@spanani.de. Usually replies within a day, Central European Time.">
   <link rel="canonical" href="https://spanani.de/contact/">
+  <link rel="alternate" hreflang="en" href="https://spanani.de/contact/">
+  <link rel="alternate" hreflang="de" href="https://spanani.de/de/kontakt/">
+  <link rel="alternate" hreflang="x-default" href="https://spanani.de/contact/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="spanani">
   <meta property="og:url" content="https://spanani.de/contact/">
@@ -46,7 +49,9 @@
       <nav class="nav-links" aria-label="Primary">
         <a class="nav-link" href="/projects/">Projects</a>
         <a class="nav-link" href="/services/">Services</a>
+        <a class="nav-link" href="/tools/">Tools</a>
         <a class="nav-link" href="/contact/">Contact</a>
+        <a class="nav-link" href="/de/kontakt/" hreflang="de" lang="de">Deutsch</a>
       </nav>
       <a class="time-pill" href="/clock/" aria-label="Current time in Berlin, open the clock"><span data-berlin-clock>--:--:--</span> Berlin</a>
     </div>
@@ -57,7 +62,7 @@
     <section class="page-head">
       <div class="container">
         <h1>Message me</h1>
-        <p class="lead">Discord is fastest, email is fine too. There's no contact form here on purpose: this site is static, and I'd rather you had my actual handle than a black-box form.</p>
+        <p class="lead">Discord is fastest, email is fine too. There's no contact form that sends anything on purpose: the <a href="#brief">message helper</a> below only writes your first message, and you send it yourself.</p>
 
         <div class="reach-list">
           <div class="reach-row">
@@ -65,6 +70,7 @@
             <div>
               <span class="handle-value">@<span data-copy-target>spanani</span></span>
               <p>The fastest way to reach me. "Open in Discord" opens my profile if you're logged in to Discord; otherwise copy the handle and add me in the app.</p>
+              <span class="discord-status" data-discord-status hidden><span class="dot-live"></span><span data-discord-status-text></span></span>
             </div>
             <div class="actions">
               <a class="btn btn-primary" href="https://discord.com/users/723110232263491635" target="_blank" rel="noopener">Open in Discord</a>
@@ -94,18 +100,52 @@
       </div>
     </section>
 
-    <section class="section section--flush">
-      <div class="container before">
-        <h2>Before you message me</h2>
-        <p>I'm in Central European Time and I usually reply within a day. I work in German and English. I'm currently taking on new projects.</p>
-        <p>You'll get a useful answer much faster if your first message includes:</p>
-        <ul class="ticks">
-          <li>What you want built, in plain words: the problem, not the solution</li>
-          <li>Who it's for: a Discord community, a game server, a business, yourself</li>
-          <li>Roughly when you need it, and whether that date is real or aspirational</li>
-          <li>Anything that already exists that it has to work with</li>
-        </ul>
-        <p>Not sure what you need yet? <a href="/services/">See what I build</a>.</p>
+    <section class="section section--flush" id="brief">
+      <div class="container brief">
+        <div>
+          <h2>Write your first message</h2>
+          <p class="brief-intro">I'm in Central European Time and I usually reply within a day. I work in German and English, and I'm currently taking on new projects. Answer whatever you can below and you'll have a first message that gets a useful answer fast. Nothing here is sent anywhere.</p>
+          <form class="form-grid" data-brief data-greeting="Hi spanani," data-signoff="Thanks!" data-subject="Project enquiry">
+            <fieldset class="field">
+              <legend class="field-label">What do you need?</legend>
+              <div class="chips">
+                <label class="chip"><input type="radio" name="type" data-line="I need: " data-label="a website" data-subject="Website"><span>/website</span></label>
+                <label class="chip"><input type="radio" name="type" data-line="I need: " data-label="a Discord bot" data-subject="Discord bot"><span>/discord-bot</span></label>
+                <label class="chip"><input type="radio" name="type" data-line="I need: " data-label="a Minecraft mod or plugin" data-subject="Minecraft mod or plugin"><span>/minecraft-mod</span></label>
+                <label class="chip"><input type="radio" name="type" data-line="I need: " data-label="a Discord server setup" data-subject="Discord server setup"><span>/server-setup</span></label>
+                <label class="chip"><input type="radio" name="type" data-line="I need: " data-label="a custom tool" data-subject="Custom tool"><span>/custom-tool</span></label>
+                <label class="chip"><input type="radio" name="type" data-line="I need: " data-label="not sure yet" data-subject="Not sure yet"><span>/not-sure</span></label>
+              </div>
+            </fieldset>
+            <label class="field">
+              <span class="field-label">What should it do?</span>
+              <textarea class="input" name="what" rows="4" data-line="What it should do: " placeholder="The problem in plain words, not the solution"></textarea>
+            </label>
+            <div class="form-row">
+              <label class="field">
+                <span class="field-label">Who is it for?</span>
+                <input class="input" name="who" data-line="Who it's for: " placeholder="A Discord community, a game server, a business">
+              </label>
+              <label class="field">
+                <span class="field-label">When do you need it?</span>
+                <input class="input" name="when" data-line="When I need it: " placeholder="A date, and whether it's fixed">
+              </label>
+            </div>
+            <label class="field">
+              <span class="field-label">Anything it has to work with?</span>
+              <input class="input" name="existing" data-line="It has to work with: " placeholder="An existing bot, plugins, a website or an API">
+            </label>
+          </form>
+        </div>
+        <div class="brief-out">
+          <h3>Your message</h3>
+          <pre class="output" data-brief-out></pre>
+          <div class="actions">
+            <a class="btn btn-primary" href="https://discord.com/users/723110232263491635" target="_blank" rel="noopener" data-brief-discord>Copy and open Discord</a>
+            <a class="btn btn-secondary" href="mailto:webmaster@spanani.de" data-brief-mail>Open in mail app</a>
+          </div>
+          <p class="field-hint">Discord can't fill in a message for you, so the button copies it first. Paste it into the chat.</p>
+        </div>
       </div>
     </section>
 

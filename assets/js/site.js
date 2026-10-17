@@ -1,6 +1,22 @@
 (function () {
   'use strict';
 
+  var DE = (document.documentElement.lang || '').indexOf('de') === 0;
+  var T = DE ? {
+    copied: 'Kopiert',
+    copyFailSelected: 'Automatisches Kopieren ging nicht. {v} ist markiert, kopier es von dort.',
+    copyFailText: 'Automatisches Kopieren ging nicht. Der Text lautet: {v}',
+    briefCopied: 'Nachricht kopiert. Füg sie in Discord ein.',
+    status: { online: 'Gerade online auf Discord', idle: 'Abwesend auf Discord', dnd: 'Bitte nicht stören auf Discord', offline: 'Offline auf Discord' }
+  } : {
+    copied: 'Copied',
+    copyFailSelected: 'Couldn’t copy automatically. {v} is selected, copy it from there.',
+    copyFailText: 'Couldn’t copy automatically. The text is: {v}',
+    briefCopied: 'Message copied. Paste it into Discord.',
+    status: { online: 'Online on Discord', idle: 'Away on Discord', dnd: 'Do not disturb on Discord', offline: 'Offline on Discord' }
+  };
+  var DISCORD_ID = '723110232263491635';
+
   function normalizePath(path) {
     if (!path) return '/';
     var p = path.replace(/index\.html$/, '');
@@ -62,7 +78,7 @@
     if (el.tagName !== 'BUTTON' || el.classList.contains('is-copied')) return;
     var label = el.textContent;
     el.classList.add('is-copied');
-    el.textContent = 'Copied';
+    el.textContent = T.copied;
     setTimeout(function () {
       el.classList.remove('is-copied');
       el.textContent = label;
@@ -78,9 +94,9 @@
       var sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(range);
-      showToast('Couldn’t copy automatically. ' + value + ' is selected, copy it from there.');
+      showToast(T.copyFailSelected.replace('{v}', value));
     } else {
-      showToast('Couldn’t copy automatically. The text is: ' + value);
+      showToast(T.copyFailText.replace('{v}', value));
     }
   }
 
@@ -135,11 +151,74 @@
     });
   }
 
+  // Live Discord presence via Lanyard. Stays hidden until the account is monitored
+  // (join discord.gg/lanyard) or if the request fails for any reason.
+  function initDiscordStatus() {
+    var els = document.querySelectorAll('[data-discord-status]');
+    if (!els.length || !window.fetch) return;
+    fetch('https://api.lanyard.rest/v1/users/' + DISCORD_ID)
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        var status = json && json.success && json.data && json.data.discord_status;
+        if (!T.status[status]) return;
+        for (var i = 0; i < els.length; i++) {
+          var dot = els[i].querySelector('.dot-live');
+          dot.classList.toggle('pending', status === 'idle' || status === 'offline');
+          dot.classList.toggle('warn', status === 'dnd');
+          els[i].querySelector('[data-discord-status-text]').textContent = T.status[status];
+          els[i].hidden = false;
+        }
+      })
+      .catch(function () {});
+  }
+
+  // Contact page: turns a few answers into a first message the visitor sends themselves.
+  function initBrief() {
+    var form = document.querySelector('[data-brief]');
+    if (!form) return;
+    var out = document.querySelector('[data-brief-out]');
+    var mail = document.querySelector('[data-brief-mail]');
+    var discord = document.querySelector('[data-brief-discord]');
+
+    function compose() {
+      var lines = [form.getAttribute('data-greeting'), ''];
+      var subject = form.getAttribute('data-subject');
+      for (var i = 0; i < form.elements.length; i++) {
+        var el = form.elements[i];
+        var prefix = el.getAttribute('data-line');
+        if (!prefix || (el.type === 'radio' && !el.checked)) continue;
+        var value = el.type === 'radio' ? el.getAttribute('data-label') : el.value.trim();
+        if (el.type === 'radio') subject += ': ' + el.getAttribute('data-subject');
+        if (value) lines.push(prefix + value);
+      }
+      lines.push('', form.getAttribute('data-signoff'));
+      var text = lines.join('\n');
+      out.textContent = text;
+      mail.href = 'mailto:webmaster@spanani.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(text);
+      return text;
+    }
+
+    form.addEventListener('input', compose);
+    form.addEventListener('change', compose);
+    form.addEventListener('submit', function (e) { e.preventDefault(); });
+    // The link opens Discord natively; copying runs in the same click so no popup blocker gets involved.
+    discord.addEventListener('click', function () {
+      var text = compose();
+      copyText(text).then(
+        function () { showToast(T.briefCopied); },
+        function () { showToast(T.copyFailText.replace('{v}', text)); }
+      );
+    });
+    compose();
+  }
+
   function init() {
     markCurrentNavLink();
     initClocks();
     initCopyButtons();
     initCommandPicker();
+    initDiscordStatus();
+    initBrief();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

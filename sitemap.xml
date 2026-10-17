@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://spanani.de/</loc><lastmod>2026-10-16</lastmod></url>
-  <url><loc>https://spanani.de/projects/</loc><lastmod>2026-10-16</lastmod></url>
-  <url><loc>https://spanani.de/services/</loc><lastmod>2026-10-16</lastmod></url>
-  <url><loc>https://spanani.de/contact/</loc><lastmod>2026-10-16</lastmod></url>
+  <url><loc>https://spanani.de/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/projects/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/services/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/contact/</loc><lastmod>2026-10-18</lastmod></url>
   <url><loc>https://spanani.de/clock/</loc><lastmod>2026-10-16</lastmod></url>
   <url><loc>https://spanani.de/pausenklau/</loc><lastmod>2026-10-16</lastmod></url>
   <url><loc>https://spanani.de/rust/</loc><lastmod>2026-10-16</lastmod></url>
   <url><loc>https://spanani.de/tennis/</loc><lastmod>2026-10-16</lastmod></url>
   <url><loc>https://spanani.de/impressum/</loc><lastmod>2026-10-16</lastmod></url>
-  <url><loc>https://spanani.de/datenschutz/</loc><lastmod>2026-10-16</lastmod></url>
+  <url><loc>https://spanani.de/datenschutz/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/de/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/de/projekte/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/de/leistungen/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/de/kontakt/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/tools/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/tools/discord-timestamp/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/tools/discord-permissions/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/tools/discord-embed/</loc><lastmod>2026-10-18</lastmod></url>
+  <url><loc>https://spanani.de/tools/minecraft-motd/</loc><lastmod>2026-10-18</lastmod></url>
 </urlset>

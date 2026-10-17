@@ -30,10 +30,12 @@ Worker (see below).
 
 | Page | What's there |
 |---|---|
-| `/` | Homepage — name-first hero with a code snippet, a grid of what I build, featured projects, and a way to get in touch. |
+| `/` | Homepage: name-first hero, a working slash-command picker of what I build, a live Discord status, featured projects and a way to get in touch. |
 | `/projects` | Every side project in one place: Bauchgefühl, Pausenklau, the clock, the Rust raid calculator, the tennis tracker, and the WW2 Frontline Minecraft resource pack. |
-| `/services` | What I take on for other people: Discord bots, Minecraft mods/plugins, server setup, websites, custom tools. No prices listed — every project's different, message me and we'll figure it out. |
-| `/contact` | Discord and email, both click-to-copy. No contact form, because there's nothing behind it to send one to. |
+| `/services` | What I take on for other people: websites, Discord bots, Minecraft mods/plugins, server setup, custom tools, and an FAQ. No prices listed — every project's different, message me and we'll figure it out. |
+| `/contact` | Discord and email, both click-to-copy, plus a message helper that turns a few answers into a first message you send yourself. Nothing is submitted anywhere. |
+| `/de/`, `/de/projekte`, `/de/leistungen`, `/de/kontakt` | German versions of the four main pages, linked both ways with `hreflang` and a language link in the nav. |
+| `/tools` | Free browser tools for server owners: a Discord timestamp generator, a permissions calculator with invite links, an embed builder that can post through a webhook, and a Minecraft MOTD generator. All client-side. |
 | `/impressum`, `/datenschutz` | The German legal pages a site like this needs. |
 | `/clock` | A network-synced clock: digital and analog dial, a 3D-globe world clock, a stopwatch, a timer, settings that stick via `localStorage`. |
 | `/rust` | A raid calculator for the game Rust: pick walls, doors and deployables, choose which explosives you can use, and get the cheapest raid path (mixed combos included) with sulfur, gunpowder and every raw material. |
@@ -81,6 +83,9 @@ SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
   falls back to your device's own clock if none of them respond.
 - Settings (clock display, accent color) persist per-browser via
   `localStorage`.
+- The Discord status next to the handle comes from
+  [Lanyard](https://github.com/Phineas/lanyard) and stays hidden until
+  the account is in the Lanyard Discord server (or if the request fails).
 - Don't delete `CNAME` — GitHub Pages needs it to keep serving the
   custom domain.
 

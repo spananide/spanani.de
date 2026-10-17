@@ -2,6 +2,13 @@
 
 Static site (plain HTML, CSS, vanilla JS, no build step) on GitHub Pages from `main`. Work directly on `main`, no feature branches. `/pausenklau` has a backend in `workers/pausenklau-api` (Cloudflare Worker + D1 + Workers AI).
 
+## Languages, tools and third parties
+
+- `/`, `/projects`, `/services` and `/contact` have German twins at `/de/`, `/de/projekte/`, `/de/leistungen/`, `/de/kontakt/`. Any copy change goes into both. German marketing copy says "du"; the legal pages stay "Sie". Each pair links the other via `hreflang` alternates and a language link at the end of the nav.
+- `/tools/` (timestamp, permissions, embed, MOTD) is English only and runs client-side. Each tool page keeps its script inline. The Discord embed preview and the Minecraft MOTD preview use Discord's and Minecraft's own colors as page tokens: that's their job, not a site color.
+- `site.js` picks German UI strings when `<html lang="de">`. The Discord status (`[data-discord-status]`) uses Lanyard and stays hidden unless the account is in discord.gg/lanyard.
+- Every new request to a third-party server must be listed in `/datenschutz` section 6 before it ships.
+
 ## Design rules
 
 Direction: **Slash Command**. The site speaks the language of its audience (Discord and Minecraft community owners): the signature element is the working slash-command picker on the homepage, and `/command` names label the services. Everything around it stays quiet and precise.

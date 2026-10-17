@@ -991,7 +991,7 @@ function gridHtml({ mon, lessons, preview, teachers }) {
   let h = '<div></div>';
   for (let d = 0; d < 5; d++) {
     const ds = mon ? iso(addDays(mon, d)) : '', off = mon && offReason(ds);
-    h += `<button class="dayhead${ds === td ? ' today' : ''}${d === state.day ? ' sel' : ''}" data-d="${d}" data-day="${ds}" ${preview ? 'tabindex="-1"' : ''}>${DAYS[d]}${mon ? ' ' + fmtD(addDays(mon, d)) : ''}${off ? `<small>${esc(off)}</small>` : ''}</button>`;
+    h += `<button class="dayhead${ds === td ? ' today' : ''}${d === state.day ? ' sel' : ''}" data-d="${d}" data-day="${ds}" ${preview ? 'tabindex="-1"' : ''}>${DAYS[d]}${mon ? ' ' + fmtD(addDays(mon, d)) : ''}${mon ? `<small>${off ? esc(off) : '&nbsp;'}</small>` : ''}</button>`;
   }
   const mid = g => ((g[0] + g.at(-1)) / 2 - D0) * K;
   h += `<div class="axis" style="height:${H}px">${labels.map(g => `<span style="top:${mid(g)}px">${g.map(fromMin).join('<br>')}</span>`).join('')}</div>`;

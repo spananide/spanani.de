@@ -128,6 +128,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
   text-size-adjust: 100%;
   scroll-padding-top: calc(var(--nav-h) + var(--space-4));
+  scrollbar-gutter: stable;
   background: var(--paper);
   color: var(--ink);
 }

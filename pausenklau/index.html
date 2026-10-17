@@ -399,10 +399,11 @@
             <button class="mode-btn" data-sort="under">Unterzogen</button>
             <button class="mode-btn" data-sort="net">Bilanz</button>
             <button class="mode-btn" data-sort="avg">Ø/Std</button>
+            <button class="mode-btn" data-sort="late" id="sortLate" hidden>Zu spät</button>
             <button class="mode-btn" data-sort="cancel">Ausfälle</button>
           </div>
         </div>
-        <div class="legend"><span><i style="background:var(--success)"></i>Unterzogen (früher Schluss + später Beginn)</span><span><i style="background:var(--danger)"></i>Überzogen (in die Pause)</span></div>
+        <div class="legend"><span><i style="background:var(--success)"></i><span id="lgUnder">Unterzogen (früher Schluss + später Beginn)</span></span><span><i style="background:var(--danger)"></i>Überzogen (in die Pause)</span></div>
         <ol class="rank" id="rank"></ol>
       </section>
 
@@ -449,13 +450,13 @@
           <div class="hintrow"><span class="hint" id="endHint"></span><button type="button" class="nowbtn" data-now="end">Jetzt ist Schluss</button></div>
         </div>
         <div class="field">
-          <label class="lbl" for="lateIn">Später angefangen (min)</label>
+          <label class="lbl" for="lateIn" id="lateLbl">Später angefangen (min)</label>
           <div class="stepper">
             <button type="button" data-step="late:-5">−5</button><button type="button" data-step="late:-1">−1</button>
             <input class="inp" type="number" id="lateIn" step="1" min="0" max="120" inputmode="numeric">
             <button type="button" data-step="late:1">+1</button><button type="button" data-step="late:5">+5</button>
           </div>
-          <div class="hintrow"><span></span><button type="button" class="nowbtn" data-now="late">Jetzt geht's los</button></div>
+          <div class="hintrow"><span class="hint zero" id="lateHint"></span><button type="button" class="nowbtn" data-now="late" id="lateNow">Jetzt geht's los</button></div>
         </div>
       </div>
       <label class="lbl" for="noteIn">Notiz</label>
@@ -698,7 +699,8 @@ function liveState() {
   const e = l => state.weeks[iso(mon)]?.e?.[l.key];
   if (cur) return { k: 'lesson', n, sec, mon, L: cur, e: e(cur) };
   // +Zeit läuft bis zur nächsten Stunde, höchstens 20 min; ist das Ende schon eingetragen, ist Pause
-  if (prev && !(e(prev) && next) && sec - secOf(prev.end) < Math.min(1200, next ? secOf(next.start) - secOf(prev.end) : 1200)) return { k: 'over', n, sec, mon, L: prev, e: e(prev), next };
+  // pend = nur die Ankunft des Lehrers ist eingetragen, das Ende noch nicht
+  if (prev && !(e(prev) && !e(prev).pend && next) && sec - secOf(prev.end) < Math.min(1200, next ? secOf(next.start) - secOf(prev.end) : 1200)) return { k: 'over', n, sec, mon, L: prev, e: e(prev), next };
   if (next) return { k: 'break', n, sec, mon, next, prev, pe: prev && e(prev) };
   return { k: 'free', n, sec, title: ls.length ? 'Schulschluss' : 'Heute kein Unterricht', sub: '' };
 }
@@ -726,7 +728,8 @@ function stats() {
     if (e.end > 0) { t.over += e.end; t.nOver++; if (!rec || e.end > rec.end) rec = { ...e, ds }; } else t.early -= e.end;
     t.late += e.late || 0;
   }
-  return { rec, rows: Object.values(by).map(t => ({ ...t, under: t.early + t.late, net: t.over - t.early - t.late, avg: t.n ? (t.over - t.early - t.late) / t.n : 0 })) };
+  // Für ME ist Zuspätkommen eine eigene Kategorie, für alle anderen zählt es zu „unterzogen“
+  return { rec, rows: Object.values(by).map(t => ({ ...t, under: ME() ? t.early : t.early + t.late, net: t.over - t.early - t.late, avg: t.n ? (t.over - t.early - t.late) / t.n : 0 })) };
 }
 
 // ---------- DOM ----------
@@ -1068,6 +1071,7 @@ function gridHtml({ mon, lessons, preview, teachers }) {
         if (!e) { if (past) { cls = 'open'; badge = '<span class="b open">eintragen</span>'; } }
         else if (e.s === 'cancelled') { cls = 'cancelled'; badge = '<span class="b open">Ausfall</span>'; }
         else if (e.s === 'skipped') { cls = 'skipped'; badge = '<span class="b open">geskippt</span>'; }
+        else if (e.pend) badge = `<span class="b zero">${e.late ? e.late + '′ spät' : 'pünktlich da'}</span>`;
         else badge = `<span class="b ${e.end > 0 ? 'over' : e.end < 0 ? 'early' : 'zero'}">${sgn(e.end)}${e.late ? ` · ${e.late}′ spät` : ''}</span>`;
         if (e?.n) badge = `<span class="note">${esc(e.n)}</span>` + badge;
         if (ds === td && nm >= s - 5 && nm <= en + 15) cls += ' live';
@@ -1092,16 +1096,17 @@ function renderWeek() {
   const lessons = lessonsOf(mon);
   $('#grid').innerHTML = gridHtml({ mon, lessons });
   $('#daytabs').innerHTML = DAYS.map((n, d) => `<button data-d="${d}" class="${d === state.day ? 'sel' : ''}${iso(addDays(mon, d)) === td ? ' today' : ''}">${n}</button>`).join('');
-  let over = 0, under = 0, canc = 0, open = 0;
+  let over = 0, under = 0, late = 0, canc = 0, open = 0;
   const entries = state.weeks[mk]?.e || {}, nm = nowMin();
   for (const L of lessons) {
     if (offReason(L.date)) continue;
     const e = entries[L.key];
     if (!e) { if (L.date < td || (L.date === td && nm > toMin(L.end))) open++; }
     else if (e.s === 'cancelled') canc++;
-    else if (e.s === 'ok') { if (e.end > 0) over += e.end; else under -= e.end; under += e.late || 0; }
+    else if (e.s === 'ok') { if (e.end > 0) over += e.end; else under -= e.end; late += e.late || 0; }
   }
-  $('#weeksum').innerHTML = `<span>Diese Woche: <b>${sgn(over)}</b> min überzogen</span><span><b>${under}</b> min unterzogen</span><span><b>${canc}</b> Ausfälle</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
+  if (!ME()) under += late;
+  $('#weeksum').innerHTML = `<span>Diese Woche: <b>${sgn(over)}</b> min überzogen</span><span><b>${under}</b> min unterzogen</span>${ME() ? `<span><b>${late}</b> min zu spät</span>` : ''}<span><b>${canc}</b> Ausfälle</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
 }
 
 const fmt1 = n => (Math.round(n * 10) / 10).toLocaleString('de-DE');
@@ -1112,18 +1117,22 @@ function renderRank() {
   const tracked = sum('n'), skips = sum('skip');
   $('#tiles').innerHTML = `
     <div class="tile"><div class="k">Pause verloren</div><div class="v">${sum('over')}<small>min</small></div><div class="s">durch Überziehen</div></div>
-    <div class="tile"><div class="k">Unterzogen</div><div class="v">${sum('under')}<small>min</small></div><div class="s">früher Schluss + später Beginn</div></div>
+    <div class="tile"><div class="k">Unterzogen</div><div class="v">${sum('under')}<small>min</small></div><div class="s">${ME() ? 'früher Schluss' : 'früher Schluss + später Beginn'}</div></div>
+    ${ME() ? `<div class="tile"><div class="k">Zu spät</div><div class="v">${sum('late')}<small>min</small></div><div class="s">Lehrer kamen später</div></div>` : ''}
     <div class="tile"><div class="k">Ausfälle</div><div class="v">${sum('cancel')}</div><div class="s">Stunden</div></div>
     <div class="tile"><div class="k">Erfasst</div><div class="v">${tracked}</div><div class="s">Stunden${skips ? ` · ${skips} geskippt` : ''}</div></div>`;
   const withData = rows.filter(r => r.n);
   const top = f => withData.filter(r => r[f] > 0).sort((a, b) => b[f] - a[f])[0];
-  const king = top('over'), friend = top('under');
-  const clock = withData.filter(r => r.n >= 3).sort((a, b) => (a.over + a.under) / a.n - (b.over + b.under) / b.n)[0];
+  const king = top('over'), friend = top('under'), slow = ME() && top('late');
+  const off = r => (r.over + r.early + r.late) / r.n;
+  const clock = withData.filter(r => r.n >= 3).sort((a, b) => off(a) - off(b))[0];
+  $('#sortLate').hidden = !ME();
+  $('#lgUnder').textContent = ME() ? 'Unterzogen (früher Schluss)' : 'Unterzogen (früher Schluss + später Beginn)';
   const nm = k => esc(teacherName(k) || k);
   const aw = (k, r, s) => r ? `<div class="award"><div class="k">${k}</div><div class="n">${nm(r.k)}</div><div class="s">${s}</div></div>` : '';
   $('#awards').innerHTML = !tracked
     ? `<p class="note-pill empty"><strong>Noch nichts eingetragen.</strong> Tipp in der Wochenansicht auf eine Stunde und trag ein, wie viele Minuten überzogen oder früher Schluss gemacht wurde. Oder nutz oben den Live-Countdown: „Jetzt ist Schluss“ rechnet die Minuten selbst aus.</p>`
-    : `<div class="awards">${aw('Überzieh-König', king, king && `${king.over} min in ${king.nOver} ${king.nOver === 1 ? 'Stunde' : 'Stunden'}`)}${aw('Pausenfreund', friend, friend && `${friend.under} min früher raus`)}${aw('Uhrwerk', clock, clock && `Ø ${fmt1((clock.over + clock.under) / clock.n)} min daneben`)}${rec ? `<div class="award"><div class="k">Rekord</div><div class="n num">+${rec.end} min</div><div class="s">${nm(rec.t)} · ${esc(rec.c)} · ${fmtD(fromIso(rec.ds))}</div></div>` : ''}</div>`;
+    : `<div class="awards">${aw('Überzieh-König', king, king && `${king.over} min in ${king.nOver} ${king.nOver === 1 ? 'Stunde' : 'Stunden'}`)}${aw('Pausenfreund', friend, friend && `${friend.under} min früher raus`)}${aw('Zuspätkommer', slow, slow && `${slow.late} min zu spät`)}${aw('Uhrwerk', clock, clock && `Ø ${fmt1(off(clock))} min daneben`)}${rec ? `<div class="award"><div class="k">Rekord</div><div class="n num">+${rec.end} min</div><div class="s">${nm(rec.t)} · ${esc(rec.c)} · ${fmtD(fromIso(rec.ds))}</div></div>` : ''}</div>`;
   const courses = {};
   for (const l of [...P().plans.A, ...P().plans.B]) (courses[l.te] ||= new Set()).add(l.c);
   const s = state.sort;
@@ -1131,7 +1140,7 @@ function renderRank() {
   const max = Math.max(1, ...rows.map(r => Math.max(r.over, r.under)));
   $('#rank').innerHTML = rows.map((r, i) => {
     const none = !r.n && !r.cancel;
-    const main = s === 'avg' ? `${r.avg > 0 ? '+' : r.avg < 0 ? '−' : '±'}${fmt1(Math.abs(r.avg))}` : s === 'cancel' ? r.cancel : s === 'net' ? sgn(r.net) : s === 'under' ? '−' + r.under : '+' + r.over;
+    const main = s === 'avg' ? `${r.avg > 0 ? '+' : r.avg < 0 ? '−' : '±'}${fmt1(Math.abs(r.avg))}` : s === 'cancel' ? r.cancel : s === 'late' ? r.late + ' min' : s === 'net' ? sgn(r.net) : s === 'under' ? '−' + r.under : '+' + r.over;
     return `<li class="row${none ? ' nodata' : ''}">
       <span class="pos">${none ? '–' : pad(i + 1)}</span>
       <div class="who"><b>${nm(r.k)}</b><small>${esc(r.k)}${courses[r.k] ? ' · ' + esc([...courses[r.k]].join(', ')) : ''}</small></div>
@@ -1187,7 +1196,7 @@ function tickLive() {
   renderClockPill();
   if ($('#app').hidden) return;
   const st = liveState(), { n, sec } = st;
-  const early = st.k === 'lesson' && sec - secOf(st.L.start) < 20 * 60 && !st.e?.late;
+  const early = st.k === 'lesson' && sec - secOf(st.L.start) < 20 * 60 && !st.e?.late && !st.e?.in;
   const sig = [st.k, st.L?.key, st.next?.key, st.title, JSON.stringify(st.e || null), JSON.stringify(st.pe || null), early, clockSrc, iso(n)].join('|');
   if (sig !== liveSig) {
     liveSig = sig;
@@ -1196,14 +1205,18 @@ function tickLive() {
       : `<span style="color:var(--danger)">${clockSrc === 'manual' ? 'Manuell gestellt' : 'Gerätezeit, evtl. falsch'} · <button type="button" class="linkbtn" data-act="clock">Uhr stellen</button></span>`;
     let what = '', time = '', prog = false, acts = '';
     const who = l => `${esc(teacherLabel(l.te))}${l.r ? ' · Raum ' + esc(l.r) : ''}`;
-    const status = e => e?.s === 'cancelled' ? 'Ausfall eingetragen' : e?.s === 'skipped' ? 'Geskippt' : e ? `Eingetragen: ${sgn(e.end)} min` : '';
+    const status = e => e?.s === 'cancelled' ? 'Ausfall eingetragen' : e?.s === 'skipped' ? 'Geskippt'
+      : e?.pend ? (e.late ? `Lehrer kam ${e.late} min zu spät` : 'Lehrer war pünktlich') : e ? `Eingetragen: ${sgn(e.end)} min` : '';
     if (st.k === 'lesson') {
-      what = `${esc(st.L.c)}<small>${who(st.L)} · ${st.L.start}–${st.L.end}${st.e ? ' · ' + status(st.e) : ''}</small>`;
+      // ME: solange der Lehrer nicht da ist, läuft ein eigener Zu-spät-Zähler
+      const wait = ME() && early && (!st.e || st.e.s === 'ok');
+      what = `${esc(st.L.c)}<small>${who(st.L)} · ${st.L.start}–${st.L.end}${st.e ? ' · ' + status(st.e) : ''}${wait ? ' · <span style="color:var(--danger)">Lehrer noch nicht da: <b class="num" id="lvL"></b></span>' : ''}</small>`;
       time = '<span class="lv-time"><small>noch</small><span id="lvT"></span></span>'; prog = true;
-      if (!st.e || st.e.s === 'ok') acts = `<button type="button" class="btn btn-primary" data-act="end">Lehrer macht jetzt Schluss</button>${early ? '<button type="button" class="btn btn-ghost" data-act="start">Unterricht beginnt jetzt</button>' : ''}`;
+      if (wait) acts = '<button type="button" class="btn btn-primary" data-act="start">Lehrer ist jetzt da</button><button type="button" class="btn btn-ghost" data-act="inontime">War pünktlich</button><button type="button" class="btn btn-ghost" data-act="end">Lehrer macht jetzt Schluss</button>';
+      else if (!st.e || st.e.s === 'ok') acts = `<button type="button" class="btn btn-primary" data-act="end">Lehrer macht jetzt Schluss</button>${early ? '<button type="button" class="btn btn-ghost" data-act="start">Unterricht beginnt jetzt</button>' : ''}`;
     } else if (st.k === 'over') {
       const nx = st.next ? ` · danach ${esc(st.next.c)} um ${st.next.start}` : '';
-      if (st.e) {
+      if (st.e && !st.e.pend) {
         what = `${esc(st.L.c)}<small>${status(st.e)}${nx}</small>`;
         time = st.e.s === 'ok' ? `<span class="lv-time ${st.e.end > 0 ? 'over' : st.e.end < 0 ? 'early' : ''}">${sgn(st.e.end)}<small> min</small></span>` : '';
       } else {
@@ -1230,12 +1243,15 @@ function tickLive() {
   $('#lvC').textContent = `${WD[n.getDay()]}, ${fmtD(n)}${n.getFullYear()} · ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   const t = $('#lvT');
   if (t) t.textContent = fmtS(st.k === 'lesson' ? secOf(st.L.end) - sec : st.k === 'over' ? sec - secOf(st.L.end) : secOf(st.next.start) - sec);
+  const lt = $('#lvL');
+  if (lt) lt.textContent = '+' + fmtS(sec - secOf(st.L.start));
   const p = $('#lvP');
   if (p) p.style.width = (sec - secOf(st.L.start)) / (secOf(st.L.end) - secOf(st.L.start)) * 100 + '%';
 }
 function record(L, mon, patch, msg) {
   const mk = iso(mon), w = editWeek(mk), old = w.e[L.key];
   w.e[L.key] = { s: 'ok', end: 0, late: 0, n: '', ...(old?.s === 'ok' ? old : {}), c: L.c, t: L.te, ...patch };
+  if ('end' in patch) delete w.e[L.key].pend;
   saveWeek(mk); render(); tickLive(); toast(msg);
 }
 $('#live').addEventListener('click', e => {
@@ -1247,7 +1263,11 @@ $('#live').addEventListener('click', e => {
     return $('#cdlg').showModal();
   }
   const st = liveState(); if (!st.L) return;
-  if (act === 'start') { const late = clamp((st.sec - secOf(st.L.start)) / 60, 0, 120); record(st.L, st.mon, { late }, `${st.L.c}: ${late} min später angefangen`); }
+  if (act === 'start' || act === 'inontime') {
+    const late = act === 'start' ? clamp((st.sec - secOf(st.L.start)) / 60, 0, 120) : 0;
+    if (!ME()) return record(st.L, st.mon, { late }, `${st.L.c}: ${late} min später angefangen`);
+    record(st.L, st.mon, { late, in: true, ...(!st.e && { pend: true }) }, late ? `${teacherName(st.L.te) || st.L.te}: ${late} min zu spät` : `${teacherName(st.L.te) || st.L.te} war pünktlich`);
+  }
   else { const end = act === 'ontime' ? 0 : clamp((st.sec - secOf(st.L.end)) / 60, -120, 120); record(st.L, st.mon, { end }, `${st.L.c}: ${sgn(end)} min eingetragen`); }
 });
 $('#cf').addEventListener('submit', e => {
@@ -1268,6 +1288,8 @@ function endHint() {
   const v = clamp($('#endIn').value, -120, 120);
   $('#endHint').textContent = v > 0 ? `${v} min überzogen` : v < 0 ? `${-v} min früher Schluss` : 'pünktlich';
   $('#endHint').className = 'hint ' + (v > 0 ? 'over' : v < 0 ? 'early' : 'zero');
+  const late = clamp($('#lateIn').value, 0, 120);
+  $('#lateHint').textContent = ME() && cur && late ? `Lehrer kam um ${fromMin(toMin(cur.start) + late)}` : '';
 }
 function setStatus2(s) { $('#s-' + s).checked = true; $('#okFields').hidden = s !== 'ok'; }
 function openLesson(key) {
@@ -1281,11 +1303,14 @@ function openLesson(key) {
   $('#endIn').value = e?.end ?? 0; $('#lateIn').value = e?.late ?? 0; $('#noteIn').value = e?.n || '';
   $$('[data-now]').forEach(b => b.hidden = L.date !== todayIso());
   $('#delBtn').hidden = !e;
+  $('#lateLbl').textContent = ME() ? 'Lehrer zu spät gekommen (min)' : 'Später angefangen (min)';
+  $('#lateNow').textContent = ME() ? 'Lehrer ist jetzt da' : "Jetzt geht's los";
   endHint();
   $('#dlg').showModal();
 }
 $('#lf').addEventListener('change', e => { if (e.target.name === 's') setStatus2(e.target.value); });
 $('#endIn').addEventListener('input', endHint);
+$('#lateIn').addEventListener('input', endHint);
 $('#lf').addEventListener('click', e => {
   const st = e.target.closest('[data-step]'), nw = e.target.closest('[data-now]');
   if (st) {

@@ -108,6 +108,42 @@ async function extract(req, env, username) {
   })) });
 }
 
+// ---------- Gruppen ----------
+const GROUP_MAX = 40;
+const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // ohne 0/O, 1/I/L
+const newCode = () => [...crypto.getRandomValues(new Uint8Array(6))].map(b => CODE_CHARS[b % CODE_CHARS.length]).join('');
+const dropEmpty = (env, code) => env.DB.prepare('DELETE FROM groups WHERE code = ?1 AND NOT EXISTS (SELECT 1 FROM users WHERE grp = ?1)').bind(code);
+
+// Gemeinsame Rangliste: Summen je Lehrer-Kürzel aus den Einträgen aller Mitglieder. Einzelne Einträge verlassen den Server nicht.
+async function groupView(env, username, from) {
+  const me = await env.DB.prepare('SELECT grp FROM users WHERE username = ?').bind(username).first();
+  if (!me?.grp) return json({ group: null });
+  const [g, users, weeks] = await env.DB.batch([
+    env.DB.prepare('SELECT code, name FROM groups WHERE code = ?').bind(me.grp),
+    env.DB.prepare('SELECT username, profile FROM users WHERE grp = ? ORDER BY username').bind(me.grp),
+    env.DB.prepare('SELECT w.username, w.week, w.data FROM weeks w JOIN users u ON u.username = w.username WHERE u.grp = ?').bind(me.grp),
+  ]);
+  const names = {}, by = {};
+  for (const u of users.results) for (const [k, n] of Object.entries(JSON.parse(u.profile || '{}').teachers || {})) names[k] ||= n;
+  const add = k => by[k] ||= { k, name: names[k] || '', over: 0, early: 0, late: 0, n: 0, nOver: 0, cancel: 0, skip: 0, people: new Set() };
+  for (const r of weeks.results) {
+    const d = JSON.parse(r.data), mon = new Date(r.week + 'T00:00:00Z');
+    for (const [key, e] of Object.entries(d.e || {})) {
+      const ds = new Date(mon.getTime() + (+key.split('-')[0]) * 864e5).toISOString().slice(0, 10);
+      if (!e?.t || ds < from || d.off?.[ds]) continue;
+      const t = add(String(e.t).slice(0, 20));
+      t.people.add(r.username);
+      if (e.s === 'cancelled') { t.cancel++; continue; }
+      if (e.s === 'skipped') { t.skip++; continue; }
+      const end = +e.end || 0;
+      t.n++; t.late += +e.late || 0;
+      if (end > 0) { t.over += end; t.nOver++; } else t.early -= end;
+    }
+  }
+  return json({ group: g.results[0], members: users.results.map(u => u.username),
+    rows: Object.values(by).map(t => ({ ...t, people: t.people.size })) });
+}
+
 // ---------- Router ----------
 async function route(req, env) {
   const { pathname } = new URL(req.url);
@@ -170,10 +206,34 @@ async function route(req, env) {
     return json({ ok: true });
   }
   if (key === 'POST /extract') return extract(req, env, me.username);
+  if (key === 'GET /group') {
+    const from = new URL(req.url).searchParams.get('from') || '';
+    return groupView(env, me.username, /^\d{4}-\d{2}-\d{2}$/.test(from) ? from : '');
+  }
+  if (key === 'POST /group' || key === 'POST /group/join' || key === 'POST /group/leave') {
+    const b = key === 'POST /group/leave' ? {} : await body(req, 2000);
+    const old = (await env.DB.prepare('SELECT grp FROM users WHERE username = ?').bind(me.username).first())?.grp || '';
+    let code = '';
+    if (key === 'POST /group') {
+      const name = String(b.name || '').trim().slice(0, 40);
+      if (!name) throw new HttpError(400, 'Gib der Gruppe einen Namen.');
+      code = newCode();
+      await env.DB.prepare('INSERT INTO groups (code, name, created) VALUES (?, ?, ?)').bind(code, name, Date.now()).run();
+    } else if (key === 'POST /group/join') {
+      await limit(env, 'join:' + me.username); // Codes nicht durchprobieren
+      code = String(b.code || '').trim().toUpperCase();
+      const g = await env.DB.prepare('SELECT (SELECT COUNT(*) FROM users WHERE grp = ?1) AS n FROM groups WHERE code = ?1').bind(code).first();
+      if (!g) throw new HttpError(404, 'Diesen Gruppen-Code gibt es nicht.');
+      if (g.n >= GROUP_MAX) throw new HttpError(409, `Die Gruppe ist voll (höchstens ${GROUP_MAX}).`);
+    }
+    await env.DB.batch([env.DB.prepare('UPDATE users SET grp = ? WHERE username = ?').bind(code, me.username), ...(old && old !== code ? [dropEmpty(env, old)] : [])]);
+    return groupView(env, me.username, '');
+  }
   if (key === 'DELETE /account') {
     const b = await body(req, 2000);
     await checkPassword(env, me.username, String(b.password || ''));
-    await env.DB.batch(['weeks', 'sessions', 'users'].map(t => env.DB.prepare(`DELETE FROM ${t} WHERE username = ?`).bind(me.username)));
+    const grp = (await env.DB.prepare('SELECT grp FROM users WHERE username = ?').bind(me.username).first())?.grp;
+    await env.DB.batch([...['weeks', 'sessions', 'users'].map(t => env.DB.prepare(`DELETE FROM ${t} WHERE username = ?`).bind(me.username)), ...(grp ? [dropEmpty(env, grp)] : [])]);
     return json({ ok: true });
   }
   throw new HttpError(404, 'Nicht gefunden');

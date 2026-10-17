@@ -203,6 +203,20 @@
     .set { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 20px 22px; display: grid; gap: 12px; }
     .set h3 { font-size: 18px; }
     .set p { color: var(--ink-soft); font-size: var(--fs-sm); }
+    .trend { margin-bottom: var(--space-5); }
+    .trend h3 { font-size: 16px; margin-bottom: 10px; }
+    .bars { display: flex; gap: 2px; height: 130px; border-bottom: 1px solid var(--line); }
+    .bars > div { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
+    .bars i { width: min(100%, 36px); background: var(--danger); border-radius: 4px 4px 0 0; }
+    .bars b, .blabels span { font-family: var(--font-mono); font-size: 10.5px; font-weight: 400; color: var(--ink-soft); }
+    .blabels { display: flex; gap: 2px; margin-top: 4px; }
+    .blabels span { flex: 1; min-width: 0; text-align: center; color: var(--ink-faint); overflow: hidden; }
+    .row.click { cursor: pointer; }
+    .row.click:hover { border-color: var(--line-strong); }
+    .tlist { list-style: none; display: grid; gap: 4px; max-height: 240px; overflow: auto; font-size: var(--fs-sm); margin-top: 12px; }
+    #tdBody .tiles { margin-bottom: 12px; }
+    #tdBody p { font-size: var(--fs-sm); color: var(--ink-soft); max-width: none; }
+    .lesson .note.hw { color: var(--accent); font-style: normal; }
     .evlist { list-style: none; display: grid; gap: 6px; }
     .evlist li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: var(--fs-sm); }
     .evlist .sp { flex: 1; }
@@ -244,6 +258,7 @@
       .row { grid-template-columns: 24px minmax(0, 1fr) auto; }
       .row .div { grid-column: 1 / -1; order: 3; }
       .choice.inline { grid-template-columns: 1fr; }
+      .blabels span:nth-child(even) { visibility: hidden; }
     }
     @media (prefers-reduced-motion: no-preference) { .lesson.live { animation: livePulse 2.4s ease-in-out infinite; } }
     @keyframes livePulse { 50% { box-shadow: 0 0 0 1px var(--accent), 0 0 0 5px var(--accent-soft); } }
@@ -384,6 +399,8 @@
       <section id="viewRank" hidden>
         <div class="rankhead">
           <span class="fine" id="rangeInfo"></span>
+          <div class="mode-switch" id="scope" hidden><button class="mode-btn active" data-scope="me">Ich</button><button class="mode-btn" data-scope="group">Gruppe</button></div>
+          <button class="btn btn-ghost" id="share">Als Bild teilen</button>
           <div class="mode-switch sorts" id="ranges">
             <button class="mode-btn active" data-range="all">Insgesamt</button>
             <button class="mode-btn" data-range="half">Halbjahr</button>
@@ -391,6 +408,7 @@
           </div>
         </div>
         <div class="tiles" id="tiles"></div>
+        <div id="trend"></div>
         <div id="awards"></div>
         <div class="rankhead">
           <h2>Rangliste</h2>
@@ -416,6 +434,7 @@
           <ul class="evlist" id="sEvList"></ul>
           <form id="sEvForm" class="row-btns"><input class="inp" type="date" id="evD" required style="width:auto"><input class="inp" type="time" id="evT" aria-label="Uhrzeit (optional)" style="width:auto"><input class="inp" id="evN" maxlength="40" required placeholder="z. B. Mathe-Klausur" style="flex:1;min-width:160px"><button class="btn btn-secondary" type="submit">Hinzufügen</button></form></div>
         <div class="set" id="sApp"><h3>Als App</h3><p>Leg Pausenklau auf deinen Home-Bildschirm, dann öffnet es sich ohne Browserleiste. iPhone und iPad: in Safari auf Teilen und dann „Zum Home-Bildschirm“. Android: im Chrome-Menü „App installieren“. In der App meldest du dich einmal neu an.</p></div>
+        <div class="set" id="sGroup"><h3>Gruppe</h3><div class="stack" id="sGroupBody"></div></div>
         <div class="set"><h3>Schule</h3>
           <div class="f2"><div><label class="lbl" for="sState">Bundesland</label><select class="inp" id="sState"></select></div>
           <div><label class="lbl" for="sAb">Wochen</label><select class="inp" id="sAb"><option value="0">Jede Woche gleich</option><option value="1">A- und B-Woche</option></select></div></div>
@@ -461,6 +480,10 @@
       </div>
       <label class="lbl" for="noteIn">Notiz</label>
       <input class="inp" type="text" id="noteIn" maxlength="120" placeholder="z. B. Klausur zurückgegeben">
+      <div id="hwWrap" hidden style="margin-top:14px">
+        <label class="lbl" for="hwIn">Hausaufgabe bis zur nächsten Stunde</label>
+        <div class="row-btns"><input class="inp" id="hwIn" maxlength="80" placeholder="z. B. S. 45 Nr. 3" style="flex:1;min-width:160px"><button type="button" class="btn btn-secondary" id="hwAdd">Eintragen</button></div>
+      </div>
       <div class="actions">
         <button type="button" class="btn btn-danger" id="delBtn">Löschen</button>
         <span class="sp"></span>
@@ -493,6 +516,14 @@
         <button type="submit" class="btn btn-primary">Übernehmen</button>
       </div>
     </form>
+  </dialog>
+
+  <!-- Lehrer-Profil (nur ME) -->
+  <dialog id="tdlg">
+    <h3 id="tdTitle"></h3>
+    <p class="meta" id="tdMeta"></p>
+    <div id="tdBody"></div>
+    <div class="actions"><span class="sp"></span><button type="button" class="btn btn-primary" data-close>Schließen</button></div>
   </dialog>
 
   <!-- Raum oder Lehrer für eine einzelne Stunde -->
@@ -581,8 +612,9 @@ const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch {
 const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 // ---------- Uhr: Netzwerkzeit in Europe/Berlin, nie Gerätezeit oder Geräte-Zeitzone ----------
-let anchor = null, clockSrc = 'pending', manualOffset = lsGet('pk-offset');
-const atomicMs = () => anchor ? anchor.ts + (performance.now() - anchor.perf) : Date.now() + (manualOffset ?? 0);
+// lastOff: Abstand Netzwerkzeit − Gerätezeit vom letzten erfolgreichen Abgleich, damit die Uhr auch offline stimmt
+let anchor = null, clockSrc = 'pending', manualOffset = lsGet('pk-offset'), lastOff = lsGet('pk-lastoff');
+const atomicMs = () => anchor ? anchor.ts + (performance.now() - anchor.perf) : Date.now() + (manualOffset ?? lastOff ?? 0);
 const BERLIN = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
 // Liefert ein Date, dessen lokale Getter die deutsche Wanduhrzeit zeigen
 function now() {
@@ -605,8 +637,9 @@ async function syncClock() {
       timed('https://worldtimeapi.org/api/timezone/Etc/UTC', async r => Date.parse((await r.json()).utc_datetime)),
     ]).catch(() => timed('/favicon.svg', async r => Date.parse(r.headers.get('date') || '') + 500 + 1000 * (+r.headers.get('age') || 0)));
     clockSrc = 'net';
+    lsSet('pk-lastoff', lastOff = Math.round(atomicMs() - Date.now()));
   } catch {
-    clockSrc = manualOffset != null ? 'manual' : 'device';
+    clockSrc = manualOffset != null ? 'manual' : lastOff != null ? 'cached' : 'device';
   }
 }
 const nowMin = () => { const n = now(); return n.getHours()*60 + n.getMinutes(); };
@@ -631,7 +664,7 @@ function migrateV2(profile, weeks) {
 }
 const today0 = now();
 const state = { token: lsGet('pk-token'), username: '', profile: blankProfile(), weeks: {}, holidays: [],
-  view: 'week', sort: 'over', range: 'all', navigated: false,
+  view: 'week', sort: 'over', range: 'all', scope: 'me', grp: null, navigated: false,
   mon: mondayOf(today0), day: today0.getDay() >= 1 && today0.getDay() <= 5 ? today0.getDay() - 1 : 0 };
 const P = () => state.profile;
 const ME = () => state.username === 'spanani'; // Extras nur für das Konto des Betreibers, alle anderen sehen die normale Seite
@@ -728,8 +761,26 @@ function stats() {
     if (e.end > 0) { t.over += e.end; t.nOver++; if (!rec || e.end > rec.end) rec = { ...e, ds }; } else t.early -= e.end;
     t.late += e.late || 0;
   }
-  // Für ME ist Zuspätkommen eine eigene Kategorie, für alle anderen zählt es zu „unterzogen“
-  return { rec, rows: Object.values(by).map(t => ({ ...t, under: ME() ? t.early : t.early + t.late, net: t.over - t.early - t.late, avg: t.n ? (t.over - t.early - t.late) / t.n : 0 })) };
+  return { rec, rows: Object.values(by).map(derive) };
+}
+// Für ME ist Zuspätkommen eine eigene Kategorie, für alle anderen zählt es zu „unterzogen“
+const derive = t => ({ ...t, under: ME() ? t.early : t.early + t.late, net: t.over - t.early - t.late, avg: t.n ? (t.over - t.early - t.late) / t.n : 0 });
+// Einträge eines Lehrers ab from (für Lehrer-Profil und Prognose)
+function teacherEntries(k, from) {
+  const out = [];
+  for (const [mk, w] of Object.entries(state.weeks)) for (const [key, e] of Object.entries(w.e || {})) {
+    const d = +key.split('-')[0], ds = iso(addDays(fromIso(mk), d));
+    if (e.t === k && ds >= from && !offReason(ds)) out.push({ ...e, ds, d });
+  }
+  return out.sort((a, b) => (a.ds < b.ds ? 1 : -1));
+}
+// ME: Ø Schluss und Verspätung aus allen bisherigen Stunden dieses Lehrers (ab 2 Stunden)
+function forecast(te) {
+  if (!ME()) return '';
+  const ok = teacherEntries(te, '').filter(e => e.s === 'ok' && !e.pend);
+  if (ok.length < 2) return '';
+  const avg = f => ok.reduce((a, e) => a + f(e), 0) / ok.length, late = avg(e => e.late || 0);
+  return `Prognose: ${sgn1(avg(e => e.end))} min${late >= 0.5 ? `, ${fmt1(late)} min zu spät` : ''}`;
 }
 
 // ---------- DOM ----------
@@ -778,13 +829,13 @@ async function refresh() {
     state.weeks = d.weeks || {};
     if (migrateV2(state.profile, state.weeks)) { pending.profile = true; Object.keys(state.weeks).forEach(mk => pending.weeks.add(mk)); flush(); }
     cacheLocal(); setSync('');
-    loadHolidays(); show();
+    loadHolidays(); show(); loadGroup();
   } catch (e) { if (e.offline) setSync('Offline'); }
 }
 function forgetSession() {
   if (state.username) lsSet(cacheKey(), null);
   lsSet('pk-token', null); lsSet('pk-user', null);
-  Object.assign(state, { token: null, username: '', profile: blankProfile(), weeks: {} });
+  Object.assign(state, { token: null, username: '', profile: blankProfile(), weeks: {}, grp: null, scope: 'me' });
   pending.profile = false; pending.weeks.clear();
 }
 
@@ -1052,7 +1103,7 @@ function gridHtml({ mon, lessons, preview, teachers }) {
   let h = '<div></div>';
   for (let d = 0; d < 5; d++) {
     const ds = mon ? iso(addDays(mon, d)) : '', off = mon && offReason(ds);
-    const evs = mon && !off ? (P().events || []).filter(x => x.d === ds).map(x => esc((x.t ? x.t + ' ' : '') + x.n)).join(', ') : '';
+    const evs = mon && !off ? (P().events || []).filter(x => x.d === ds && !x.k).map(x => esc((x.t ? x.t + ' ' : '') + x.n)).join(', ') : '';
     h += `<button class="dayhead${ds === td ? ' today' : ''}${d === state.day ? ' sel' : ''}" data-d="${d}" data-day="${ds}" ${preview ? 'tabindex="-1"' : ''}>${DAYS[d]}${mon ? ' ' + fmtD(addDays(mon, d)) : ''}${mon ? `<small${evs ? ` class="ev" title="${evs}"` : ''}>${off ? esc(off) : evs || '&nbsp;'}</small>` : ''}</button>`;
   }
   const mid = g => ((g[0] + g.at(-1)) / 2 - D0) * K;
@@ -1074,6 +1125,7 @@ function gridHtml({ mon, lessons, preview, teachers }) {
         else if (e.pend) badge = `<span class="b zero">${e.late ? e.late + '′ spät' : 'pünktlich da'}</span>`;
         else badge = `<span class="b ${e.end > 0 ? 'over' : e.end < 0 ? 'early' : 'zero'}">${sgn(e.end)}${e.late ? ` · ${e.late}′ spät` : ''}</span>`;
         if (e?.n) badge = `<span class="note">${esc(e.n)}</span>` + badge;
+        for (const x of (P().events || []).filter(x => x.k === L.key && x.d === ds)) badge = `<span class="note hw">${esc(x.n.replace(/^HA [^:]*:/, 'HA:'))}</span>` + badge;
         if (ds === td && nm >= s - 5 && nm <= en + 15) cls += ' live';
       } else badge = `<span class="t num">${L.start}–${L.end}</span>`;
       const idx = preview ? editing.draft.plans[editing.v].findIndex(x => x.d === L.d && x.s === L.s) : -1;
@@ -1110,9 +1162,39 @@ function renderWeek() {
 }
 
 const fmt1 = n => (Math.round(n * 10) / 10).toLocaleString('de-DE');
+const sgn1 = v => (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt1(Math.abs(v));
+// Gruppen-Rangliste vom Server; from passt zum gewählten Zeitraum
+async function loadGroup(from = rangeFrom()) {
+  try { state.grp = { ...await api('GET', '/group' + (from ? '?from=' + from : '')), from }; } catch { return; }
+  if (!state.grp.group) state.scope = 'me';
+  if (!$('#app').hidden && state.view !== 'week') render();
+}
+// ME: überzogene Minuten pro Woche (letzte 12 Wochen mit Einträgen), Balken in HTML, damit die Schrift auf dem Handy lesbar bleibt
+function trendHtml(from) {
+  const wk = {};
+  for (const [mk, w] of Object.entries(state.weeks)) for (const [key, e] of Object.entries(w.e || {})) {
+    const ds = iso(addDays(fromIso(mk), +key.split('-')[0]));
+    if (e.s !== 'ok' || ds < from || offReason(ds)) continue;
+    const x = wk[mk] ||= { over: 0, late: 0 };
+    x.over += Math.max(0, e.end); x.late += e.late || 0;
+  }
+  const ks = Object.keys(wk).sort().slice(-12);
+  if (ks.length < 2) return '';
+  const max = Math.max(1, ...ks.map(k => wk[k].over)), top = ks.find(k => wk[k].over === max);
+  return `<div class="trend"><h3>Überzogen pro Woche</h3>
+    <div class="bars">${ks.map(k => `<div title="Woche ab ${fmtD(fromIso(k))}: ${wk[k].over} min überzogen${ME() ? `, ${wk[k].late} min zu spät` : ''}">${k === top ? `<b>+${max}</b>` : ''}<i style="height:${wk[k].over / max * 100}%"></i></div>`).join('')}</div>
+    <div class="blabels">${ks.map(k => `<span>${fmtD(fromIso(k))}</span>`).join('')}</div></div>`;
+}
+const mainVal = (r, s) => s === 'avg' ? sgn1(r.avg) : s === 'cancel' ? String(r.cancel) : s === 'late' ? r.late + ' min' : s === 'net' ? sgn(r.net) : s === 'under' ? '−' + r.under : '+' + r.over;
+let lastRank = null; // für „Als Bild teilen“
 function renderRank() {
-  const { rows, rec } = stats(), from = rangeFrom();
-  $('#rangeInfo').textContent = from ? `Seit ${fmtD(fromIso(from))}${from.slice(0, 4)}` : 'Alle Einträge';
+  const from = rangeFrom(), grp = state.scope === 'group' && state.grp?.group;
+  if (grp && state.grp.from !== from) loadGroup(from);
+  const { rows, rec } = grp ? { rows: state.grp.rows.map(derive), rec: null } : stats();
+  $('#scope').hidden = !state.grp?.group;
+  $$('#scope button').forEach(b => b.classList.toggle('active', b.dataset.scope === (grp ? 'group' : 'me')));
+  $('#rangeInfo').textContent = (grp ? `${grp.name} · ${state.grp.members.length} Mitglieder · ` : '') + (from ? `Seit ${fmtD(fromIso(from))}${from.slice(0, 4)}` : 'Alle Einträge');
+  $('#trend').innerHTML = ME() && !grp ? trendHtml(from) : '';
   const sum = f => rows.reduce((a, r) => a + r[f], 0);
   const tracked = sum('n'), skips = sum('skip');
   $('#tiles').innerHTML = `
@@ -1128,7 +1210,8 @@ function renderRank() {
   const clock = withData.filter(r => r.n >= 3).sort((a, b) => off(a) - off(b))[0];
   $('#sortLate').hidden = !ME();
   $('#lgUnder').textContent = ME() ? 'Unterzogen (früher Schluss)' : 'Unterzogen (früher Schluss + später Beginn)';
-  const nm = k => esc(teacherName(k) || k);
+  const names = grp ? Object.fromEntries(state.grp.rows.map(r => [r.k, r.name])) : {};
+  const nm = k => esc(names[k] || teacherName(k) || k);
   const aw = (k, r, s) => r ? `<div class="award"><div class="k">${k}</div><div class="n">${nm(r.k)}</div><div class="s">${s}</div></div>` : '';
   $('#awards').innerHTML = !tracked
     ? `<p class="note-pill empty"><strong>Noch nichts eingetragen.</strong> Tipp in der Wochenansicht auf eine Stunde und trag ein, wie viele Minuten überzogen oder früher Schluss gemacht wurde. Oder nutz oben den Live-Countdown: „Jetzt ist Schluss“ rechnet die Minuten selbst aus.</p>`
@@ -1138,16 +1221,95 @@ function renderRank() {
   const s = state.sort;
   rows.sort((a, b) => (+!!(b.n || b.cancel) - +!!(a.n || a.cancel)) || (b[s] - a[s]) || (b.n - a.n));
   const max = Math.max(1, ...rows.map(r => Math.max(r.over, r.under)));
+  lastRank = { rows: rows.filter(r => r.n || r.cancel), nm, s, sub: $('#rangeInfo').textContent };
   $('#rank').innerHTML = rows.map((r, i) => {
-    const none = !r.n && !r.cancel;
-    const main = s === 'avg' ? `${r.avg > 0 ? '+' : r.avg < 0 ? '−' : '±'}${fmt1(Math.abs(r.avg))}` : s === 'cancel' ? r.cancel : s === 'late' ? r.late + ' min' : s === 'net' ? sgn(r.net) : s === 'under' ? '−' + r.under : '+' + r.over;
-    return `<li class="row${none ? ' nodata' : ''}">
+    const none = !r.n && !r.cancel, main = mainVal(r, s);
+    const sub = grp ? ` · von ${r.people} ${r.people === 1 ? 'Person' : 'Personen'}` : courses[r.k] ? ' · ' + esc([...courses[r.k]].join(', ')) : '';
+    return `<li class="row${none ? ' nodata' : ''}${ME() && !grp && !none ? ' click' : ''}" data-k="${esc(r.k)}">
       <span class="pos">${none ? '–' : pad(i + 1)}</span>
-      <div class="who"><b>${nm(r.k)}</b><small>${esc(r.k)}${courses[r.k] ? ' · ' + esc([...courses[r.k]].join(', ')) : ''}</small></div>
+      <div class="who"><b>${nm(r.k)}</b><small>${esc(r.k)}${sub}</small></div>
       <div class="div" title="${nm(r.k)}: ${r.under} min unterzogen, ${r.over} min überzogen"><span class="l" style="width:${r.under / max * 100}%"></span><span class="mid"></span><span class="r" style="width:${r.over / max * 100}%"></span></div>
       <div class="vals"><span class="num">${none ? '—' : main}</span><br>${r.n} Std · ${r.cancel} Ausf.</div></li>`;
   }).join('') || '<p class="muted">Noch keine Lehrer im Stundenplan.</p>';
 }
+
+// ME: Lehrer-Profil aus den eigenen Einträgen im gewählten Zeitraum
+function openTeacher(k) {
+  const es = teacherEntries(k, rangeFrom()), ok = es.filter(e => e.s === 'ok');
+  const avg = f => ok.length ? ok.reduce((a, e) => a + f(e), 0) / ok.length : 0;
+  const worst = ok.filter(e => e.end > 0).sort((a, b) => b.end - a.end)[0];
+  const byDay = DAYS.map((n, d) => { const x = ok.filter(e => e.d === d); return x.length ? `${n} ${sgn1(x.reduce((a, e) => a + e.end, 0) / x.length)}` : ''; }).filter(Boolean).join(' · ');
+  const tile = (key, v, s) => `<div class="tile"><div class="k">${key}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  $('#tdTitle').textContent = teacherName(k) || k;
+  $('#tdMeta').textContent = [k, ...new Set([...P().plans.A, ...P().plans.B].filter(l => l.te === k).map(l => l.c))].join(' · ');
+  $('#tdBody').innerHTML = `<div class="tiles">${tile('Ø Schluss', sgn1(avg(e => e.end)), 'min pro Stunde')}${tile('Ø zu spät', fmt1(avg(e => e.late || 0)), 'min pro Stunde')}${tile('Erfasst', ok.length, `Stunden · ${es.filter(e => e.s === 'cancelled').length} Ausf.`)}</div>
+    ${worst ? `<p>Schlimmste Stunde: <b>+${worst.end} min</b> in ${esc(worst.c)} am ${fmtD(fromIso(worst.ds))}</p>` : ''}
+    ${byDay ? `<p>Ø nach Wochentag: ${byDay}</p>` : ''}
+    <ul class="tlist">${es.map(e => `<li><span class="num">${fmtD(fromIso(e.ds))}</span> ${esc(e.c)} · ${e.s === 'cancelled' ? 'Ausfall' : e.s === 'skipped' ? 'geskippt' : `${e.pend ? 'Ende offen' : sgn(e.end) + ' min'}${e.late ? ` · ${e.late}′ spät` : ''}`}${e.n ? ` · <i>${esc(e.n)}</i>` : ''}</li>`).join('')}</ul>`;
+  $('#tdlg').showModal();
+}
+$('#rank').addEventListener('click', e => { const r = e.target.closest('.row.click'); if (r) openTeacher(r.dataset.k); });
+
+// Rangliste als Bild (1080×1350) zum Teilen, Farben und Schriften aus den Design-Tokens
+async function shareRank() {
+  const R = lastRank;
+  if (!R?.rows.length) return toast('Noch nichts zum Teilen eingetragen.');
+  await document.fonts.ready;
+  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
+  const c = document.createElement('canvas'), x = c.getContext('2d');
+  c.width = 1080; c.height = 1350;
+  const text = (t, px, y, font, color, align = 'left') => { x.font = font; x.fillStyle = v(color); x.textAlign = align; x.fillText(t, px, y); };
+  x.fillStyle = v('--paper'); x.fillRect(0, 0, 1080, 1350);
+  x.fillStyle = v('--brand'); x.fillRect(0, 0, 1080, 12);
+  const sortName = $(`#sorts [data-sort="${R.s}"]`).textContent;
+  text('Pausenklau', 80, 170, `700 76px ${v('--font-display')}`, '--ink');
+  text(`Rangliste · ${sortName}`, 80, 235, `400 36px ${v('--font-sans')}`, '--ink-soft');
+  text(R.sub, 80, 285, `400 30px ${v('--font-sans')}`, '--ink-faint');
+  const tmp = document.createElement('textarea');
+  R.rows.slice(0, 5).forEach((r, i) => {
+    const y = 340 + i * 170;
+    x.fillStyle = v('--paper-raised'); x.beginPath(); x.roundRect(80, y, 920, 145, 18); x.fill();
+    tmp.innerHTML = R.nm(r.k); // nm liefert HTML-escaped Text
+    text(pad(i + 1), 120, y + 90, `500 44px ${v('--font-mono')}`, i ? '--ink-faint' : '--accent');
+    text(tmp.value, 220, y + 78, `700 50px ${v('--font-display')}`, '--ink');
+    text(`${r.n} ${r.n === 1 ? 'Stunde' : 'Stunden'} · ${r.cancel} ${r.cancel === 1 ? 'Ausfall' : 'Ausfälle'}`, 220, y + 120, `400 28px ${v('--font-sans')}`, '--ink-soft');
+    text(mainVal(r, R.s), 960, y + 92, `500 52px ${v('--font-mono')}`, R.s === 'under' ? '--success' : R.s === 'over' || R.s === 'late' ? '--danger' : '--ink', 'right');
+  });
+  text('spanani.de/pausenklau', 80, 1290, `400 30px ${v('--font-mono')}`, '--ink-faint');
+  const blob = await new Promise(r => c.toBlob(r, 'image/png')), file = new File([blob], 'pausenklau-rangliste.png', { type: 'image/png' });
+  if (navigator.canShare?.({ files: [file] })) return navigator.share({ files: [file], title: 'Pausenklau' }).catch(() => {});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+$('#share').onclick = shareRank;
+$('#scope').addEventListener('click', e => { const b = e.target.closest('[data-scope]'); if (b) { state.scope = b.dataset.scope; render(); } });
+
+// Gruppe (z. B. Klasse): gemeinsame Rangliste
+function renderGroup() {
+  const g = state.grp?.group;
+  $('#sGroupBody').innerHTML = g
+    ? `<p>Du bist in <b>${esc(g.name)}</b> mit ${state.grp.members.length} ${state.grp.members.length === 1 ? 'Mitglied' : 'Mitgliedern'}: ${esc(state.grp.members.join(', '))}. Andere treten mit diesem Code bei:</p>
+       <div class="row-btns"><span class="range">${esc(g.code)}</span><button type="button" class="btn btn-secondary" data-g="copy">Code kopieren</button><span class="sp"></span><button type="button" class="btn btn-ghost" data-g="leave">Gruppe verlassen</button></div>`
+    : `<p>Mit einer Gruppe, zum Beispiel deiner Klasse, seht ihr in der Rangliste eine gemeinsame Wertung aus allen Einträgen. Die anderen sehen deinen Benutzernamen und die Summen je Lehrer, aber nicht deine einzelnen Einträge.</p>
+       <div class="row-btns"><input class="inp" id="gCode" placeholder="Code, z. B. FQGR25" maxlength="6" autocapitalize="characters" spellcheck="false" style="flex:1;min-width:150px"><button type="button" class="btn btn-secondary" data-g="join">Beitreten</button></div>
+       <div class="row-btns"><input class="inp" id="gName" placeholder="Name, z. B. Q1 Mathe" maxlength="40" style="flex:1;min-width:150px"><button type="button" class="btn btn-ghost" data-g="create">Neue Gruppe</button></div>`;
+}
+$('#sGroupBody').addEventListener('click', async e => {
+  const b = e.target.closest('[data-g]'); if (!b) return;
+  const a = b.dataset.g, g = state.grp?.group;
+  if (a === 'copy') return navigator.clipboard.writeText(g.code).then(() => toast('Code kopiert'), () => toast('Code: ' + g.code));
+  b.disabled = true;
+  try {
+    const r = a === 'join' ? await api('POST', '/group/join', { code: $('#gCode').value })
+      : a === 'create' ? await api('POST', '/group', { name: $('#gName').value })
+      : await api('POST', '/group/leave');
+    state.grp = { ...r, from: '' };
+    if (!r.group) state.scope = 'me';
+    toast(r.group ? `Du bist jetzt in ${r.group.name}` : 'Gruppe verlassen');
+    renderGroup();
+  } catch (err) { toast(err.message); b.disabled = false; }
+});
 
 function renderSettings() {
   $('#sUser').textContent = state.username;
@@ -1156,6 +1318,7 @@ function renderSettings() {
   $('#sState').innerHTML = (P().state ? '' : '<option value="">Bitte wählen</option>') + Object.entries(STATES).map(([k, v]) => `<option value="${k}"${k === P().state ? ' selected' : ''}>${v}</option>`).join('');
   $('#sAb').value = P().ab ? '1' : '0';
   $('#sApp').hidden = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  renderGroup();
   $('#sEv').hidden = !ME();
   if (ME()) $('#sEvList').innerHTML = (P().events || []).map((x, i) => `<li><span class="num">${fmtD(fromIso(x.d))}${x.d.slice(0, 4)}${x.t ? ' ' + x.t : ''}</span><b>${esc(x.n)}</b><span class="sp"></span><button type="button" class="linkbtn" data-ev="${i}">Löschen</button></li>`).join('') || '<li class="fine">Noch keine Termine.</li>';
   $('#sHolInfo').textContent = !P().state ? 'Wähl dein Bundesland, damit Ferien und Feiertage erkannt werden.'
@@ -1190,7 +1353,7 @@ function countdowns() {
 function renderClockPill() {
   const n = now(), t = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   $('#sDot').className = 'dot-live' + (clockSrc === 'net' ? '' : clockSrc === 'pending' ? ' pending' : ' warn');
-  $('#sText').textContent = clockSrc === 'net' ? `${t} · Netzwerkzeit` : clockSrc === 'manual' ? `${t} · manuell` : clockSrc === 'device' ? `${t} · Gerätezeit` : 'Zeit wird synchronisiert…';
+  $('#sText').textContent = clockSrc === 'net' ? `${t} · Netzwerkzeit` : clockSrc === 'manual' ? `${t} · manuell` : clockSrc === 'cached' ? `${t} · offline` : clockSrc === 'device' ? `${t} · Gerätezeit` : 'Zeit wird synchronisiert…';
 }
 function tickLive() {
   renderClockPill();
@@ -1202,6 +1365,7 @@ function tickLive() {
     liveSig = sig;
     const src = clockSrc === 'net' ? '<span>Netzwerkzeit · Europe/Berlin</span>'
       : clockSrc === 'pending' ? '<span>Zeit wird synchronisiert…</span>'
+      : clockSrc === 'cached' ? '<span>Offline · Zeit vom letzten Abgleich</span>'
       : `<span style="color:var(--danger)">${clockSrc === 'manual' ? 'Manuell gestellt' : 'Gerätezeit, evtl. falsch'} · <button type="button" class="linkbtn" data-act="clock">Uhr stellen</button></span>`;
     let what = '', time = '', prog = false, acts = '';
     const who = l => `${esc(teacherLabel(l.te))}${l.r ? ' · Raum ' + esc(l.r) : ''}`;
@@ -1210,7 +1374,8 @@ function tickLive() {
     if (st.k === 'lesson') {
       // ME: solange der Lehrer nicht da ist, läuft ein eigener Zu-spät-Zähler
       const wait = ME() && early && (!st.e || st.e.s === 'ok');
-      what = `${esc(st.L.c)}<small>${who(st.L)} · ${st.L.start}–${st.L.end}${st.e ? ' · ' + status(st.e) : ''}${wait ? ' · <span style="color:var(--danger)">Lehrer noch nicht da: <b class="num" id="lvL"></b></span>' : ''}</small>`;
+      const fc = forecast(st.L.te);
+      what = `${esc(st.L.c)}<small>${who(st.L)} · ${st.L.start}–${st.L.end}${st.e ? ' · ' + status(st.e) : fc ? ' · ' + fc : ''}${wait ? ' · <span style="color:var(--danger)">Lehrer noch nicht da: <b class="num" id="lvL"></b></span>' : ''}</small>`;
       time = '<span class="lv-time"><small>noch</small><span id="lvT"></span></span>'; prog = true;
       if (wait) acts = '<button type="button" class="btn btn-primary" data-act="start">Lehrer ist jetzt da</button><button type="button" class="btn btn-ghost" data-act="inontime">War pünktlich</button><button type="button" class="btn btn-ghost" data-act="end">Lehrer macht jetzt Schluss</button>';
       else if (!st.e || st.e.s === 'ok') acts = `<button type="button" class="btn btn-primary" data-act="end">Lehrer macht jetzt Schluss</button>${early ? '<button type="button" class="btn btn-ghost" data-act="start">Unterricht beginnt jetzt</button>' : ''}`;
@@ -1230,7 +1395,8 @@ function tickLive() {
       const stolen = st.pe?.s === 'ok' && st.pe.end > 0 ? Math.min(st.pe.end, gap) : 0;
       const title = !ME() ? 'Pause' : !st.prev ? `Erste Stunde um ${st.next.start}` : gap > 20 ? 'Freistunde' : 'Pause';
       const info = st.prev ? `${gap} min ${title === 'Freistunde' ? 'frei' : 'Pause'}${stolen ? `, davon ${stolen} min von ${esc(st.prev.c)} geklaut` : ''} · ` : '';
-      what = `${title}<small>${info}Nächste Stunde: ${esc(st.next.c)} · ${who(st.next)}</small>`;
+      const fc = forecast(st.next.te);
+      what = `${title}<small>${info}Nächste Stunde: ${esc(st.next.c)} · ${who(st.next)}${fc ? ' · ' + fc : ''}</small>`;
       time = `<span class="lv-time"><small>${st.prev ? 'noch' : 'in'}</small><span id="lvT"></span></span>`;
     } else what = `${esc(st.title)}${st.sub ? `<small>${st.sub}</small>` : ''}`;
     const cds = countdowns();
@@ -1278,7 +1444,7 @@ $('#cf').addEventListener('submit', e => {
   $('#cdlg').close(); goToday(); toast('Uhr gestellt');
 });
 $('#cReset').addEventListener('click', () => {
-  manualOffset = null; anchor = null; clockSrc = 'device'; lsSet('pk-offset', null);
+  manualOffset = lastOff = null; anchor = null; clockSrc = 'device'; lsSet('pk-offset', null); lsSet('pk-lastoff', null);
   $('#cdlg').close(); goToday();
 });
 
@@ -1303,6 +1469,7 @@ function openLesson(key) {
   $('#endIn').value = e?.end ?? 0; $('#lateIn').value = e?.late ?? 0; $('#noteIn').value = e?.n || '';
   $$('[data-now]').forEach(b => b.hidden = L.date !== todayIso());
   $('#delBtn').hidden = !e;
+  $('#hwWrap').hidden = !ME(); $('#hwIn').value = '';
   $('#lateLbl').textContent = ME() ? 'Lehrer zu spät gekommen (min)' : 'Später angefangen (min)';
   $('#lateNow').textContent = ME() ? 'Lehrer ist jetzt da' : "Jetzt geht's los";
   endHint();
@@ -1338,6 +1505,22 @@ $('#delBtn').addEventListener('click', () => {
   delete editWeek(mk).e[cur.key];
   saveWeek(mk); $('#dlg').close(); render(); liveSig = ''; tickLive();
 });
+
+// ---------- Hausaufgabe (nur ME): wird ein Termin an der nächsten Stunde desselben Kurses ----------
+const byWhen = (a, b) => (a.d + a.t < b.d + b.t ? -1 : 1);
+function nextLessonOf(L) {
+  for (let w = 0; w < 10; w++) for (const l of lessonsOf(addDays(mondayOf(fromIso(L.date)), 7 * w)))
+    if (l.c === L.c && !offReason(l.date) && (l.date > L.date || (l.date === L.date && toMin(l.start) > toMin(L.start)))) return l;
+  return null;
+}
+$('#hwAdd').onclick = () => {
+  const n = $('#hwIn').value.trim(); if (!n) return;
+  const nx = nextLessonOf(cur);
+  if (!nx) return toast('Keine nächste Stunde in den nächsten Wochen gefunden.');
+  P().events = [...(P().events || []), { d: nx.date, t: nx.start, n: `HA ${cur.c}: ${n}`, k: nx.key }].sort(byWhen);
+  $('#hwIn').value = ''; saveProfile(); render(); liveSig = '';
+  toast(`Hausaufgabe für ${DAYS[nx.d]} ${fmtD(fromIso(nx.date))} eingetragen`);
+};
 
 // ---------- Raum oder Lehrer nur für diese Stunde ----------
 $('#chOpen').onclick = () => {
@@ -1433,7 +1616,7 @@ $('#sAb').onchange = () => {
 $('#sEvForm').addEventListener('submit', e => {
   e.preventDefault();
   const n = $('#evN').value.trim(); if (!n) return;
-  P().events = [...(P().events || []), { d: $('#evD').value, t: $('#evT').value, n }].sort((a, b) => (a.d + a.t < b.d + b.t ? -1 : 1));
+  P().events = [...(P().events || []), { d: $('#evD').value, t: $('#evT').value, n }].sort(byWhen);
   $('#sEvForm').reset(); saveProfile(); renderSettings(); liveSig = '';
 });
 $('#sEvList').addEventListener('click', e => {
@@ -1471,6 +1654,8 @@ if (cached) {
 }
 if (!state.token || cached) show();
 refresh();
+// Offline-Start: der Service Worker hält die Seite selbst vor, die Daten liegen ohnehin im localStorage
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/pausenklau/sw.js').catch(() => {});
 </script>
 </body>
 </html>

@@ -355,6 +355,7 @@ button.time-pill { cursor: pointer; }
   align-items: start;
 }
 .intro h1 { margin-bottom: var(--space-5); max-width: 15ch; }
+.intro-name { display: block; margin-bottom: var(--space-3); font-family: var(--font-mono); font-size: var(--fs-h3); font-weight: 600; letter-spacing: 0; color: var(--ink-soft); }
 .intro .lead { margin-bottom: var(--space-6); max-width: 44ch; }
 .intro-aside { margin-top: clamp(0px, 5vw, 64px); }
 

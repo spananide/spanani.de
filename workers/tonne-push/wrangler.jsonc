@@ -1,0 +1,20 @@
+{
+  "name": "tonne-push",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": true,
+  "triggers": { "crons": ["*/15 * * * *"] },
+  "vars": { "VAPID_SUBJECT": "mailto:webmaster@spanani.de" },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tonne-push-db",
+      "database_id": "REPLACE_WITH_ID_FROM_wrangler_d1_create",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "ratelimits": [
+    { "name": "PUSH_LIMIT", "namespace_id": "4202", "simple": { "limit": 20, "period": 60 } }
+  ],
+  "observability": { "enabled": true }
+}

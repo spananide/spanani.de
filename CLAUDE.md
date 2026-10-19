@@ -2,6 +2,8 @@
 
 Static site (plain HTML, CSS, vanilla JS, no build step) on GitHub Pages from `main`. Work directly on `main`, no feature branches. `/pausenklau` has a backend in `workers/pausenklau-api` (Cloudflare Worker + D1 + Workers AI).
 
+`/t-7yhbbwj4/` is a private waste-collection reminder app with its own look (not the spanani design system), backed by `workers/tonne-push`. Never link it from the site or add it to the sitemap; its design rules and yearly update steps are in `workers/tonne-push/README.md`.
+
 ## Languages, tools and third parties
 
 - `/`, `/projects`, `/services` and `/contact` have German twins at `/de/`, `/de/projekte/`, `/de/leistungen/`, `/de/kontakt/`. Any copy change goes into both. German marketing copy says "du"; the legal pages stay "Sie". Each pair links the other via `hreflang` alternates and a language link at the end of the nav.

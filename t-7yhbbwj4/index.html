@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Tonnen</title>
+  <meta name="theme-color" content="#dcdfdd" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1f2326" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Tonnen">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preload" href="fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/barlow-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    @font-face { font-family: 'Barlow'; src: url('fonts/barlow-400.woff2') format('woff2'); font-weight: 400; font-display: optional; }
+    @font-face { font-family: 'Barlow'; src: url('fonts/barlow-600.woff2') format('woff2'); font-weight: 600; font-display: optional; }
+    @font-face { font-family: 'Barlow Condensed'; src: url('fonts/barlow-condensed-700.woff2') format('woff2'); font-weight: 700; font-display: optional; }
+
+    :root {
+      --beton: #dcdfdd;
+      --beton-hell: #f2f3f1;
+      --teer: #1b1e20;
+      --teer-weich: #4a4f53;
+      --linie: #b4b9b7;
+      --orange: #ec7c26;
+      --orange-druck: #d4691a;
+      --auf-orange: #1b1e20;
+      --fehler: #a8231b;
+      --rest: #4a4f55;
+      --bio: #7b4b2a;
+      --papier: #1f5fae;
+      --gelb: #f2c200;
+      --rad: #1b1e20;
+      --schatten: 0 -10px 36px rgba(0, 0, 0, 0.2);
+
+      --schrift: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+      --schrift-eng: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+      --gr-datum: clamp(60px, 18vw, 92px);
+      --gr-titel: 22px;
+      --gr-text: 17px;
+      --gr-klein: 14px;
+
+      --r-knopf: 8px;
+      --r-schild: 4px;
+      --r-blatt: 18px;
+      --rand: 20px;
+      --breite: 480px;
+      --bordstein: 10px;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --beton: #1f2326;
+        --beton-hell: #2b3034;
+        --teer: #e6e8e6;
+        --teer-weich: #a9afb2;
+        --linie: #3d4448;
+        --fehler: #ff9a8f;
+        --rest: #6e757b;
+        --bio: #94603a;
+        --papier: #3a7cd0;
+        --rad: #0d0f10;
+        --schatten: 0 -10px 36px rgba(0, 0, 0, 0.55);
+        color-scheme: dark;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--beton);
+      color: var(--teer);
+      font: 400 var(--gr-text)/1.45 var(--schrift);
+      overflow-x: clip;
+      -webkit-tap-highlight-color: transparent;
+    }
+    h1, h2, p { margin: 0; }
+    a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+    a:hover { text-decoration-thickness: 2px; }
+    button, select, input { font: inherit; color: inherit; }
+    :focus-visible { outline: 3px solid var(--teer); outline-offset: 3px; }
+
+    .seite {
+      max-width: var(--breite);
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top) + 28px) var(--rand) calc(env(safe-area-inset-bottom) + 40px);
+    }
+    .ort { font-size: var(--gr-klein); color: var(--teer-weich); }
+
+    .naechste { margin-top: 36px; }
+    .wann { font-weight: 600; font-size: var(--gr-titel); line-height: 1.2; }
+    .wann.bald {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--auf-orange);
+      border-radius: var(--r-schild);
+      padding: 2px 10px 1px;
+    }
+    .datum {
+      font-family: var(--schrift-eng);
+      font-weight: 700;
+      font-size: var(--gr-datum);
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      margin-top: 10px;
+    }
+
+    .strasse { margin-top: 28px; }
+    .reihe {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      min-height: 100px;
+      padding-left: 4px;
+    }
+    .reihe:empty { min-height: 28px; }
+    .reihe > svg { display: block; height: 100px; width: auto; animation: rollen 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i) * 50ms); }
+    .bordstein {
+      height: var(--bordstein);
+      background: var(--teer);
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+    }
+    @media (min-width: 560px) {
+      .bordstein { width: auto; margin-left: calc(-1 * var(--rand)); margin-right: calc(-1 * var(--rand)); }
+    }
+    .figur .koerper, .figur .deckel, .figur .griff { fill: var(--c); }
+    .figur .schatten { fill: #000; opacity: 0.22; }
+    .figur .rille { stroke: #000; stroke-opacity: 0.16; stroke-width: 2.5; fill: none; }
+    .figur .knoten { stroke: #000; stroke-opacity: 0.3; stroke-width: 3; fill: none; stroke-linecap: round; }
+    .figur .rad { fill: var(--rad); }
+    @keyframes rollen { from { transform: translateX(70vw); } }
+
+    .was { margin-top: 14px; font-size: var(--gr-titel); font-weight: 600; line-height: 1.25; }
+
+    .erinnerung {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      width: 100%;
+      margin-top: 36px;
+      padding: 16px 0;
+      background: none;
+      border: 0;
+      border-top: 1px solid var(--linie);
+      border-bottom: 1px solid var(--linie);
+      text-align: left;
+      cursor: pointer;
+    }
+    .erinnerung strong { font-weight: 600; }
+    .erinnerung span { color: var(--teer-weich); }
+    .erinnerung:hover span { color: var(--teer); }
+
+    .spaeter { margin-top: 40px; }
+    .spaeter h2 { font-size: var(--gr-klein); font-weight: 600; color: var(--teer-weich); }
+    .termine { list-style: none; margin: 10px 0 0; padding: 0; }
+    .termine > li {
+      display: grid;
+      grid-template-columns: 7.2rem 1fr;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--linie);
+    }
+    .termine time { font-family: var(--schrift-eng); font-weight: 700; font-size: var(--gr-titel); line-height: 1.1; }
+    .arten { list-style: none; margin: 0; padding: 0; }
+    .arten li { display: flex; align-items: center; gap: 10px; line-height: 1.5; }
+    .strich { flex: none; width: 6px; height: 1.1em; border-radius: 1px; background: var(--c); }
+    .strich.sonder { background: none; box-shadow: inset 0 0 0 2px var(--teer-weich); }
+
+    .quelle { margin-top: 32px; font-size: var(--gr-klein); color: var(--teer-weich); max-width: 36em; }
+
+    .blatt {
+      width: 100%;
+      max-width: var(--breite);
+      max-height: 92dvh;
+      margin: auto auto 0;
+      padding: 0;
+      border: 0;
+      border-radius: var(--r-blatt) var(--r-blatt) 0 0;
+      background: var(--beton-hell);
+      color: var(--teer);
+      box-shadow: var(--schatten);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .blatt::backdrop { background: rgba(0, 0, 0, 0.42); }
+    .blatt[open] { animation: hoch 260ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .blatt.zu { animation: runter 200ms ease-in forwards; }
+    .blatt[open]::backdrop { animation: abdunkeln 260ms ease-out; }
+    .blatt.zu::backdrop { animation: abdunkeln 200ms ease-in reverse forwards; }
+    @keyframes hoch { from { transform: translateY(100%); } }
+    @keyframes runter { to { transform: translateY(100%); } }
+    @keyframes abdunkeln { from { opacity: 0; } }
+    .blatt form { padding: 20px var(--rand) 0; }
+    .blatt-kopf { display: flex; justify-content: space-between; align-items: center; }
+    .blatt-kopf h2 { font-size: var(--gr-titel); font-weight: 600; }
+    .fertig { background: none; border: 0; padding: 10px 0 10px 16px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+    .hinweis { margin-top: 16px; padding: 12px 14px; border-left: 4px solid var(--orange); background: var(--beton); }
+
+    fieldset { border: 0; margin: 24px 0 0; padding: 0; min-width: 0; }
+    legend, .feld > span { display: block; padding: 0; margin-bottom: 8px; font-size: var(--gr-klein); font-weight: 600; color: var(--teer-weich); }
+
+    .segment-knoepfe { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .segment-knoepfe input { position: absolute; opacity: 0; pointer-events: none; }
+    .segment-knoepfe label {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 48px; padding: 0 10px;
+      border: 1px solid var(--linie);
+      border-radius: var(--r-knopf);
+      background: var(--beton);
+      cursor: pointer;
+      transition: background-color 140ms, color 140ms, border-color 140ms;
+    }
+    .segment-knoepfe label:hover { border-color: var(--teer-weich); }
+    .segment-knoepfe input:checked + label { background: var(--teer); color: var(--beton-hell); border-color: var(--teer); font-weight: 600; }
+    .segment-knoepfe input:focus-visible + label { outline: 3px solid var(--teer); outline-offset: 3px; }
+
+    .feld { display: block; margin-top: 24px; }
+    .feld select {
+      width: 100%; height: 48px; padding: 0 12px;
+      border: 1px solid var(--linie);
+      border-radius: var(--r-knopf);
+      background: var(--beton);
+      font-size: var(--gr-text);
+    }
+
+    .schalter-liste { list-style: none; margin: 0; padding: 0; }
+    .schalter-liste li + li { border-top: 1px solid var(--linie); }
+    .schalter-liste label { display: flex; align-items: center; gap: 12px; min-height: 52px; cursor: pointer; }
+    .schalter-liste .name { flex: 1; }
+    .schalter {
+      appearance: none; -webkit-appearance: none;
+      flex: none; position: relative;
+      width: 48px; height: 28px; margin: 0;
+      border-radius: 14px;
+      background: var(--linie);
+      cursor: pointer;
+      transition: background-color 160ms;
+    }
+    .schalter::before {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--beton-hell);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      transition: transform 160ms cubic-bezier(0.3, 0.7, 0.3, 1);
+    }
+    .schalter:checked { background: var(--teer); }
+    .schalter:checked::before { transform: translateX(20px); }
+
+    .abschluss {
+      position: sticky; bottom: 0;
+      margin: 20px calc(-1 * var(--rand)) 0;
+      padding: 12px var(--rand) calc(env(safe-area-inset-bottom) + 16px);
+      background: var(--beton-hell);
+      border-top: 1px solid var(--linie);
+    }
+    .status { margin-bottom: 10px; }
+    .status:empty { display: none; }
+    .status.fehler { color: var(--fehler); font-weight: 600; }
+
+    .haupt {
+      display: block; width: 100%; min-height: 54px; margin-top: 0;
+      border: 0; border-radius: var(--r-knopf);
+      background: var(--orange); color: var(--auf-orange);
+      font-weight: 600; font-size: 18px;
+      cursor: pointer;
+      transition: background-color 140ms;
+    }
+    .haupt:hover { background: var(--orange-druck); }
+    .haupt:active { transform: translateY(1px); }
+    .haupt:disabled { opacity: 0.5; cursor: default; transform: none; }
+    .neben { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-top: 12px; }
+    .neben button {
+      min-height: 44px; padding: 0;
+      background: none; border: 0;
+      text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px;
+      cursor: pointer;
+    }
+    .neben button:hover { text-decoration-thickness: 2px; }
+    .neben button:disabled { color: var(--teer-weich); text-decoration: none; cursor: default; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after, *::backdrop { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="seite">
+    <p class="ort" id="ort">Abholtermine</p>
+
+    <section class="naechste" aria-labelledby="datum">
+      <p class="wann" id="wann">&nbsp;</p>
+      <h1 class="datum" id="datum">&nbsp;</h1>
+      <div class="strasse" aria-hidden="true">
+        <div class="reihe" id="reihe"></div>
+        <div class="bordstein"></div>
+      </div>
+      <p class="was" id="was">&nbsp;</p>
+    </section>
+
+    <button class="erinnerung" id="oeffnen" type="button" aria-haspopup="dialog">
+      <strong>Erinnerung</strong><span id="stand">aus</span>
+    </button>
+
+    <section class="spaeter" aria-labelledby="danach" id="spaeter" hidden>
+      <h2 id="danach">Danach</h2>
+      <ol class="termine" id="termine"></ol>
+    </section>
+
+    <p class="quelle" id="quelle"></p>
+  </main>
+
+  <dialog class="blatt" id="blatt" aria-labelledby="blatt-titel">
+    <form id="form" method="dialog">
+      <div class="blatt-kopf">
+        <h2 id="blatt-titel">Erinnerung</h2>
+        <button class="fertig" id="fertig" type="button">Fertig</button>
+      </div>
+      <p class="hinweis" id="hinweis" hidden></p>
+
+      <fieldset>
+        <legend>Wann</legend>
+        <div class="segment-knoepfe">
+          <input type="radio" name="tage" id="t0" value="0"><label for="t0">Am Abholtag</label>
+          <input type="radio" name="tage" id="t1" value="1"><label for="t1">1 Tag vorher</label>
+          <input type="radio" name="tage" id="t2" value="2"><label for="t2">2 Tage vorher</label>
+          <input type="radio" name="tage" id="t3" value="3"><label for="t3">3 Tage vorher</label>
+        </div>
+      </fieldset>
+
+      <label class="feld"><span>Uhrzeit</span><select id="zeit"></select></label>
+
+      <fieldset>
+        <legend>Wofür</legend>
+        <ul class="schalter-liste" id="schalter"></ul>
+      </fieldset>
+
+      <div class="abschluss">
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+      <button class="haupt" id="speichern" type="button">Erinnerung einschalten</button>
+      <div class="neben" id="neben" hidden>
+        <button type="button" id="test">Test-Nachricht schicken</button>
+        <button type="button" id="aus">Erinnerung ausschalten</button>
+      </div>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const API = 'https://tonne-push.spanani.workers.dev';
+    const FIGUR = { rest: 'tonne', bio: 'tonne', papier: 'tonne', gelb: 'sack' };
+    const STANDARD = { tage: 1, zeit: '19:00', arten: ['rest', 'bio', 'papier', 'gelb', 'gruen', 'baum'] };
+    const WT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+    const MON = ['Jan', 'Feb', 'März', 'Apr', 'Mai', 'Juni', 'Juli', 'Aug', 'Sept', 'Okt', 'Nov', 'Dez'];
+    const $ = id => document.getElementById(id);
+
+    let plan = null, reg = null, abo = null;
+    let einst = laden();
+
+    function laden() {
+      try { return { ...STANDARD, ...JSON.parse(localStorage.getItem('tonne') || '{}') }; } catch { return { ...STANDARD }; }
+    }
+    function merken() {
+      try { localStorage.setItem('tonne', JSON.stringify(einst)); } catch {}
+    }
+
+    function jetzt() {
+      const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+        .formatToParts(new Date()).map(x => [x.type, x.value]));
+      return { tag: `${p.year}-${p.month}-${p.day}`, zeit: `${p.hour}:${p.minute}` };
+    }
+    const datum = d => new Date(d + 'T12:00:00Z');
+    const plus = (d, n) => new Date(datum(d).getTime() + n * 864e5).toISOString().slice(0, 10);
+    const abstand = (a, b) => Math.round((datum(b) - datum(a)) / 864e5);
+    const kurz = d => { const x = datum(d); return `${WT[x.getUTCDay()]} ${x.getUTCDate()}. ${MON[x.getUTCMonth()]}`; };
+    const namen = keys => {
+      const n = keys.map(k => plan.arten[k]);
+      return n.length > 1 ? n.slice(0, -1).join(', ') + ' und ' + n.at(-1) : n[0];
+    };
+    const tageText = n => n === 0 ? 'am Abholtag' : n === 1 ? '1 Tag vorher' : `${n} Tage vorher`;
+
+    function figur(art, i) {
+      if (FIGUR[art] === 'sack') {
+        return `<svg class="figur" viewBox="0 0 58 92" style="--c:var(--${art});--i:${i}">
+          <path class="koerper" d="M21 6c4-4 12-4 16 0l-3 9c14 7 22 26 20 63-1 8-6 14-14 14H18C10 92 5 86 4 78 2 41 10 22 24 15z"/>
+          <path class="knoten" d="M22 14c5 2 9 2 14 0"/>
+        </svg>`;
+      }
+      return `<svg class="figur" viewBox="0 0 64 92" style="--c:var(--${art});--i:${i}">
+        <rect class="griff" x="21" y="0" width="22" height="6" rx="2"/>
+        <rect class="deckel" x="1" y="5" width="62" height="12" rx="4"/>
+        <rect class="schatten" x="1" y="5" width="62" height="12" rx="4"/>
+        <path class="koerper" d="M6 17h52l-4 65H10z"/>
+        <path class="rille" d="M22 26v48M32 26v48M42 26v48"/>
+        <circle class="rad" cx="16" cy="84" r="8"/>
+      </svg>`;
+    }
+    function strich(art) {
+      return art in FIGUR ? `<i class="strich" style="--c:var(--${art})"></i>` : '<i class="strich sonder"></i>';
+    }
+
+    function zeigen() {
+      const { tag } = jetzt();
+      const kommend = Object.keys(plan.termine).filter(d => d >= tag);
+      $('ort').textContent = `Bezirk ${plan.bezirk}, ${plan.ort}`;
+      $('quelle').innerHTML = `Termine aus dem <a href="${plan.quelle}" rel="noopener noreferrer">Abfuhrkalender der Stadtwerke Hürth</a>, gültig bis ${kurz(plan.bis)} ${plan.bis.slice(0, 4)}.`;
+
+      if (!kommend.length) {
+        const jahr = +plan.bis.slice(0, 4) + 1;
+        $('wann').textContent = 'Keine Termine mehr';
+        $('wann').className = 'wann';
+        $('datum').textContent = `${jahr} fehlt`;
+        $('reihe').innerHTML = '';
+        $('was').textContent = `Der Abfuhrkalender für ${jahr} ist noch nicht eingetragen.`;
+        $('spaeter').hidden = true;
+        return;
+      }
+      const naechster = kommend[0];
+      const n = abstand(tag, naechster);
+      const arten = plan.termine[naechster];
+      $('wann').textContent = n === 0 ? 'Heute' : n === 1 ? 'Morgen' : n === 2 ? 'Übermorgen' : `In ${n} Tagen`;
+      $('wann').className = n <= 1 ? 'wann bald' : 'wann';
+      $('datum').textContent = kurz(naechster);
+      $('reihe').innerHTML = arten.filter(a => a in FIGUR).map(figur).join('');
+      $('was').textContent = namen(arten);
+
+      $('termine').innerHTML = kommend.slice(1, 13).map(d => `
+        <li><time datetime="${d}">${kurz(d)}</time>
+          <ul class="arten">${plan.termine[d].map(a => `<li>${strich(a)}${plan.arten[a]}</li>`).join('')}</ul>
+        </li>`).join('');
+      $('spaeter').hidden = kommend.length < 2;
+    }
+
+    function standZeigen() {
+      $('stand').textContent = abo ? `${tageText(einst.tage)} um ${einst.zeit}` : 'aus';
+      $('speichern').textContent = abo ? 'Änderungen speichern' : 'Erinnerung einschalten';
+      $('neben').hidden = !abo;
+    }
+
+    function naechsteErinnerung() {
+      const { tag, zeit } = jetzt();
+      for (const d of Object.keys(plan.termine)) {
+        if (!plan.termine[d].some(a => einst.arten.includes(a))) continue;
+        const r = plus(d, -einst.tage);
+        if (r > tag || (r === tag && einst.zeit > zeit)) return `${kurz(r)} um ${einst.zeit}`;
+      }
+      return null;
+    }
+
+    function formularFuellen() {
+      const sel = $('zeit');
+      if (!sel.options.length) {
+        for (let h = 5; h < 24; h++) for (const m of ['00', '15', '30', '45']) sel.add(new Option(`${String(h).padStart(2, '0')}:${m}`));
+      }
+      sel.value = einst.zeit;
+      const r = document.querySelector(`input[name="tage"][value="${einst.tage}"]`);
+      if (r) r.checked = true;
+      $('schalter').innerHTML = Object.entries(plan.arten).map(([k, name]) => `
+        <li><label>${strich(k)}<span class="name">${name}</span>
+          <input class="schalter" type="checkbox" value="${k}" ${einst.arten.includes(k) ? 'checked' : ''}></label></li>`).join('');
+    }
+    function formularLesen() {
+      return {
+        tage: +(document.querySelector('input[name="tage"]:checked')?.value ?? 1),
+        zeit: $('zeit').value,
+        arten: [...document.querySelectorAll('.schalter:checked')].map(i => i.value),
+      };
+    }
+
+    function status(text, fehler = false) {
+      $('status').textContent = text;
+      $('status').className = fehler ? 'status fehler' : 'status';
+    }
+
+    function unterstuetzung() {
+      const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const app = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+      if (!('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window)) {
+        return ios && !app
+          ? 'Auf dem iPhone kommen Erinnerungen nur an, wenn die Seite auf dem Home-Bildschirm liegt. Tippe in Safari auf Teilen, dann auf „Zum Home-Bildschirm“, und öffne Tonnen von dort.'
+          : 'Dieser Browser kann keine Push-Nachrichten empfangen.';
+      }
+      if (Notification.permission === 'denied') return 'Mitteilungen sind für diese App blockiert. Erlaube sie in den Einstellungen deines Geräts, dann klappt es.';
+      return '';
+    }
+
+    async function api(method, path, body) {
+      let r;
+      try {
+        r = await fetch(API + path, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+      } catch {
+        throw new Error('Keine Verbindung zum Server. Bist du online?');
+      }
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || 'Der Server antwortet gerade nicht. Versuch es gleich nochmal.');
+      return j;
+    }
+    const schluessel = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0));
+
+    async function beschaeftigt(knopf, text, fn) {
+      const alt = knopf.textContent;
+      knopf.disabled = true;
+      knopf.textContent = text;
+      try { return await fn(); } finally { knopf.disabled = false; knopf.textContent = alt; }
+    }
+
+    async function speichern() {
+      const neu = formularLesen();
+      if (!neu.arten.length) return status('Wähl mindestens eine Abholung aus.', true);
+      status('');
+      const erlaubnis = await Notification.requestPermission();
+      if (erlaubnis !== 'granted') {
+        return status(erlaubnis === 'denied' ? 'Mitteilungen sind blockiert. Erlaube sie in den Einstellungen deines Geräts.' : 'Ohne Erlaubnis für Mitteilungen kann keine Erinnerung kommen.', true);
+      }
+      try {
+        await beschaeftigt($('speichern'), 'Wird gespeichert …', async () => {
+          if (!abo) {
+            const { key } = await api('GET', '/key');
+            abo = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: schluessel(key) });
+          }
+          await api('PUT', '/sub', { sub: abo.toJSON(), days: neu.tage, time: neu.zeit, types: neu.arten });
+        });
+        einst = neu;
+        merken();
+        standZeigen();
+        const naechste = naechsteErinnerung();
+        status(naechste ? `Gespeichert. Die nächste Erinnerung kommt ${naechste}.` : 'Gespeichert. In diesem Jahr kommt keine Erinnerung mehr.');
+      } catch (e) {
+        status(e.message || 'Das hat nicht geklappt. Versuch es nochmal.', true);
+      }
+    }
+
+    async function testen() {
+      const knopf = $('test');
+      try {
+        await beschaeftigt(knopf, 'Wird geschickt …', () => api('POST', '/test', { endpoint: abo.endpoint }));
+        status('');
+        knopf.textContent = 'Gesendet';
+        knopf.disabled = true;
+        setTimeout(() => { knopf.textContent = 'Test-Nachricht schicken'; knopf.disabled = false; }, 2500);
+      } catch (e) {
+        status(e.message, true);
+      }
+    }
+
+    async function ausschalten() {
+      try {
+        await beschaeftigt($('aus'), 'Wird ausgeschaltet …', async () => {
+          await api('DELETE', '/sub', { endpoint: abo.endpoint });
+          await abo.unsubscribe();
+        });
+        abo = null;
+        standZeigen();
+        status('Erinnerung ist aus.');
+      } catch (e) {
+        status(e.message, true);
+      }
+    }
+
+    const blatt = $('blatt');
+    function oeffnen() {
+      formularFuellen();
+      const h = unterstuetzung();
+      $('hinweis').textContent = h;
+      $('hinweis').hidden = !h;
+      $('speichern').disabled = !!h;
+      status('');
+      blatt.classList.remove('zu');
+      blatt.showModal();
+    }
+    function schliessen() {
+      if (!blatt.open || blatt.classList.contains('zu')) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return blatt.close();
+      blatt.classList.add('zu');
+      blatt.addEventListener('animationend', () => { blatt.classList.remove('zu'); blatt.close(); }, { once: true });
+    }
+
+    $('oeffnen').addEventListener('click', oeffnen);
+    $('fertig').addEventListener('click', schliessen);
+    blatt.addEventListener('cancel', e => { e.preventDefault(); schliessen(); });
+    blatt.addEventListener('click', e => { if (e.target === blatt) schliessen(); });
+    $('speichern').addEventListener('click', speichern);
+    $('test').addEventListener('click', testen);
+    $('aus').addEventListener('click', ausschalten);
+
+    async function start() {
+      try {
+        plan = await (await fetch('termine.json', { cache: 'no-cache' })).json();
+      } catch {
+        $('wann').textContent = 'Offline';
+        $('datum').textContent = 'Keine Daten';
+        $('was').textContent = 'Die Termine konnten nicht geladen werden. Öffne die App einmal mit Internet.';
+        return;
+      }
+      einst.arten = einst.arten.filter(a => a in plan.arten);
+      zeigen();
+      if ('serviceWorker' in navigator) {
+        try {
+          reg = await navigator.serviceWorker.register('sw.js', { scope: './' });
+          await navigator.serviceWorker.ready;
+          abo = reg.pushManager ? await reg.pushManager.getSubscription() : null;
+        } catch {}
+      }
+      standZeigen();
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) zeigen(); });
+    }
+    start();
+  </script>
+</body>
+</html>

@@ -1,31 +1,12 @@
 import { plan, berlin, nachricht, naechster } from './plan.js';
-import { push, unb64u } from './push.js';
+import { push } from './push.js';
+import { HttpError, json, body, endpointOf, pushKeys, limit } from './common.js';
+import { familie, familieCron } from './familie.js';
 
 const MAX_SUBS = 30;
-const PUSH_HOSTS = [/\.push\.apple\.com$/, /^fcm\.googleapis\.com$/, /^updates\.push\.services\.mozilla\.com$/, /\.notify\.windows\.com$/];
-
-class HttpError extends Error { constructor(status, msg) { super(msg); this.status = status; } }
-const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
-
-async function body(req) {
-  const text = await req.text();
-  if (text.length > 4000) throw new HttpError(413, 'Zu groß');
-  try { return JSON.parse(text); } catch { throw new HttpError(400, 'Ungültige Anfrage'); }
-}
-
-function endpointOf(v) {
-  let u;
-  try { u = new URL(String(v || '')); } catch { throw new HttpError(400, 'Ungültiges Push-Abo'); }
-  if (u.protocol !== 'https:' || u.href.length > 1000 || !PUSH_HOSTS.some(r => r.test(u.hostname))) throw new HttpError(400, 'Dieser Push-Dienst wird nicht unterstützt.');
-  return u.href;
-}
 
 function abo(b) {
-  const endpoint = endpointOf(b.sub?.endpoint);
-  const p256dh = String(b.sub?.keys?.p256dh || ''), auth = String(b.sub?.keys?.auth || '');
-  let ok = false;
-  try { const k = unb64u(p256dh), a = unb64u(auth); ok = k.length === 65 && k[0] === 4 && a.length === 16; } catch {}
-  if (!ok) throw new HttpError(400, 'Ungültiges Push-Abo');
+  const { endpoint, p256dh, auth } = pushKeys(b.sub);
   const days = Number(b.days);
   if (!Number.isInteger(days) || days < 0 || days > 7) throw new HttpError(400, 'Tage vorher: 0 bis 7');
   const time = String(b.time || '');
@@ -35,11 +16,6 @@ function abo(b) {
   return { endpoint, p256dh, auth, days, time, types };
 }
 
-async function limit(env, req) {
-  const { success } = await env.PUSH_LIMIT.limit({ key: req.headers.get('CF-Connecting-IP') || 'unknown' });
-  if (!success) throw new HttpError(429, 'Zu viele Anfragen. Warte eine Minute.');
-}
-
 async function senden(env, sub, message) {
   const status = await push(env, sub, message);
   if (status === 404 || status === 410) await env.DB.prepare('DELETE FROM subs WHERE endpoint = ?').bind(sub.endpoint).run();
@@ -47,7 +23,9 @@ async function senden(env, sub, message) {
 }
 
 async function route(req, env) {
-  const key = `${req.method} ${new URL(req.url).pathname}`;
+  const { pathname } = new URL(req.url);
+  if (pathname.startsWith('/f/')) return familie(req, env, pathname.slice(2));
+  const key = `${req.method} ${pathname}`;
   if (key === 'GET /key') return json({ key: env.VAPID_PUBLIC });
   if (key === 'PUT /sub') {
     await limit(env, req);
@@ -100,7 +78,7 @@ export default {
     const cors = {
       'Access-Control-Allow-Origin': allowed(origin) ? origin : 'https://spanani.de',
       'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type',
       'Access-Control-Max-Age': '86400',
       Vary: 'Origin',
     };
@@ -116,6 +94,6 @@ export default {
     return res;
   },
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(erinnern(env, event.scheduledTime));
+    ctx.waitUntil(Promise.allSettled([erinnern(env, event.scheduledTime), familieCron(env, event.scheduledTime)]));
   },
 };

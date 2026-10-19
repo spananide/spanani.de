@@ -2,7 +2,7 @@
 
 Static site (plain HTML, CSS, vanilla JS, no build step) on GitHub Pages from `main`. Work directly on `main`, no feature branches. `/pausenklau` has a backend in `workers/pausenklau-api` (Cloudflare Worker + D1 + Workers AI).
 
-`/t-7yhbbwj4/` is a private waste-collection reminder app with its own look (not the spanani design system), backed by `workers/tonne-push`. Never link it from the site or add it to the sitemap; its design rules and yearly update steps are in `workers/tonne-push/README.md`.
+`/t-7yhbbwj4/` (waste-collection reminders) and `/f-jft9sz2y13/` (family app "Zuhause": shopping list, tasks, calendar, pinboard, waste dates) are private apps with their own look (not the spanani design system), both backed by `workers/tonne-push` (family routes under `/f/`). Never link them from the site or add them to the sitemap; design rules, data model and yearly update steps are in `workers/tonne-push/README.md`.
 
 ## Languages, tools and third parties
 

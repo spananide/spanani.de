@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Zuhause</title>
+  <meta name="theme-color" content="#dcdfdd" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1f2326" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Zuhause">
+  <link rel="preload" href="fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/barlow-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    @font-face { font-family: 'Barlow'; src: url('fonts/barlow-400.woff2') format('woff2'); font-weight: 400; font-display: optional; }
+    @font-face { font-family: 'Barlow'; src: url('fonts/barlow-600.woff2') format('woff2'); font-weight: 600; font-display: optional; }
+    @font-face { font-family: 'Barlow Condensed'; src: url('fonts/barlow-condensed-700.woff2') format('woff2'); font-weight: 700; font-display: optional; }
+
+    :root {
+      --beton: #dcdfdd;
+      --beton-hell: #f2f3f1;
+      --teer: #1b1e20;
+      --teer-weich: #4a4f53;
+      --linie: #b4b9b7;
+      --orange: #ec7c26;
+      --orange-druck: #d4691a;
+      --auf-orange: #1b1e20;
+      --fehler: #a8231b;
+      --rest: #4a4f55;
+      --bio: #7b4b2a;
+      --papier: #1f5fae;
+      --gelb: #f2c200;
+      --rad: #1b1e20;
+      --p-rot: #c0392b;
+      --p-gruen: #2e7d32;
+      --p-petrol: #00796b;
+      --p-himmel: #0277bd;
+      --p-violett: #6a3fb5;
+      --p-pink: #c2185b;
+      --p-oliv: #7c7a12;
+      --p-sand: #8d6e63;
+      --schatten: 0 -10px 36px rgba(0, 0, 0, 0.2);
+      --abdunkeln: rgba(0, 0, 0, 0.42);
+
+      --schrift: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+      --schrift-eng: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+      --gr-datum: clamp(52px, 15vw, 76px);
+      --gr-gross: 30px;
+      --gr-titel: 22px;
+      --gr-text: 17px;
+      --gr-klein: 14px;
+
+      --r-knopf: 8px;
+      --r-schild: 4px;
+      --r-blatt: 18px;
+      --rand: 20px;
+      --breite: 520px;
+      --leiste: 60px;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --beton: #1f2326;
+        --beton-hell: #2b3034;
+        --teer: #e6e8e6;
+        --teer-weich: #a9afb2;
+        --linie: #3d4448;
+        --fehler: #ff9a8f;
+        --rest: #6e757b;
+        --bio: #94603a;
+        --papier: #3a7cd0;
+        --rad: #0d0f10;
+        --p-rot: #ef6b5b;
+        --p-gruen: #66bb6a;
+        --p-petrol: #26a69a;
+        --p-himmel: #4fc3f7;
+        --p-violett: #a287e8;
+        --p-pink: #f06292;
+        --p-oliv: #c0ca33;
+        --p-sand: #bcaaa4;
+        --schatten: 0 -10px 36px rgba(0, 0, 0, 0.55);
+        --abdunkeln: rgba(0, 0, 0, 0.6);
+        color-scheme: dark;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--beton);
+      color: var(--teer);
+      font: 400 var(--gr-text)/1.45 var(--schrift);
+      overflow-x: clip;
+      -webkit-tap-highlight-color: transparent;
+    }
+    h1, h2, h3, p { margin: 0; }
+    a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+    a:hover { text-decoration-thickness: 2px; }
+    button, select, input, textarea { font: inherit; color: inherit; }
+    :focus-visible { outline: 3px solid var(--teer); outline-offset: 3px; }
+    ul, ol { list-style: none; margin: 0; padding: 0; }
+
+    .kopf {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+      max-width: var(--breite); margin: 0 auto;
+      padding: calc(env(safe-area-inset-top) + 20px) var(--rand) 0;
+    }
+    .kopf h1 { font-size: var(--gr-titel); font-weight: 600; }
+    .textknopf {
+      min-height: 44px; padding: 0;
+      background: none; border: 0;
+      text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px;
+      cursor: pointer;
+    }
+    .textknopf:hover { text-decoration-thickness: 2px; }
+    .textknopf:disabled { color: var(--teer-weich); text-decoration: none; cursor: default; }
+    .textknopf.gefahr { color: var(--fehler); }
+
+    .rahmen { max-width: var(--breite); margin: 0 auto; padding: 0 var(--rand) calc(env(safe-area-inset-bottom) + var(--leiste) + 40px); }
+    .bereich { padding-top: 24px; }
+    .bereich > h2 { font-size: var(--gr-gross); font-weight: 600; line-height: 1.15; }
+    .klein { font-size: var(--gr-klein); color: var(--teer-weich); }
+    .abschnitt { margin-top: 32px; }
+    .abschnitt > h3 { font-size: var(--gr-klein); font-weight: 600; color: var(--teer-weich); margin-bottom: 4px; }
+    .leer { padding: 14px 0; color: var(--teer-weich); border-bottom: 1px solid var(--linie); }
+
+    .leiste {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      padding-bottom: env(safe-area-inset-bottom);
+      background: var(--beton);
+      border-top: 1px solid var(--linie);
+    }
+    .leiste button {
+      position: relative;
+      min-height: var(--leiste);
+      padding: 0 2px;
+      background: none; border: 0;
+      font-size: var(--gr-klein);
+      color: var(--teer-weich);
+      cursor: pointer;
+    }
+    .leiste button[aria-current="page"] { color: var(--teer); font-weight: 600; }
+    .leiste button[aria-current="page"]::before { content: ''; position: absolute; top: -1px; left: 18%; right: 18%; height: 3px; background: var(--teer); }
+    .leiste .zahl { font-weight: 600; }
+
+    .datum-gross { font-family: var(--schrift-eng); font-weight: 700; font-size: var(--gr-datum); line-height: 0.95; letter-spacing: -0.01em; margin-top: 8px; }
+    .wann { font-weight: 600; font-size: var(--gr-titel); line-height: 1.2; }
+    .wann.bald { display: inline-block; background: var(--orange); color: var(--auf-orange); border-radius: var(--r-schild); padding: 2px 10px 1px; }
+    .strasse { margin-top: 22px; }
+    .reihe { display: flex; align-items: flex-end; gap: 12px; min-height: 84px; padding-left: 4px; }
+    .reihe:empty { min-height: 24px; }
+    .reihe > svg { display: block; height: 84px; width: auto; animation: rollen 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i) * 50ms); }
+    .bordstein { height: 10px; background: var(--teer); width: 100vw; margin-left: calc(50% - 50vw); }
+    @media (min-width: 560px) { .bordstein { width: auto; margin-left: calc(-1 * var(--rand)); margin-right: calc(-1 * var(--rand)); } }
+    .figur .koerper, .figur .deckel, .figur .griff { fill: var(--c); }
+    .figur .schatten { fill: #000; opacity: 0.22; }
+    .figur .rille { stroke: #000; stroke-opacity: 0.16; stroke-width: 2.5; fill: none; }
+    .figur .knoten { stroke: #000; stroke-opacity: 0.3; stroke-width: 3; fill: none; stroke-linecap: round; }
+    .figur .rad { fill: var(--rad); }
+    @keyframes rollen { from { transform: translateX(70vw); } }
+    .was { margin-top: 12px; font-size: var(--gr-titel); font-weight: 600; line-height: 1.25; }
+
+    .punkt { display: inline-block; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--c); vertical-align: 1px; }
+    .strich { display: inline-block; flex: none; width: 6px; height: 1.1em; border-radius: 1px; background: var(--c); vertical-align: -3px; }
+    .strich.sonder { background: none; box-shadow: inset 0 0 0 2px var(--teer-weich); }
+    .wer { display: inline-flex; align-items: center; gap: 6px; }
+    .wer + .wer { margin-left: 10px; }
+
+    .zeilen > li { border-bottom: 1px solid var(--linie); }
+    .zeile { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 0; }
+    .zeile .haupt-text { flex: 1; min-width: 0; }
+    .zeile .titel { font-weight: 600; overflow-wrap: anywhere; }
+    .zeile .unter { font-size: var(--gr-klein); color: var(--teer-weich); margin-top: 2px; }
+    .unter > * + *::before { content: ', '; }
+    .unter > .wer + .wer::before { content: ''; }
+    .zeile-knopf { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 0; background: none; border: 0; text-align: left; cursor: pointer; }
+    .zeile-knopf:hover .titel { text-decoration: underline; text-underline-offset: 3px; }
+
+    .haken {
+      appearance: none; -webkit-appearance: none;
+      flex: none; width: 28px; height: 28px; margin: 0;
+      border: 2px solid var(--teer); border-radius: 6px;
+      background: transparent; cursor: pointer;
+      display: grid; place-content: center;
+      transition: background-color 140ms;
+    }
+    .haken::after { content: ''; width: 12px; height: 7px; border: solid var(--beton); border-width: 0 0 3px 3px; transform: rotate(-45deg) translate(1px, -1px); opacity: 0; }
+    .haken:checked { background: var(--teer); }
+    .haken:checked::after { opacity: 1; }
+    .erledigt .titel { text-decoration: line-through; color: var(--teer-weich); font-weight: 400; }
+    .weg { flex: none; width: 44px; height: 44px; background: none; border: 0; color: var(--teer-weich); font-size: 26px; line-height: 1; cursor: pointer; border-radius: var(--r-knopf); }
+    .weg:hover { color: var(--teer); background: var(--beton-hell); }
+
+    .eingabe { display: flex; gap: 8px; margin-top: 18px; }
+    .feld-text, .feld-wahl, textarea.feld-text {
+      width: 100%; min-height: 48px; padding: 0 12px;
+      border: 1px solid var(--linie); border-radius: var(--r-knopf);
+      background: var(--beton-hell);
+      font-size: var(--gr-text);
+    }
+    textarea.feld-text { padding: 12px; min-height: 96px; resize: vertical; line-height: 1.4; }
+    .blatt .feld-text, .blatt .feld-wahl { background: var(--beton); }
+    .feld-text::placeholder { color: var(--teer-weich); opacity: 1; }
+    .knopf {
+      flex: none; min-height: 48px; padding: 0 18px;
+      border: 1px solid var(--teer); border-radius: var(--r-knopf);
+      background: transparent; font-weight: 600; cursor: pointer;
+      transition: background-color 140ms, color 140ms;
+    }
+    .knopf:hover { background: var(--teer); color: var(--beton); }
+    .knopf:disabled { opacity: 0.5; cursor: default; background: transparent; color: inherit; }
+    .klein-knopf { min-height: 40px; padding: 0 14px; font-size: var(--gr-klein); }
+    .haupt {
+      display: block; width: 100%; min-height: 54px; margin-top: 20px;
+      border: 0; border-radius: var(--r-knopf);
+      background: var(--orange); color: var(--auf-orange);
+      font-weight: 600; font-size: 18px;
+      cursor: pointer;
+      transition: background-color 140ms;
+    }
+    .haupt:hover { background: var(--orange-druck); }
+    .haupt:active { transform: translateY(1px); }
+    .haupt:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+    .notiz { padding: 16px 0; border-bottom: 1px solid var(--linie); }
+    .notiz p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 19px; line-height: 1.4; }
+    .notiz .fuss { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: var(--gr-klein); color: var(--teer-weich); }
+
+    .monat-kopf { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; }
+    .monat-kopf h3 { font-size: var(--gr-titel); font-weight: 600; }
+    .monat-kopf .weg { font-size: 22px; }
+    .monat { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-top: 8px; }
+    .monat .wt { text-align: center; font-size: var(--gr-klein); color: var(--teer-weich); padding: 4px 0; }
+    .tag {
+      position: relative; aspect-ratio: 1 / 1; min-height: 40px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+      background: none; border: 0; border-radius: var(--r-knopf);
+      font-family: var(--schrift-eng); font-weight: 700; font-size: 19px;
+      cursor: pointer;
+    }
+    .tag:hover { background: var(--beton-hell); }
+    .tag.anders { color: var(--teer-weich); font-weight: 400; }
+    .tag.heute { box-shadow: inset 0 0 0 2px var(--teer); }
+    .tag[aria-pressed="true"] { background: var(--teer); color: var(--beton); }
+    .tag .marken { display: flex; gap: 3px; height: 6px; }
+    .tag .marken i { width: 6px; height: 6px; border-radius: 50%; background: var(--c, currentColor); }
+    .tagkopf { margin-top: 24px; padding-bottom: 6px; border-bottom: 2px solid var(--teer); font-family: var(--schrift-eng); font-weight: 700; font-size: var(--gr-titel); }
+    .tagkopf .klein { font-family: var(--schrift); font-weight: 400; margin-left: 8px; }
+    .zeit { flex: none; width: 4.4rem; font-family: var(--schrift-eng); font-weight: 700; font-size: 19px; }
+    .zeit.ganz { font-family: var(--schrift); font-weight: 400; font-size: var(--gr-klein); color: var(--teer-weich); }
+
+    .schalter-zeile { display: flex; align-items: center; gap: 12px; min-height: 52px; cursor: pointer; }
+    .schalter-zeile .name { flex: 1; }
+    .schalter-liste > li + li { border-top: 1px solid var(--linie); }
+    .schalter {
+      appearance: none; -webkit-appearance: none;
+      flex: none; position: relative;
+      width: 48px; height: 28px; margin: 0;
+      border-radius: 14px;
+      background: var(--linie);
+      cursor: pointer;
+      transition: background-color 160ms;
+    }
+    .schalter::before {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--beton-hell);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      transition: transform 160ms cubic-bezier(0.3, 0.7, 0.3, 1);
+    }
+    .schalter:checked { background: var(--teer); }
+    .schalter:checked::before { transform: translateX(20px); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chips input { position: absolute; opacity: 0; pointer-events: none; }
+    .chips label {
+      display: inline-flex; align-items: center; gap: 8px;
+      min-height: 44px; padding: 0 14px;
+      border: 1px solid var(--linie); border-radius: var(--r-knopf);
+      background: var(--beton);
+      cursor: pointer;
+      transition: background-color 140ms, color 140ms, border-color 140ms;
+    }
+    .chips label:hover { border-color: var(--teer-weich); }
+    .chips input:checked + label { background: var(--teer); color: var(--beton-hell); border-color: var(--teer); font-weight: 600; }
+    .chips input:focus-visible + label { outline: 3px solid var(--teer); outline-offset: 3px; }
+    .chips.raster { display: grid; grid-template-columns: 1fr 1fr; }
+    .chips.raster label { justify-content: center; }
+    .chips.wochentage label { min-width: 44px; justify-content: center; padding: 0 10px; }
+    .farben label { width: 44px; padding: 0; justify-content: center; }
+    .farben label .punkt { width: 18px; height: 18px; }
+
+    fieldset { border: 0; margin: 22px 0 0; padding: 0; min-width: 0; }
+    legend, .beschriftung { display: block; padding: 0; margin-bottom: 8px; font-size: var(--gr-klein); font-weight: 600; color: var(--teer-weich); }
+    .feld { display: block; margin-top: 22px; }
+
+    .blatt {
+      width: 100%; max-width: var(--breite); max-height: 92dvh;
+      margin: auto auto 0; padding: 0; border: 0;
+      border-radius: var(--r-blatt) var(--r-blatt) 0 0;
+      background: var(--beton-hell); color: var(--teer);
+      box-shadow: var(--schatten);
+      overflow-y: auto; overscroll-behavior: contain;
+    }
+    .blatt::backdrop { background: var(--abdunkeln); }
+    .blatt[open] { animation: hoch 260ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .blatt.zu { animation: runter 200ms ease-in forwards; }
+    .blatt[open]::backdrop { animation: abdunkeln 260ms ease-out; }
+    .blatt.zu::backdrop { animation: abdunkeln 200ms ease-in reverse forwards; }
+    @keyframes hoch { from { transform: translateY(100%); } }
+    @keyframes runter { to { transform: translateY(100%); } }
+    @keyframes abdunkeln { from { opacity: 0; } }
+    .blatt-innen { padding: 20px var(--rand) 0; }
+    .blatt-kopf { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .blatt-kopf h2 { font-size: var(--gr-titel); font-weight: 600; }
+    .abschluss { position: sticky; bottom: 0; margin: 24px calc(-1 * var(--rand)) 0; padding: 12px var(--rand) calc(env(safe-area-inset-bottom) + 16px); background: var(--beton-hell); border-top: 1px solid var(--linie); }
+    .abschluss .haupt { margin-top: 0; }
+    .nebenknoepfe { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-top: 8px; }
+
+    .status { margin-bottom: 10px; }
+    .status:empty { display: none; }
+    .status.fehler, .fehlertext { color: var(--fehler); font-weight: 600; }
+    .hinweis { margin-top: 16px; padding: 12px 14px; border-left: 4px solid var(--orange); background: var(--beton); }
+    .code { font-family: var(--schrift-eng); font-weight: 700; font-size: 44px; letter-spacing: 0.06em; margin: 8px 0; user-select: all; }
+
+    .meldung {
+      position: fixed; z-index: 6; left: 50%; transform: translateX(-50%);
+      bottom: calc(env(safe-area-inset-bottom) + var(--leiste) + 12px);
+      width: min(calc(100% - 2 * var(--rand)), calc(var(--breite) - 2 * var(--rand)));
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 10px 16px; min-height: 52px;
+      background: var(--teer); color: var(--beton);
+      border-radius: var(--r-knopf);
+      animation: auftauchen 180ms ease-out;
+    }
+    .meldung .textknopf { color: var(--beton); font-weight: 600; }
+    @keyframes auftauchen { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+    .gast { max-width: var(--breite); margin: 0 auto; padding: calc(env(safe-area-inset-top) + 40px) var(--rand) 48px; }
+    .gast h1 { font-family: var(--schrift-eng); font-weight: 700; font-size: var(--gr-datum); line-height: 0.95; }
+    .gast .lead { margin-top: 16px; font-size: 19px; max-width: 34em; }
+    .gast ol.schritte { list-style: decimal; padding-left: 1.4em; margin-top: 12px; }
+    .gast ol.schritte li + li { margin-top: 6px; }
+
+    .seite-neben { display: none; }
+    @media (min-width: 960px) {
+      :root { --breite: 1120px; }
+      .kopf { padding-top: 28px; }
+      .geruest { display: grid; grid-template-columns: 380px 1fr; gap: 56px; align-items: start; }
+      .seite-neben { display: block; position: sticky; top: 0; max-height: 100dvh; overflow-y: auto; padding-bottom: 40px; }
+      .leiste { position: static; display: flex; gap: 28px; padding: 0; margin-top: 20px; border-top: 0; border-bottom: 1px solid var(--linie); background: none; }
+      .leiste button { min-height: 48px; padding: 0; font-size: var(--gr-text); }
+      .leiste button[aria-current="page"]::before { top: auto; bottom: -1px; left: 0; right: 0; }
+      .leiste [data-tab="heute"] { display: none; }
+      .rahmen { padding-bottom: 60px; }
+      .meldung { bottom: 24px; }
+      .blatt { margin: auto; border-radius: var(--r-blatt); max-height: 86dvh; }
+      .blatt[open] { animation: aufblenden 200ms ease-out; }
+      .blatt.zu { animation: abblenden 160ms ease-in forwards; }
+      .abschluss { padding-bottom: 20px; }
+      @keyframes aufblenden { from { opacity: 0; transform: translateY(12px); } }
+      @keyframes abblenden { to { opacity: 0; transform: translateY(12px); } }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after, *::backdrop { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="gast" class="gast" hidden></div>
+
+  <div id="app" hidden>
+    <header class="kopf">
+      <h1>Zuhause</h1>
+      <button class="textknopf" id="einstellungen-oeffnen" type="button" aria-haspopup="dialog">Einstellungen</button>
+    </header>
+    <div class="rahmen geruest">
+      <aside class="seite-neben" id="neben" aria-label="Heute"></aside>
+      <div>
+        <nav class="leiste" aria-label="Bereiche">
+          <button type="button" data-tab="heute">Heute</button>
+          <button type="button" data-tab="einkauf">Einkauf</button>
+          <button type="button" data-tab="aufgaben">Aufgaben</button>
+          <button type="button" data-tab="kalender">Kalender</button>
+          <button type="button" data-tab="pinnwand">Pinnwand</button>
+        </nav>
+        <main id="inhalt"></main>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="blatt" id="blatt" aria-labelledby="blatt-titel">
+    <div class="blatt-innen" id="blatt-innen"></div>
+  </dialog>
+
+  <div id="meldung" class="meldung" role="status" aria-live="polite" hidden></div>
+
+  <script>
+    const API = 'https://tonne-push.spanani.workers.dev/f';
+    const MUELL = '/t-7yhbbwj4/termine.json';
+    const FARBEN = { rot: 'Rot', gruen: 'Grün', petrol: 'Petrol', himmel: 'Himmel', violett: 'Violett', pink: 'Pink', oliv: 'Oliv', sand: 'Sand' };
+    const FIGUR = { rest: 'tonne', bio: 'tonne', papier: 'tonne', gelb: 'sack' };
+    const WT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+    const WT_LANG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+    const MON = ['Jan', 'Feb', 'März', 'Apr', 'Mai', 'Juni', 'Juli', 'Aug', 'Sept', 'Okt', 'Nov', 'Dez'];
+    const MON_LANG = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+    const ERINNERN_ZEIT = [['', 'Keine Erinnerung'], ['0', 'Zur Startzeit'], ['15', '15 Minuten vorher'], ['60', '1 Stunde vorher'], ['1440', '1 Tag vorher']];
+    const ERINNERN_GANZ = [['', 'Keine Erinnerung'], ['-480', 'Am Tag um 8 Uhr'], ['360', 'Am Vortag um 18 Uhr'], ['9000', '1 Woche vorher um 18 Uhr']];
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    const speicher = {
+      get(k, d) { try { const v = localStorage.getItem('zuhause.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+      set(k, v) { try { localStorage.setItem('zuhause.' + k, JSON.stringify(v)); } catch {} },
+      del(k) { try { localStorage.removeItem('zuhause.' + k); } catch {} },
+    };
+
+    const LEER = { now: 0, me: null, members: [], items: [], notes: [], tasks: [], events: [] };
+    let token = speicher.get('token', '');
+    let S = speicher.get('state', null) || structuredClone(LEER);
+    let plan = null, reg = null, abo = null;
+    let tab = speicher.get('tab', 'heute');
+    let monat = null, gewaehlt = null;
+    let muellZeigen = speicher.get('muell', true);
+    let laeuft = null;
+
+    function jetzt() {
+      const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+        .formatToParts(new Date()).map(x => [x.type, x.value]));
+      return { tag: `${p.year}-${p.month}-${p.day}`, zeit: `${p.hour}:${p.minute}` };
+    }
+    const heute = () => jetzt().tag;
+    const datum = d => new Date(d + 'T12:00:00Z');
+    const plus = (d, n) => new Date(datum(d).getTime() + n * 864e5).toISOString().slice(0, 10);
+    const abstand = (a, b) => Math.round((datum(b) - datum(a)) / 864e5);
+    const kurz = d => { const x = datum(d); return `${WT[x.getUTCDay()]} ${x.getUTCDate()}. ${MON[x.getUTCMonth()]}`; };
+    const lang = d => { const x = datum(d); return `${WT_LANG[x.getUTCDay()]}, ${x.getUTCDate()}. ${MON_LANG[x.getUTCMonth()]}`; };
+    const relativ = d => { const n = abstand(heute(), d); return n === 0 ? 'heute' : n === 1 ? 'morgen' : n === -1 ? 'gestern' : kurz(d); };
+    const liste = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' und ' + a.at(-1) : (a[0] || '');
+
+    const mitglieder = () => S.members.filter(m => !m.deleted);
+    const mitglied = id => S.members.find(m => m.id === id) || { id, name: 'Ehemalig', color: 'sand', deleted: true };
+    const ich = () => S.me && mitglied(S.me.id);
+    const punkt = c => `<i class="punkt" style="--c:var(--p-${FARBEN[c] ? c : 'sand'})"></i>`;
+    const wer = id => { const m = mitglied(id); return `<span class="wer">${punkt(m.color)}${esc(m.name)}</span>`; };
+
+    function zugewiesen(t) {
+      const alle = mitglieder().map(m => m.id);
+      const leute = t.people.filter(id => alle.includes(id));
+      if (!leute.length) return alle;
+      return t.rule.reihum ? [leute[t.turn % leute.length]] : leute;
+    }
+    function regelText(r) {
+      if (r.t === 'einmal') return 'einmalig';
+      if (r.t === 'tonnen') return 'am Abend vor der Abfuhr';
+      if (r.t === 'tage') return r.n === 1 ? 'täglich' : `alle ${r.n} Tage`;
+      if (r.tage.length === 7) return 'täglich';
+      return liste([...r.tage].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)).map(n => WT[n]));
+    }
+    function faelligText(t) {
+      if (!t.due) return t.lastDone ? `erledigt ${relativ(t.lastDone)}` : 'erledigt';
+      const n = abstand(heute(), t.due);
+      if (n < 0) return `überfällig seit ${kurz(t.due)}`;
+      return n === 0 ? 'heute' : n === 1 ? 'morgen' : kurz(t.due);
+    }
+    function werText(t) {
+      const z = zugewiesen(t);
+      if (!t.people.length) return '<span class="wer">Alle</span>';
+      return z.map(wer).join('');
+    }
+
+    function vorkommen(ev, d) {
+      if (!ev.yearly) return ev.date === d;
+      if (d < ev.date) return false;
+      if (ev.date.slice(5) === d.slice(5)) return true;
+      return ev.date.slice(5) === '02-29' && d.slice(5) === '02-28' && !istSchaltjahr(+d.slice(0, 4));
+    }
+    const istSchaltjahr = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+    const termineAm = d => S.events.filter(ev => vorkommen(ev, d)).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+    const muellAm = d => (plan?.termine[d] || []);
+
+    function figur(art, i) {
+      if (FIGUR[art] === 'sack') {
+        return `<svg class="figur" viewBox="0 0 58 92" aria-hidden="true" style="--c:var(--${art});--i:${i}">
+          <path class="koerper" d="M21 6c4-4 12-4 16 0l-3 9c14 7 22 26 20 63-1 8-6 14-14 14H18C10 92 5 86 4 78 2 41 10 22 24 15z"/>
+          <path class="knoten" d="M22 14c5 2 9 2 14 0"/></svg>`;
+      }
+      return `<svg class="figur" viewBox="0 0 64 92" aria-hidden="true" style="--c:var(--${art});--i:${i}">
+        <rect class="griff" x="21" y="0" width="22" height="6" rx="2"/>
+        <rect class="deckel" x="1" y="5" width="62" height="12" rx="4"/>
+        <rect class="schatten" x="1" y="5" width="62" height="12" rx="4"/>
+        <path class="koerper" d="M6 17h52l-4 65H10z"/>
+        <path class="rille" d="M22 26v48M32 26v48M42 26v48"/>
+        <circle class="rad" cx="16" cy="84" r="8"/></svg>`;
+    }
+    const strich = art => art in FIGUR ? `<i class="strich" style="--c:var(--${art})"></i>` : '<i class="strich sonder"></i>';
+
+    let meldungZeit = null;
+    function melden(text, aktion) {
+      const el = $('meldung');
+      el.innerHTML = `<span>${esc(text)}</span>` + (aktion ? `<button class="textknopf" type="button">${esc(aktion.label)}</button>` : '');
+      if (aktion) el.querySelector('button').onclick = () => { el.hidden = true; aktion.fn(); };
+      el.hidden = false;
+      clearTimeout(meldungZeit);
+      meldungZeit = setTimeout(() => { el.hidden = true; }, aktion ? 6000 : 3200);
+    }
+
+    async function api(method, path, body) {
+      let r;
+      try {
+        r = await fetch(API + path, {
+          method,
+          headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+      } catch {
+        throw new Error('Keine Verbindung zum Server. Bist du online?');
+      }
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 401 && token) { abmeldenLokal(j.error); throw new Error(j.error || 'Nicht angemeldet'); }
+      if (!r.ok) throw new Error(j.error || 'Der Server antwortet gerade nicht. Versuch es gleich nochmal.');
+      return j;
+    }
+
+    function zusammenfuehren(d) {
+      if (d.full) {
+        for (const k of ['items', 'notes', 'tasks', 'events']) S[k] = d[k];
+      } else {
+        for (const k of ['items', 'notes', 'tasks', 'events']) {
+          const m = new Map(S[k].map(x => [x.id, x]));
+          for (const x of d[k]) x.deleted ? m.delete(x.id) : m.set(x.id, x);
+          S[k] = [...m.values()];
+        }
+      }
+      S.members = d.members;
+      S.me = d.me;
+      S.now = d.now;
+      if (d.invite !== undefined) S.invite = d.invite;
+      speicher.set('state', S);
+    }
+
+    async function sync() {
+      if (!token) return;
+      if (laeuft) return laeuft;
+      laeuft = (async () => {
+        try {
+          zusammenfuehren(await api('GET', '/state?since=' + (S.now || 0)));
+          zeichnen();
+        } catch {}
+        finally { laeuft = null; }
+      })();
+      return laeuft;
+    }
+    async function tun(method, path, body, erfolg) {
+      try {
+        const r = await api(method, path, body);
+        await sync();
+        if (erfolg) melden(erfolg);
+        return r;
+      } catch (e) {
+        melden(e.message);
+        throw e;
+      }
+    }
+
+    function abmeldenLokal(grund) {
+      token = '';
+      speicher.del('token');
+      speicher.del('state');
+      S = structuredClone(LEER);
+      gastZeigen(grund);
+    }
+
+    function tabWechseln(t) {
+      tab = t;
+      speicher.set('tab', t);
+      gerueste();
+      zeichnen();
+      window.scrollTo(0, 0);
+    }
+    const breit = () => matchMedia('(min-width: 960px)').matches;
+
+    function gerueste() {
+      if (breit() && tab === 'heute') tab = 'einkauf';
+      document.querySelectorAll('.leiste button').forEach(b => b.setAttribute('aria-current', b.dataset.tab === tab ? 'page' : 'false'));
+      const el = $('inhalt');
+      if (tab === 'heute') el.innerHTML = '<section class="bereich" id="heute-inhalt" aria-label="Heute"></section>';
+      if (tab === 'einkauf') {
+        el.innerHTML = `<section class="bereich" aria-labelledby="h-einkauf">
+          <h2 id="h-einkauf">Einkauf</h2>
+          <form class="eingabe" id="artikel-form" autocomplete="off">
+            <input class="feld-text" id="artikel" aria-label="Artikel" list="vorschlaege" maxlength="80" placeholder="Was fehlt?" enterkeyhint="done">
+            <datalist id="vorschlaege"></datalist>
+            <button class="knopf" type="submit">Hinzufügen</button>
+          </form>
+          <div class="abschnitt"><ul class="zeilen" id="offen"></ul></div>
+          <div class="abschnitt" id="erledigt-box"><h3>Im Wagen</h3><ul class="zeilen" id="erledigt"></ul>
+            <button class="textknopf" type="button" id="leeren">Erledigte löschen</button></div>
+        </section>`;
+        $('artikel-form').addEventListener('submit', async e => {
+          e.preventDefault();
+          const inp = $('artikel'), t = inp.value.trim();
+          if (!t) return;
+          inp.value = '';
+          try { await tun('POST', '/items', { text: t }); } catch { inp.value = t; }
+          inp.focus();
+        });
+        $('leeren').addEventListener('click', () => tun('POST', '/items/clear', {}, 'Erledigte gelöscht.'));
+      }
+      if (tab === 'aufgaben') {
+        el.innerHTML = `<section class="bereich" aria-labelledby="h-aufgaben">
+          <h2 id="h-aufgaben">Aufgaben</h2>
+          <div id="aufgaben-liste"></div>
+          <button class="haupt" type="button" id="neue-aufgabe">Neue Aufgabe</button>
+        </section>`;
+        $('neue-aufgabe').addEventListener('click', async () => { await sync(); aufgabeBlatt(null); });
+      }
+      if (tab === 'kalender') {
+        const t = heute();
+        monat ||= t.slice(0, 7);
+        gewaehlt ||= t;
+        el.innerHTML = `<section class="bereich" aria-labelledby="h-kalender">
+          <h2 id="h-kalender">Kalender</h2>
+          <div class="monat-kopf">
+            <button class="weg" type="button" id="zurueck" aria-label="Vorheriger Monat">‹</button>
+            <h3 id="monat-titel" aria-live="polite"></h3>
+            <button class="weg" type="button" id="vor" aria-label="Nächster Monat">›</button>
+          </div>
+          <div class="monat" id="monat" role="group" aria-label="Tage"></div>
+          <label class="schalter-zeile" style="margin-top:8px"><span class="name klein">Müllabfuhr anzeigen</span><input class="schalter" type="checkbox" id="muell-zeigen" ${muellZeigen ? 'checked' : ''}></label>
+          <div id="termin-liste"></div>
+          <button class="haupt" type="button" id="neuer-termin">Neuer Termin</button>
+        </section>`;
+        const schieben = n => {
+          const [y, m] = monat.split('-').map(Number);
+          const d = new Date(Date.UTC(y, m - 1 + n, 1));
+          monat = d.toISOString().slice(0, 7);
+          gewaehlt = monat === t.slice(0, 7) ? t : monat + '-01';
+          zeichnen();
+        };
+        $('zurueck').addEventListener('click', () => schieben(-1));
+        $('vor').addEventListener('click', () => schieben(1));
+        $('muell-zeigen').addEventListener('change', e => { muellZeigen = e.target.checked; speicher.set('muell', muellZeigen); zeichnen(); });
+        $('neuer-termin').addEventListener('click', async () => { await sync(); terminBlatt(null, gewaehlt); });
+      }
+      if (tab === 'pinnwand') {
+        el.innerHTML = `<section class="bereich" aria-labelledby="h-pinnwand">
+          <h2 id="h-pinnwand">Pinnwand</h2>
+          <form id="notiz-form" style="margin-top:18px">
+            <label class="beschriftung" for="notiz-text">Neue Notiz</label>
+            <textarea class="feld-text" id="notiz-text" maxlength="500" placeholder="Zum Beispiel: Bin um 18 Uhr zurück"></textarea>
+            <label class="feld"><span class="beschriftung">Gilt bis</span>
+              <select class="feld-wahl" id="notiz-bis">
+                <option value="">Bis jemand sie löscht</option>
+                <option value="0">Heute</option>
+                <option value="1">Morgen</option>
+                <option value="7">Eine Woche</option>
+              </select></label>
+            <label class="schalter-zeile" style="margin-top:12px"><span class="name">Allen eine Mitteilung schicken</span><input class="schalter" type="checkbox" id="notiz-push"></label>
+            <button class="haupt" type="submit">Anheften</button>
+          </form>
+          <div class="abschnitt"><div id="notizen"></div></div>
+        </section>`;
+        $('notiz-form').addEventListener('submit', async e => {
+          e.preventDefault();
+          const text = $('notiz-text').value.trim();
+          if (!text) return melden('Die Notiz ist leer.');
+          const bis = $('notiz-bis').value;
+          const pushen = $('notiz-push').checked;
+          const knopf = e.submitter || e.target.querySelector('.haupt');
+          knopf.disabled = true;
+          try {
+            const r = await tun('POST', '/notes', { text, expires: bis === '' ? '' : plus(heute(), +bis), push: pushen });
+            $('notiz-text').value = '';
+            $('notiz-push').checked = false;
+            melden(pushen ? `Angeheftet, ${r.sent} ${r.sent === 1 ? 'Gerät' : 'Geräte'} benachrichtigt.` : 'Angeheftet.');
+          } catch {} finally { knopf.disabled = false; }
+        });
+      }
+    }
+
+    function zeichnen() {
+      if (!token || !S.me) return;
+      const offen = S.items.filter(i => !i.done).length;
+      document.querySelector('[data-tab="einkauf"]').innerHTML = offen ? `Einkauf <span class="zahl">${offen}</span>` : 'Einkauf';
+      $('neben').innerHTML = breit() ? heuteHtml() : '';
+      if (tab === 'heute' && $('heute-inhalt')) { $('heute-inhalt').innerHTML = heuteHtml(); heuteBinden($('heute-inhalt')); }
+      if (breit()) heuteBinden($('neben'));
+      if (tab === 'einkauf' && $('offen')) einkaufZeichnen();
+      if (tab === 'aufgaben' && $('aufgaben-liste')) aufgabenZeichnen();
+      if (tab === 'kalender' && $('monat')) kalenderZeichnen();
+      if (tab === 'pinnwand' && $('notizen')) notizenZeichnen();
+    }
+
+    function muellHtml() {
+      if (!plan) return '';
+      const t = heute();
+      const naechster = Object.keys(plan.termine).find(d => d >= t);
+      if (!naechster) return `<div class="abschnitt"><h3>Müllabfuhr</h3><p class="leer">Der Abfuhrkalender für ${+plan.bis.slice(0, 4) + 1} fehlt noch.</p></div>`;
+      const n = abstand(t, naechster), arten = plan.termine[naechster];
+      const wann = n === 0 ? 'Heute' : n === 1 ? 'Morgen' : n === 2 ? 'Übermorgen' : `In ${n} Tagen`;
+      return `<div class="abschnitt" aria-label="Müllabfuhr">
+        <p class="wann ${n <= 1 ? 'bald' : ''}">${wann}</p>
+        <p class="datum-gross">${kurz(naechster)}</p>
+        <div class="strasse" aria-hidden="true"><div class="reihe">${arten.filter(a => a in FIGUR).map(figur).join('')}</div><div class="bordstein"></div></div>
+        <p class="was">${esc(liste(arten.map(a => plan.arten[a])))}</p>
+      </div>`;
+    }
+
+    function aufgabeZeile(t, mitHaken) {
+      return `<li class="zeile">
+        <button class="zeile-knopf" type="button" data-aufgabe="${t.id}" style="min-height:0;padding:0">
+          <span class="haupt-text"><span class="titel">${esc(t.title)}</span>
+          <span class="unter" style="display:block"><span>${faelligText(t)}</span><span>${regelText(t.rule)}</span></span>
+          <span class="unter" style="display:block">${werText(t)}${t.rule.reihum && t.people.length > 1 ? ' ist dran' : ''}</span></span>
+        </button>
+        ${mitHaken && t.due ? `<button class="knopf klein-knopf" type="button" data-erledigt="${t.id}" aria-label="${esc(t.title)} erledigt">Erledigt</button>` : ''}
+      </li>`;
+    }
+
+    function heuteHtml() {
+      const t = heute();
+      const me = ich();
+      const meine = S.tasks.filter(x => x.due && x.due <= t && zugewiesen(x).includes(S.me.id)).sort((a, b) => a.due.localeCompare(b.due));
+      const termine = [t, plus(t, 1)].flatMap(d => termineAm(d).map(ev => ({ ev, d })));
+      const notiz = [...S.notes].sort((a, b) => b.created - a.created)[0];
+      const offen = S.items.filter(i => !i.done).length;
+      return `<p class="klein" style="margin-top:24px">Hallo ${esc(me?.name || '')}, ${lang(t)}</p>
+        ${muellHtml()}
+        <div class="abschnitt"><h3>Für dich heute</h3>
+          ${meine.length ? `<ul class="zeilen">${meine.map(x => aufgabeZeile(x, true)).join('')}</ul>` : '<p class="leer">Nichts fällig.</p>'}</div>
+        <div class="abschnitt"><h3>Heute und morgen</h3>
+          ${termine.length ? `<ul class="zeilen">${termine.map(({ ev, d }) => terminZeile(ev, d, true)).join('')}</ul>` : '<p class="leer">Keine Termine.</p>'}</div>
+        <div class="abschnitt"><h3>Pinnwand</h3>
+          ${notiz ? `<div class="notiz"><p>${esc(notiz.text)}</p><div class="fuss"><span>${wer(notiz.by)}, ${wannGepostet(notiz.created)}</span></div></div>` : '<p class="leer">Keine Notizen.</p>'}</div>
+        <div class="abschnitt"><h3>Einkauf</h3>
+          <button class="zeile-knopf" type="button" data-gehe="einkauf"><span class="haupt-text"><span class="titel">${offen ? `${offen} ${offen === 1 ? 'Sache' : 'Sachen'} auf der Liste` : 'Die Liste ist leer'}</span></span></button></div>`;
+    }
+    function heuteBinden(root) {
+      root.querySelectorAll('[data-erledigt]').forEach(b => b.onclick = () => erledigen(b.dataset.erledigt));
+      root.querySelectorAll('[data-aufgabe]').forEach(b => b.onclick = () => aufgabeBlatt(S.tasks.find(x => x.id === b.dataset.aufgabe)));
+      root.querySelectorAll('[data-termin]').forEach(b => b.onclick = () => terminBlatt(S.events.find(x => x.id === b.dataset.termin)));
+      root.querySelectorAll('[data-gehe]').forEach(b => b.onclick = () => tabWechseln(b.dataset.gehe));
+    }
+
+    function wannGepostet(ms) {
+      const min = Math.round((Date.now() - ms) / 60000);
+      if (min < 1) return 'gerade eben';
+      if (min < 60) return `vor ${min} Min.`;
+      const d = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date(ms));
+      const uhr = new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' }).format(new Date(ms));
+      const n = abstand(d, heute());
+      return n === 0 ? `heute ${uhr}` : n === 1 ? `gestern ${uhr}` : `${kurz(d)} ${uhr}`;
+    }
+
+    async function erledigen(id) {
+      const t = S.tasks.find(x => x.id === id);
+      try {
+        await tun('POST', `/tasks/${id}/done`, {});
+        const neu = S.tasks.find(x => x.id === id);
+        const naechste = neu?.due ? `, nächstes Mal ${relativ(neu.due)}${neu.rule.reihum && neu.people.length > 1 ? ' ' + mitglied(zugewiesen(neu)[0]).name : ''}` : '';
+        melden(`${t?.title || 'Aufgabe'} erledigt${naechste}.`, { label: 'Rückgängig', fn: () => tun('POST', `/tasks/${id}/undo`, {}, 'Rückgängig gemacht.') });
+      } catch {}
+    }
+
+    function einkaufZeichnen() {
+      const offen = S.items.filter(i => !i.done).sort((a, b) => a.created - b.created);
+      const fertig = S.items.filter(i => i.done).sort((a, b) => b.updated - a.updated);
+      const zeile = i => `<li><div class="zeile ${i.done ? 'erledigt' : ''}">
+          <input class="haken" type="checkbox" id="i-${i.id}" data-item="${i.id}" ${i.done ? 'checked' : ''}>
+          <label class="haupt-text" for="i-${i.id}" style="cursor:pointer"><span class="titel" style="display:block">${esc(i.text)}</span>
+            <span class="unter" style="display:block">${i.done ? wer(i.doneBy) : wer(i.by)}</span></label>
+          <button class="weg" type="button" data-weg="${i.id}" aria-label="${esc(i.text)} löschen">×</button>
+        </div></li>`;
+      $('offen').innerHTML = offen.length ? offen.map(zeile).join('') : '<li class="leer">Alles da. Trag oben ein, was fehlt.</li>';
+      $('erledigt').innerHTML = fertig.map(zeile).join('');
+      $('erledigt-box').hidden = !fertig.length;
+      const namen = [...new Set(S.items.map(i => i.text))].slice(0, 200);
+      $('vorschlaege').innerHTML = namen.map(n => `<option value="${esc(n)}">`).join('');
+      document.querySelectorAll('[data-item]').forEach(c => c.onchange = async () => {
+        const i = S.items.find(x => x.id === c.dataset.item);
+        if (i) { i.done = c.checked; einkaufZeichnen(); }
+        try { await tun('PUT', '/items/' + c.dataset.item, { done: c.checked }); } catch { sync(); }
+      });
+      document.querySelectorAll('[data-weg]').forEach(b => b.onclick = async () => {
+        const i = S.items.find(x => x.id === b.dataset.weg);
+        await tun('DELETE', '/items/' + b.dataset.weg).catch(() => {});
+        if (i) melden(`${i.text} gelöscht.`, { label: 'Rückgängig', fn: () => tun('POST', '/items', { text: i.text }) });
+      });
+    }
+
+    function aufgabenZeichnen() {
+      const t = heute();
+      const aktiv = S.tasks.filter(x => x.due);
+      const faellig = aktiv.filter(x => x.due <= t).sort((a, b) => a.due.localeCompare(b.due));
+      const spaeter = aktiv.filter(x => x.due > t).sort((a, b) => a.due.localeCompare(b.due));
+      const fertig = S.tasks.filter(x => !x.due);
+      const block = (titel, a, haken) => a.length ? `<div class="abschnitt"><h3>${titel}</h3><ul class="zeilen">${a.map(x => aufgabeZeile(x, haken)).join('')}</ul></div>` : '';
+      $('aufgaben-liste').innerHTML = (S.tasks.length ? '' : '<p class="leer" style="margin-top:18px">Noch keine Aufgaben. Leg die erste an, zum Beispiel „Tonnen rausstellen“ reihum.</p>')
+        + block('Heute fällig', faellig, true) + block('Demnächst', spaeter, true) + block('Erledigt', fertig, false);
+      heuteBinden($('aufgaben-liste'));
+    }
+
+    function terminZeile(ev, d, mitTag) {
+      const leute = ev.people.length ? ev.people.map(wer).join('') : '<span class="wer">Alle</span>';
+      return `<li><button class="zeile-knopf" type="button" data-termin="${ev.id}">
+        <span class="zeit ${ev.time ? '' : 'ganz'}">${ev.time || 'ganztags'}</span>
+        <span class="haupt-text"><span class="titel" style="display:block">${esc(ev.title)}</span>
+        <span class="unter" style="display:block">${mitTag ? `<span>${relativ(d)}</span>` : ''}${leute}</span>${ev.note ? `<span class="unter" style="display:block">${esc(ev.note)}</span>` : ''}</span>
+      </button></li>`;
+    }
+
+    function kalenderZeichnen() {
+      const t = heute();
+      const [y, m] = monat.split('-').map(Number);
+      $('monat-titel').textContent = `${MON_LANG[m - 1]} ${y}`;
+      const erster = new Date(Date.UTC(y, m - 1, 1));
+      const start = plus(monat + '-01', -((erster.getUTCDay() + 6) % 7));
+      let html = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(w => `<span class="wt" aria-hidden="true">${w}</span>`).join('');
+      for (let i = 0; i < 42; i++) {
+        const d = plus(start, i);
+        if (i === 35 && d.slice(0, 7) !== monat) break;
+        const evs = termineAm(d).length, mu = muellZeigen ? muellAm(d).filter(a => a in FIGUR) : [];
+        const marken = [...Array(Math.min(evs, 2)).fill('<i></i>'), ...mu.slice(0, 3 - Math.min(evs, 2)).map(a => `<i style="--c:var(--${a})"></i>`)].join('');
+        const label = `${lang(d)}${evs ? `, ${evs} ${evs === 1 ? 'Termin' : 'Termine'}` : ''}`;
+        html += `<button type="button" class="tag ${d.slice(0, 7) !== monat ? 'anders' : ''} ${d === t ? 'heute' : ''}" data-tag="${d}" aria-pressed="${d === gewaehlt}" aria-label="${label}">
+          ${+d.slice(8)}<span class="marken" aria-hidden="true">${marken}</span></button>`;
+      }
+      $('monat').innerHTML = html;
+      $('monat').querySelectorAll('[data-tag]').forEach(b => b.onclick = () => { gewaehlt = b.dataset.tag; if (gewaehlt.slice(0, 7) !== monat) monat = gewaehlt.slice(0, 7); zeichnen(); });
+
+      let liste = '';
+      for (let i = 0; i < 21; i++) {
+        const d = plus(gewaehlt, i);
+        const evs = termineAm(d), mu = muellZeigen ? muellAm(d) : [];
+        if (!evs.length && !mu.length && i > 0) continue;
+        liste += `<h3 class="tagkopf">${kurz(d)}<span class="klein">${relativ(d) !== kurz(d) ? relativ(d) : ''}</span></h3><ul class="zeilen">`;
+        if (mu.length) liste += `<li><div class="zeile"><span class="zeit ganz">Müll</span><span class="haupt-text">${mu.map(a => `<span class="wer">${strich(a)}${esc(plan.arten[a])}</span>`).join('')}</span></div></li>`;
+        liste += evs.map(ev => terminZeile(ev, d, false)).join('');
+        if (!evs.length && !mu.length) liste += '<li class="leer">Nichts eingetragen.</li>';
+        liste += '</ul>';
+      }
+      $('termin-liste').innerHTML = liste;
+      heuteBinden($('termin-liste'));
+    }
+
+    function notizenZeichnen() {
+      const n = [...S.notes].sort((a, b) => b.created - a.created);
+      $('notizen').innerHTML = n.length ? n.map(x => `<div class="notiz"><p>${esc(x.text)}</p>
+        <div class="fuss"><span>${wer(x.by)}, ${wannGepostet(x.created)}${x.expires ? `, bis ${relativ(x.expires)}` : ''}</span>
+        <button class="textknopf" type="button" data-notiz-weg="${x.id}">Abnehmen</button></div></div>`).join('') : '<p class="leer">Noch nichts angeheftet.</p>';
+      document.querySelectorAll('[data-notiz-weg]').forEach(b => b.onclick = () => tun('DELETE', '/notes/' + b.dataset.notizWeg, null, 'Notiz abgenommen.').catch(() => {}));
+    }
+
+    const blatt = $('blatt');
+    function blattOeffnen(html, binden) {
+      $('blatt-innen').innerHTML = html;
+      blatt.classList.remove('zu');
+      if (!blatt.open) blatt.showModal();
+      blatt.querySelector('[data-zu]')?.addEventListener('click', blattSchliessen);
+      binden?.($('blatt-innen'));
+    }
+    function blattSchliessen() {
+      if (!blatt.open || blatt.classList.contains('zu')) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return blatt.close();
+      blatt.classList.add('zu');
+      blatt.addEventListener('animationend', () => { blatt.classList.remove('zu'); blatt.close(); }, { once: true });
+    }
+    blatt.addEventListener('cancel', e => { e.preventDefault(); blattSchliessen(); });
+    blatt.addEventListener('click', e => { if (e.target === blatt) blattSchliessen(); });
+    const blattKopf = (titel, rechts = 'Abbrechen') => `<div class="blatt-kopf"><h2 id="blatt-titel">${titel}</h2><button class="textknopf" type="button" data-zu>${rechts}</button></div>`;
+    const leuteChips = (name, gewaehlt) => `<div class="chips">${mitglieder().map(m => `<input type="checkbox" name="${name}" id="${name}-${m.id}" value="${m.id}" ${gewaehlt.includes(m.id) ? 'checked' : ''}><label for="${name}-${m.id}">${punkt(m.color)}${esc(m.name)}</label>`).join('')}</div>`;
+    const werte = (root, name) => [...root.querySelectorAll(`input[name="${name}"]:checked`)].map(i => i.value);
+    const uhrzeiten = (sel, mitLeer) => (mitLeer ? `<option value="" ${!sel ? 'selected' : ''}>Keine Erinnerung</option>` : '') + Array.from({ length: 76 }, (_, i) => {
+      const h = 5 + Math.floor(i / 4), m = ['00', '15', '30', '45'][i % 4], v = `${String(h).padStart(2, '0')}:${m}`;
+      return `<option value="${v}" ${v === sel ? 'selected' : ''}>${v}</option>`;
+    }).join('');
+
+    function aufgabeBlatt(t) {
+      const r = t?.rule || { t: 'woche', tage: [], reihum: false };
+      const hat = n => r.t === 'woche' && r.tage.includes(n);
+      blattOeffnen(`${blattKopf(t ? 'Aufgabe' : 'Neue Aufgabe')}
+        <form id="aufgabe-form">
+          <label class="feld"><span class="beschriftung">Was</span><input class="feld-text" name="title" maxlength="80" required value="${esc(t?.title || '')}" placeholder="Zum Beispiel: Spülmaschine ausräumen"></label>
+          <fieldset><legend>Wie oft</legend><div class="chips raster">
+            ${[['woche', 'An Wochentagen'], ['tage', 'Alle paar Tage'], ['tonnen', 'Vor der Müllabfuhr'], ['einmal', 'Einmal']].map(([v, l]) => `<input type="radio" name="art" id="art-${v}" value="${v}" ${r.t === v ? 'checked' : ''}><label for="art-${v}">${l}</label>`).join('')}
+          </div></fieldset>
+          <fieldset data-zeige="woche"><legend>An welchen Tagen</legend><div class="chips wochentage">
+            ${[1, 2, 3, 4, 5, 6, 0].map(n => `<input type="checkbox" name="tage" id="wt-${n}" value="${n}" ${hat(n) ? 'checked' : ''}><label for="wt-${n}">${WT[n]}</label>`).join('')}
+          </div></fieldset>
+          <label class="feld" data-zeige="tage"><span class="beschriftung">Alle wie viele Tage</span><input class="feld-text" type="number" name="n" min="1" max="365" inputmode="numeric" value="${r.t === 'tage' ? r.n : 3}"></label>
+          <label class="feld" data-zeige="tage einmal woche"><span class="beschriftung" data-art-text>Ab wann</span><input class="feld-text" type="date" name="start" value="${r.t === 'einmal' ? r.d : (t?.due || heute())}"></label>
+          <p class="klein" data-zeige="tonnen" style="margin-top:12px">Fällig ist sie jeweils am Abend vor einer Abholung von Hausmüll, Bio, Altpapier oder Gelbem Sack.</p>
+          <fieldset><legend>Wer</legend>${leuteChips('people', t?.people || [])}<p class="klein" style="margin-top:6px">Niemand ausgewählt heißt: alle.</p></fieldset>
+          <label class="schalter-zeile" style="margin-top:8px"><span class="name">Reihum wechseln</span><input class="schalter" type="checkbox" name="reihum" ${r.reihum ? 'checked' : ''}></label>
+          <label class="feld"><span class="beschriftung">Erinnerung am Fälligkeitstag</span><select class="feld-wahl" name="time">${uhrzeiten(t?.time || '', true)}</select></label>
+          <div class="abschluss"><p class="status" data-status role="status"></p><button class="haupt" type="submit">${t ? 'Speichern' : 'Aufgabe anlegen'}</button>
+          ${t ? '<div class="nebenknoepfe"><button class="textknopf gefahr" type="button" data-loeschen>Aufgabe löschen</button></div>' : ''}</div>
+        </form>`, root => {
+        const f = root.querySelector('form');
+        const umschalten = () => {
+          const art = f.art.value;
+          root.querySelectorAll('[data-zeige]').forEach(el => { el.hidden = !el.dataset.zeige.split(' ').includes(art); });
+          root.querySelector('[data-art-text]').textContent = art === 'einmal' ? 'Wann' : 'Ab wann';
+        };
+        f.querySelectorAll('input[name="art"]').forEach(i => i.onchange = umschalten);
+        umschalten();
+        f.onsubmit = async e => {
+          e.preventDefault();
+          const art = f.art.value;
+          const rule = art === 'woche' ? { t: 'woche', tage: werte(f, 'tage').map(Number) } : art === 'tage' ? { t: 'tage', n: +f.n.value } : art === 'einmal' ? { t: 'einmal', d: f.start.value } : { t: 'tonnen' };
+          rule.reihum = f.reihum.checked;
+          const daten = { title: f.title.value, rule, people: werte(f, 'people'), start: f.start.value, time: f.time.value };
+          try {
+            await api(t ? 'PUT' : 'POST', t ? '/tasks/' + t.id : '/tasks', daten);
+            blattSchliessen();
+            await sync();
+            melden(t ? 'Gespeichert.' : 'Aufgabe angelegt.');
+          } catch (err) { const s = root.querySelector('[data-status]'); s.textContent = err.message; s.className = 'status fehler'; }
+        };
+        root.querySelector('[data-loeschen]')?.addEventListener('click', async () => {
+          if (!confirm(`„${t.title}“ löschen?`)) return;
+          try { await api('DELETE', '/tasks/' + t.id); blattSchliessen(); await sync(); melden('Aufgabe gelöscht.'); } catch (err) { melden(err.message); }
+        });
+      });
+    }
+
+    function terminBlatt(ev, tag) {
+      const ganz = ev ? !ev.time : true;
+      const erinnerung = (g, v) => (g ? ERINNERN_GANZ : ERINNERN_ZEIT).map(([w, l]) => `<option value="${w}" ${String(v ?? '') === w ? 'selected' : ''}>${l}</option>`).join('');
+      blattOeffnen(`${blattKopf(ev ? 'Termin' : 'Neuer Termin')}
+        <form id="termin-form">
+          <label class="feld"><span class="beschriftung">Was</span><input class="feld-text" name="title" maxlength="80" required value="${esc(ev?.title || '')}" placeholder="Zum Beispiel: Zahnarzt"></label>
+          <label class="feld"><span class="beschriftung">Datum</span><input class="feld-text" type="date" name="date" required value="${ev?.date || tag || heute()}"></label>
+          <label class="schalter-zeile" style="margin-top:12px"><span class="name">Ganztägig</span><input class="schalter" type="checkbox" name="ganz" ${ganz ? 'checked' : ''}></label>
+          <label class="feld" data-uhr><span class="beschriftung">Uhrzeit</span><input class="feld-text" type="time" name="time" value="${ev?.time || '15:00'}"></label>
+          <fieldset><legend>Wer</legend>${leuteChips('people', ev?.people || [])}<p class="klein" style="margin-top:6px">Niemand ausgewählt heißt: alle.</p></fieldset>
+          <label class="feld"><span class="beschriftung">Erinnerung</span><select class="feld-wahl" name="remind">${erinnerung(ganz, ev ? ev.remind : (ganz ? 360 : 60))}</select></label>
+          <label class="schalter-zeile" style="margin-top:12px"><span class="name">Jedes Jahr, zum Beispiel Geburtstag</span><input class="schalter" type="checkbox" name="yearly" ${ev?.yearly ? 'checked' : ''}></label>
+          <label class="feld"><span class="beschriftung">Notiz</span><input class="feld-text" name="note" maxlength="300" value="${esc(ev?.note || '')}" placeholder="Optional"></label>
+          <div class="abschluss"><p class="status" data-status role="status"></p><button class="haupt" type="submit">${ev ? 'Speichern' : 'Termin anlegen'}</button>
+          ${ev ? '<div class="nebenknoepfe"><button class="textknopf gefahr" type="button" data-loeschen>Termin löschen</button></div>' : ''}</div>
+        </form>`, root => {
+        const f = root.querySelector('form');
+        const umschalten = () => {
+          root.querySelector('[data-uhr]').hidden = f.ganz.checked;
+          const alt = f.remind.value;
+          f.remind.innerHTML = erinnerung(f.ganz.checked, alt);
+          if (f.remind.value !== alt) f.remind.value = f.ganz.checked ? '360' : '60';
+        };
+        root.querySelector('[data-uhr]').hidden = f.ganz.checked;
+        f.ganz.onchange = umschalten;
+        f.onsubmit = async e => {
+          e.preventDefault();
+          const daten = { title: f.title.value, date: f.date.value, time: f.ganz.checked ? '' : f.time.value, people: werte(f, 'people'), remind: f.remind.value === '' ? null : +f.remind.value, yearly: f.yearly.checked, note: f.note.value };
+          try {
+            await api(ev ? 'PUT' : 'POST', ev ? '/events/' + ev.id : '/events', daten);
+            blattSchliessen();
+            const t0 = heute();
+            let ziel = daten.date;
+            if (daten.yearly) { ziel = t0.slice(0, 4) + daten.date.slice(4); if (ziel < t0) ziel = (+t0.slice(0, 4) + 1) + daten.date.slice(4); }
+            gewaehlt = ziel; monat = ziel.slice(0, 7);
+            await sync();
+            melden(ev ? 'Gespeichert.' : 'Termin angelegt.');
+          } catch (err) { const s = root.querySelector('[data-status]'); s.textContent = err.message; s.className = 'status fehler'; }
+        };
+        root.querySelector('[data-loeschen]')?.addEventListener('click', async () => {
+          if (!confirm(`„${ev.title}“ löschen?`)) return;
+          try { await api('DELETE', '/events/' + ev.id); blattSchliessen(); await sync(); melden('Termin gelöscht.'); } catch (err) { melden(err.message); }
+        });
+      });
+    }
+
+    const STANDARD_PUSH = { aufgaben: true, kalender: true, pinnwand: true, tonnen: { on: true, days: 1, time: '19:00', types: ['rest', 'bio', 'papier', 'gelb', 'gruen', 'baum'] } };
+    function pushHinweis() {
+      const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const app = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+      if (!('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window)) {
+        return ios && !app ? 'Auf dem iPhone und iPad kommen Mitteilungen nur, wenn Zuhause auf dem Home-Bildschirm liegt: in Safari auf Teilen, dann „Zum Home-Bildschirm“, und die App von dort öffnen.' : 'Dieser Browser kann keine Mitteilungen empfangen.';
+      }
+      if (Notification.permission === 'denied') return 'Mitteilungen sind für Zuhause blockiert. Erlaube sie in den Einstellungen deines Geräts.';
+      return '';
+    }
+    const schluessel = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0));
+
+    function einstellungenBlatt() {
+      const me = ich();
+      const p = speicher.get('push', STANDARD_PUSH);
+      const h = pushHinweis();
+      const tageWahl = [[0, 'Am Abholtag'], [1, '1 Tag vorher'], [2, '2 Tage vorher'], [3, '3 Tage vorher']];
+      const admin = S.me.admin;
+      blattOeffnen(`${blattKopf('Einstellungen', 'Fertig')}
+        <div class="abschnitt" style="margin-top:20px"><h3>Du</h3>
+          <p style="font-size:var(--gr-titel);font-weight:600">${wer(me.id)}</p>
+          <div class="nebenknoepfe" style="justify-content:flex-start"><button class="textknopf" type="button" data-geraet="${me.id}">Weiteres Gerät verbinden</button></div>
+          <div data-geraetecode></div></div>
+
+        <form class="abschnitt" id="push-form"><h3>Mitteilungen auf diesem Gerät</h3>
+          ${h ? `<p class="hinweis">${esc(h)}</p>` : ''}
+          <ul class="schalter-liste">
+            ${[['aufgaben', 'Aufgaben, wenn ich dran bin'], ['kalender', 'Termine'], ['pinnwand', 'Notizen an alle']].map(([k, l]) => `<li><label class="schalter-zeile"><span class="name">${l}</span><input class="schalter" type="checkbox" name="${k}" ${p[k] ? 'checked' : ''}></label></li>`).join('')}
+            <li><label class="schalter-zeile"><span class="name">Müllabfuhr</span><input class="schalter" type="checkbox" name="tonnen" ${p.tonnen.on ? 'checked' : ''}></label></li>
+          </ul>
+          <div data-tonnen>
+            <fieldset><legend>Wann</legend><div class="chips raster">${tageWahl.map(([v, l]) => `<input type="radio" name="days" id="d-${v}" value="${v}" ${p.tonnen.days === v ? 'checked' : ''}><label for="d-${v}">${l}</label>`).join('')}</div></fieldset>
+            <label class="feld"><span class="beschriftung">Uhrzeit</span><select class="feld-wahl" name="time">${uhrzeiten(p.tonnen.time, false)}</select></label>
+            <fieldset><legend>Wofür</legend><div class="chips">${plan ? Object.entries(plan.arten).map(([k, n]) => `<input type="checkbox" name="types" id="ty-${k}" value="${k}" ${p.tonnen.types.includes(k) ? 'checked' : ''}><label for="ty-${k}">${strich(k)}${esc(n)}</label>`).join('') : ''}</div></fieldset>
+          </div>
+          <p class="status" data-push-status role="status" style="margin-top:16px"></p>
+          <button class="haupt" type="submit" ${h ? 'disabled' : ''}>${abo ? 'Mitteilungen speichern' : 'Mitteilungen einschalten'}</button>
+          <div class="nebenknoepfe" ${abo ? '' : 'hidden'} data-push-neben><button class="textknopf" type="button" data-test>Test-Mitteilung schicken</button><button class="textknopf" type="button" data-push-aus>Mitteilungen ausschalten</button></div>
+        </form>
+
+        ${admin ? `<div class="abschnitt"><h3>Familie</h3>
+          <ul class="zeilen">${mitglieder().map(m => `<li><div class="zeile"><span class="haupt-text"><span class="titel" style="display:block">${wer(m.id)}${m.admin ? ' <span class="klein">(Verwalter)</span>' : ''}</span></span>
+            <button class="knopf klein-knopf" type="button" data-bearbeiten="${m.id}">Bearbeiten</button></div></li>`).join('')}</ul>
+          <p class="beschriftung" style="margin-top:20px">Einladung</p>
+          <p>Wer diesen Link öffnet, kann beitreten.</p>
+          <p class="code">${esc((S.invite || '').replace(/(.{4})/, '$1-'))}</p>
+          <div class="nebenknoepfe" style="justify-content:flex-start;gap:4px 20px"><button class="textknopf" type="button" data-teilen>Einladung teilen</button><button class="textknopf" type="button" data-neu-einladung>Neuen Link erzeugen</button></div>
+        </div>` : ''}
+
+        <div class="abschluss"><div class="nebenknoepfe"><button class="textknopf gefahr" type="button" data-abmelden>Dieses Gerät abmelden</button></div></div>`, root => {
+        const f = root.querySelector('#push-form');
+        const tonnenZeigen = () => { root.querySelector('[data-tonnen]').hidden = !f.tonnen.checked; };
+        f.tonnen.onchange = tonnenZeigen;
+        tonnenZeigen();
+        const status = (t, fehler) => { const s = root.querySelector('[data-push-status]'); s.textContent = t; s.className = fehler ? 'status fehler' : 'status'; };
+        f.onsubmit = async e => {
+          e.preventDefault();
+          const prefs = { aufgaben: f.aufgaben.checked, kalender: f.kalender.checked, pinnwand: f.pinnwand.checked,
+            tonnen: { on: f.tonnen.checked, days: +(f.days.value || 1), time: f.time.value, types: werte(f, 'types') } };
+          const erlaubnis = await Notification.requestPermission();
+          if (erlaubnis !== 'granted') return status(erlaubnis === 'denied' ? 'Mitteilungen sind blockiert. Erlaube sie in den Einstellungen deines Geräts.' : 'Ohne Erlaubnis für Mitteilungen geht es nicht.', true);
+          const knopf = f.querySelector('.haupt');
+          knopf.disabled = true;
+          try {
+            if (!abo) {
+              const { key } = await fetch(API.replace(/\/f$/, '') + '/key').then(r => r.json());
+              abo = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: schluessel(key) });
+            }
+            await api('PUT', '/device', { sub: abo.toJSON(), prefs });
+            speicher.set('push', prefs);
+            knopf.textContent = 'Mitteilungen speichern';
+            root.querySelector('[data-push-neben]').hidden = false;
+            status('Gespeichert.');
+          } catch (err) { status(err.message || 'Das hat nicht geklappt.', true); }
+          finally { knopf.disabled = false; }
+        };
+        root.querySelector('[data-test]').onclick = async e => {
+          const b = e.target;
+          try { b.disabled = true; await api('POST', '/device/test', { endpoint: abo.endpoint }); b.textContent = 'Gesendet'; setTimeout(() => { b.textContent = 'Test-Mitteilung schicken'; b.disabled = false; }, 2500); }
+          catch (err) { b.disabled = false; status(err.message, true); }
+        };
+        root.querySelector('[data-push-aus]').onclick = async () => {
+          try { await api('DELETE', '/device', { endpoint: abo.endpoint }); await abo.unsubscribe(); abo = null; root.querySelector('[data-push-neben]').hidden = true; f.querySelector('.haupt').textContent = 'Mitteilungen einschalten'; status('Mitteilungen sind aus.'); }
+          catch (err) { status(err.message, true); }
+        };
+        root.querySelectorAll('[data-geraet]').forEach(b => b.onclick = async () => {
+          try {
+            const r = await api('POST', '/link', { member: b.dataset.geraet });
+            const ziel = root.querySelector('[data-geraetecode]') || b.closest('.blatt-innen').querySelector('[data-geraetecode]');
+            ziel.innerHTML = `<p class="hinweis">Öffne Zuhause auf dem anderen Gerät, tippe auf „Ich habe einen Gerätecode“ und gib ein:<span class="code" style="display:block">${esc(r.code.replace(/(.{4})/, '$1-'))}</span>Der Code gilt ${r.minutes} Minuten und nur einmal.</p>`;
+          } catch (err) { melden(err.message); }
+        });
+        root.querySelectorAll('[data-bearbeiten]').forEach(b => b.onclick = () => mitgliedBlatt(mitglied(b.dataset.bearbeiten)));
+        root.querySelector('[data-teilen]')?.addEventListener('click', () => einladungTeilen());
+        root.querySelector('[data-neu-einladung]')?.addEventListener('click', async () => {
+          if (!confirm('Neuen Einladungslink erzeugen? Der alte funktioniert dann nicht mehr. Wer schon drin ist, bleibt drin.')) return;
+          try { await api('POST', '/invite', {}); await sync(); einstellungenBlatt(); melden('Neuer Link erzeugt.'); } catch (err) { melden(err.message); }
+        });
+        root.querySelector('[data-abmelden]').onclick = async () => {
+          if (!confirm('Dieses Gerät abmelden? Du brauchst danach einen Gerätecode oder die Einladung, um wieder reinzukommen.')) return;
+          try { if (abo) { await api('DELETE', '/device', { endpoint: abo.endpoint }).catch(() => {}); await abo.unsubscribe().catch(() => {}); abo = null; } await api('POST', '/logout', {}); } catch {}
+          blattSchliessen();
+          abmeldenLokal('Du bist abgemeldet.');
+        };
+      });
+    }
+
+    function einladungsLink() { return `${location.origin}${location.pathname}#code=${S.invite}`; }
+    async function einladungTeilen() {
+      const text = `Tritt unserer Familien-App bei: ${einladungsLink()}\nCode: ${S.invite.replace(/(.{4})/, '$1-')}`;
+      try {
+        if (navigator.share) return await navigator.share({ title: 'Zuhause', text });
+        await navigator.clipboard.writeText(text);
+        melden('Einladung kopiert.');
+      } catch (e) { if (e?.name !== 'AbortError') melden('Teilen hat nicht geklappt. Schick den Code von Hand.'); }
+    }
+
+    function farbWahl(aktuell) {
+      return `<div class="chips farben">${Object.entries(FARBEN).map(([k, n]) => `<input type="radio" name="color" id="fa-${k}" value="${k}" aria-label="${n}" ${k === aktuell ? 'checked' : ''}><label for="fa-${k}" title="${n}">${punkt(k)}</label>`).join('')}</div>`;
+    }
+
+    function mitgliedBlatt(m) {
+      blattOeffnen(`${blattKopf('Mitglied', 'Zurück')}
+        <form>
+          <label class="feld"><span class="beschriftung">Name</span><input class="feld-text" name="name" maxlength="24" required value="${esc(m.name)}"></label>
+          <fieldset><legend>Farbe</legend>${farbWahl(m.color)}</fieldset>
+          <div class="abschnitt"><button class="textknopf" type="button" data-geraet="${m.id}">Gerätecode für ${esc(m.name)} erzeugen</button><div data-geraetecode></div></div>
+          <div class="abschluss"><p class="status" data-status role="status"></p><button class="haupt" type="submit">Speichern</button>
+          ${m.id !== S.me.id ? `<div class="nebenknoepfe"><button class="textknopf gefahr" type="button" data-entfernen>${esc(m.name)} entfernen</button></div>` : ''}</div>
+        </form>`, root => {
+        const f = root.querySelector('form');
+        root.querySelector('[data-zu]').onclick = () => einstellungenBlatt();
+        root.querySelectorAll('[data-geraet]').forEach(b => b.onclick = async () => {
+          try { const r = await api('POST', '/link', { member: m.id }); root.querySelector('[data-geraetecode]').innerHTML = `<p class="hinweis">Code für ${esc(m.name)}:<span class="code" style="display:block">${esc(r.code.replace(/(.{4})/, '$1-'))}</span>Gilt ${r.minutes} Minuten und nur einmal. Eintippen unter „Ich habe einen Gerätecode“.</p>`; }
+          catch (err) { melden(err.message); }
+        });
+        f.onsubmit = async e => {
+          e.preventDefault();
+          try { await api('PUT', '/members/' + m.id, { name: f.name.value, color: f.color.value }); await sync(); einstellungenBlatt(); melden('Gespeichert.'); }
+          catch (err) { const s = root.querySelector('[data-status]'); s.textContent = err.message; s.className = 'status fehler'; }
+        };
+        root.querySelector('[data-entfernen]')?.addEventListener('click', async () => {
+          if (!confirm(`${m.name} aus der Familie entfernen? Alle Geräte von ${m.name} werden abgemeldet.`)) return;
+          try { await api('DELETE', '/members/' + m.id); await sync(); einstellungenBlatt(); melden(`${m.name} entfernt.`); } catch (err) { melden(err.message); }
+        });
+      });
+    }
+
+    function codeAusLink() {
+      const m = location.hash.match(/code=([A-Za-z0-9-]+)/);
+      return m ? m[1].toUpperCase() : '';
+    }
+
+    async function gastZeigen(grund) {
+      $('app').hidden = true;
+      const g = $('gast');
+      g.hidden = false;
+      const code = codeAusLink();
+      const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const app = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+      let status = null;
+      try { status = await fetch(API + '/status').then(r => r.json()); } catch {}
+      if (status?.setup) {
+        g.innerHTML = `<h1>Zuhause einrichten</h1>
+          <p class="lead">Du legst die Familie an und bist danach der Verwalter. Andere lädst du anschließend mit einem Link ein.</p>
+          <form id="gast-form">
+            <label class="feld"><span class="beschriftung">Dein Name</span><input class="feld-text" name="name" maxlength="24" required autocomplete="given-name"></label>
+            <fieldset><legend>Deine Farbe</legend>${farbWahl('petrol')}</fieldset>
+            <p class="status" data-status role="status" style="margin-top:20px"></p>
+            <button class="haupt" type="submit">Familie anlegen</button>
+          </form>`;
+        return gastFormular('/setup');
+      }
+      const iosHinweis = ios && !app && code ? `<div class="hinweis"><p style="font-weight:600">Auf dem iPhone zuerst auf den Home-Bildschirm legen</p>
+        <ol class="schritte"><li>Unten in Safari auf Teilen tippen, dann „Zum Home-Bildschirm“.</li><li>Zuhause vom Home-Bildschirm öffnen.</li><li>Dort diesen Code eingeben:</li></ol>
+        <p class="code">${esc(code.replace(/-/g, '').replace(/(.{4})/, '$1-'))}</p>
+        <p class="klein">Sonst kommen keine Mitteilungen an. Du kannst auch gleich hier im Browser beitreten.</p></div>` : '';
+      g.innerHTML = `<h1>Zuhause</h1>
+        ${grund ? `<p class="hinweis">${esc(grund)}</p>` : ''}
+        <p class="lead">Einkauf, Aufgaben, Kalender und Pinnwand für die Familie.</p>
+        ${iosHinweis}
+        <form id="gast-form">
+          <label class="feld"><span class="beschriftung">Einladungscode</span><input class="feld-text" name="code" maxlength="9" required autocapitalize="characters" autocomplete="off" spellcheck="false" value="${esc(code)}" placeholder="ABCD-EFGH"></label>
+          <label class="feld"><span class="beschriftung">Dein Name</span><input class="feld-text" name="name" maxlength="24" required autocomplete="given-name"></label>
+          <fieldset><legend>Deine Farbe</legend>${farbWahl('himmel')}</fieldset>
+          <p class="status" data-status role="status" style="margin-top:20px"></p>
+          <button class="haupt" type="submit">Beitreten</button>
+        </form>
+        <div class="abschnitt"><button class="textknopf" type="button" id="geraetecode">Ich habe einen Gerätecode</button></div>`;
+      gastFormular('/join');
+      $('geraetecode').onclick = () => {
+        g.querySelector('#gast-form').outerHTML = `<form id="gast-form">
+          <label class="feld"><span class="beschriftung">Gerätecode</span><input class="feld-text" name="code" maxlength="9" required autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABCD-EFGH"></label>
+          <p class="klein" style="margin-top:8px">Den Code zeigt ein angemeldetes Gerät unter Einstellungen, „Weiteres Gerät verbinden“.</p>
+          <p class="status" data-status role="status" style="margin-top:20px"></p>
+          <button class="haupt" type="submit">Gerät verbinden</button></form>`;
+        $('geraetecode').hidden = true;
+        gastFormular('/connect');
+      };
+    }
+    function gastFormular(pfad) {
+      const f = $('gast-form');
+      f.onsubmit = async e => {
+        e.preventDefault();
+        const knopf = f.querySelector('.haupt');
+        const s = f.querySelector('[data-status]');
+        knopf.disabled = true;
+        try {
+          const daten = { code: f.code?.value, name: f.name?.value, color: f.color?.value };
+          const r = await api('POST', pfad, daten);
+          token = r.token;
+          speicher.set('token', token);
+          history.replaceState(null, '', location.pathname);
+          S = structuredClone(LEER);
+          await appStarten();
+        } catch (err) { s.textContent = err.message; s.className = 'status fehler'; }
+        finally { knopf.disabled = false; }
+      };
+    }
+
+    async function appStarten() {
+      $('gast').hidden = true;
+      $('app').hidden = false;
+      gerueste();
+      zeichnen();
+      await sync();
+      gerueste();
+      zeichnen();
+      if (S.me?.admin && mitglieder().length === 1 && !speicher.get('eingeladen', false)) {
+        speicher.set('eingeladen', true);
+        melden('Lade jetzt die Familie ein.', { label: 'Einladen', fn: einstellungenBlatt });
+      }
+    }
+
+    document.querySelectorAll('.leiste button').forEach(b => b.addEventListener('click', () => tabWechseln(b.dataset.tab)));
+    $('einstellungen-oeffnen').addEventListener('click', async () => { await sync(); einstellungenBlatt(); });
+    matchMedia('(min-width: 960px)').addEventListener('change', () => { gerueste(); zeichnen(); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { sync(); zeichnen(); } });
+    setInterval(() => { if (!document.hidden && !blatt.open) sync(); }, 8000);
+
+    (async () => {
+      try { plan = await (await fetch(MUELL, { cache: 'no-cache' })).json(); } catch {}
+      if ('serviceWorker' in navigator) {
+        try {
+          reg = await navigator.serviceWorker.register('sw.js', { scope: './' });
+          await navigator.serviceWorker.ready;
+          abo = reg.pushManager ? await reg.pushManager.getSubscription() : null;
+        } catch {}
+      }
+      if (token && !codeAusLink()) appStarten();
+      else if (token && codeAusLink()) { history.replaceState(null, '', location.pathname); appStarten(); }
+      else gastZeigen();
+    })();
+  </script>
+</body>
+</html>

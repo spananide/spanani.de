@@ -6,6 +6,10 @@ Ein Cron läuft alle 15 Minuten und schickt fällige Erinnerungen per Web Push (
 
 ## Einmalig einrichten
 
+Am einfachsten über GitHub Actions (`.github/workflows/tonne-push.yml`): In den Repository-Secrets `CLOUDFLARE_API_TOKEN` (Vorlage „Edit Cloudflare Workers“ plus D1: Edit) und `CLOUDFLARE_ACCOUNT_ID` hinterlegen, dann den Workflow starten. Er legt Datenbank und VAPID-Schlüssel beim ersten Lauf selbst an und deployt danach bei jeder Änderung an Worker oder Terminen.
+
+Von Hand:
+
 ```sh
 cd workers/tonne-push
 npx wrangler d1 create tonne-push-db        # database_id in wrangler.jsonc eintragen

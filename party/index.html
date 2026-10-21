@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Daumenduell: Partyspiele für 1 bis 4 auf einem Handy — spanani</title>
+  <meta name="description" content="Sieben kleine Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt eine Ecke des Bildschirms und braucht nur einen Finger. Läuft im Browser, ohne Anmeldung.">
+  <link rel="canonical" href="https://spanani.de/party/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="spanani">
+  <meta property="og:url" content="https://spanani.de/party/">
+  <meta property="og:title" content="Daumenduell: Partyspiele für 1 bis 4 auf einem Handy — spanani">
+  <meta property="og:description" content="Sieben kleine Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt eine Ecke des Bildschirms und braucht nur einen Finger.">
+  <meta property="og:image" content="https://spanani.de/assets/img/og/default.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="spanani: websites, Discord bots and Minecraft mods">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f4f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#16121d" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preload" href="/assets/fonts/bricolage-grotesque-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/atkinson-next-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/atkinson-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/design-system.css">
+  <script src="/assets/js/site.js" defer></script>
+  <script>
+    if (window.location.pathname.endsWith('/index.html')) {
+      const cleanPath = window.location.pathname.replace(/index\.html$/, '');
+      window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+    }
+  </script>
+  <style>
+    :root {
+      --p1: #b892f2;
+      --p2: #ff9f43;
+      --p3: #3dd6c6;
+      --p4: #f5d04c;
+      --on-player: var(--paper);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --p1: #661bbb;
+        --p2: #b45309;
+        --p3: #0f766e;
+        --p4: #8a6d00;
+        --on-player: #ffffff;
+      }
+    }
+
+    .party-head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: clamp(32px, 6vw, 88px); align-items: start; }
+    .party-head h1 { margin-bottom: var(--space-5); }
+    .party-head .lead { margin-bottom: var(--space-6); }
+
+    .setup { display: grid; gap: var(--space-5); margin-bottom: var(--space-6); }
+    .setup fieldset { border: 0; min-width: 0; }
+    .setup legend { font-weight: 700; margin-bottom: var(--space-3); }
+    .seg { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .seg label { position: relative; cursor: pointer; }
+    .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+    .seg span {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      min-height: 48px;
+      min-width: 56px;
+      justify-content: center;
+      padding: 10px 16px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--ink-soft);
+      transition: color var(--dur-fast), border-color var(--dur-fast), background-color var(--dur-fast);
+    }
+    .seg label:hover span { color: var(--ink); border-color: var(--ink-soft); }
+    .seg input:checked + span { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
+    .seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .seg-note { font-size: var(--fs-sm); color: var(--ink-faint); margin-top: var(--space-2); }
+    .points-field[hidden] { display: none; }
+
+    .seats-figure { position: sticky; top: calc(var(--nav-h) + var(--space-5)); }
+    .seats {
+      width: min(100%, 240px);
+      aspect-ratio: 9 / 16;
+      padding: 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-lg);
+      background: var(--paper-sunk);
+    }
+    .seats .grid { width: 100%; height: 100%; border-radius: var(--radius-sm); overflow: hidden; }
+    .seats .zone-inner { justify-content: center; align-items: center; }
+    .seat-num { font-family: var(--font-display); font-size: 2rem; font-weight: 760; color: var(--pc); line-height: 1; }
+    .seats figcaption, .seats-figure figcaption { margin-top: var(--space-4); font-size: var(--fs-sm); color: var(--ink-soft); max-width: 30ch; }
+
+    .grid { display: grid; gap: 2px; background: var(--paper-sunk); }
+    .grid[data-players="1"] { grid-template: "a" 1fr / 1fr; }
+    .grid[data-players="2"] { grid-template: "b" var(--fb, 1fr) "a" var(--fa, 1fr) / 1fr; transition: grid-template-rows var(--dur) var(--ease); }
+    .grid[data-players="3"] { grid-template: "c c" 1fr "a b" 1fr / 1fr 1fr; }
+    .grid[data-players="4"] { grid-template: "d c" 1fr "a b" 1fr / 1fr 1fr; }
+    .zone { --pc: var(--p1); position: relative; min-width: 0; min-height: 0; overflow: hidden; background: color-mix(in srgb, var(--pc) 14%, var(--paper)); color: var(--ink); }
+    .zone[data-p="0"] { grid-area: a; }
+    .zone[data-p="1"] { grid-area: b; --pc: var(--p2); }
+    .zone[data-p="2"] { grid-area: c; --pc: var(--p3); }
+    .zone[data-p="3"] { grid-area: d; --pc: var(--p4); }
+    .zone-inner { position: absolute; inset: 0; display: flex; flex-direction: column; container-type: size; }
+    .grid[data-players="2"] .zone[data-p="1"] .zone-inner,
+    .grid[data-players="3"] .zone[data-p="2"] .zone-inner,
+    .grid[data-players="4"] .zone[data-p="2"] .zone-inner,
+    .grid[data-players="4"] .zone[data-p="3"] .zone-inner { transform: rotate(180deg); }
+
+    .party-games { padding-bottom: var(--section-y); }
+    .party-games h2 { margin-bottom: var(--space-5); }
+    .game-list { border-top: 1px solid var(--line); }
+    .game-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3) var(--space-6); align-items: center; padding-block: var(--space-5); border-bottom: 1px solid var(--line); }
+    .game-row h3 { margin-bottom: var(--space-2); }
+    .game-row p { color: var(--ink-soft); }
+    .game-row .game-who { font-size: var(--fs-sm); color: var(--ink-faint); margin-top: var(--space-2); }
+    .keys-note { margin-top: var(--space-6); color: var(--ink-soft); }
+    kbd { font-family: var(--font-mono); font-size: 0.9em; font-weight: 700; padding: 1px 7px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: var(--radius-sm); color: var(--ink); }
+
+    .arena { position: fixed; inset: 0; z-index: 200; height: 100vh; height: 100dvh; background: var(--paper-sunk); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+    .arena[hidden] { display: none; }
+    .arena .grid { position: absolute; inset: 0; }
+    .arena .zone { cursor: pointer; transition: background-color var(--dur-fast); }
+    .arena .zone-inner { padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); gap: var(--space-2); }
+    .zone-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); font-weight: 700; }
+    .zone-name { color: var(--pc); }
+    .zone-score { font-family: var(--font-display); font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+    .zone-stage { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: var(--space-3); }
+    .zone-big { font-family: var(--font-display); font-weight: 760; letter-spacing: -0.02em; line-height: var(--lh-head); font-size: min(24cqmin, 7rem); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .zone-big.is-long { font-size: min(11cqmin, 3.5rem); }
+    .zone-small { max-width: 30ch; color: var(--ink-soft); font-size: clamp(0.875rem, 4.5cqmin, 1.125rem); }
+    .zone-small:empty, .zone-big:empty { display: none; }
+    .zone-hint { min-height: 1.6em; text-align: center; font-weight: 700; color: var(--ink-soft); }
+    .zone-bar { width: min(100%, 360px); height: 10px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--pc) 22%, var(--paper)); overflow: hidden; }
+    .zone-bar[hidden] { display: none; }
+    .zone-bar i { display: block; height: 100%; width: 100%; background: var(--pc); transform-origin: left; transform: scaleX(0); }
+    .zone-extra { width: 100%; display: flex; justify-content: center; }
+    .zone-extra:empty { display: none; }
+
+    .zone.is-tap { animation: zone-tap 160ms var(--ease-out); }
+    @keyframes zone-tap { from { background-color: color-mix(in srgb, var(--pc) 34%, var(--paper)); } }
+    .zone.is-ready .zone-hint { color: var(--pc); }
+    .zone.is-out { background: var(--paper); }
+    .zone.is-out .zone-stage { opacity: 0.6; }
+    .zone.is-go { background: var(--ink); color: var(--paper); }
+    .zone.is-go .zone-small, .zone.is-go .zone-hint { color: var(--paper); }
+    .zone.is-win { background: var(--pc); color: var(--on-player); }
+    .zone.is-win .zone-name, .zone.is-win .zone-small, .zone.is-win .zone-hint { color: var(--on-player); }
+    .zone.is-hot { background: color-mix(in srgb, var(--pc) 42%, var(--paper)); }
+
+    .bomb { width: min(34cqmin, 140px); height: auto; color: var(--ink); animation: bomb-tick var(--tick, 900ms) ease-in-out infinite; }
+    .bomb .spark { fill: var(--p2); }
+    @keyframes bomb-tick { 50% { transform: scale(1.08); } }
+
+    .track { position: relative; width: min(100%, 420px); height: 56px; border-radius: var(--radius-sm); background: var(--paper); border: 1px solid var(--line-strong); overflow: hidden; }
+    .track-win { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--pc) 45%, var(--paper)); }
+    .track-mark { position: absolute; top: 0; bottom: 0; width: 4px; margin-left: -2px; background: var(--ink); }
+    .track.is-hit .track-win { background: var(--pc); }
+
+    .arena-pause { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; min-height: 44px; min-width: 44px; padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--line-strong); background: var(--paper-raised); color: var(--ink); font-weight: 700; cursor: pointer; }
+    .arena-pause:hover { border-color: var(--ink); }
+    .arena-pause:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+    .arena[data-players="1"] .arena-pause { left: auto; top: max(12px, env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); transform: none; }
+    .arena[data-players="1"] .zone-top { padding-right: 96px; }
+
+    .arena-panel { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; padding: 16px; background: var(--scrim); }
+    .arena-panel[hidden] { display: none; }
+    .panel-box { width: min(100%, 400px); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--paper-raised); box-shadow: var(--shadow-lg); }
+    .panel-box h2 { font-size: var(--fs-h3); margin-bottom: var(--space-3); }
+    .panel-box p { color: var(--ink-soft); margin-bottom: var(--space-4); }
+    .panel-scores { margin-bottom: var(--space-5); border-top: 1px solid var(--line); }
+    .panel-scores li { display: flex; justify-content: space-between; padding-block: var(--space-2); border-bottom: 1px solid var(--line); }
+    .panel-scores li span:first-child { color: var(--pc); font-weight: 700; }
+    .panel-scores li span:last-child { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .panel-box .actions { margin: 0; }
+
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+    html.is-playing { overflow: hidden; scrollbar-gutter: auto; }
+
+    @media (orientation: landscape) {
+      .arena .grid[data-players="2"] { grid-template: "a b" 1fr / var(--fa, 1fr) var(--fb, 1fr); transition: grid-template-columns var(--dur) var(--ease); }
+      .arena .grid[data-players="3"] { grid-template: "a b c" 1fr / 1fr 1fr 1fr; }
+      .arena .grid[data-players="4"] { grid-template: "a b" 1fr "d c" 1fr / 1fr 1fr; }
+      .arena .grid[data-players] .zone[data-p] .zone-inner { transform: none; }
+    }
+    @media (max-width: 760px) {
+      .party-head { grid-template-columns: 1fr; }
+      .seats-figure { position: static; display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: var(--space-4); align-items: center; }
+      .seats { width: 120px; padding: 6px; }
+      .seat-num { font-size: 1.25rem; }
+      .seats-figure figcaption { margin-top: 0; }
+      .game-row { grid-template-columns: 1fr; }
+      .game-row .btn { justify-self: start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bomb, .zone.is-tap { animation: none; }
+      .grid[data-players="2"], .arena .grid[data-players="2"] { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <header class="site-nav">
+    <div class="nav-inner">
+      <a href="/" class="brand"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><g transform="translate(3.4,3.7) scale(0.065)"><path fill="var(--brand)" fill-rule="evenodd" d="M 1 85.550 L 1 170.099 45.414 214.800 C 69.842 239.385, 90.098 259.768, 90.427 260.096 C 90.756 260.424, 81.124 270.774, 69.022 283.096 L 47.018 305.500 47.009 280.992 L 47 256.484 24 233.500 L 1 210.516 1 294.758 L 1 379 19.307 379 L 37.614 379 151.751 264.689 L 265.888 150.377 301.150 185.650 C 320.544 205.049, 336.206 221.134, 335.956 221.392 C 326.956 230.678, 284.700 273.491, 245.042 313.506 C 216.694 342.109, 190.474 368.659, 186.775 372.506 L 180.050 379.500 267.275 379.273 C 315.249 379.148, 362.038 379.035, 371.250 379.023 L 388 379 388 293.837 L 388 208.674 343.422 163.821 C 318.904 139.152, 298.992 118.563, 299.172 118.068 C 299.585 116.936, 340.785 75, 341.485 75 C 341.768 75, 342 85.628, 342 98.618 L 342 122.236 364.154 144.868 C 376.339 157.316, 386.689 167.650, 387.154 167.833 C 387.619 168.017, 388 130.554, 388 84.583 L 388 1 317.242 1 L 246.484 1 223.500 24 L 200.516 47 252.770 47 L 305.025 47 214.262 137.469 L 123.500 227.937 88.250 192.724 C 68.862 173.357, 53 157.237, 53 156.902 C 53 156.567, 86.862 122.187, 128.250 80.501 C 169.637 38.816, 204.088 3.875, 204.807 2.855 C 206.077 1.052, 203.240 1, 103.557 1 L 1 1 1 85.550 M 47.005 72.750 L 47.010 98.500 64.518 81 C 74.148 71.375, 85.430 59.788, 89.589 55.250 L 97.151 47 72.075 47 L 47 47 47.005 72.750 M 156.027 91.750 C 149.844 98.213, 132.798 115.538, 118.148 130.252 L 91.511 157.003 107.525 173.018 L 123.540 189.032 177.520 134.966 C 207.209 105.229, 231.687 80.697, 231.917 80.450 C 232.146 80.202, 217.694 80, 199.802 80 L 167.270 80 156.027 91.750 M 210.855 244.332 L 157.210 298.500 188.855 298.791 L 220.500 299.081 258.680 260.291 L 296.859 221.500 281.191 205.750 C 272.574 197.088, 265.293 190.037, 265.012 190.082 C 264.730 190.127, 240.360 214.539, 210.855 244.332 M 337.500 284.478 C 335.850 286.259, 324.379 297.905, 312.008 310.358 L 289.517 333 315.758 333 L 342 333 342 307 C 342 292.700, 341.663 281.054, 341.250 281.120 C 340.837 281.186, 339.150 282.697, 337.500 284.478 M 100.242 355.258 C 87.459 368.050, 77 378.737, 76.999 379.008 C 76.999 379.279, 91.511 379.383, 109.249 379.240 L 141.500 378.980 164.500 355.487 L 187.500 331.994 155.492 331.997 L 123.484 332 100.242 355.258"/></g></svg>spanani<span class="brand-sub">/ party</span></a>
+      <nav class="nav-links" lang="en" aria-label="Primary">
+        <a class="nav-link" href="/projects/">Projects</a>
+        <a class="nav-link" href="/services/">Services</a>
+        <a class="nav-link" href="/tools/">Tools</a>
+        <a class="nav-link" href="/contact/">Contact</a>
+        <a class="nav-link" href="/de/" hreflang="de" lang="de">Deutsch</a>
+      </nav>
+      <a class="time-pill" lang="en" href="/clock/" aria-label="Current time in Berlin, open the clock"><span data-berlin-clock>--:--:--</span> Berlin</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-head">
+      <div class="container party-head">
+        <div>
+          <h1>Daumenduell</h1>
+          <p class="lead">Sieben kleine Spiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt ein Stück des Bildschirms und braucht nur einen Finger.</p>
+
+          <form class="setup" id="setup">
+            <fieldset>
+              <legend>Wie viele spielen mit?</legend>
+              <div class="seg" id="playerSeg">
+                <label><input type="radio" name="players" value="1"><span>1</span></label>
+                <label><input type="radio" name="players" value="2" checked><span>2</span></label>
+                <label><input type="radio" name="players" value="3"><span>3</span></label>
+                <label><input type="radio" name="players" value="4"><span>4</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="points-field" id="pointsField">
+              <legend>Wer zuerst so viele Punkte hat, gewinnt</legend>
+              <div class="seg">
+                <label><input type="radio" name="points" value="3"><span>3</span></label>
+                <label><input type="radio" name="points" value="5" checked><span>5</span></label>
+                <label><input type="radio" name="points" value="7"><span>7</span></label>
+              </div>
+            </fieldset>
+            <p class="seg-note" id="soloNote" hidden>Allein gibt es keine Punkte. Du siehst nach jeder Runde deine Zeit oder deine Treffer.</p>
+            <div class="actions">
+              <button class="btn btn-primary btn-lg" type="submit">Zufällige Spiele starten</button>
+            </div>
+          </form>
+        </div>
+
+        <figure class="seats-figure">
+          <div class="seats" aria-hidden="true">
+            <div class="grid" id="seatGrid" data-players="2">
+              <div class="zone" data-p="0"><div class="zone-inner"><span class="seat-num">1</span></div></div>
+              <div class="zone" data-p="1"><div class="zone-inner"><span class="seat-num">2</span></div></div>
+              <div class="zone" data-p="2"><div class="zone-inner"><span class="seat-num">3</span></div></div>
+              <div class="zone" data-p="3"><div class="zone-inner"><span class="seat-num">4</span></div></div>
+            </div>
+          </div>
+          <figcaption id="seatCaption">Legt das Handy flach zwischen euch. Die obere Hälfte steht für die Person gegenüber auf dem Kopf.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="party-games" aria-labelledby="gamesTitle">
+      <div class="container">
+        <h2 id="gamesTitle">Die Spiele</h2>
+        <ul class="game-list" id="gameList"></ul>
+        <p class="keys-note">Am Computer drückt Spieler 1 <kbd>Q</kbd>, Spieler 2 <kbd>P</kbd>, Spieler 3 <kbd>C</kbd> und Spieler 4 <kbd>M</kbd>. <kbd>Esc</kbd> pausiert.</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="legal-links">
+    <span class="legal-note" lang="en">I work in German and English.</span>
+    <a href="/impressum/">Impressum</a>
+    <a href="/datenschutz/">Datenschutz</a>
+  </div>
+
+  <div class="arena" id="arena" role="dialog" aria-modal="true" aria-label="Daumenduell" hidden>
+    <div class="grid" id="arenaGrid"></div>
+    <button class="arena-pause" id="btnPause" type="button">Pause</button>
+    <div class="arena-panel" id="panel" hidden>
+      <div class="panel-box">
+        <h2 id="panelTitle"></h2>
+        <p id="panelText"></p>
+        <ol class="panel-scores" id="panelScores"></ol>
+        <div class="actions">
+          <button class="btn btn-primary" id="panelMain" type="button"></button>
+          <button class="btn btn-secondary" id="panelMenu" type="button">Zum Menü</button>
+        </div>
+      </div>
+    </div>
+    <p class="visually-hidden" id="arenaLive" aria-live="polite"></p>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  var KEYS = ['q', 'p', 'c', 'm'];
+  var NAMES = ['Spieler 1', 'Spieler 2', 'Spieler 3', 'Spieler 4'];
+  var WORDS = ['Lila', 'Orange', 'Türkis', 'Gelb'];
+  var WORD_COLORS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
+  var BOMB = '<svg class="bomb" viewBox="0 0 100 100" aria-hidden="true"><circle cx="44" cy="58" r="32" fill="currentColor"/><rect x="52" y="20" width="18" height="16" rx="3" fill="currentColor" transform="rotate(35 61 28)"/><path d="M68 20 C 74 10, 82 12, 86 6" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle class="spark" cx="88" cy="6" r="6"/></svg>';
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function randInt(n) { return Math.floor(Math.random() * n); }
+  function secs(ms) { return (ms / 1000).toFixed(2).replace('.', ','); }
+  function range(n) { var r = []; for (var i = 0; i < n; i++) r.push(i); return r; }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = randInt(i + 1), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function store(key, val) { try { if (val === undefined) return localStorage.getItem(key); localStorage.setItem(key, val); } catch (e) { return null; } }
+
+  var GAMES = [
+    {
+      id: 'tap', name: 'Schnellfinger', min: 1, max: 4,
+      rule: 'Tippe so schnell du kannst. Wer zuerst 40-mal getippt hat, gewinnt.',
+      start: function (g) {
+        var goal = 40, c = [], t0 = g.now();
+        g.each(function (z, p) { c[p] = 0; z.set('0', 'von ' + goal); z.bar(0); });
+        return {
+          tap: function (p) {
+            c[p]++;
+            g.z[p].set(String(c[p]), 'von ' + goal);
+            g.z[p].bar(c[p] / goal);
+            if (c[p] < goal) return;
+            var t = secs(g.now() - t0) + ' s';
+            g.finish([p], g.map(function (q) { return q === p ? goal + ' Taps in ' + t : c[q] + ' von ' + goal; }), { solo: t });
+          }
+        };
+      }
+    },
+    {
+      id: 'reaction', name: 'Reaktion', min: 1, max: 4,
+      rule: 'Warte, bis dein Feld hell wird, dann tippe. Wer zu früh tippt, ist raus.',
+      start: function (g) {
+        var out = [], goAt = 0;
+        g.each(function (z) { z.set('Warte', 'Erst tippen, wenn das Feld hell wird'); });
+        g.later(function () {
+          goAt = g.now();
+          g.each(function (z, p) { if (!out[p]) { z.cls('is-go', true); z.set('Jetzt!', ''); } });
+          g.later(function () {
+            g.finish([], g.map(function (q) { return out[q] ? 'Zu früh' : 'Zu langsam'; }), { solo: 'Zu langsam' });
+          }, 3000);
+        }, rand(1500, 5000));
+        return {
+          tap: function (p) {
+            if (out[p]) return;
+            if (!goAt) {
+              out[p] = true;
+              g.z[p].cls('is-out', true);
+              g.z[p].set('Zu früh', g.n > 1 ? 'Warte auf die anderen' : '');
+              if (g.alive(out).length === 0) g.finish([], g.map(function () { return 'Zu früh'; }), { solo: 'Zu früh' });
+              return;
+            }
+            var ms = Math.round(g.now() - goAt) + ' ms';
+            g.finish([p], g.map(function (q) { return q === p ? ms : (out[q] ? 'Zu früh' : 'Zu langsam'); }), { solo: ms });
+          }
+        };
+      }
+    },
+    {
+      id: 'color', name: 'Farbfalle', min: 1, max: 4,
+      rule: 'Tippe nur, wenn das Wort in seiner eigenen Farbe steht. Ein falscher Tipp und du bist raus.',
+      start: function (g) {
+        var out = [], match = false, caught = false, shown = 0, hits = 0, wait = 1300;
+        g.each(function (z) { z.set('Achtung', 'Tippe, wenn Wort und Farbe passen'); });
+        function show() {
+          if (g.n === 1 && match && !caught) { g.finish([], ['Verpasst'], { solo: hits + ' Treffer' }); return; }
+          if (g.n > 1 && shown >= 30) { g.finish([], g.map(function (q) { return out[q] ? 'Daneben' : 'Keiner war schnell genug'; }), {}); return; }
+          var w = randInt(4), c = w;
+          if (shown < 2 || Math.random() > 0.35) { c = (w + 1 + randInt(3)) % 4; }
+          match = c === w;
+          caught = false;
+          shown++;
+          g.each(function (z, p) { if (!out[p]) { z.set(WORDS[w], g.n === 1 ? hits + ' Treffer' : ''); z.color(WORD_COLORS[c]); } });
+          if (g.n === 1) wait = Math.max(650, wait * 0.97);
+          g.later(show, wait);
+        }
+        g.later(show, 900);
+        return {
+          tap: function (p) {
+            if (out[p] || !shown) return;
+            if (match && !caught) {
+              if (g.n === 1) { caught = true; hits++; g.z[p].set(g.z[p].bigText(), hits + ' Treffer'); return; }
+              g.finish([p], g.map(function (q) { return q === p ? 'Richtig erkannt' : (out[q] ? 'Daneben' : 'Zu langsam'); }), {});
+              return;
+            }
+            if (g.n === 1 && caught) return;
+            out[p] = true;
+            g.z[p].cls('is-out', true);
+            g.z[p].color('');
+            g.z[p].set('Daneben', g.n > 1 ? 'Du bist raus' : '');
+            if (g.n === 1) { g.finish([], ['Daneben'], { solo: hits + ' Treffer' }); return; }
+            if (g.alive(out).length === 0) g.finish([], g.map(function () { return 'Daneben'; }), {});
+          }
+        };
+      }
+    },
+    {
+      id: 'stopwatch', name: 'Stoppuhr', min: 1, max: 4,
+      rule: 'Stoppe bei genau 5 Sekunden. Nach anderthalb Sekunden verschwindet die Uhr.',
+      start: function (g) {
+        var goal = 5000, t0 = g.now(), stop = [], done = false;
+        g.each(function (z) { z.set('0,00', 'Ziel: 5,00 s'); });
+        function verdict(q) {
+          if (stop[q] == null) return 'Nicht gestoppt';
+          var d = stop[q] - goal;
+          if (Math.abs(d) < 10) return secs(stop[q]) + ' s, genau getroffen';
+          return secs(stop[q]) + ' s, ' + secs(Math.abs(d)) + (d < 0 ? ' s zu früh' : ' s zu spät');
+        }
+        function end() {
+          if (done) return;
+          done = true;
+          var best = Infinity, win = [];
+          g.each(function (z, p) {
+            if (stop[p] == null) return;
+            var d = Math.abs(stop[p] - goal);
+            if (d < best - 0.5) { best = d; win = [p]; } else if (Math.abs(d - best) <= 0.5) win.push(p);
+          });
+          g.finish(g.n > 1 ? win : [], g.map(verdict), { solo: stop[0] == null ? 'Nicht gestoppt' : secs(stop[0]) + ' s', soloSmall: verdict(0) });
+        }
+        g.frame(function (now) {
+          var t = now - t0;
+          g.each(function (z, p) { if (stop[p] == null) z.big(t < 1500 ? secs(t) : '?'); });
+          if (t > 10000) end();
+        });
+        return {
+          tap: function (p) {
+            if (stop[p] != null) return;
+            stop[p] = g.now() - t0;
+            g.z[p].cls('is-ready', true);
+            g.z[p].set('Gestoppt', g.n > 1 ? 'Warte auf die anderen' : '');
+            if (g.alive(stop.map(function (v) { return v != null; })).length === 0) end();
+          }
+        };
+      }
+    },
+    {
+      id: 'bomb', name: 'Bombe', min: 2, max: 4,
+      rule: 'Wer die Bombe hat, tippt, um sie weiterzugeben. Bei wem sie hochgeht, der bekommt als Einziger keinen Punkt.',
+      start: function (g) {
+        var holder = randInt(g.n), fuse = rand(7000, 15000), t0 = g.now();
+        function paint() {
+          g.each(function (z, p) {
+            var hot = p === holder;
+            z.cls('is-hot', hot);
+            z.extra(hot ? BOMB : '');
+            z.set(hot ? 'Weg damit!' : '', hot ? 'Tippen gibt die Bombe weiter' : NAMES[holder] + ' hat die Bombe');
+          });
+        }
+        g.every(function () {
+          var left = Math.max(0, 1 - (g.now() - t0) / fuse);
+          g.z[holder].el.style.setProperty('--tick', Math.round(220 + 700 * left) + 'ms');
+        }, 250);
+        g.later(function () {
+          g.z[holder].extra('');
+          g.finish(g.map(function (q) { return q; }).filter(function (q) { return q !== holder; }),
+            g.map(function (q) { return q === holder ? 'Die Bombe ist bei dir hochgegangen' : 'Überlebt'; }),
+            { big: function (q) { return q === holder ? 'Bumm' : null; } });
+        }, fuse);
+        paint();
+        return {
+          tap: function (p) {
+            if (p !== holder) return;
+            g.z[holder].el.style.removeProperty('--tick');
+            holder = (holder + 1) % g.n;
+            paint();
+          }
+        };
+      }
+    },
+    {
+      id: 'timing', name: 'Taktgefühl', min: 1, max: 4,
+      rule: 'Ein Strich läuft durch deine Leiste. Tippe einmal pro Durchlauf, wenn er im farbigen Feld ist. Wer am längsten durchhält, gewinnt.',
+      start: function (g) {
+        var st = [], width = 0.18;
+        function newWin(s) {
+          s.a = rand(0.3, 0.94 - width);
+          s.win.style.left = (s.a * 100) + '%';
+          s.win.style.width = (width * 100) + '%';
+          s.track.classList.remove('is-hit');
+        }
+        g.each(function (z, p) {
+          z.extra('<div class="track"><span class="track-win"></span><span class="track-mark"></span></div>');
+          var s = { hits: 0, out: false, dur: 1800, s0: g.now() + 700, x: 0, tapped: false };
+          s.track = z.el.querySelector('.track');
+          s.win = z.el.querySelector('.track-win');
+          s.mark = z.el.querySelector('.track-mark');
+          newWin(s);
+          st[p] = s;
+          z.set('0', 'Treffer');
+        });
+        function knock(p, why) {
+          var s = st[p];
+          s.out = true;
+          g.z[p].cls('is-out', true);
+          g.z[p].set(why, s.hits + ' Treffer');
+          var alive = g.alive(st.map(function (v) { return v.out; }));
+          var lines = g.map(function (q) { return st[q].hits + ' Treffer'; });
+          if (g.n === 1) { g.finish([], [why + ', ' + lines[0]], { solo: lines[0] }); return; }
+          if (alive.length === 1) { g.finish(alive, lines, {}); return; }
+          if (alive.length === 0) {
+            var top = Math.max.apply(null, st.map(function (v) { return v.hits; }));
+            g.finish(g.map(function (q) { return q; }).filter(function (q) { return st[q].hits === top; }), lines, {});
+          }
+        }
+        g.frame(function (now) {
+          for (var p = 0; p < g.n; p++) {
+            var s = st[p];
+            if (s.out || !g.active()) continue;
+            var x = (now - s.s0) / s.dur;
+            if (x >= 1) {
+              if (!s.tapped) { knock(p, 'Verpasst'); continue; }
+              s.s0 = now; s.tapped = false; x = 0; newWin(s);
+            }
+            s.x = Math.max(0, x);
+            s.mark.style.left = (s.x * 100) + '%';
+          }
+        });
+        return {
+          tap: function (p) {
+            var s = st[p];
+            if (s.out || s.tapped || g.now() < s.s0) return;
+            if (s.x >= s.a && s.x <= s.a + width) {
+              s.hits++;
+              s.tapped = true;
+              s.dur = Math.max(480, s.dur * 0.9);
+              s.track.classList.add('is-hit');
+              g.z[p].set(String(s.hits), 'Treffer');
+            } else {
+              knock(p, 'Daneben');
+            }
+          }
+        };
+      }
+    },
+    {
+      id: 'tug', name: 'Tauziehen', min: 2, max: 2,
+      rule: 'Jeder Tipp zieht die Grenze ein Stück zu dir. Wer das Feld des anderen fast ganz erobert, gewinnt.',
+      start: function (g) {
+        var pos = 0, step = 0.05, edge = 0.8;
+        g.each(function (z) { z.set('Zieh!', 'Tippe so schnell du kannst'); });
+        return {
+          tap: function (p) {
+            pos += p === 0 ? step : -step;
+            g.split(1 + pos, 1 - pos);
+            if (Math.abs(pos) < edge - 1e-9) return;
+            var w = pos > 0 ? 0 : 1;
+            g.finish([w], g.map(function (q) { return q === w ? 'Das Feld gehört dir' : 'Weggezogen'; }), {});
+          }
+        };
+      }
+    }
+  ];
+
+  var form = document.getElementById('setup');
+  var arena = document.getElementById('arena');
+  var grid = document.getElementById('arenaGrid');
+  var seatGrid = document.getElementById('seatGrid');
+  var panel = document.getElementById('panel');
+  var live = document.getElementById('arenaLive');
+  var btnPause = document.getElementById('btnPause');
+  var gameList = document.getElementById('gameList');
+
+  var S = { n: 2, target: 5, only: null, game: null, bag: [], scores: [], phase: 'off', ready: [], canGo: false, round: null, opener: null, lock: null };
+  var Z = [];
+
+  function Zone(p) {
+    var el = document.createElement('div');
+    el.className = 'zone';
+    el.dataset.p = p;
+    el.innerHTML = '<div class="zone-inner"><div class="zone-top"><span class="zone-name">' + NAMES[p] + '</span><span class="zone-score"></span></div>' +
+      '<div class="zone-stage"><div class="zone-extra"></div><p class="zone-big"></p><p class="zone-small"></p><div class="zone-bar" hidden><i></i></div></div>' +
+      '<p class="zone-hint"></p></div>';
+    this.el = el;
+    this.bigEl = el.querySelector('.zone-big');
+    this.smallEl = el.querySelector('.zone-small');
+    this.hintEl = el.querySelector('.zone-hint');
+    this.scoreEl = el.querySelector('.zone-score');
+    this.barEl = el.querySelector('.zone-bar');
+    this.extraEl = el.querySelector('.zone-extra');
+  }
+  Zone.prototype.big = function (t) {
+    t = t || '';
+    if (this.bigEl.textContent !== t) this.bigEl.textContent = t;
+    this.bigEl.classList.toggle('is-long', t.length > 8);
+  };
+  Zone.prototype.bigText = function () { return this.bigEl.textContent; };
+  Zone.prototype.set = function (big, small) { this.big(big); this.smallEl.textContent = small || ''; };
+  Zone.prototype.hint = function (t) { this.hintEl.textContent = t || ''; };
+  Zone.prototype.cls = function (c, on) { this.el.classList.toggle(c, !!on); };
+  Zone.prototype.color = function (c) { this.bigEl.style.color = c || ''; };
+  Zone.prototype.extra = function (html) { this.extraEl.innerHTML = html; };
+  Zone.prototype.bar = function (f) {
+    this.barEl.hidden = f == null;
+    if (f != null) this.barEl.firstChild.style.transform = 'scaleX(' + Math.min(1, f) + ')';
+  };
+  Zone.prototype.reset = function () {
+    this.el.className = 'zone';
+    this.el.style.removeProperty('--tick');
+    this.set('', '');
+    this.hint('');
+    this.color('');
+    this.extra('');
+    this.bar(null);
+  };
+
+  function eligible(n) { return GAMES.filter(function (gm) { return n >= gm.min && n <= gm.max; }); }
+
+  function pickGame() {
+    if (S.only) return S.only;
+    if (!S.bag.length) {
+      S.bag = shuffle(eligible(S.n).slice());
+      if (S.game && S.bag.length > 1 && S.bag[S.bag.length - 1] === S.game) S.bag.unshift(S.bag.pop());
+    }
+    return S.bag.pop();
+  }
+
+  function newRound() {
+    var r = { active: true, timers: [], intervals: [], raf: 0, frames: [] };
+    function loop(now) {
+      if (!r.active) return;
+      for (var i = 0; i < r.frames.length; i++) { r.frames[i](now); if (!r.active) return; }
+      r.raf = requestAnimationFrame(loop);
+    }
+    r.ctx = {
+      n: S.n,
+      z: Z,
+      now: function () { return performance.now(); },
+      active: function () { return r.active; },
+      each: function (fn) { for (var p = 0; p < S.n; p++) fn(Z[p], p); },
+      map: function (fn) { return range(S.n).map(fn); },
+      alive: function (outFlags) { return range(S.n).filter(function (p) { return !outFlags[p]; }); },
+      later: function (fn, ms) { r.timers.push(setTimeout(function () { if (r.active) fn(); }, ms)); },
+      every: function (fn, ms) { r.intervals.push(setInterval(function () { if (r.active) fn(); }, ms)); },
+      frame: function (fn) { r.frames.push(fn); if (!r.raf) r.raf = requestAnimationFrame(loop); },
+      split: function (a, b) { grid.style.setProperty('--fa', a + 'fr'); grid.style.setProperty('--fb', b + 'fr'); },
+      finish: function (winners, lines, opts) { if (r.active) finish(winners, lines, opts || {}); }
+    };
+    return r;
+  }
+
+  function stopRound() {
+    var r = S.round;
+    if (!r) return;
+    r.active = false;
+    r.timers.forEach(clearTimeout);
+    r.intervals.forEach(clearInterval);
+    if (r.raf) cancelAnimationFrame(r.raf);
+    S.round = null;
+  }
+
+  function resetZones() {
+    for (var p = 0; p < S.n; p++) Z[p].reset();
+    grid.style.removeProperty('--fa');
+    grid.style.removeProperty('--fb');
+  }
+
+  function paintScores() {
+    for (var p = 0; p < S.n; p++) Z[p].scoreEl.textContent = S.n > 1 ? S.scores[p] + ' / ' + S.target : '';
+  }
+
+  function toReady() {
+    stopRound();
+    resetZones();
+    paintScores();
+    S.phase = 'ready';
+    S.ready = [];
+    for (var p = 0; p < S.n; p++) {
+      Z[p].set(S.game.name, S.game.rule);
+      Z[p].hint(S.n > 1 ? 'Tippen, wenn du bereit bist' : 'Tippen zum Starten');
+    }
+    announce(S.game.name + '. ' + S.game.rule);
+  }
+
+  function countdown() {
+    S.phase = 'count';
+    S.round = newRound();
+    var c = 3, g = S.round.ctx;
+    function show() { g.each(function (z) { z.reset(); z.set(String(c), ''); }); }
+    show();
+    g.every(function () {
+      c--;
+      if (c > 0) { show(); return; }
+      startGame();
+    }, 650);
+  }
+
+  function startGame() {
+    stopRound();
+    resetZones();
+    S.phase = 'play';
+    S.round = newRound();
+    S.handler = S.game.start(S.round.ctx);
+  }
+
+  function finish(winners, lines, opts) {
+    stopRound();
+    S.phase = 'result';
+    S.canGo = false;
+    var solo = S.n === 1;
+    for (var p = 0; p < S.n; p++) {
+      var z = Z[p], won = winners.indexOf(p) !== -1;
+      z.extra('');
+      z.bar(null);
+      z.color('');
+      z.cls('is-go', false);
+      z.cls('is-hot', false);
+      z.cls('is-ready', false);
+      z.cls('is-win', won);
+      z.cls('is-out', !solo && !won);
+      if (won) S.scores[p]++;
+      var big = opts.big && opts.big(p);
+      if (solo) z.set(opts.solo || '', opts.soloSmall || lines[0]);
+      else z.set(big || (won ? '+1 Punkt' : (winners.length ? '' : 'Kein Punkt')), lines[p]);
+    }
+    paintScores();
+    if (solo) announce((opts.solo || '') + '. ' + (opts.soloSmall || lines[0]));
+    else announce(winners.length ? winners.map(function (q) { return NAMES[q]; }).join(', ') + ' bekommt einen Punkt.' : 'Niemand bekommt einen Punkt.');
+    S.round = newRound();
+    S.round.ctx.later(function () {
+      S.canGo = true;
+      for (var q = 0; q < S.n; q++) Z[q].hint('Tippen für die nächste Runde');
+    }, 1000);
+  }
+
+  function matchWinner() {
+    if (S.n === 1) return null;
+    var top = Math.max.apply(null, S.scores);
+    if (top < S.target) return null;
+    var leaders = S.scores.map(function (v, i) { return v === top ? i : -1; }).filter(function (i) { return i >= 0; });
+    return leaders.length === 1 ? leaders[0] : null;
+  }
+
+  function afterResult() {
+    stopRound();
+    var w = matchWinner();
+    if (w !== null) { showEnd(w); return; }
+    S.game = pickGame();
+    toReady();
+    var top = Math.max.apply(null, S.scores);
+    if (S.n > 1 && top >= S.target) for (var p = 0; p < S.n; p++) Z[p].hint('Gleichstand an der Spitze. Tippen, wenn du bereit bist');
+  }
+
+  function showPanel(title, text, mainLabel, withScores) {
+    document.getElementById('panelTitle').textContent = title;
+    document.getElementById('panelText').textContent = text;
+    document.getElementById('panelMain').textContent = mainLabel;
+    var list = document.getElementById('panelScores');
+    list.innerHTML = '';
+    list.hidden = !withScores;
+    if (withScores) {
+      range(S.n).sort(function (a, b) { return S.scores[b] - S.scores[a]; }).forEach(function (p) {
+        var li = document.createElement('li');
+        li.style.setProperty('--pc', 'var(--p' + (p + 1) + ')');
+        li.innerHTML = '<span></span><span></span>';
+        li.firstChild.textContent = NAMES[p];
+        li.lastChild.textContent = S.scores[p] + (S.scores[p] === 1 ? ' Punkt' : ' Punkte');
+        list.appendChild(li);
+      });
+    }
+    panel.hidden = false;
+    btnPause.hidden = true;
+    document.getElementById('panelMain').focus();
+  }
+
+  function hidePanel() { panel.hidden = true; btnPause.hidden = false; }
+
+  function showEnd(w) {
+    S.phase = 'end';
+    resetZones();
+    Z[w].cls('is-win', true);
+    Z[w].set('Gewonnen', '');
+    paintScores();
+    showPanel(NAMES[w] + ' gewinnt', 'Als Erstes ' + S.target + ' Punkte geholt.', 'Noch eine Partie', true);
+    announce(NAMES[w] + ' gewinnt die Partie.');
+  }
+
+  function pause() {
+    if (S.phase === 'end' || !panel.hidden) return;
+    S.paused = S.phase;
+    stopRound();
+    S.phase = 'paused';
+    showPanel('Pause', S.paused === 'result' || S.paused === 'ready' ? 'Es geht weiter, wo ihr wart.' : 'Die laufende Runde wird neu gestartet.', 'Weiterspielen', S.n > 1);
+  }
+
+  function onPanelMain() {
+    hidePanel();
+    if (S.phase === 'end') { startMatch(S.only); return; }
+    var was = S.paused;
+    S.paused = null;
+    if (was === 'result') afterResult(); else toReady();
+  }
+
+  function announce(t) { live.textContent = t; }
+
+  function tap(p) {
+    if (p >= S.n || !panel.hidden) return;
+    var z = Z[p];
+    z.el.classList.remove('is-tap');
+    void z.el.offsetWidth;
+    z.el.classList.add('is-tap');
+    if (S.phase === 'ready') {
+      if (!S.ready[p]) {
+        S.ready[p] = true;
+        z.cls('is-ready', true);
+        z.hint('Bereit');
+      }
+      if (S.ready.filter(Boolean).length === S.n) countdown();
+    } else if (S.phase === 'play') {
+      if (S.handler) S.handler.tap(p);
+    } else if (S.phase === 'result' && S.canGo) {
+      afterResult();
+    }
+  }
+
+  function buildArena() {
+    grid.innerHTML = '';
+    Z = [];
+    grid.dataset.players = S.n;
+    arena.dataset.players = S.n;
+    for (var p = 0; p < S.n; p++) {
+      var z = new Zone(p);
+      (function (pp) {
+        z.el.addEventListener('pointerdown', function (e) { e.preventDefault(); tap(pp); });
+      })(p);
+      Z.push(z);
+      grid.appendChild(z.el);
+    }
+  }
+
+  function startMatch(only) {
+    S.only = only || null;
+    S.scores = range(S.n).map(function () { return 0; });
+    S.bag = [];
+    S.game = null;
+    S.game = pickGame();
+    hidePanel();
+    toReady();
+  }
+
+  function open(only) {
+    readSetup();
+    S.opener = document.activeElement;
+    buildArena();
+    arena.hidden = false;
+    document.documentElement.classList.add('is-playing');
+    startMatch(only);
+    btnPause.focus();
+    try { if (arena.requestFullscreen && matchMedia('(pointer: coarse)').matches) arena.requestFullscreen().catch(function () {}); } catch (e) {}
+    try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function (l) { S.lock = l; }).catch(function () {}); } catch (e) {}
+  }
+
+  function close() {
+    stopRound();
+    S.phase = 'off';
+    hidePanel();
+    arena.hidden = true;
+    document.documentElement.classList.remove('is-playing');
+    try { if (document.fullscreenElement) document.exitFullscreen().catch(function () {}); } catch (e) {}
+    if (S.lock) { S.lock.release().catch(function () {}); S.lock = null; }
+    if (S.opener && S.opener.focus) S.opener.focus();
+  }
+
+  function readSetup() {
+    S.n = Number(form.elements.players.value) || 2;
+    S.target = Number(form.elements.points.value) || 5;
+  }
+
+  function renderGames() {
+    readSetup();
+    gameList.innerHTML = '';
+    GAMES.forEach(function (gm) {
+      var li = document.createElement('li');
+      li.className = 'game-row';
+      var ok = S.n >= gm.min && S.n <= gm.max;
+      var who = gm.min === gm.max ? 'Nur zu zweit' : (gm.min === 1 ? 'Für 1 bis 4' : 'Für 2 bis 4');
+      li.innerHTML = '<div><h3></h3><p></p><p class="game-who"></p></div><button class="btn btn-secondary" type="button"></button>';
+      li.querySelector('h3').textContent = gm.name;
+      li.querySelector('p').textContent = gm.rule;
+      li.querySelector('.game-who').textContent = who;
+      var b = li.querySelector('button');
+      b.textContent = ok ? gm.name + ' spielen' : (gm.min === gm.max ? 'Braucht genau 2' : 'Braucht mindestens 2');
+      b.disabled = !ok;
+      b.addEventListener('click', function () { open(gm); });
+      gameList.appendChild(li);
+    });
+    seatGrid.dataset.players = S.n;
+    document.getElementById('pointsField').hidden = S.n === 1;
+    document.getElementById('soloNote').hidden = S.n !== 1;
+    document.getElementById('seatCaption').textContent = S.n === 1
+      ? 'Allein gehört dir der ganze Bildschirm.'
+      : S.n === 2
+        ? 'Legt das Handy flach zwischen euch. Die obere Hälfte steht für die Person gegenüber auf dem Kopf.'
+        : 'Legt das Gerät flach in die Mitte. Wer oben sitzt, liest sein Feld kopfüber, es ist für euch gedreht.';
+  }
+
+  form.addEventListener('submit', function (e) { e.preventDefault(); open(null); });
+  form.addEventListener('change', function () {
+    renderGames();
+    store('party_players', String(S.n));
+    store('party_points', String(S.target));
+  });
+  btnPause.addEventListener('click', pause);
+  document.getElementById('panelMain').addEventListener('click', onPanelMain);
+  document.getElementById('panelMenu').addEventListener('click', close);
+  arena.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  document.addEventListener('keydown', function (e) {
+    if (arena.hidden) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (!panel.hidden && S.phase === 'paused') onPanelMain(); else pause();
+      return;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var p = KEYS.indexOf((e.key || '').toLowerCase());
+    if (p === -1 || !panel.hidden) return;
+    e.preventDefault();
+    if (!e.repeat) tap(p);
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden && !arena.hidden && (S.phase === 'play' || S.phase === 'count')) pause();
+  });
+
+  var savedPlayers = store('party_players'), savedPoints = store('party_points');
+  if (savedPlayers && form.querySelector('input[name="players"][value="' + savedPlayers + '"]')) form.querySelector('input[name="players"][value="' + savedPlayers + '"]').checked = true;
+  if (savedPoints && form.querySelector('input[name="points"][value="' + savedPoints + '"]')) form.querySelector('input[name="points"][value="' + savedPoints + '"]').checked = true;
+  renderGames();
+})();
+</script>
+
+</body>
+</html>

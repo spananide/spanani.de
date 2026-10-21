@@ -40,7 +40,7 @@ Worker (see below).
 | `/clock` | A network-synced clock: digital and analog dial, a 3D-globe world clock, a stopwatch, a timer, settings that stick via `localStorage`. |
 | `/rust` | A raid calculator for the game Rust: pick walls, doors and deployables, choose which explosives you can use, and get the cheapest raid path (mixed combos included) with sulfur, gunpowder and every raw material. |
 | `/tennis` | An offline-first match tracker built mobile-first. |
-| `/party` | Daumenduell: seven one-button party games for 1 to 4 players on one device (multi-touch, Q/P/C/M on a keyboard). German interface. |
+| `/party` | Daumenduell: 19 one-button party games for 1 to 4 players on one device, grouped into tempo, nerves, snap, timing and skill. Each game declares the player counts it makes sense for (Tauziehen 2 or 4 in teams, Bombe 3 or 4). Multi-touch, Q/P/C/M on a keyboard, solo personal bests in localStorage. German interface. |
 | `/rustempire` | A separate Rust server-management tool, kept in its own corner of this repo. |
 | `/pausenklau` | A school tool with accounts: upload a photo of your timetable (A/B weeks supported), it gets read in automatically, then you track how far each teacher runs over or stops early. Live countdown to the bell on network time, school holidays for every German state, a leaderboard, sync across devices. |
 

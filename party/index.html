@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Daumenduell: Partyspiele für 1 bis 4 auf einem Handy — spanani</title>
-  <meta name="description" content="Sieben kleine Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt eine Ecke des Bildschirms und braucht nur einen Finger. Läuft im Browser, ohne Anmeldung.">
+  <meta name="description" content="19 kleine Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt ein Stück des Bildschirms und braucht nur einen Finger. Läuft im Browser, ohne Anmeldung.">
   <link rel="canonical" href="https://spanani.de/party/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="spanani">
   <meta property="og:url" content="https://spanani.de/party/">
   <meta property="og:title" content="Daumenduell: Partyspiele für 1 bis 4 auf einem Handy — spanani">
-  <meta property="og:description" content="Sieben kleine Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt eine Ecke des Bildschirms und braucht nur einen Finger.">
+  <meta property="og:description" content="19 kleine Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt ein Stück des Bildschirms und braucht nur einen Finger.">
   <meta property="og:image" content="https://spanani.de/assets/img/og/default.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -52,7 +52,7 @@
     .party-head h1 { margin-bottom: var(--space-5); }
     .party-head .lead { margin-bottom: var(--space-6); }
 
-    .setup { display: grid; gap: var(--space-5); margin-bottom: var(--space-6); }
+    .setup { display: grid; gap: var(--space-5); }
     .setup fieldset { border: 0; min-width: 0; }
     .setup legend { font-weight: 700; margin-bottom: var(--space-3); }
     .seg { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -61,10 +61,9 @@
     .seg span {
       display: inline-flex;
       align-items: center;
-      gap: var(--space-2);
+      justify-content: center;
       min-height: 48px;
       min-width: 56px;
-      justify-content: center;
       padding: 10px 16px;
       border: 1px solid var(--line-strong);
       border-radius: var(--radius-sm);
@@ -77,8 +76,10 @@
     .seg label:hover span { color: var(--ink); border-color: var(--ink-soft); }
     .seg input:checked + span { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
     .seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .seg-note { font-size: var(--fs-sm); color: var(--ink-faint); margin-top: var(--space-2); }
-    .points-field[hidden] { display: none; }
+    .setup-note { font-size: var(--fs-sm); color: var(--ink-faint); }
+    .setup-note[hidden], .points-field[hidden] { display: none; }
+    .setup .actions { margin-top: var(--space-2); }
+    .setup .btn { white-space: normal; text-align: left; }
 
     .seats-figure { position: sticky; top: calc(var(--nav-h) + var(--space-5)); }
     .seats {
@@ -92,14 +93,15 @@
     .seats .grid { width: 100%; height: 100%; border-radius: var(--radius-sm); overflow: hidden; }
     .seats .zone-inner { justify-content: center; align-items: center; }
     .seat-num { font-family: var(--font-display); font-size: 2rem; font-weight: 760; color: var(--pc); line-height: 1; }
-    .seats figcaption, .seats-figure figcaption { margin-top: var(--space-4); font-size: var(--fs-sm); color: var(--ink-soft); max-width: 30ch; }
+    .seats-figure figcaption { margin-top: var(--space-4); font-size: var(--fs-sm); color: var(--ink-soft); max-width: 30ch; }
 
     .grid { display: grid; gap: 2px; background: var(--paper-sunk); }
     .grid[data-players="1"] { grid-template: "a" 1fr / 1fr; }
-    .grid[data-players="2"] { grid-template: "b" var(--fb, 1fr) "a" var(--fa, 1fr) / 1fr; transition: grid-template-rows var(--dur) var(--ease); }
+    .grid[data-players="2"] { grid-template: "b" var(--fb, 1fr) "a" var(--fa, 1fr) / 1fr; }
     .grid[data-players="3"] { grid-template: "c c" 1fr "a b" 1fr / 1fr 1fr; }
-    .grid[data-players="4"] { grid-template: "d c" 1fr "a b" 1fr / 1fr 1fr; }
-    .zone { --pc: var(--p1); position: relative; min-width: 0; min-height: 0; overflow: hidden; background: color-mix(in srgb, var(--pc) 14%, var(--paper)); color: var(--ink); }
+    .grid[data-players="4"] { grid-template: "d c" var(--fb, 1fr) "a b" var(--fa, 1fr) / 1fr 1fr; }
+    .grid[data-players="2"], .grid[data-players="4"] { transition: grid-template-rows var(--dur) var(--ease), grid-template-columns var(--dur) var(--ease); }
+    .zone { --pc: var(--p1); position: relative; min-width: 0; min-height: 0; overflow: hidden; container-type: size; background: color-mix(in srgb, var(--pc) 14%, var(--paper)); color: var(--ink); }
     .zone[data-p="0"] { grid-area: a; }
     .zone[data-p="1"] { grid-area: b; --pc: var(--p2); }
     .zone[data-p="2"] { grid-area: c; --pc: var(--p3); }
@@ -111,34 +113,45 @@
     .grid[data-players="4"] .zone[data-p="3"] .zone-inner { transform: rotate(180deg); }
 
     .party-games { padding-bottom: var(--section-y); }
-    .party-games h2 { margin-bottom: var(--space-5); }
+    .party-games > .container > h2 { margin-bottom: var(--space-3); }
+    .games-intro { color: var(--ink-soft); margin-bottom: var(--space-6); }
+    .game-cat { margin-bottom: var(--space-7); }
+    .game-cat h3 { margin-bottom: var(--space-2); }
+    .game-cat > p { color: var(--ink-soft); margin-bottom: var(--space-4); }
     .game-list { border-top: 1px solid var(--line); }
-    .game-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3) var(--space-6); align-items: center; padding-block: var(--space-5); border-bottom: 1px solid var(--line); }
-    .game-row h3 { margin-bottom: var(--space-2); }
-    .game-row p { color: var(--ink-soft); }
-    .game-row .game-who { font-size: var(--fs-sm); color: var(--ink-faint); margin-top: var(--space-2); }
-    .keys-note { margin-top: var(--space-6); color: var(--ink-soft); }
+    .game-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-2) var(--space-4); align-items: start; padding-block: var(--space-4); border-bottom: 1px solid var(--line); }
+    .game-row input { width: 22px; height: 22px; margin-top: 3px; accent-color: var(--accent); cursor: pointer; }
+    .game-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .game-row label { font-family: var(--font-display); font-size: 1.25rem; font-weight: 650; letter-spacing: -0.015em; cursor: pointer; }
+    .game-row p { color: var(--ink-soft); margin-top: var(--space-1); }
+    .game-row .game-who { font-size: var(--fs-sm); color: var(--ink-faint); }
+    .game-row .btn { align-self: center; }
+    .game-row.is-off label, .game-row.is-off p { color: var(--ink-faint); }
+    .keys-note { color: var(--ink-soft); }
     kbd { font-family: var(--font-mono); font-size: 0.9em; font-weight: 700; padding: 1px 7px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: var(--radius-sm); color: var(--ink); }
 
     .arena { position: fixed; inset: 0; z-index: 200; height: 100vh; height: 100dvh; background: var(--paper-sunk); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
     .arena[hidden] { display: none; }
     .arena .grid { position: absolute; inset: 0; }
     .arena .zone { cursor: pointer; transition: background-color var(--dur-fast); }
-    .arena .zone-inner { padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); gap: var(--space-2); }
+    .arena .zone-inner { padding: max(14px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(14px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); gap: var(--space-2); }
     .zone-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); font-weight: 700; }
     .zone-name { color: var(--pc); }
     .zone-score { font-family: var(--font-display); font-size: 1.25rem; font-variant-numeric: tabular-nums; }
     .zone-stage { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: var(--space-3); }
     .zone-big { font-family: var(--font-display); font-weight: 760; letter-spacing: -0.02em; line-height: var(--lh-head); font-size: min(24cqmin, 7rem); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .zone-big.is-mid { font-size: min(16cqmin, 5rem); }
     .zone-big.is-long { font-size: min(11cqmin, 3.5rem); }
-    .zone-small { max-width: 30ch; color: var(--ink-soft); font-size: clamp(0.875rem, 4.5cqmin, 1.125rem); }
+    .zone-small { max-width: 32ch; color: var(--ink-soft); font-size: clamp(0.875rem, 4.5cqmin, 1.125rem); }
     .zone-small:empty, .zone-big:empty { display: none; }
     .zone-hint { min-height: 1.6em; text-align: center; font-weight: 700; color: var(--ink-soft); }
     .zone-bar { width: min(100%, 360px); height: 10px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--pc) 22%, var(--paper)); overflow: hidden; }
     .zone-bar[hidden] { display: none; }
     .zone-bar i { display: block; height: 100%; width: 100%; background: var(--pc); transform-origin: left; transform: scaleX(0); }
-    .zone-extra { width: 100%; display: flex; justify-content: center; }
+    .zone-extra { width: 100%; display: flex; justify-content: center; align-items: center; }
     .zone-extra:empty { display: none; }
+    .zone.is-canvas .zone-extra { flex: 1; min-height: 0; position: relative; }
+    .zone-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
 
     .zone.is-tap { animation: zone-tap 160ms var(--ease-out); }
     @keyframes zone-tap { from { background-color: color-mix(in srgb, var(--pc) 34%, var(--paper)); } }
@@ -146,14 +159,21 @@
     .zone.is-out { background: var(--paper); }
     .zone.is-out .zone-stage { opacity: 0.6; }
     .zone.is-go { background: var(--ink); color: var(--paper); }
-    .zone.is-go .zone-small, .zone.is-go .zone-hint { color: var(--paper); }
+    .zone.is-go .zone-small, .zone.is-go .zone-hint, .zone.is-go .zone-name { color: var(--paper); }
     .zone.is-win { background: var(--pc); color: var(--on-player); }
     .zone.is-win .zone-name, .zone.is-win .zone-small, .zone.is-win .zone-hint { color: var(--on-player); }
     .zone.is-hot { background: color-mix(in srgb, var(--pc) 42%, var(--paper)); }
+    .zone.is-run { background: color-mix(in srgb, var(--success) 24%, var(--paper)); }
+    .zone.is-stop { background: color-mix(in srgb, var(--danger) 28%, var(--paper)); }
+    .zone.is-beat { background: color-mix(in srgb, var(--pc) 48%, var(--paper)); transition: none; }
 
     .bomb { width: min(34cqmin, 140px); height: auto; color: var(--ink); animation: bomb-tick var(--tick, 900ms) ease-in-out infinite; }
     .bomb .spark { fill: var(--p2); }
     @keyframes bomb-tick { 50% { transform: scale(1.08); } }
+    .shape { width: min(42cqmin, 190px); height: auto; }
+    .dots { width: min(62cqmin, 280px); height: auto; color: var(--ink); }
+    .balloon { width: min(50cqmin, 220px); height: auto; color: var(--pc); }
+    .balloon circle { transition: r var(--dur-fast) var(--ease-out); }
 
     .track { position: relative; width: min(100%, 420px); height: 56px; border-radius: var(--radius-sm); background: var(--paper); border: 1px solid var(--line-strong); overflow: hidden; }
     .track-win { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--pc) 45%, var(--paper)); }
@@ -162,9 +182,9 @@
 
     .arena-pause { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; min-height: 44px; min-width: 44px; padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--line-strong); background: var(--paper-raised); color: var(--ink); font-weight: 700; cursor: pointer; }
     .arena-pause:hover { border-color: var(--ink); }
-    .arena-pause:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
-    .arena[data-players="1"] .arena-pause { left: auto; top: max(12px, env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); transform: none; }
-    .arena[data-players="1"] .zone-top { padding-right: 96px; }
+    .arena-pause:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .arena[data-players="1"] .arena-pause { left: auto; top: max(10px, env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); transform: none; }
+    .arena[data-players="1"] .zone-top { padding-right: 88px; }
 
     .arena-panel { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; padding: 16px; background: var(--scrim); }
     .arena-panel[hidden] { display: none; }
@@ -172,6 +192,7 @@
     .panel-box h2 { font-size: var(--fs-h3); margin-bottom: var(--space-3); }
     .panel-box p { color: var(--ink-soft); margin-bottom: var(--space-4); }
     .panel-scores { margin-bottom: var(--space-5); border-top: 1px solid var(--line); }
+    .panel-scores[hidden] { display: none; }
     .panel-scores li { display: flex; justify-content: space-between; padding-block: var(--space-2); border-bottom: 1px solid var(--line); }
     .panel-scores li span:first-child { color: var(--pc); font-weight: 700; }
     .panel-scores li span:last-child { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -180,24 +201,30 @@
     .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
     html.is-playing { overflow: hidden; scrollbar-gutter: auto; }
 
-    @media (orientation: landscape) {
-      .arena .grid[data-players="2"] { grid-template: "a b" 1fr / var(--fa, 1fr) var(--fb, 1fr); transition: grid-template-columns var(--dur) var(--ease); }
+    @media (orientation: landscape) and (pointer: coarse) {
+      .arena .grid[data-players="2"] { grid-template: "a b" 1fr / var(--fa, 1fr) var(--fb, 1fr); }
+      .arena .grid[data-players="2"] .zone[data-p] .zone-inner { inset: auto; left: 50%; top: 50%; width: 100cqh; height: 100cqw; transform: translate(-50%, -50%) rotate(90deg); }
+      .arena .grid[data-players="2"] .zone[data-p="1"] .zone-inner { transform: translate(-50%, -50%) rotate(-90deg); }
+    }
+    @media (orientation: landscape) and (pointer: fine) {
+      .arena .grid[data-players="2"] { grid-template: "a b" 1fr / var(--fa, 1fr) var(--fb, 1fr); }
       .arena .grid[data-players="3"] { grid-template: "a b c" 1fr / 1fr 1fr 1fr; }
-      .arena .grid[data-players="4"] { grid-template: "a b" 1fr "d c" 1fr / 1fr 1fr; }
+      .arena .grid[data-players="4"] { grid-template: "a b" var(--fa, 1fr) "d c" var(--fb, 1fr) / 1fr 1fr; }
       .arena .grid[data-players] .zone[data-p] .zone-inner { transform: none; }
     }
     @media (max-width: 760px) {
       .party-head { grid-template-columns: 1fr; }
-      .seats-figure { position: static; display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: var(--space-4); align-items: center; }
-      .seats { width: 120px; padding: 6px; }
-      .seat-num { font-size: 1.25rem; }
+      .seats-figure { position: static; display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: var(--space-4); align-items: center; }
+      .seats { width: 96px; padding: 5px; }
+      .seat-num { font-size: 1.125rem; }
       .seats-figure figcaption { margin-top: 0; }
-      .game-row { grid-template-columns: 1fr; }
-      .game-row .btn { justify-self: start; }
+      .game-row { grid-template-columns: auto minmax(0, 1fr); }
+      .game-row .btn { grid-column: 2; justify-self: start; }
     }
     @media (prefers-reduced-motion: reduce) {
       .bomb, .zone.is-tap { animation: none; }
-      .grid[data-players="2"], .arena .grid[data-players="2"] { transition: none; }
+      .grid[data-players="2"], .grid[data-players="4"] { transition: none; }
+      .balloon circle { transition: none; }
     }
   </style>
 </head>
@@ -224,12 +251,12 @@
       <div class="container party-head">
         <div>
           <h1>Daumenduell</h1>
-          <p class="lead">Sieben kleine Spiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt ein Stück des Bildschirms und braucht nur einen Finger.</p>
+          <p class="lead">19 kleine Spiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt ein Stück des Bildschirms und braucht nur einen Finger.</p>
 
           <form class="setup" id="setup">
             <fieldset>
               <legend>Wie viele spielen mit?</legend>
-              <div class="seg" id="playerSeg">
+              <div class="seg">
                 <label><input type="radio" name="players" value="1"><span>1</span></label>
                 <label><input type="radio" name="players" value="2" checked><span>2</span></label>
                 <label><input type="radio" name="players" value="3"><span>3</span></label>
@@ -242,12 +269,14 @@
                 <label><input type="radio" name="points" value="3"><span>3</span></label>
                 <label><input type="radio" name="points" value="5" checked><span>5</span></label>
                 <label><input type="radio" name="points" value="7"><span>7</span></label>
+                <label><input type="radio" name="points" value="10"><span>10</span></label>
               </div>
             </fieldset>
-            <p class="seg-note" id="soloNote" hidden>Allein gibt es keine Punkte. Du siehst nach jeder Runde deine Zeit oder deine Treffer.</p>
+            <p class="setup-note" id="soloNote" hidden>Allein gibt es keine Punkte. Du spielst gegen deinen eigenen Bestwert, er bleibt in diesem Browser gespeichert.</p>
             <div class="actions">
-              <button class="btn btn-primary btn-lg" type="submit">Zufällige Spiele starten</button>
+              <button class="btn btn-primary btn-lg" type="submit" id="btnStart">Gemischte Runden starten</button>
             </div>
+            <p class="setup-note" id="mixNote"></p>
           </form>
         </div>
 
@@ -260,7 +289,7 @@
               <div class="zone" data-p="3"><div class="zone-inner"><span class="seat-num">4</span></div></div>
             </div>
           </div>
-          <figcaption id="seatCaption">Legt das Handy flach zwischen euch. Die obere Hälfte steht für die Person gegenüber auf dem Kopf.</figcaption>
+          <figcaption id="seatCaption"></figcaption>
         </figure>
       </div>
     </section>
@@ -268,8 +297,9 @@
     <section class="party-games" aria-labelledby="gamesTitle">
       <div class="container">
         <h2 id="gamesTitle">Die Spiele</h2>
-        <ul class="game-list" id="gameList"></ul>
-        <p class="keys-note">Am Computer drückt Spieler 1 <kbd>Q</kbd>, Spieler 2 <kbd>P</kbd>, Spieler 3 <kbd>C</kbd> und Spieler 4 <kbd>M</kbd>. <kbd>Esc</kbd> pausiert.</p>
+        <p class="games-intro">Abgehakte Spiele kommen in die gemischten Runden. Spiele, die für eure Anzahl keinen Sinn ergeben, sind ausgegraut.</p>
+        <div id="gameCats"></div>
+        <p class="keys-note" id="keysNote"></p>
       </div>
     </section>
   </main>
@@ -303,20 +333,163 @@
 
   var KEYS = ['q', 'p', 'c', 'm'];
   var NAMES = ['Spieler 1', 'Spieler 2', 'Spieler 3', 'Spieler 4'];
-  var WORDS = ['Lila', 'Orange', 'Türkis', 'Gelb'];
-  var WORD_COLORS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
+  var PCOL = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
+  var COLOR_WORDS = ['Lila', 'Orange', 'Türkis', 'Gelb'];
+  var ANIMALS = ['Hund', 'Katze', 'Pferd', 'Igel', 'Fuchs', 'Maus', 'Esel', 'Ziege', 'Eule', 'Biber', 'Dachs', 'Hase', 'Wal', 'Frosch', 'Ente', 'Wolf', 'Kuh', 'Luchs'];
+  var THINGS = ['Tisch', 'Lampe', 'Stuhl', 'Gabel', 'Brot', 'Wolke', 'Schuh', 'Buch', 'Ball', 'Löffel', 'Zange', 'Mütze', 'Kerze', 'Besen', 'Tasse', 'Sofa', 'Kamm', 'Uhr'];
+  var SHAPES = [
+    '<circle cx="50" cy="50" r="40"/>',
+    '<rect x="12" y="12" width="76" height="76"/>',
+    '<polygon points="50,8 93,88 7,88"/>',
+    '<polygon points="50,5 95,50 50,95 5,50"/>',
+    '<polygon points="50,5 61,38 96,38 68,59 78,93 50,72 22,93 32,59 4,38 39,38"/>',
+    '<polygon points="37,6 63,6 63,37 94,37 94,63 63,63 63,94 37,94 37,63 6,63 6,37 37,37"/>'
+  ];
   var BOMB = '<svg class="bomb" viewBox="0 0 100 100" aria-hidden="true"><circle cx="44" cy="58" r="32" fill="currentColor"/><rect x="52" y="20" width="18" height="16" rx="3" fill="currentColor" transform="rotate(35 61 28)"/><path d="M68 20 C 74 10, 82 12, 86 6" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle class="spark" cx="88" cy="6" r="6"/></svg>';
+  var FINE = window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   function rand(a, b) { return a + Math.random() * (b - a); }
   function randInt(n) { return Math.floor(Math.random() * n); }
+  function pick(a) { return a[randInt(a.length)]; }
   function secs(ms) { return (ms / 1000).toFixed(2).replace('.', ','); }
   function range(n) { var r = []; for (var i = 0; i < n; i++) r.push(i); return r; }
   function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = randInt(i + 1), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function store(key, val) { try { if (val === undefined) return localStorage.getItem(key); localStorage.setItem(key, val); } catch (e) { return null; } }
+  function seeded(seed) {
+    return function () {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function plural(v, one, many) { return v + ' ' + (v === 1 ? one : many); }
+  function hitsText(v) { return plural(v, 'Treffer', 'Treffer'); }
+  function shapeSvg(i, color) { return '<svg class="shape" viewBox="0 0 100 100" aria-hidden="true" style="fill:' + color + '">' + SHAPES[i] + '</svg>'; }
+  function maxOf(arr) { return Math.max.apply(null, arr); }
+  function minOf(arr) { return Math.min.apply(null, arr); }
+  function indicesOf(n, test) { return range(n).filter(test); }
+
+  function survival(g, out, score, label) {
+    var lines = g.map(function (q) { return label(score[q]); });
+    var alive = g.alive(out);
+    if (g.n === 1) {
+      if (!alive.length) g.finish([], lines, { solo: { text: lines[0], value: score[0], better: 'high' } });
+      return;
+    }
+    var best = maxOf(g.map(function (q) { return score[q]; }));
+    if (!alive.length) { g.finish(best > 0 ? indicesOf(g.n, function (q) { return score[q] === best; }) : [], lines, {}); return; }
+    if (alive.length === 1) {
+      var a = alive[0];
+      var others = maxOf(g.map(function (q) { return q === a ? -1 : score[q]; }));
+      if (score[a] > others) g.finish([a], lines, {});
+    }
+  }
+
+  function snap(def) {
+    return function (g) {
+      var out = [], cur = null, caught = false, shown = 0, hits = 0, wait = def.wait, since = 0, prev = null, at = 0;
+      g.each(function (z) { z.set(def.intro, def.hint); });
+      function paint(z) {
+        z.set(cur.big || '', g.n === 1 ? hitsText(hits) : (def.small || ''));
+        z.color(cur.color || '');
+        z.extra(cur.html || '');
+      }
+      function soloEnd(why) {
+        g.finish([], [why + ', ' + hitsText(hits)], { solo: { text: hitsText(hits), value: hits, better: 'high' }, soloSmall: why });
+      }
+      function show() {
+        if (g.n === 1 && cur && cur.match && !caught) { soloEnd('Verpasst'); return; }
+        if (g.n > 1 && shown >= 36) { g.finish([], g.map(function (q) { return out[q] ? 'Daneben' : 'Keiner hat es erwischt'; }), {}); return; }
+        var want = shown >= 2 && (since >= 4 || Math.random() < 0.32);
+        cur = def.item(want, prev);
+        prev = cur;
+        caught = false;
+        shown++;
+        since = cur.match ? 0 : since + 1;
+        at = g.now();
+        g.each(function (z, p) { if (!out[p]) paint(z); });
+        if (g.n === 1) wait = Math.max(def.fastest, wait * 0.97);
+        g.later(show, wait);
+      }
+      g.later(show, 1000);
+      return {
+        tap: function (p) {
+          if (out[p] || !shown) return;
+          if (cur.match && !caught) {
+            if (g.n === 1) { caught = true; hits++; g.z[p].set(g.z[p].bigText(), hitsText(hits)); return; }
+            var ms = Math.round(g.now() - at) + ' ms';
+            g.finish([p], g.map(function (q) { return q === p ? 'Erwischt nach ' + ms : (out[q] ? 'Daneben' : 'Zu langsam'); }), {});
+            return;
+          }
+          if (g.n === 1 && caught) return;
+          out[p] = true;
+          var z = g.z[p];
+          z.cls('is-out', true);
+          z.color('');
+          z.extra('');
+          z.set('Daneben', g.n > 1 ? 'Du bist raus' : '');
+          if (g.n === 1) { soloEnd('Daneben'); return; }
+          if (!g.alive(out).length) g.finish([], g.map(function () { return 'Daneben'; }), {});
+        }
+      };
+    };
+  }
+
+  function arcade(setup) {
+    return function (g) {
+      var st = [], out = [], score = [];
+      g.each(function (z, p) {
+        st[p] = { c: g.canvas(p) };
+        score[p] = 0;
+        z.set('', setup.label(0));
+      });
+      var world = setup.init(g);
+      function knock(p) {
+        if (out[p]) return;
+        out[p] = true;
+        g.z[p].cls('is-out', true);
+        g.z[p].set('', (setup.outText || 'Raus mit ') + setup.label(score[p]));
+        survival(g, out, score, setup.label);
+      }
+      g.frame(function (now, dt) {
+        setup.step(world, now, dt);
+        for (var p = 0; p < g.n && g.active(); p++) {
+          var s = st[p];
+          if (!out[p]) {
+            var r = setup.move(world, s, dt, now);
+            if (r === 'out') knock(p);
+            else if (r !== score[p]) { score[p] = r; g.z[p].set('', setup.label(r)); survival(g, out, score, setup.label); }
+          }
+          if (!g.active()) return;
+          s.c.fit();
+          setup.draw(world, s, s.c, out[p]);
+        }
+      });
+      return {
+        tap: function (p) {
+          if (!out[p]) setup.tap(world, st[p], g.now());
+          if (setup.tapOut && setup.tapOut(world, st[p])) knock(p);
+          else if (setup.score && !out[p]) {
+            var v = setup.score(st[p]);
+            if (v !== score[p]) { score[p] = v; g.z[p].set('', setup.label(v)); survival(g, out, score, setup.label); }
+          }
+        }
+      };
+    };
+  }
+
+  var CATS = [
+    { id: 'tempo', name: 'Tempo', text: 'Schnelle Finger und schnelle Augen.' },
+    { id: 'nerves', name: 'Nerven', text: 'Wer zu gierig ist, verliert. Wer zu früh aufhört, auch.' },
+    { id: 'snap', name: 'Schnappen', text: 'Bilder und Wörter wechseln. Tippe nur im richtigen Moment, ein falscher Tipp und du bist raus.' },
+    { id: 'timing', name: 'Timing', text: 'Kein Hetzen. Hier zählt der richtige Augenblick.' },
+    { id: 'skill', name: 'Geschick', text: 'Kleine Arcade-Spiele mit einem Knopf. Alle spielen dieselbe Strecke.' }
+  ];
 
   var GAMES = [
     {
-      id: 'tap', name: 'Schnellfinger', min: 1, max: 4,
+      id: 'tap', cat: 'tempo', name: 'Schnellfinger', players: [1, 2, 3, 4],
       rule: 'Tippe so schnell du kannst. Wer zuerst 40-mal getippt hat, gewinnt.',
       start: function (g) {
         var goal = 40, c = [], t0 = g.now();
@@ -327,14 +500,14 @@
             g.z[p].set(String(c[p]), 'von ' + goal);
             g.z[p].bar(c[p] / goal);
             if (c[p] < goal) return;
-            var t = secs(g.now() - t0) + ' s';
-            g.finish([p], g.map(function (q) { return q === p ? goal + ' Taps in ' + t : c[q] + ' von ' + goal; }), { solo: t });
+            var ms = g.now() - t0;
+            g.finish([p], g.map(function (q) { return q === p ? goal + ' Taps in ' + secs(ms) + ' s' : c[q] + ' von ' + goal; }), { solo: { text: secs(ms) + ' s', value: ms, better: 'low' }, soloSmall: goal + ' Taps' });
           }
         };
       }
     },
     {
-      id: 'reaction', name: 'Reaktion', min: 1, max: 4,
+      id: 'reaction', cat: 'tempo', name: 'Reaktion', players: [1, 2, 3, 4],
       rule: 'Warte, bis dein Feld hell wird, dann tippe. Wer zu früh tippt, ist raus.',
       start: function (g) {
         var out = [], goAt = 0;
@@ -342,10 +515,8 @@
         g.later(function () {
           goAt = g.now();
           g.each(function (z, p) { if (!out[p]) { z.cls('is-go', true); z.set('Jetzt!', ''); } });
-          g.later(function () {
-            g.finish([], g.map(function (q) { return out[q] ? 'Zu früh' : 'Zu langsam'; }), { solo: 'Zu langsam' });
-          }, 3000);
-        }, rand(1500, 5000));
+          g.later(function () { g.finish([], g.map(function (q) { return out[q] ? 'Zu früh' : 'Zu langsam'; }), {}); }, 3000);
+        }, rand(1500, 5500));
         return {
           tap: function (p) {
             if (out[p]) return;
@@ -353,59 +524,337 @@
               out[p] = true;
               g.z[p].cls('is-out', true);
               g.z[p].set('Zu früh', g.n > 1 ? 'Warte auf die anderen' : '');
-              if (g.alive(out).length === 0) g.finish([], g.map(function () { return 'Zu früh'; }), { solo: 'Zu früh' });
+              if (!g.alive(out).length) g.finish([], g.map(function () { return 'Zu früh'; }), {});
               return;
             }
-            var ms = Math.round(g.now() - goAt) + ' ms';
-            g.finish([p], g.map(function (q) { return q === p ? ms : (out[q] ? 'Zu früh' : 'Zu langsam'); }), { solo: ms });
+            var ms = Math.round(g.now() - goAt);
+            g.finish([p], g.map(function (q) { return q === p ? ms + ' ms' : (out[q] ? 'Zu früh' : 'Zu langsam'); }), { solo: { text: ms + ' ms', value: ms, better: 'low' }, soloSmall: 'Reaktionszeit' });
           }
         };
       }
     },
     {
-      id: 'color', name: 'Farbfalle', min: 1, max: 4,
-      rule: 'Tippe nur, wenn das Wort in seiner eigenen Farbe steht. Ein falscher Tipp und du bist raus.',
+      id: 'light', cat: 'tempo', name: 'Ampellauf', players: [1, 2, 3, 4],
+      rule: 'Tippe, um zu laufen, aber nur bei Grün. Wer bei Rot tippt, fällt zehn Schritte zurück. Wer zuerst 50 Schritte hat, gewinnt. Nach 40 Sekunden gewinnt, wer am weitesten ist.',
       start: function (g) {
-        var out = [], match = false, caught = false, shown = 0, hits = 0, wait = 1300;
-        g.each(function (z) { z.set('Achtung', 'Tippe, wenn Wort und Farbe passen'); });
-        function show() {
-          if (g.n === 1 && match && !caught) { g.finish([], ['Verpasst'], { solo: hits + ' Treffer' }); return; }
-          if (g.n > 1 && shown >= 30) { g.finish([], g.map(function (q) { return out[q] ? 'Daneben' : 'Keiner war schnell genug'; }), {}); return; }
-          var w = randInt(4), c = w;
-          if (shown < 2 || Math.random() > 0.35) { c = (w + 1 + randInt(3)) % 4; }
-          match = c === w;
-          caught = false;
-          shown++;
-          g.each(function (z, p) { if (!out[p]) { z.set(WORDS[w], g.n === 1 ? hits + ' Treffer' : ''); z.color(WORD_COLORS[c]); } });
-          if (g.n === 1) wait = Math.max(650, wait * 0.97);
-          g.later(show, wait);
+        var goal = 50, steps = [], green = false, changed = 0, t0 = g.now(), stun = [];
+        g.each(function (z, p) { steps[p] = 0; z.bar(0); });
+        function paint(p) {
+          var z = g.z[p];
+          z.cls('is-run', green);
+          z.cls('is-stop', !green);
+          if (!stun[p] || g.now() > stun[p]) z.set(green ? 'Lauf!' : 'Stopp!', steps[p] + ' von ' + goal);
         }
-        g.later(show, 900);
+        function flip() {
+          green = !green;
+          changed = g.now();
+          g.each(function (z, p) { paint(p); });
+          g.later(flip, green ? rand(900, 2800) : rand(1000, 2600));
+        }
+        flip();
+        g.later(function () {
+          var best = maxOf(steps);
+          g.finish(g.n > 1 && best > 0 ? indicesOf(g.n, function (q) { return steps[q] === best; }) : [], g.map(function (q) { return 'Zeit um bei ' + steps[q] + ' von ' + goal; }), { solo: { text: 'Zeit um' }, soloSmall: steps[0] + ' von ' + goal });
+        }, 40000);
         return {
           tap: function (p) {
-            if (out[p] || !shown) return;
-            if (match && !caught) {
-              if (g.n === 1) { caught = true; hits++; g.z[p].set(g.z[p].bigText(), hits + ' Treffer'); return; }
-              g.finish([p], g.map(function (q) { return q === p ? 'Richtig erkannt' : (out[q] ? 'Daneben' : 'Zu langsam'); }), {});
+            var z = g.z[p];
+            if (stun[p] && g.now() < stun[p]) return;
+            if (!green) {
+              if (g.now() - changed < 180) return;
+              steps[p] = Math.max(0, steps[p] - 10);
+              stun[p] = g.now() + 600;
+              z.set('Zurück!', steps[p] + ' von ' + goal);
+              z.bar(steps[p] / goal);
+              g.later(function () { paint(p); }, 620);
               return;
             }
-            if (g.n === 1 && caught) return;
-            out[p] = true;
-            g.z[p].cls('is-out', true);
-            g.z[p].color('');
-            g.z[p].set('Daneben', g.n > 1 ? 'Du bist raus' : '');
-            if (g.n === 1) { g.finish([], ['Daneben'], { solo: hits + ' Treffer' }); return; }
-            if (g.alive(out).length === 0) g.finish([], g.map(function () { return 'Daneben'; }), {});
+            steps[p]++;
+            z.bar(steps[p] / goal);
+            z.set('Lauf!', steps[p] + ' von ' + goal);
+            if (steps[p] < goal) return;
+            var ms = g.now() - t0;
+            g.finish([p], g.map(function (q) { return q === p ? 'Im Ziel nach ' + secs(ms) + ' s' : steps[q] + ' von ' + goal; }), { solo: { text: secs(ms) + ' s', value: ms, better: 'low' }, soloSmall: 'Bis ins Ziel' });
           }
         };
       }
     },
     {
-      id: 'stopwatch', name: 'Stoppuhr', min: 1, max: 4,
-      rule: 'Stoppe bei genau 5 Sekunden. Nach anderthalb Sekunden verschwindet die Uhr.',
+      id: 'tug', cat: 'tempo', name: 'Tauziehen', players: [2, 4],
+      rule: 'Jeder Tipp zieht die Grenze ein Stück zu euch. Zu viert zieht die untere Hälfte gegen die obere. Wer das Feld fast ganz erobert, gewinnt. Nach 20 Sekunden gewinnt, wer vorne liegt.',
       start: function (g) {
-        var goal = 5000, t0 = g.now(), stop = [], done = false;
-        g.each(function (z) { z.set('0,00', 'Ziel: 5,00 s'); });
+        var pos = 0, step = g.n === 4 ? 0.025 : 0.05, edge = 0.8;
+        function team(p) { return g.n === 4 ? (p < 2 ? 0 : 1) : p; }
+        g.each(function (z, p) { z.set('Zieh!', g.n === 4 ? (team(p) === 0 ? 'Ihr seid Team unten' : 'Ihr seid Team oben') : 'Tippe so schnell du kannst'); z.bar(1); });
+        var t0 = g.now();
+        g.every(function () {
+          var left = Math.max(0, 1 - (g.now() - t0) / 20000);
+          g.each(function (z) { z.bar(left); });
+          if (left > 0) return;
+          if (Math.abs(pos) < 1e-9) { g.finish([], g.map(function () { return 'Zeit um, genau in der Mitte'; }), {}); return; }
+          var w = pos > 0 ? 0 : 1;
+          g.finish(indicesOf(g.n, function (q) { return team(q) === w; }), g.map(function (q) { return team(q) === w ? (g.n === 4 ? 'Zeit um, ihr lagt vorne' : 'Zeit um, du lagst vorne') : (g.n === 4 ? 'Zeit um, ihr lagt hinten' : 'Zeit um, du lagst hinten'); }), {});
+        }, 100);
+        return {
+          tap: function (p) {
+            pos += team(p) === 0 ? step : -step;
+            g.split(1 + pos, 1 - pos);
+            if (Math.abs(pos) < edge - 1e-9) return;
+            var w = pos > 0 ? 0 : 1;
+            g.finish(indicesOf(g.n, function (q) { return team(q) === w; }), g.map(function (q) { return team(q) === w ? (g.n === 4 ? 'Das Feld gehört euch' : 'Das Feld gehört dir') : 'Weggezogen'; }), {});
+          }
+        };
+      }
+    },
+    {
+      id: 'dare', cat: 'nerves', name: 'Mutprobe', players: [1, 2, 3, 4],
+      rule: 'Alle legen den Finger auf und halten. Irgendwann knallt es. Wer zuletzt loslässt, bevor es knallt, gewinnt. Wer beim Knall noch drauf ist, verliert.',
+      start: function (g) {
+        var t0 = 0, boom = rand(3000, 11000), rel = [], joined = [], waitStart = g.now();
+        g.each(function (z) { z.set('Halten', 'Finger auflegen' + (FINE ? ' oder Taste gedrückt halten' : '') + ' und liegen lassen'); });
+        function begin() {
+          t0 = g.now();
+          g.each(function (z, p) {
+            joined[p] = g.holding(p);
+            if (!joined[p]) { z.cls('is-out', true); z.set('Nicht dabei', 'Du hast nicht gehalten'); }
+            else { z.set('0,0', 'Lass los, bevor es knallt'); z.bar(0); }
+          });
+          if (!g.alive(joined.map(function (j) { return !j; })).length) g.finish([], g.map(function () { return 'Nicht gehalten'; }), {});
+        }
+        function end(exploded) {
+          var lines = g.map(function (q) {
+            if (!joined[q]) return 'Nicht dabei';
+            if (rel[q] == null) return 'Noch drauf beim Knall nach ' + secs(boom) + ' s';
+            return 'Losgelassen nach ' + secs(rel[q]) + ' s, Knall nach ' + secs(boom) + ' s';
+          });
+          var safe = indicesOf(g.n, function (q) { return rel[q] != null; });
+          var best = safe.length ? maxOf(safe.map(function (q) { return rel[q]; })) : 0;
+          var winners = safe.filter(function (q) { return rel[q] === best; });
+          var solo = rel[0] != null ? { text: secs(boom - rel[0]) + ' s', value: Math.round(boom - rel[0]), better: 'low' } : { text: 'Bumm' };
+          g.finish(g.n > 1 ? winners : [], lines, { solo: solo, soloSmall: rel[0] != null ? 'so knapp vor dem Knall' : lines[0], big: function (q) { return joined[q] && rel[q] == null && exploded ? 'Bumm' : null; } });
+        }
+        g.frame(function (now) {
+          if (!t0) {
+            var all = g.map(function (q) { return g.holding(q); }).every(Boolean);
+            if (all || now - waitStart > 4000) begin();
+            return;
+          }
+          var t = now - t0;
+          if (t >= boom) { end(true); return; }
+          g.each(function (z, p) { if (joined[p] && rel[p] == null) { z.big((t / 1000).toFixed(1).replace('.', ',')); z.bar(Math.min(1, t / 11000)); } });
+        });
+        return {
+          tap: function () {},
+          release: function (p) {
+            if (!t0 || !joined[p] || rel[p] != null) return;
+            rel[p] = g.now() - t0;
+            g.z[p].cls('is-ready', true);
+            g.z[p].set(secs(rel[p]), 'Losgelassen');
+            if (indicesOf(g.n, function (q) { return joined[q] && rel[q] == null; }).length === 0) g.later(function () { end(false); }, 400);
+          }
+        };
+      }
+    },
+    {
+      id: 'balloon', cat: 'nerves', name: 'Ballon', players: [1, 2, 3, 4],
+      rule: 'Jeder Tipp pumpt deinen Ballon auf. Alle Ballons platzen bei derselben geheimen Größe. Nach acht Sekunden gewinnt der größte heile Ballon.',
+      start: function (g) {
+        var limit = 12 + randInt(26), dur = 8000, t0 = g.now(), pumps = [], popped = [];
+        function draw(p) {
+          var r = 8 + 34 * Math.sqrt(Math.min(pumps[p], 40) / 40);
+          g.z[p].extra('<svg class="balloon" viewBox="0 0 100 110" aria-hidden="true"><circle cx="50" cy="' + (50) + '" r="' + r.toFixed(1) + '" fill="currentColor"/><polygon points="46,' + (50 + r + 5).toFixed(1) + ' 54,' + (50 + r + 5).toFixed(1) + ' 50,' + (50 + r - 1).toFixed(1) + '" fill="currentColor"/></svg>');
+        }
+        g.each(function (z, p) { pumps[p] = 0; draw(p); z.set('0', 'Pumpen'); z.bar(1); });
+        function end() {
+          var safe = indicesOf(g.n, function (q) { return !popped[q]; });
+          var best = safe.length ? maxOf(safe.map(function (q) { return pumps[q]; })) : -1;
+          var winners = safe.filter(function (q) { return pumps[q] === best && best > 0; });
+          var lines = g.map(function (q) { return popped[q] ? 'Geplatzt bei ' + pumps[q] : plural(pumps[q], 'Pumpstoß', 'Pumpstöße') + ', Grenze war ' + limit; });
+          g.finish(g.n > 1 ? winners : [], lines, { solo: popped[0] ? { text: 'Geplatzt' } : { text: String(pumps[0]), value: pumps[0], better: 'high' }, soloSmall: lines[0] });
+        }
+        g.every(function () {
+          var left = Math.max(0, dur - (g.now() - t0));
+          g.each(function (z) { z.bar(left / dur); });
+          if (left <= 0) end();
+        }, 100);
+        return {
+          tap: function (p) {
+            if (popped[p]) return;
+            pumps[p]++;
+            var z = g.z[p];
+            if (pumps[p] >= limit) {
+              popped[p] = true;
+              z.extra('');
+              z.cls('is-out', true);
+              z.set('Peng', 'Geplatzt bei ' + pumps[p]);
+              if (!g.alive(popped).length) end();
+              return;
+            }
+            draw(p);
+            z.set(String(pumps[p]), 'Pumpen');
+          }
+        };
+      }
+    },
+    {
+      id: 'bomb', cat: 'nerves', name: 'Bombe', players: [3, 4],
+      rule: 'Wer die Bombe hat, tippt, um sie weiterzugeben. Bei wem sie hochgeht, der ist raus. Dann geht es mit den anderen weiter, bis nur noch einer übrig ist.',
+      start: function (g) {
+        var out = [], holder = randInt(g.n), fuse = 0, t0 = 0, armed = false;
+        function next(from) {
+          var q = from;
+          do { q = (q + 1) % g.n; } while (out[q]);
+          return q;
+        }
+        function paint() {
+          g.each(function (z, p) {
+            if (out[p]) return;
+            var hot = p === holder;
+            z.cls('is-hot', hot);
+            z.extra(hot ? BOMB : '');
+            z.set(hot ? 'Weg damit!' : '', hot ? 'Tippen gibt die Bombe weiter' : NAMES[holder] + ' hat die Bombe');
+          });
+        }
+        function arm() {
+          fuse = rand(3000, 7000);
+          t0 = g.now();
+          armed = true;
+          paint();
+        }
+        g.every(function () {
+          if (!armed) return;
+          var left = Math.max(0, 1 - (g.now() - t0) / fuse);
+          g.z[holder].el.style.setProperty('--tick', Math.round(200 + 700 * left) + 'ms');
+          if (g.now() - t0 < fuse) return;
+          armed = false;
+          var z = g.z[holder];
+          out[holder] = true;
+          z.el.style.removeProperty('--tick');
+          z.cls('is-hot', false);
+          z.cls('is-out', true);
+          z.extra('');
+          z.set('Bumm', 'Du bist raus');
+          var alive = g.alive(out);
+          if (alive.length === 1) {
+            g.later(function () {
+              g.finish(alive, g.map(function (q) { return out[q] ? 'Bumm' : 'Als Letzter übrig'; }), { big: function (q) { return out[q] ? 'Bumm' : null; } });
+            }, 900);
+            return;
+          }
+          var gone = holder;
+          g.each(function (zz, p) { if (!out[p]) { zz.cls('is-hot', false); zz.extra(''); zz.set('Bumm', NAMES[gone] + ' ist raus'); } });
+          holder = pick(alive);
+          g.later(arm, 1400);
+        }, 100);
+        g.later(arm, 300);
+        return {
+          tap: function (p) {
+            if (!armed || p !== holder) return;
+            g.z[holder].el.style.removeProperty('--tick');
+            holder = next(holder);
+            paint();
+          }
+        };
+      }
+    },
+    {
+      id: 'color', cat: 'snap', name: 'Farbfalle', players: [1, 2, 3, 4],
+      rule: 'Tippe, wenn das Wort in seiner eigenen Farbe steht.',
+      start: snap({
+        intro: 'Achtung', hint: 'Tippe, wenn Wort und Farbe passen', wait: 1300, fastest: 600,
+        item: function (want) {
+          var w = randInt(4), c = want ? w : (w + 1 + randInt(3)) % 4;
+          return { big: COLOR_WORDS[w], color: PCOL[c], match: want };
+        }
+      })
+    },
+    {
+      id: 'math', cat: 'snap', name: 'Rechenblitz', players: [1, 2, 3, 4],
+      rule: 'Tippe, wenn die Rechnung stimmt.',
+      start: snap({
+        intro: 'Achtung', hint: 'Tippe nur bei einer richtigen Rechnung', wait: 1900, fastest: 1000,
+        item: function (want) {
+          var a = 2 + randInt(9), b = 2 + randInt(9), plus = Math.random() < 0.6;
+          if (!plus && b > a) { var t = a; a = b; b = t; }
+          var r = plus ? a + b : a - b;
+          if (!want) r += (Math.random() < 0.5 ? -1 : 1) * (1 + randInt(2));
+          return { big: a + (plus ? ' + ' : ' − ') + b + ' = ' + r, match: want };
+        }
+      })
+    },
+    {
+      id: 'twin', cat: 'snap', name: 'Doppelt', players: [1, 2, 3, 4],
+      rule: 'Tippe, wenn dieselbe Form zweimal hintereinander kommt. Die Farbe zählt nicht.',
+      start: snap({
+        intro: 'Achtung', hint: 'Gleiche Form wie eben? Dann tippen', wait: 1200, fastest: 600,
+        item: function (want, prev) {
+          var s = want && prev ? prev.s : randInt(SHAPES.length);
+          if (!want && prev && s === prev.s) s = (s + 1 + randInt(SHAPES.length - 1)) % SHAPES.length;
+          return { s: s, html: shapeSvg(s, pick(PCOL)), match: !!(want && prev) };
+        }
+      })
+    },
+    {
+      id: 'animal', cat: 'snap', name: 'Tierisch', players: [1, 2, 3, 4],
+      rule: 'Wörter blitzen auf. Tippe nur, wenn es ein Tier ist.',
+      start: snap({
+        intro: 'Achtung', hint: 'Tippe nur bei Tieren', wait: 1200, fastest: 600,
+        item: function (want) { return { big: pick(want ? ANIMALS : THINGS), match: want }; }
+      })
+    },
+    {
+      id: 'count', cat: 'snap', name: 'Punkte zählen', players: [1, 2, 3, 4],
+      rule: 'Kurz erscheinen ein paar Punkte. Dann laufen Zahlen durch. Tippe, wenn die richtige Anzahl kommt.',
+      start: function (g) {
+        var n = 5 + randInt(10), dots = [], tries = 0;
+        while (dots.length < n && tries < 2000) {
+          tries++;
+          var x = 10 + Math.random() * 80, y = 10 + Math.random() * 80;
+          if (dots.every(function (d) { return Math.hypot(d[0] - x, d[1] - y) > 15; })) dots.push([x, y]);
+        }
+        n = dots.length;
+        var svg = '<svg class="dots" viewBox="0 0 100 100" aria-hidden="true">' + dots.map(function (d) { return '<circle cx="' + d[0].toFixed(1) + '" cy="' + d[1].toFixed(1) + '" r="5.5" fill="currentColor"/>'; }).join('') + '</svg>';
+        var out = [], cur = 0, shown = 0, at = 0, when = 2 + randInt(4), started = false;
+        g.each(function (z) { z.extra(svg); z.set('', 'Zähl die Punkte'); });
+        function show() {
+          if (shown > when && cur === n) {
+            g.finish([], g.map(function (q) { return out[q] ? 'Falsche Zahl' : 'Verpasst, es waren ' + n; }), { solo: { text: 'Verpasst' }, soloSmall: 'Es waren ' + n });
+            return;
+          }
+          var v;
+          if (shown === when) v = n;
+          else { do { v = n + (randInt(7) - 3); } while (v === n || v < 1); }
+          cur = v;
+          shown++;
+          at = g.now();
+          g.each(function (z, p) { if (!out[p]) { z.extra(''); z.set(String(v), 'So viele Punkte?'); } });
+          g.later(show, 1100);
+        }
+        g.later(function () { started = true; g.each(function (z) { z.extra(''); z.set('', 'Wie viele waren es?'); }); }, 1500);
+        g.later(show, 2100);
+        return {
+          tap: function (p) {
+            if (out[p] || !started || !shown) return;
+            if (cur === n) {
+              var ms = Math.round(g.now() - at);
+              g.finish([p], g.map(function (q) { return q === p ? 'Richtig, es waren ' + n : (out[q] ? 'Falsche Zahl' : 'Zu langsam'); }), { solo: { text: ms + ' ms', value: ms, better: 'low' }, soloSmall: 'Richtig, es waren ' + n });
+              return;
+            }
+            out[p] = true;
+            g.z[p].cls('is-out', true);
+            g.z[p].set('Falsch', 'Es waren ' + n);
+            if (g.n === 1) { g.finish([], ['Es waren ' + n], { solo: { text: 'Falsch' }, soloSmall: 'Es waren ' + n }); return; }
+            if (!g.alive(out).length) g.finish([], g.map(function () { return 'Falsche Zahl, es waren ' + n; }), {});
+          }
+        };
+      }
+    },
+    {
+      id: 'stopwatch', cat: 'timing', name: 'Stoppuhr', players: [1, 2, 3, 4],
+      rule: 'Stoppe die Uhr genau bei der Zielzeit. Nach gut einer Sekunde verschwindet die Anzeige.',
+      start: function (g) {
+        var goal = 1000 * (3 + randInt(5)), t0 = g.now(), stop = [], done = false;
+        g.each(function (z) { z.set('0,00', 'Ziel: ' + secs(goal) + ' s'); });
         function verdict(q) {
           if (stop[q] == null) return 'Nicht gestoppt';
           var d = stop[q] - goal;
@@ -415,18 +864,15 @@
         function end() {
           if (done) return;
           done = true;
-          var best = Infinity, win = [];
-          g.each(function (z, p) {
-            if (stop[p] == null) return;
-            var d = Math.abs(stop[p] - goal);
-            if (d < best - 0.5) { best = d; win = [p]; } else if (Math.abs(d - best) <= 0.5) win.push(p);
-          });
-          g.finish(g.n > 1 ? win : [], g.map(verdict), { solo: stop[0] == null ? 'Nicht gestoppt' : secs(stop[0]) + ' s', soloSmall: verdict(0) });
+          var ds = g.map(function (q) { return stop[q] == null ? Infinity : Math.abs(stop[q] - goal); });
+          var best = minOf(ds);
+          var win = best === Infinity ? [] : indicesOf(g.n, function (q) { return ds[q] - best < 1; });
+          g.finish(g.n > 1 ? win : [], g.map(verdict), { solo: stop[0] == null ? { text: 'Nicht gestoppt' } : { text: secs(ds[0]) + ' s', value: Math.round(ds[0]), better: 'low' }, soloSmall: verdict(0) });
         }
         g.frame(function (now) {
           var t = now - t0;
-          g.each(function (z, p) { if (stop[p] == null) z.big(t < 1500 ? secs(t) : '?'); });
-          if (t > 10000) end();
+          g.each(function (z, p) { if (stop[p] == null) z.big(t < 1200 ? secs(t) : '?'); });
+          if (t > goal * 2) end();
         });
         return {
           tap: function (p) {
@@ -434,50 +880,16 @@
             stop[p] = g.now() - t0;
             g.z[p].cls('is-ready', true);
             g.z[p].set('Gestoppt', g.n > 1 ? 'Warte auf die anderen' : '');
-            if (g.alive(stop.map(function (v) { return v != null; })).length === 0) end();
+            if (stop.filter(function (v) { return v != null; }).length === g.n) end();
           }
         };
       }
     },
     {
-      id: 'bomb', name: 'Bombe', min: 2, max: 4,
-      rule: 'Wer die Bombe hat, tippt, um sie weiterzugeben. Bei wem sie hochgeht, der bekommt als Einziger keinen Punkt.',
+      id: 'timing', cat: 'timing', name: 'Taktgefühl', players: [1, 2, 3, 4],
+      rule: 'Ein Strich läuft durch deine Leiste. Tippe einmal pro Durchlauf, wenn er im farbigen Feld ist. Es wird schneller. Wer am längsten durchhält, gewinnt.',
       start: function (g) {
-        var holder = randInt(g.n), fuse = rand(7000, 15000), t0 = g.now();
-        function paint() {
-          g.each(function (z, p) {
-            var hot = p === holder;
-            z.cls('is-hot', hot);
-            z.extra(hot ? BOMB : '');
-            z.set(hot ? 'Weg damit!' : '', hot ? 'Tippen gibt die Bombe weiter' : NAMES[holder] + ' hat die Bombe');
-          });
-        }
-        g.every(function () {
-          var left = Math.max(0, 1 - (g.now() - t0) / fuse);
-          g.z[holder].el.style.setProperty('--tick', Math.round(220 + 700 * left) + 'ms');
-        }, 250);
-        g.later(function () {
-          g.z[holder].extra('');
-          g.finish(g.map(function (q) { return q; }).filter(function (q) { return q !== holder; }),
-            g.map(function (q) { return q === holder ? 'Die Bombe ist bei dir hochgegangen' : 'Überlebt'; }),
-            { big: function (q) { return q === holder ? 'Bumm' : null; } });
-        }, fuse);
-        paint();
-        return {
-          tap: function (p) {
-            if (p !== holder) return;
-            g.z[holder].el.style.removeProperty('--tick');
-            holder = (holder + 1) % g.n;
-            paint();
-          }
-        };
-      }
-    },
-    {
-      id: 'timing', name: 'Taktgefühl', min: 1, max: 4,
-      rule: 'Ein Strich läuft durch deine Leiste. Tippe einmal pro Durchlauf, wenn er im farbigen Feld ist. Wer am längsten durchhält, gewinnt.',
-      start: function (g) {
-        var st = [], width = 0.18;
+        var st = [], out = [], score = [], width = 0.18;
         function newWin(s) {
           s.a = rand(0.3, 0.94 - width);
           s.win.style.left = (s.a * 100) + '%';
@@ -486,32 +898,25 @@
         }
         g.each(function (z, p) {
           z.extra('<div class="track"><span class="track-win"></span><span class="track-mark"></span></div>');
-          var s = { hits: 0, out: false, dur: 1800, s0: g.now() + 700, x: 0, tapped: false };
+          var s = { dur: 1800, s0: g.now() + 700, x: 0, tapped: false };
           s.track = z.el.querySelector('.track');
           s.win = z.el.querySelector('.track-win');
           s.mark = z.el.querySelector('.track-mark');
           newWin(s);
           st[p] = s;
+          score[p] = 0;
           z.set('0', 'Treffer');
         });
         function knock(p, why) {
-          var s = st[p];
-          s.out = true;
+          out[p] = true;
           g.z[p].cls('is-out', true);
-          g.z[p].set(why, s.hits + ' Treffer');
-          var alive = g.alive(st.map(function (v) { return v.out; }));
-          var lines = g.map(function (q) { return st[q].hits + ' Treffer'; });
-          if (g.n === 1) { g.finish([], [why + ', ' + lines[0]], { solo: lines[0] }); return; }
-          if (alive.length === 1) { g.finish(alive, lines, {}); return; }
-          if (alive.length === 0) {
-            var top = Math.max.apply(null, st.map(function (v) { return v.hits; }));
-            g.finish(g.map(function (q) { return q; }).filter(function (q) { return st[q].hits === top; }), lines, {});
-          }
+          g.z[p].set(why, hitsText(score[p]));
+          survival(g, out, score, hitsText);
         }
         g.frame(function (now) {
-          for (var p = 0; p < g.n; p++) {
+          for (var p = 0; p < g.n && g.active(); p++) {
             var s = st[p];
-            if (s.out || !g.active()) continue;
+            if (out[p]) continue;
             var x = (now - s.s0) / s.dur;
             if (x >= 1) {
               if (!s.tapped) { knock(p, 'Verpasst'); continue; }
@@ -524,13 +929,14 @@
         return {
           tap: function (p) {
             var s = st[p];
-            if (s.out || s.tapped || g.now() < s.s0) return;
+            if (out[p] || s.tapped || g.now() < s.s0) return;
             if (s.x >= s.a && s.x <= s.a + width) {
-              s.hits++;
+              score[p]++;
               s.tapped = true;
               s.dur = Math.max(480, s.dur * 0.9);
               s.track.classList.add('is-hit');
-              g.z[p].set(String(s.hits), 'Treffer');
+              g.z[p].set(String(score[p]), 'Treffer');
+              survival(g, out, score, hitsText);
             } else {
               knock(p, 'Daneben');
             }
@@ -539,21 +945,222 @@
       }
     },
     {
-      id: 'tug', name: 'Tauziehen', min: 2, max: 2,
-      rule: 'Jeder Tipp zieht die Grenze ein Stück zu dir. Wer das Feld des anderen fast ganz erobert, gewinnt.',
+      id: 'rhythm', cat: 'timing', name: 'Rhythmus', players: [1, 2, 3, 4],
+      rule: 'Dein Feld blinkt viermal im Takt. Dann wird es still, und du tippst die nächsten vier Schläge allein. Wer am genauesten bleibt, gewinnt.',
       start: function (g) {
-        var pos = 0, step = 0.05, edge = 0.8;
-        g.each(function (z) { z.set('Zieh!', 'Tippe so schnell du kannst'); });
+        var T = rand(480, 720), t0 = g.now() + 700, beats = [], taps = [], done = false;
+        for (var i = 4; i < 8; i++) beats.push(t0 + i * T);
+        g.each(function (z, p) { taps[p] = []; z.set('', 'Zähl mit'); });
+        for (var k = 0; k < 4; k++) {
+          (function (k) {
+            g.later(function () {
+              g.each(function (z) { z.cls('is-beat', true); z.set(String(k + 1), 'Zähl mit'); });
+              g.later(function () { g.each(function (z) { z.cls('is-beat', false); }); }, 110);
+            }, t0 - g.now() + k * T);
+          })(k);
+        }
+        g.later(function () { g.each(function (z) { z.set('Du', 'Tippe die nächsten vier Schläge'); }); }, t0 - g.now() + 4 * T - 150);
+        function err(p) {
+          var used = [], total = 0;
+          beats.forEach(function (b) {
+            var bestI = -1, bestD = Infinity;
+            taps[p].forEach(function (t, i) { if (used.indexOf(i) === -1 && Math.abs(t - b) < bestD) { bestD = Math.abs(t - b); bestI = i; } });
+            if (bestI === -1 || bestD > T / 2) total += T / 2;
+            else { used.push(bestI); total += bestD; }
+          });
+          total += Math.max(0, taps[p].length - used.length) * T / 4;
+          return Math.round(total / 4);
+        }
+        function end() {
+          if (done) return;
+          done = true;
+          var e = g.map(err), best = minOf(e);
+          g.finish(g.n > 1 ? indicesOf(g.n, function (q) { return e[q] === best; }) : [], g.map(function (q) { return 'Im Schnitt ' + e[q] + ' ms daneben'; }), { solo: { text: e[0] + ' ms', value: e[0], better: 'low' }, soloSmall: 'im Schnitt daneben' });
+        }
+        g.later(end, t0 - g.now() + 8 * T + T / 2);
         return {
           tap: function (p) {
-            pos += p === 0 ? step : -step;
-            g.split(1 + pos, 1 - pos);
-            if (Math.abs(pos) < edge - 1e-9) return;
-            var w = pos > 0 ? 0 : 1;
-            g.finish([w], g.map(function (q) { return q === w ? 'Das Feld gehört dir' : 'Weggezogen'; }), {});
+            var t = g.now();
+            if (t < t0 + 3.5 * T) return;
+            taps[p].push(t);
+            var z = g.z[p];
+            z.set(String(Math.min(4, taps[p].length)), taps[p].length >= 4 ? 'Fertig' : 'Weiter im Takt');
+            if (taps.every(function (a) { return a.length >= 4; })) g.later(end, 200);
           }
         };
       }
+    },
+    {
+      id: 'dart', cat: 'timing', name: 'Dart', players: [1, 2, 3, 4],
+      rule: 'Erster Tipp stoppt die Linie von links nach rechts, zweiter Tipp die von oben nach unten. Drei Pfeile, die Mitte gibt zehn Punkte.',
+      start: arcade({
+        label: function (v) { return plural(v, 'Punkt', 'Punkte'); },
+        outText: 'Fertig mit ',
+        init: function () {
+          function fx(s, t) { return 50 + 42 * Math.sin(t * 3.1 + s.ph); }
+          function fy(s, t) { return 50 + 42 * Math.sin(t * 3.7 + s.ph * 1.7); }
+          return {
+            fx: fx,
+            fy: fy,
+            throwIt: function (s, now) {
+              var t = now / 1000;
+              if (s.phase === 0) { s.x = fx(s, t); s.phase = 1; s.since = now; return; }
+              var y = fy(s, t), d = Math.hypot(s.x - 50, y - 50) / 40;
+              s.darts.push([s.x, y, d >= 1 ? 0 : Math.ceil(10 * (1 - d))]);
+              s.total = s.darts.reduce(function (a, b) { return a + b[2]; }, 0);
+              s.phase = 0; s.since = now; s.ph = Math.random() * 6.28;
+            }
+          };
+        },
+        step: function () {},
+        move: function (w, s, dt, now) {
+          if (!s.init) { s.init = true; s.darts = []; s.total = 0; s.phase = 0; s.ph = Math.random() * 6.28; s.since = now; }
+          s.t = now;
+          if (s.darts.length < 3 && now - s.since > 7000) w.throwIt(s, now);
+          return s.darts.length >= 3 ? 'out' : s.total;
+        },
+        tap: function (w, s, now) { if (s.init && s.darts.length < 3) w.throwIt(s, now); },
+        tapOut: function (w, s) { return s.init && s.darts.length >= 3; },
+        score: function (s) { return s.total || 0; },
+        draw: function (w, s, c, out) {
+          var x = c.ctx, col = c.col, t = (s.t || 0) / 1000;
+          x.fillStyle = col.paper; x.fillRect(0, 0, 100, 100);
+          for (var r = 4; r >= 1; r--) {
+            x.beginPath(); x.arc(50, 50, r * 10, 0, 6.2832);
+            x.fillStyle = r % 2 ? col.pcSoft : col.paper; x.fill();
+            x.strokeStyle = col.line; x.lineWidth = 0.4; x.stroke();
+          }
+          x.beginPath(); x.arc(50, 50, 4, 0, 6.2832); x.fillStyle = col.pc; x.fill();
+          if (!s.darts) return;
+          s.darts.forEach(function (d) { x.beginPath(); x.arc(d[0], d[1], 2.2, 0, 6.2832); x.fillStyle = col.ink; x.fill(); });
+          if (out || s.darts.length >= 3) return;
+          x.strokeStyle = col.ink; x.lineWidth = 0.8;
+          var lx = s.phase === 0 ? w.fx(s, t) : s.x;
+          x.beginPath(); x.moveTo(lx, 4); x.lineTo(lx, 96); x.stroke();
+          if (s.phase === 1) { var ly = w.fy(s, t); x.beginPath(); x.moveTo(4, ly); x.lineTo(96, ly); x.stroke(); }
+        }
+      })
+    },
+    {
+      id: 'stack', cat: 'skill', name: 'Turmbau', players: [1, 2, 3, 4],
+      rule: 'Ein Block schwingt hin und her. Tippe, um ihn fallen zu lassen. Was übersteht, wird abgeschnitten. Wer den höchsten Turm baut, gewinnt.',
+      start: arcade({
+        label: function (v) { return plural(v, 'Block', 'Blöcke'); },
+        init: function (g) { return { dir: Math.random() < 0.5 ? 1 : -1 }; },
+        step: function () {},
+        move: function (w, s, dt) {
+          if (!s.init) { s.init = true; s.tower = [[25, 50]]; s.x = w.dir > 0 ? -30 : 100; s.wd = 50; s.v = 38 * w.dir; s.h = 0; s.dead = false; }
+          if (s.dead) return 'out';
+          s.x += s.v * dt;
+          if (s.x > 100) { s.x = 100; s.v = -Math.abs(s.v); }
+          if (s.x + s.wd < 0) { s.x = -s.wd; s.v = Math.abs(s.v); }
+          return s.h;
+        },
+        tap: function (w, s) {
+          if (!s.init || s.dead) return;
+          var top = s.tower[s.tower.length - 1];
+          var l = Math.max(s.x, top[0]), r = Math.min(s.x + s.wd, top[0] + top[1]);
+          if (Math.abs(s.x - top[0]) < 1.2) { l = top[0]; r = top[0] + top[1]; }
+          if (r - l <= 0.8) { s.dead = true; return; }
+          s.tower.push([l, r - l]);
+          s.h++;
+          s.wd = r - l;
+          var sp = Math.min(95, Math.abs(s.v) * 1.06 + 1);
+          s.v = sp * (s.h % 2 ? -1 : 1) * (w.dir);
+          s.x = s.v > 0 ? -s.wd : 100;
+        },
+        tapOut: function (w, s) { return s.dead; },
+        score: function (s) { return s.h || 0; },
+        draw: function (w, s, c) {
+          var x = c.ctx, col = c.col, bh = 7, base = 92;
+          x.fillStyle = col.paper; x.fillRect(0, 0, 100, 100);
+          if (!s.tower) return;
+          var shift = Math.max(0, (s.tower.length + 1) * bh - 70);
+          s.tower.forEach(function (b, i) {
+            var y = base - (i + 1) * bh + shift;
+            if (y > 100 || y < -bh) return;
+            x.fillStyle = i === 0 ? col.line : col.pc;
+            x.fillRect(b[0], y, b[1], bh - 0.6);
+          });
+          if (!s.dead) { x.fillStyle = col.ink; x.fillRect(s.x, base - (s.tower.length + 1) * bh + shift - 4, s.wd, bh - 0.6); }
+        }
+      })
+    },
+    {
+      id: 'runner', cat: 'skill', name: 'Hürdenlauf', players: [1, 2, 3, 4],
+      rule: 'Du läufst von allein. Tippe, um über die Hürden zu springen. Es wird immer schneller. Wer zuletzt noch läuft, gewinnt.',
+      start: arcade({
+        label: function (v) { return plural(v, 'Hürde', 'Hürden'); },
+        init: function (g) { var r = seeded(randInt(1e9)); var w = { r: r, d: -30, v: 42, obs: [] }; var x = 60; while (w.obs.length < 6) { w.obs.push([x, 7 + r() * 8]); x += 55 + r() * 45; } return w; },
+        step: function (w, now, dt) {
+          w.v = Math.min(95, w.v + 2.2 * dt);
+          w.d += w.v * dt;
+          var last = w.obs[w.obs.length - 1];
+          if (last[0] - w.d < 160) w.obs.push([last[0] + 40 + w.v * (0.75 + w.r() * 0.9), 7 + w.r() * 9]);
+        },
+        move: function (w, s, dt) {
+          if (!s.init) { s.init = true; s.y = 0; s.vy = 0; s.passed = 0; }
+          s.vy -= 420 * dt;
+          s.y = Math.max(0, s.y + s.vy * dt);
+          if (s.y === 0) s.vy = Math.max(0, s.vy);
+          var passed = 0;
+          for (var i = 0; i < w.obs.length; i++) {
+            var o = w.obs[i], sx = o[0] - w.d;
+            if (sx + 5 < 17) passed++;
+            if (sx < 23 && sx + 5 > 17 && s.y < o[1] - 0.5) return 'out';
+          }
+          s.passed = passed;
+          return passed;
+        },
+        tap: function (w, s) { if (s.init && s.y <= 0.01) s.vy = 150; },
+        draw: function (w, s, c, out) {
+          var x = c.ctx, col = c.col, gy = 80;
+          x.fillStyle = col.paper; x.fillRect(0, 0, 100, 100);
+          x.fillStyle = col.line; x.fillRect(0, gy, 100, 0.8);
+          x.fillStyle = col.ink;
+          w.obs.forEach(function (o) { var sx = o[0] - w.d; if (sx > -6 && sx < 101) x.fillRect(sx, gy - o[1], 5, o[1]); });
+          x.fillStyle = out ? col.line : col.pc;
+          x.fillRect(17, gy - 9 - (s.y || 0), 6, 9);
+        }
+      })
+    },
+    {
+      id: 'flap', cat: 'skill', name: 'Flatterflug', players: [1, 2, 3, 4],
+      rule: 'Jeder Tipp lässt dich hochflattern. Flieg durch die Lücken. Wer am weitesten kommt, gewinnt.',
+      start: arcade({
+        label: function (v) { return plural(v, 'Lücke', 'Lücken'); },
+        init: function (g) { var r = seeded(randInt(1e9)); var w = { r: r, d: 0, v: 30, t: 0, pipes: [] }; for (var i = 0; i < 4; i++) w.pipes.push([110 + i * 48, 28 + r() * 44]); return w; },
+        step: function (w, now, dt) {
+          w.t += dt;
+          if (w.t < 0.8) return;
+          w.v = Math.min(46, w.v + 0.6 * dt);
+          w.d += w.v * dt;
+          var last = w.pipes[w.pipes.length - 1];
+          if (last[0] - w.d < 120) w.pipes.push([last[0] + 48, 28 + w.r() * 44]);
+        },
+        move: function (w, s, dt) {
+          if (!s.init) { s.init = true; s.y = 45; s.vy = 0; }
+          if (w.t < 0.8) return 0;
+          s.vy += 230 * dt;
+          s.y += s.vy * dt;
+          if (s.y > 98 || s.y < 2) return 'out';
+          var passed = 0;
+          for (var i = 0; i < w.pipes.length; i++) {
+            var pp = w.pipes[i], sx = pp[0] - w.d;
+            if (sx + 10 < 22) passed++;
+            if (sx < 28 && sx + 10 > 22 && (s.y - 2.5 < pp[1] - 15 || s.y + 2.5 > pp[1] + 15)) return 'out';
+          }
+          return passed;
+        },
+        tap: function (w, s) { if (s.init) s.vy = -78; },
+        draw: function (w, s, c, out) {
+          var x = c.ctx, col = c.col;
+          x.fillStyle = col.paper; x.fillRect(0, 0, 100, 100);
+          x.fillStyle = col.ink;
+          w.pipes.forEach(function (pp) { var sx = pp[0] - w.d; if (sx > -11 && sx < 101) { x.fillRect(sx, 0, 10, pp[1] - 15); x.fillRect(sx, pp[1] + 15, 10, 100 - pp[1] - 15); } });
+          x.beginPath(); x.arc(25, s.y || 45, 3, 0, 6.2832); x.fillStyle = out ? col.line : col.pc; x.fill();
+        }
+      })
     }
   ];
 
@@ -564,10 +1171,12 @@
   var panel = document.getElementById('panel');
   var live = document.getElementById('arenaLive');
   var btnPause = document.getElementById('btnPause');
-  var gameList = document.getElementById('gameList');
+  var btnStart = document.getElementById('btnStart');
 
-  var S = { n: 2, target: 5, only: null, game: null, bag: [], scores: [], phase: 'off', ready: [], canGo: false, round: null, opener: null, lock: null };
+  var S = { n: 2, target: 5, only: null, game: null, bag: [], scores: [], phase: 'off', ready: [], canGo: false, round: null, opener: null, lock: null, handler: null, paused: null, held: [], keys: [] };
   var Z = [];
+  var mix = {};
+  try { mix = JSON.parse(store('party_mix') || '{}') || {}; } catch (e) { mix = {}; }
 
   function Zone(p) {
     var el = document.createElement('div');
@@ -586,18 +1195,20 @@
   }
   Zone.prototype.big = function (t) {
     t = t || '';
-    if (this.bigEl.textContent !== t) this.bigEl.textContent = t;
+    if (this.bigEl.textContent === t) return;
+    this.bigEl.textContent = t;
+    this.bigEl.classList.toggle('is-mid', t.length > 4 && t.length <= 8);
     this.bigEl.classList.toggle('is-long', t.length > 8);
   };
   Zone.prototype.bigText = function () { return this.bigEl.textContent; };
-  Zone.prototype.set = function (big, small) { this.big(big); this.smallEl.textContent = small || ''; };
+  Zone.prototype.set = function (big, small) { this.big(big); if (this.smallEl.textContent !== (small || '')) this.smallEl.textContent = small || ''; };
   Zone.prototype.hint = function (t) { this.hintEl.textContent = t || ''; };
   Zone.prototype.cls = function (c, on) { this.el.classList.toggle(c, !!on); };
   Zone.prototype.color = function (c) { this.bigEl.style.color = c || ''; };
   Zone.prototype.extra = function (html) { this.extraEl.innerHTML = html; };
   Zone.prototype.bar = function (f) {
     this.barEl.hidden = f == null;
-    if (f != null) this.barEl.firstChild.style.transform = 'scaleX(' + Math.min(1, f) + ')';
+    if (f != null) this.barEl.firstChild.style.transform = 'scaleX(' + Math.max(0, Math.min(1, f)) + ')';
   };
   Zone.prototype.reset = function () {
     this.el.className = 'zone';
@@ -609,7 +1220,33 @@
     this.bar(null);
   };
 
-  function eligible(n) { return GAMES.filter(function (gm) { return n >= gm.min && n <= gm.max; }); }
+  function makeCanvas(z) {
+    z.cls('is-canvas', true);
+    z.extra('<canvas class="zone-canvas"></canvas>');
+    var cv = z.extraEl.firstChild, ctx = cv.getContext('2d');
+    var cs = getComputedStyle(z.el);
+    function v(name) { return cs.getPropertyValue(name).trim(); }
+    var c = { cv: cv, ctx: ctx, col: { pc: v('--pc'), ink: v('--ink'), paper: v('--paper'), line: v('--line-strong') } };
+    c.col.pcSoft = 'color-mix(in srgb, ' + c.col.pc + ' 22%, ' + c.col.paper + ')';
+    var probe = document.createElement('canvas').getContext('2d');
+    probe.fillStyle = '#000';
+    probe.fillStyle = c.col.pcSoft;
+    if (probe.fillStyle === '#000000') c.col.pcSoft = c.col.line;
+    c.fit = function () {
+      var w = cv.clientWidth, h = cv.clientHeight, d = window.devicePixelRatio || 1;
+      var W = Math.max(1, Math.round(w * d)), H = Math.max(1, Math.round(h * d));
+      if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+      var side = Math.min(w, h) * d;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      ctx.setTransform(side / 100, 0, 0, side / 100, (W - side) / 2, (H - side) / 2);
+    };
+    return c;
+  }
+
+  function okFor(gm, n) { return gm.players.indexOf(n) !== -1; }
+  function inMix(gm) { return mix[gm.id] !== false; }
+  function eligible(n) { return GAMES.filter(function (gm) { return okFor(gm, n) && inMix(gm); }); }
 
   function pickGame() {
     if (S.only) return S.only;
@@ -621,10 +1258,12 @@
   }
 
   function newRound() {
-    var r = { active: true, timers: [], intervals: [], raf: 0, frames: [] };
+    var r = { active: true, timers: [], intervals: [], raf: 0, frames: [], last: 0 };
     function loop(now) {
       if (!r.active) return;
-      for (var i = 0; i < r.frames.length; i++) { r.frames[i](now); if (!r.active) return; }
+      var dt = r.last ? Math.min(0.05, (now - r.last) / 1000) : 0;
+      r.last = now;
+      for (var i = 0; i < r.frames.length; i++) { r.frames[i](now, dt); if (!r.active) return; }
       r.raf = requestAnimationFrame(loop);
     }
     r.ctx = {
@@ -635,7 +1274,9 @@
       each: function (fn) { for (var p = 0; p < S.n; p++) fn(Z[p], p); },
       map: function (fn) { return range(S.n).map(fn); },
       alive: function (outFlags) { return range(S.n).filter(function (p) { return !outFlags[p]; }); },
-      later: function (fn, ms) { r.timers.push(setTimeout(function () { if (r.active) fn(); }, ms)); },
+      holding: function (p) { return S.held[p].size > 0 || !!S.keys[p]; },
+      canvas: function (p) { return makeCanvas(Z[p]); },
+      later: function (fn, ms) { r.timers.push(setTimeout(function () { if (r.active) fn(); }, Math.max(0, ms))); },
       every: function (fn, ms) { r.intervals.push(setInterval(function () { if (r.active) fn(); }, ms)); },
       frame: function (fn) { r.frames.push(fn); if (!r.raf) r.raf = requestAnimationFrame(loop); },
       split: function (a, b) { grid.style.setProperty('--fa', a + 'fr'); grid.style.setProperty('--fb', b + 'fr'); },
@@ -670,9 +1311,10 @@
     paintScores();
     S.phase = 'ready';
     S.ready = [];
+    var best = S.n === 1 ? readBest(S.game.id) : null;
     for (var p = 0; p < S.n; p++) {
-      Z[p].set(S.game.name, S.game.rule);
-      Z[p].hint(S.n > 1 ? 'Tippen, wenn du bereit bist' : 'Tippen zum Starten');
+      Z[p].set(S.game.name, S.game.rule + (best ? ' Dein Bestwert: ' + best.t + '.' : ''));
+      Z[p].hint(S.n > 1 ? (FINE ? 'Taste ' + KEYS[p].toUpperCase() + ', wenn du bereit bist' : 'Tippen, wenn du bereit bist') : (FINE ? 'Taste Q oder Klick zum Starten' : 'Tippen zum Starten'));
     }
     announce(S.game.name + '. ' + S.game.rule);
   }
@@ -681,7 +1323,7 @@
     S.phase = 'count';
     S.round = newRound();
     var c = 3, g = S.round.ctx;
-    function show() { g.each(function (z) { z.reset(); z.set(String(c), ''); }); }
+    function show() { g.each(function (z) { z.reset(); z.set(String(c), S.game.name); }); }
     show();
     g.every(function () {
       c--;
@@ -698,6 +1340,18 @@
     S.handler = S.game.start(S.round.ctx);
   }
 
+  function readBest(id) {
+    try { var b = JSON.parse(store('party_best_' + id) || 'null'); return b && typeof b.v === 'number' ? b : null; } catch (e) { return null; }
+  }
+
+  function saveBest(id, solo) {
+    if (!solo || typeof solo.value !== 'number') return '';
+    var b = readBest(id);
+    var better = !b || (solo.better === 'low' ? solo.value < b.v : solo.value > b.v);
+    if (better) { store('party_best_' + id, JSON.stringify({ v: solo.value, t: solo.text })); return b ? 'Neuer Bestwert, vorher ' + b.t : 'Erster Bestwert'; }
+    return 'Bestwert: ' + b.t;
+  }
+
   function finish(winners, lines, opts) {
     stopRound();
     S.phase = 'result';
@@ -705,34 +1359,38 @@
     var solo = S.n === 1;
     for (var p = 0; p < S.n; p++) {
       var z = Z[p], won = winners.indexOf(p) !== -1;
+      z.el.style.removeProperty('--tick');
       z.extra('');
       z.bar(null);
       z.color('');
-      z.cls('is-go', false);
-      z.cls('is-hot', false);
-      z.cls('is-ready', false);
+      ['is-go', 'is-hot', 'is-ready', 'is-run', 'is-stop', 'is-beat', 'is-canvas'].forEach(function (c) { z.cls(c, false); });
       z.cls('is-win', won);
       z.cls('is-out', !solo && !won);
       if (won) S.scores[p]++;
       var big = opts.big && opts.big(p);
-      if (solo) z.set(opts.solo || '', opts.soloSmall || lines[0]);
-      else z.set(big || (won ? '+1 Punkt' : (winners.length ? '' : 'Kein Punkt')), lines[p]);
+      if (solo) {
+        var s = opts.solo || { text: '' };
+        var bestLine = saveBest(S.game.id, s);
+        z.set(s.text, [opts.soloSmall || lines[0], bestLine].filter(Boolean).join('. '));
+      } else {
+        z.set(big || (won ? '+1 Punkt' : (winners.length ? '' : 'Kein Punkt')), lines[p]);
+      }
     }
     paintScores();
-    if (solo) announce((opts.solo || '') + '. ' + (opts.soloSmall || lines[0]));
-    else announce(winners.length ? winners.map(function (q) { return NAMES[q]; }).join(', ') + ' bekommt einen Punkt.' : 'Niemand bekommt einen Punkt.');
+    if (solo) announce(Z[0].bigText() + '. ' + Z[0].smallEl.textContent);
+    else announce(winners.length ? winners.map(function (q) { return NAMES[q]; }).join(' und ') + (winners.length > 1 ? ' bekommen' : ' bekommt') + ' einen Punkt.' : 'Niemand bekommt einen Punkt.');
     S.round = newRound();
     S.round.ctx.later(function () {
       S.canGo = true;
-      for (var q = 0; q < S.n; q++) Z[q].hint('Tippen für die nächste Runde');
-    }, 1000);
+      for (var q = 0; q < S.n; q++) Z[q].hint(FINE ? 'Taste oder Klick für die nächste Runde' : 'Tippen für die nächste Runde');
+    }, 1100);
   }
 
   function matchWinner() {
     if (S.n === 1) return null;
-    var top = Math.max.apply(null, S.scores);
+    var top = maxOf(S.scores);
     if (top < S.target) return null;
-    var leaders = S.scores.map(function (v, i) { return v === top ? i : -1; }).filter(function (i) { return i >= 0; });
+    var leaders = indicesOf(S.n, function (i) { return S.scores[i] === top; });
     return leaders.length === 1 ? leaders[0] : null;
   }
 
@@ -742,8 +1400,7 @@
     if (w !== null) { showEnd(w); return; }
     S.game = pickGame();
     toReady();
-    var top = Math.max.apply(null, S.scores);
-    if (S.n > 1 && top >= S.target) for (var p = 0; p < S.n; p++) Z[p].hint('Gleichstand an der Spitze. Tippen, wenn du bereit bist');
+    if (S.n > 1 && maxOf(S.scores) >= S.target) for (var p = 0; p < S.n; p++) Z[p].hint('Gleichstand an der Spitze, es geht weiter');
   }
 
   function showPanel(title, text, mainLabel, withScores) {
@@ -756,10 +1413,10 @@
     if (withScores) {
       range(S.n).sort(function (a, b) { return S.scores[b] - S.scores[a]; }).forEach(function (p) {
         var li = document.createElement('li');
-        li.style.setProperty('--pc', 'var(--p' + (p + 1) + ')');
+        li.style.setProperty('--pc', PCOL[p]);
         li.innerHTML = '<span></span><span></span>';
         li.firstChild.textContent = NAMES[p];
-        li.lastChild.textContent = S.scores[p] + (S.scores[p] === 1 ? ' Punkt' : ' Punkte');
+        li.lastChild.textContent = plural(S.scores[p], 'Punkt', 'Punkte');
         list.appendChild(li);
       });
     }
@@ -781,11 +1438,11 @@
   }
 
   function pause() {
-    if (S.phase === 'end' || !panel.hidden) return;
+    if (S.phase === 'end' || S.phase === 'paused' || !panel.hidden) return;
     S.paused = S.phase;
     stopRound();
     S.phase = 'paused';
-    showPanel('Pause', S.paused === 'result' || S.paused === 'ready' ? 'Es geht weiter, wo ihr wart.' : 'Die laufende Runde wird neu gestartet.', 'Weiterspielen', S.n > 1);
+    showPanel('Pause', S.paused === 'result' || S.paused === 'ready' ? 'Es geht weiter, wo ihr wart.' : 'Die laufende Runde startet neu, Punkte bleiben.', 'Weiterspielen', S.n > 1);
   }
 
   function onPanelMain() {
@@ -798,36 +1455,48 @@
 
   function announce(t) { live.textContent = t; }
 
-  function tap(p) {
+  function press(p) {
     if (p >= S.n || !panel.hidden) return;
     var z = Z[p];
     z.el.classList.remove('is-tap');
     void z.el.offsetWidth;
     z.el.classList.add('is-tap');
     if (S.phase === 'ready') {
-      if (!S.ready[p]) {
-        S.ready[p] = true;
-        z.cls('is-ready', true);
-        z.hint('Bereit');
-      }
+      if (!S.ready[p]) { S.ready[p] = true; z.cls('is-ready', true); z.hint('Bereit'); }
       if (S.ready.filter(Boolean).length === S.n) countdown();
     } else if (S.phase === 'play') {
-      if (S.handler) S.handler.tap(p);
+      if (S.handler && S.handler.tap) S.handler.tap(p);
     } else if (S.phase === 'result' && S.canGo) {
       afterResult();
     }
   }
 
+  function lift(p) {
+    if (p >= S.n || S.phase !== 'play' || !S.handler || !S.handler.release) return;
+    if (!S.held[p].size && !S.keys[p]) S.handler.release(p);
+  }
+
   function buildArena() {
     grid.innerHTML = '';
     Z = [];
+    S.held = range(4).map(function () { return new Set(); });
+    S.keys = [];
     grid.dataset.players = S.n;
     arena.dataset.players = S.n;
     for (var p = 0; p < S.n; p++) {
       var z = new Zone(p);
-      (function (pp) {
-        z.el.addEventListener('pointerdown', function (e) { e.preventDefault(); tap(pp); });
-      })(p);
+      (function (pp, el) {
+        el.addEventListener('pointerdown', function (e) {
+          e.preventDefault();
+          try { el.setPointerCapture(e.pointerId); } catch (err) {}
+          S.held[pp].add(e.pointerId);
+          press(pp);
+        });
+        function up(e) { if (S.held[pp].delete(e.pointerId)) lift(pp); }
+        el.addEventListener('pointerup', up);
+        el.addEventListener('pointercancel', up);
+        el.addEventListener('lostpointercapture', up);
+      })(p, z.el);
       Z.push(z);
       grid.appendChild(z.el);
     }
@@ -845,13 +1514,14 @@
 
   function open(only) {
     readSetup();
+    if (!only && !eligible(S.n).length) return;
     S.opener = document.activeElement;
     buildArena();
     arena.hidden = false;
     document.documentElement.classList.add('is-playing');
     startMatch(only);
     btnPause.focus();
-    try { if (arena.requestFullscreen && matchMedia('(pointer: coarse)').matches) arena.requestFullscreen().catch(function () {}); } catch (e) {}
+    try { if (arena.requestFullscreen && !FINE) arena.requestFullscreen().catch(function () {}); } catch (e) {}
     try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function (l) { S.lock = l; }).catch(function () {}); } catch (e) {}
   }
 
@@ -863,6 +1533,7 @@
     document.documentElement.classList.remove('is-playing');
     try { if (document.fullscreenElement) document.exitFullscreen().catch(function () {}); } catch (e) {}
     if (S.lock) { S.lock.release().catch(function () {}); S.lock = null; }
+    renderGames();
     if (S.opener && S.opener.focus) S.opener.focus();
   }
 
@@ -871,23 +1542,46 @@
     S.target = Number(form.elements.points.value) || 5;
   }
 
+  function whoText(gm) {
+    var p = gm.players;
+    if (p.length === 4) return 'Für 1 bis 4';
+    if (p.join() === '2,3,4') return 'Für 2 bis 4';
+    if (p.join() === '3,4') return 'Für 3 oder 4';
+    if (p.join() === '2,4') return 'Zu zweit oder zu viert in Teams';
+    return 'Für ' + p.join(', ');
+  }
+
   function renderGames() {
     readSetup();
-    gameList.innerHTML = '';
-    GAMES.forEach(function (gm) {
-      var li = document.createElement('li');
-      li.className = 'game-row';
-      var ok = S.n >= gm.min && S.n <= gm.max;
-      var who = gm.min === gm.max ? 'Nur zu zweit' : (gm.min === 1 ? 'Für 1 bis 4' : 'Für 2 bis 4');
-      li.innerHTML = '<div><h3></h3><p></p><p class="game-who"></p></div><button class="btn btn-secondary" type="button"></button>';
-      li.querySelector('h3').textContent = gm.name;
-      li.querySelector('p').textContent = gm.rule;
-      li.querySelector('.game-who').textContent = who;
-      var b = li.querySelector('button');
-      b.textContent = ok ? gm.name + ' spielen' : (gm.min === gm.max ? 'Braucht genau 2' : 'Braucht mindestens 2');
-      b.disabled = !ok;
-      b.addEventListener('click', function () { open(gm); });
-      gameList.appendChild(li);
+    var root = document.getElementById('gameCats');
+    root.innerHTML = '';
+    CATS.forEach(function (cat) {
+      var sec = document.createElement('div');
+      sec.className = 'game-cat';
+      sec.innerHTML = '<h3></h3><p></p><ul class="game-list"></ul>';
+      sec.querySelector('h3').textContent = cat.name;
+      sec.querySelector('p').textContent = cat.text;
+      var ul = sec.querySelector('ul');
+      GAMES.filter(function (gm) { return gm.cat === cat.id; }).forEach(function (gm) {
+        var ok = okFor(gm, S.n);
+        var li = document.createElement('li');
+        li.className = 'game-row' + (ok ? '' : ' is-off');
+        var cid = 'mix-' + gm.id;
+        li.innerHTML = '<input type="checkbox" id="' + cid + '"><div><label for="' + cid + '"></label><p class="game-rule"></p><p class="game-who"></p></div><button class="btn btn-secondary" type="button"></button>';
+        var cb = li.querySelector('input');
+        cb.checked = inMix(gm);
+        cb.disabled = !ok;
+        cb.addEventListener('change', function () { mix[gm.id] = cb.checked; store('party_mix', JSON.stringify(mix)); updateStart(); });
+        li.querySelector('label').textContent = gm.name;
+        li.querySelector('.game-rule').textContent = gm.rule;
+        li.querySelector('.game-who').textContent = whoText(gm) + (ok ? '' : ', nicht für ' + (S.n === 1 ? 'eine Person' : S.n));
+        var b = li.querySelector('button');
+        b.textContent = 'Nur ' + gm.name + ' spielen';
+        b.disabled = !ok;
+        b.addEventListener('click', function () { open(gm); });
+        ul.appendChild(li);
+      });
+      root.appendChild(sec);
     });
     seatGrid.dataset.players = S.n;
     document.getElementById('pointsField').hidden = S.n === 1;
@@ -895,8 +1589,17 @@
     document.getElementById('seatCaption').textContent = S.n === 1
       ? 'Allein gehört dir der ganze Bildschirm.'
       : S.n === 2
-        ? 'Legt das Handy flach zwischen euch. Die obere Hälfte steht für die Person gegenüber auf dem Kopf.'
+        ? 'Legt das Handy flach zwischen euch. Die obere Hälfte steht für die Person gegenüber auf dem Kopf. Quer gehalten sitzt ihr an den beiden schmalen Enden.'
         : 'Legt das Gerät flach in die Mitte. Wer oben sitzt, liest sein Feld kopfüber, es ist für euch gedreht.';
+    var keys = range(S.n).map(function (p) { return 'Spieler ' + (p + 1) + ' <kbd>' + KEYS[p].toUpperCase() + '</kbd>'; });
+    document.getElementById('keysNote').innerHTML = 'Am Computer: ' + (keys.length > 1 ? keys.slice(0, -1).join(', ') + ' und ' + keys[keys.length - 1] : keys[0]) + '. Bei der Mutprobe haltet ihr die Taste gedrückt. <kbd>Esc</kbd> pausiert.';
+    updateStart();
+  }
+
+  function updateStart() {
+    var count = eligible(S.n).length;
+    btnStart.disabled = count === 0;
+    document.getElementById('mixNote').textContent = count === 0 ? 'Hak unten mindestens ein Spiel an, das für eure Anzahl passt.' : (count === 1 ? '1 Spiel' : count + ' Spiele') + ' in der Mischung.';
   }
 
   form.addEventListener('submit', function (e) { e.preventDefault(); open(null); });
@@ -914,14 +1617,23 @@
     if (arena.hidden) return;
     if (e.key === 'Escape') {
       e.preventDefault();
-      if (!panel.hidden && S.phase === 'paused') onPanelMain(); else pause();
+      if (S.phase === 'paused') onPanelMain(); else pause();
       return;
     }
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     var p = KEYS.indexOf((e.key || '').toLowerCase());
-    if (p === -1 || !panel.hidden) return;
+    if (p === -1 || p >= S.n || !panel.hidden) return;
     e.preventDefault();
-    if (!e.repeat) tap(p);
+    if (e.repeat) return;
+    S.keys[p] = true;
+    press(p);
+  });
+  document.addEventListener('keyup', function (e) {
+    if (arena.hidden) return;
+    var p = KEYS.indexOf((e.key || '').toLowerCase());
+    if (p === -1 || p >= S.n || !S.keys[p]) return;
+    S.keys[p] = false;
+    lift(p);
   });
 
   document.addEventListener('visibilitychange', function () {
@@ -929,8 +1641,10 @@
   });
 
   var savedPlayers = store('party_players'), savedPoints = store('party_points');
-  if (savedPlayers && form.querySelector('input[name="players"][value="' + savedPlayers + '"]')) form.querySelector('input[name="players"][value="' + savedPlayers + '"]').checked = true;
-  if (savedPoints && form.querySelector('input[name="points"][value="' + savedPoints + '"]')) form.querySelector('input[name="points"][value="' + savedPoints + '"]').checked = true;
+  var sp = savedPlayers && form.querySelector('input[name="players"][value="' + savedPlayers + '"]');
+  var spt = savedPoints && form.querySelector('input[name="points"][value="' + savedPoints + '"]');
+  if (sp) sp.checked = true;
+  if (spt) spt.checked = true;
   renderGames();
 })();
 </script>

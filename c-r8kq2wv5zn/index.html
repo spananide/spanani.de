@@ -217,9 +217,6 @@
       font-size: 14px;
       color: var(--beschriftung);
       margin-top: 6px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .scheibe {
@@ -290,7 +287,7 @@
       color: var(--beschriftung);
       margin: 12px 0 0;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
     }
     .live::before {
       content: '';
@@ -298,7 +295,7 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      margin-right: 8px;
+      margin: 6px 8px 0 0;
       flex-shrink: 0;
     }
     .live.aktiv::before {
@@ -449,11 +446,14 @@
     const datumUhr = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });
     const prozent = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
     const dollar = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'USD' });
-    const tokenFmt = new Intl.NumberFormat('de-DE', { notation: 'compact', maximumFractionDigits: 1 });
+    const tagUhr = new Intl.DateTimeFormat('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+    const mio = new Intl.NumberFormat('de-DE', { notation: 'compact', maximumFractionDigits: 1 });
+    const tokenFmt = { format: n => n >= 1e6 ? mio.format(n) : n >= 1e3 ? `${prozent.format(n / 1000)} Tsd.` : prozent.format(n) };
 
     const zeit = (t, now) => {
       const a = new Date(t), b = new Date(now);
-      return a.toDateString() === b.toDateString() ? uhr.format(a) : datumUhr.format(a);
+      if (a.toDateString() === b.toDateString()) return uhr.format(a);
+      return Math.abs(t - now) < 6 * 24 * 3600000 ? tagUhr.format(a) : datumUhr.format(a);
     };
 
     function dauer(ms) {

@@ -11,6 +11,7 @@ Static site (plain HTML, CSS, vanilla JS, no build step) on GitHub Pages from `m
 - `/`, `/projects`, `/services` and `/contact` have German twins at `/de/`, `/de/projekte/`, `/de/leistungen/`, `/de/kontakt/`. Any copy change goes into both. German marketing copy says "du"; the legal pages stay "Sie". Each pair links the other via `hreflang` alternates and a language link at the end of the nav.
 - `/tools/` (timestamp, permissions, embed, MOTD) is English only and runs client-side. Each tool page keeps its script inline. The Discord embed preview and the Minecraft MOTD preview use Discord's and Minecraft's own colors as page tokens: that's their job, not a site color.
 - `site.js` picks German UI strings when `<html lang="de">`. The Discord status (`[data-discord-status]`) uses Lanyard and stays hidden unless the account is in discord.gg/lanyard.
+- `/changelog/` (English only, linked from every footer) lists visible changes, newest first, grouped by month. Add an entry with each change a visitor can see. Never mention the private apps, hidden features or Daumenduell's assist there.
 - Every new request to a third-party server must be listed in `/datenschutz` section 6 before it ships.
 
 ## Design rules

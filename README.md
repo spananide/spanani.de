@@ -36,6 +36,7 @@ Worker (see below).
 | `/contact` | Discord and email, both click-to-copy, plus a message helper that turns a few answers into a first message you send yourself. Nothing is submitted anywhere. |
 | `/de/`, `/de/projekte`, `/de/leistungen`, `/de/kontakt` | German versions of the four main pages, linked both ways with `hreflang` and a language link in the nav. |
 | `/tools` | Free browser tools for server owners: a Discord timestamp generator, a permissions calculator with invite links, an embed builder that can post through a webhook, and a Minecraft MOTD generator. All client-side. |
+| `/changelog` | What changed on the site, newest first, grouped from the commit history into changes a visitor can see. Linked from every footer. English only. |
 | `/impressum`, `/datenschutz` | The German legal pages a site like this needs. |
 | `/clock` | A network-synced clock: digital and analog dial, a 3D-globe world clock, a stopwatch, a timer, settings that stick via `localStorage`. |
 | `/rust` | A raid calculator for the game Rust: pick walls, doors and deployables, choose which explosives you can use, and get the cheapest raid path (mixed combos included) with sulfur, gunpowder and every raw material. |

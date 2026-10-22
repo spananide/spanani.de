@@ -14,7 +14,10 @@ Es gibt keine offizielle API für die Abo-Limits. Claude Code gibt seiner Status
 
 1. Code erzeugen, z. B. `openssl rand -hex 24`, und als Repository-Secret `CLAUDE_STAND_TOKEN` hinterlegen. `CLOUDFLARE_API_TOKEN` und `CLOUDFLARE_ACCOUNT_ID` gibt es schon für tonne-push.
 2. Workflow `.github/workflows/claude-stand.yml` starten. Er legt die D1-Datenbank an, deployt und setzt den Code als Worker-Secret `TOKEN`.
-3. Auf dem Rechner den Code in `~/.claude/stand-token` speichern (`chmod 600`) und das Statuszeilen-Skript in `~/.claude/settings.json` als `statusLine` eintragen.
+3. Das Skript `.claude/stand-statusline.sh` ist im Repo schon als `statusLine` in `.claude/settings.json` eingetragen. Es schickt nur, wenn es den Code findet:
+   - Cloud-Sitzungen (claude.ai/code): Umgebungsvariable `CLAUDE_STAND_TOKEN` in den Einstellungen der Cloud-Umgebung setzen und `claude-stand.spanani.workers.dev` unter Network access → Allowed domains erlauben. Gilt ab der nächsten neuen Sitzung.
+   - Am Rechner: Code in `~/.claude/stand-token` speichern (`chmod 600`).
+   Ob es lief, steht in `$TMPDIR/claude-stand-last.json` (letzte Limits) und `$TMPDIR/claude-stand-status` (HTTP-Code der letzten Übertragung).
 4. `https://spanani.de/c-r8kq2wv5zn/` auf dem Handy öffnen, Code eingeben, zum Home-Bildschirm hinzufügen.
 
 ## Gestaltung („Pace“)

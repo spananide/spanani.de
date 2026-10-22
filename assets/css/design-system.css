@@ -517,6 +517,22 @@ button.time-pill { cursor: pointer; }
 }
 .change h3 { font-size: 1.125rem; margin-bottom: var(--space-2); }
 .change p { color: var(--ink-soft); }
+.change-shots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  max-width: 720px;
+}
+.change-shots a { display: block; }
+.change-shots img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.change-shots figcaption { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--ink-faint); }
 
 .reach h2 { margin-bottom: var(--space-4); max-width: 16ch; }
 .reach .lead { margin-bottom: var(--space-6); }
@@ -987,6 +1003,9 @@ input[type="color"].input { width: 64px; padding: 4px; cursor: pointer; }
   .change::before { top: calc(var(--space-4) + 4px); }
   .release:last-child .change:last-child::after { top: calc(var(--space-4) + 17px); }
   .legal-note { flex-basis: 100%; }
+}
+@media (max-width: 520px) {
+  .change-shots { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 680px) {
   .nav-inner { gap: var(--space-4); }

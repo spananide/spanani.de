@@ -21,13 +21,11 @@
 
     :root {
       --grund: #e9e9e4;
-      --flaeche: #f6f6f2;
       --text: #1c1e21;
       --text-weich: #55585d;
       --fuge: #c3c3bb;
       --takt: #9a6a00;
       --alarm: #b23a24;
-      --schatten: 0 -12px 40px rgba(0, 0, 0, 0.18);
 
       --schrift: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
       --gr-zahl: clamp(64px, 20vw, 96px);
@@ -38,7 +36,6 @@
       --gr-mini: 12px;
 
       --r-knopf: 6px;
-      --r-blatt: 16px;
       --rand: 20px;
       --breite: 520px;
       --spur: 14px;
@@ -48,13 +45,11 @@
     @media (prefers-color-scheme: dark) {
       :root {
         --grund: #1d2024;
-        --flaeche: #272a2f;
         --text: #e8e6df;
         --text-weich: #a9a7a0;
         --fuge: #3a3e44;
         --takt: #e0a526;
         --alarm: #d0533c;
-        --schatten: 0 -12px 40px rgba(0, 0, 0, 0.5);
         color-scheme: dark;
       }
     }
@@ -144,31 +139,6 @@
     .leer h2 { font-size: var(--gr-titel); font-weight: 700; margin-bottom: 8px; }
 
     .fuss { padding-top: 24px; font-size: var(--gr-klein); color: var(--text-weich); }
-    .fuss p + p { margin-top: 8px; }
-    .link-knopf { background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; color: var(--text); }
-
-    .tor { position: fixed; inset: 0; display: flex; align-items: flex-end; justify-content: center; background: rgba(0, 0, 0, 0.35); }
-    .tor[hidden] { display: none; }
-    .blatt {
-      width: 100%; max-width: var(--breite); background: var(--flaeche); box-shadow: var(--schatten);
-      border-radius: var(--r-blatt) var(--r-blatt) 0 0;
-      padding: 24px var(--rand) calc(24px + env(safe-area-inset-bottom));
-    }
-    .blatt h2 { font-size: var(--gr-titel); font-weight: 700; }
-    .blatt p { font-size: var(--gr-klein); color: var(--text-weich); margin-top: 6px; }
-    .blatt label { display: block; font-size: var(--gr-klein); font-weight: 600; margin-top: 18px; }
-    .blatt input {
-      display: block; width: 100%; margin-top: 6px; padding: 12px; min-height: 48px;
-      border: 1px solid var(--text-weich); border-radius: var(--r-knopf); background: var(--grund);
-    }
-    .blatt input[aria-invalid="true"] { border-color: var(--alarm); }
-    .knopf {
-      display: block; width: 100%; margin-top: 14px; min-height: 48px; border: 0; border-radius: var(--r-knopf);
-      background: var(--text); color: var(--grund); font-weight: 600; cursor: pointer;
-    }
-    .knopf:active { opacity: 0.85; }
-    .blatt .fehler { color: var(--text); margin-top: 10px; }
-    .blatt .fehler:not(:empty)::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--alarm); margin-right: 8px; vertical-align: 1px; }
 
     @media (prefers-reduced-motion: reduce) {
       body.erst .fuell, body.erst .takt { animation: none; }
@@ -185,19 +155,7 @@
     <main id="inhalt"></main>
     <footer class="fuss">
       <p>Die Werte schickt die Statuszeile von Claude Code, sobald du dort arbeitest. Nutzung in claude.ai zählt zu denselben Limits, erscheint hier aber erst mit der nächsten Messung aus Claude Code.</p>
-      <p><button type="button" class="link-knopf" id="abmelden">Auf diesem Gerät abmelden</button></p>
     </footer>
-  </div>
-
-  <div class="tor" id="tor" hidden>
-    <form class="blatt" id="tor-form" role="dialog" aria-modal="true" aria-labelledby="tor-titel">
-      <h2 id="tor-titel">Zugangscode</h2>
-      <p>Derselbe Code, den das Statuszeilen-Skript benutzt. Er bleibt nur auf diesem Gerät gespeichert.</p>
-      <label for="code">Code</label>
-      <input id="code" name="code" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" required>
-      <p class="fehler" id="tor-fehler" role="alert"></p>
-      <button class="knopf" type="submit">Entsperren</button>
-    </form>
   </div>
 
   <script>
@@ -205,10 +163,6 @@
     const H = 3600000, TAG = 24 * H;
     const $ = id => document.getElementById(id);
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    const speicher = {
-      get() { try { return localStorage.getItem('stand-code') || ''; } catch { return ''; } },
-      set(v) { try { v ? localStorage.setItem('stand-code', v) : localStorage.removeItem('stand-code'); } catch {} },
-    };
 
     const uhr = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' });
     const datumUhr = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -229,7 +183,7 @@
     }
     const vor = (t, now) => now - t < 60000 ? 'gerade eben' : `vor ${dauer(now - t)}`;
 
-    let daten = null, code = speicher.get(), laeuft = false;
+    let daten = null, laeuft = false;
 
     function strip({ wert, start, ende, now, klein }) {
       const anteil = Math.min(1, Math.max(0, (now - start) / (ende - start)));
@@ -286,7 +240,7 @@
       for (; tag.getTime() < ende; tag.setDate(tag.getDate() + 1)) {
         const t = tag.getTime();
         linien += `<line class="tag" x1="${x(t)}" x2="${x(t)}" y1="0" y2="120"/>`;
-        if (ende - t > 5 * H) tage += `<span style="left:${(t - start) / (ende - start) * 100}%">${esc(wochentag.format(t))}</span>`;
+        if (ende - t > 12 * H) tage += `<span style="left:${(t - start) / (ende - start) * 100}%">${esc(wochentag.format(t))}</span>`;
       }
       return `<div class="verlauf">
         <h3>Verlauf in diesem Fenster</h3>
@@ -360,27 +314,17 @@
         sitzungen(daten.sessions, now);
     }
 
-    function tor(fehler = '') {
-      $('tor').hidden = false;
-      $('tor-fehler').textContent = fehler;
-      $('code').setAttribute('aria-invalid', fehler ? 'true' : 'false');
-      $('code').focus();
-    }
-
     async function laden() {
-      if (!code) { tor(); return; }
       if (laeuft) return;
       laeuft = true;
       const knopf = $('laden');
       knopf.setAttribute('aria-busy', 'true');
       knopf.textContent = 'Lädt …';
       try {
-        const res = await fetch(`${API}/state`, { headers: { Authorization: `Bearer ${code}` }, cache: 'no-store' });
+        const res = await fetch(`${API}/state`, { cache: 'no-store' });
         const body = await res.json().catch(() => ({}));
-        if (res.status === 401) { code = ''; speicher.set(''); daten = null; $('inhalt').innerHTML = ''; tor(body.error || 'Der Zugangscode stimmt nicht.'); return; }
         if (!res.ok) throw new Error(body.error || `Fehler ${res.status}`);
         daten = body;
-        $('tor').hidden = true;
         zeichnen();
         requestAnimationFrame(() => setTimeout(() => document.body.classList.remove('erst'), 800));
       } catch (e) {
@@ -392,17 +336,7 @@
       }
     }
 
-    $('tor-form').addEventListener('submit', e => {
-      e.preventDefault();
-      code = $('code').value.trim();
-      if (!code) return;
-      speicher.set(code);
-      $('code').value = '';
-      $('tor').hidden = true;
-      laden();
-    });
     $('laden').addEventListener('click', laden);
-    $('abmelden').addEventListener('click', () => { code = ''; speicher.set(''); daten = null; $('inhalt').innerHTML = ''; $('frische').textContent = ''; tor(); });
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') laden(); });
     setInterval(() => { if (document.visibilityState === 'visible') laden(); }, 60000);
     setInterval(() => { if (document.visibilityState === 'visible' && !document.body.classList.contains('erst')) zeichnen(); }, 20000);

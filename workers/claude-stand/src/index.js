@@ -5,16 +5,9 @@ const QUIET = 10 * 60 * 1000;
 class HttpError extends Error { constructor(status, msg) { super(msg); this.status = status; } }
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
 
-const enc = new TextEncoder();
-const digest = s => crypto.subtle.digest('SHA-256', enc.encode(s));
-
-async function auth(req, env) {
+async function limit(req, env) {
   const { success } = await env.LIMIT.limit({ key: req.headers.get('CF-Connecting-IP') || 'unknown' });
   if (!success) throw new HttpError(429, 'Zu viele Anfragen. Warte eine Minute.');
-  if (!env.TOKEN) throw new HttpError(503, 'Auf dem Server ist noch kein Zugangscode hinterlegt.');
-  const given = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
-  const [a, b] = await Promise.all([digest(given), digest(env.TOKEN)]);
-  if (!given || !crypto.subtle.timingSafeEqual(a, b)) throw new HttpError(401, 'Der Zugangscode stimmt nicht.');
 }
 
 async function body(req, max = 4000) {
@@ -85,8 +78,8 @@ async function state(env) {
 async function route(req, env) {
   const { pathname } = new URL(req.url);
   const key = `${req.method} ${pathname}`;
-  if (key === 'POST /push') { await auth(req, env); return push(req, env); }
-  if (key === 'GET /state') { await auth(req, env); return state(env); }
+  if (key === 'POST /push') { await limit(req, env); return push(req, env); }
+  if (key === 'GET /state') { await limit(req, env); return state(env); }
   throw new HttpError(404, 'Nicht gefunden');
 }
 
@@ -98,7 +91,7 @@ export default {
     const cors = {
       'Access-Control-Allow-Origin': allowed(origin) ? origin : 'https://spanani.de',
       'Access-Control-Allow-Methods': 'GET, POST',
-      'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '86400',
       Vary: 'Origin',
     };

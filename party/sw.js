@@ -1,4 +1,4 @@
-const CACHE = 'daumenduell-v1';
+const CACHE = 'daumenduell-v2';
 const ASSETS = [
   '/party/',
   '/party/manifest.webmanifest',

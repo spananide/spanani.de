@@ -104,6 +104,7 @@
     .mark-tiles i:nth-child(4) { background: var(--p2); }
     .mark.is-alt .mark-tiles i:nth-child(3) { border-radius: 4px; }
     .mark:active .mark-tiles { transform: scale(0.92); }
+    .mark.is-flip .mark-tiles { animation: pop 320ms var(--spring); }
     .mark-word { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
     .top-actions { display: flex; gap: 8px; }
     .icon-btn { display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; border: 0; background: var(--surface); color: var(--text); }
@@ -1995,20 +1996,25 @@
   }
   function toggleSound() { soundOn = !soundOn; store('party_sound', soundOn ? '1' : '0'); paintSound(); SFX.tick(); }
 
-  var markTaps = [];
+  var holdTimer = 0;
+  function markEnd() { clearTimeout(holdTimer); holdTimer = 0; }
   mark.addEventListener('pointerdown', function (e) {
     e.preventDefault();
-    var now = Date.now();
-    markTaps = markTaps.filter(function (t) { return now - t < 1800; });
-    markTaps.push(now);
-    if (markTaps.length >= 5) {
-      markTaps = [];
+    try { mark.setPointerCapture(e.pointerId); } catch (err) {}
+    markEnd();
+    holdTimer = setTimeout(function () {
+      holdTimer = 0;
       S.edge = !S.edge;
       store('party_edge', S.edge ? '1' : '0');
       mark.classList.toggle('is-alt', S.edge);
+      mark.classList.remove('is-flip');
+      void mark.offsetWidth;
+      mark.classList.add('is-flip');
       buzz(S.edge ? [20, 40, 20] : 60);
-    }
+    }, 1500);
   });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (t) { mark.addEventListener(t, markEnd); });
+  mark.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   mark.classList.toggle('is-alt', S.edge);
 
   document.querySelectorAll('input[name="points"]').forEach(function (r) {

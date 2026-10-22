@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" id="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Daumenduell: Partyspiele für 1 bis 4 auf einem Handy — spanani</title>
   <meta name="description" content="19 Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt eine Ecke des Bildschirms und einen Finger. Als App installierbar, läuft offline, ohne Anmeldung.">
   <link rel="canonical" href="https://spanani.de/party/">
@@ -1871,12 +1871,17 @@
     arena.hidden = false;
     home.setAttribute('aria-hidden', 'true');
     document.documentElement.classList.add('is-playing');
+    lockZoom(true);
     audio();
     startMatch(only);
     btnPause.focus();
     try { if (arena.requestFullscreen && !FINE && !document.fullscreenElement) arena.requestFullscreen().catch(function () {}); } catch (e) {}
     try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function (l) { S.lock = l; }).catch(function () {}); } catch (e) {}
   }
+
+  var viewport = document.getElementById('viewport');
+  var viewportBase = viewport.getAttribute('content');
+  function lockZoom(on) { viewport.setAttribute('content', on ? viewportBase + ', maximum-scale=1, user-scalable=no' : viewportBase); }
 
   function close() {
     stopRound();
@@ -1885,6 +1890,7 @@
     arena.hidden = true;
     home.removeAttribute('aria-hidden');
     document.documentElement.classList.remove('is-playing');
+    lockZoom(false);
     parts = [];
     try { if (document.fullscreenElement) document.exitFullscreen().catch(function () {}); } catch (e) {}
     if (S.lock) { S.lock.release().catch(function () {}); S.lock = null; }
@@ -2031,6 +2037,12 @@
   document.getElementById('sheetMix').addEventListener('change', function (e) { mix[sheetGame.id] = e.target.checked; store('party_mix', JSON.stringify(mix)); renderHome(); });
   sheet.addEventListener('click', function (e) { if (e.target === sheet) closeSheet(); });
   arena.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  ['touchstart', 'touchmove', 'touchend'].forEach(function (t) {
+    arena.addEventListener(t, function (e) { if (!e.target.closest('button')) e.preventDefault(); }, { passive: false });
+  });
+  ['gesturestart', 'gesturechange', 'dblclick'].forEach(function (t) {
+    arena.addEventListener(t, function (e) { e.preventDefault(); }, { passive: false });
+  });
 
   document.addEventListener('keydown', function (e) {
     if (!sheet.hidden && e.key === 'Escape') { closeSheet(); return; }

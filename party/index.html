@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" id="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Daumenduell: Partyspiele für 1 bis 4 auf einem Handy — spanani</title>
-  <meta name="description" content="19 Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt eine Ecke des Bildschirms und einen Finger. Als App installierbar, läuft offline, ohne Anmeldung.">
+  <meta name="description" content="27 Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt eine Ecke des Bildschirms und einen Finger. Als App installierbar, läuft offline, ohne Anmeldung.">
   <link rel="canonical" href="https://spanani.de/party/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="spanani">
   <meta property="og:url" content="https://spanani.de/party/">
   <meta property="og:title" content="Daumenduell: Partyspiele für 1 bis 4 auf einem Handy — spanani">
-  <meta property="og:description" content="19 Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt eine Ecke des Bildschirms und einen Finger.">
+  <meta property="og:description" content="27 Partyspiele für 1 bis 4 Leute an einem Handy oder Tablet. Jeder bekommt eine Ecke des Bildschirms und einen Finger.">
   <meta property="og:image" content="https://spanani.de/assets/img/og/default.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -113,10 +113,8 @@
     .chip-btn { min-height: 46px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--surface-2); font-weight: 700; font-size: 0.9rem; }
     .chip-btn[hidden] { display: none; }
 
-    .hero h1 { font-family: var(--font-display); font-size: clamp(2.6rem, 11vw, 4rem); font-weight: 800; line-height: 0.95; letter-spacing: -0.045em; }
-    .hero h1 span { display: block; color: var(--p1); }
-    .hero p { margin-top: 14px; color: var(--soft); font-size: 1.05rem; max-width: 34ch; }
 
+    .tagline { margin-top: -16px; font-size: 1rem; font-weight: 600; color: var(--soft); }
     .block-title { font-family: var(--font-display); font-size: 1.15rem; font-weight: 750; letter-spacing: -0.02em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
     .block-title small { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; color: var(--faint); letter-spacing: 0; }
 
@@ -139,16 +137,16 @@
     .note { color: var(--faint); font-size: 0.9rem; }
     .note[hidden], .points-block[hidden] { display: none; }
 
-    .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    .tile { --cc: var(--c-tempo); position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-height: 124px; padding: 14px; border-radius: var(--r-md); border: 0; border-bottom: 4px solid color-mix(in srgb, var(--cc) 45%, var(--bg-deep)); background: linear-gradient(160deg, color-mix(in srgb, var(--cc) 20%, var(--surface)) 0%, var(--surface) 60%); text-align: left; transition: transform var(--dur-fast), opacity var(--dur); }
-    .tile:active { transform: translateY(2px) scale(0.98); }
-    .tile-ico { width: 38px; height: 38px; color: var(--cc); }
-    .tile-name { font-family: var(--font-display); font-size: 1.1rem; font-weight: 780; letter-spacing: -0.02em; line-height: 1.1; }
-    .tile-who { font-size: 0.8rem; color: var(--soft); margin-top: auto; }
-    .tile-dot { position: absolute; top: 12px; right: 12px; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-strong); }
-    .tile.is-in .tile-dot { background: var(--cc); border-color: var(--cc); }
-    .tile.is-off { opacity: 0.55; }
-    .tile.is-na { opacity: 0.25; }
+    .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 12px; }
+    .tile { --cc: var(--c-tempo); display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 0; border: 0; background: none; text-align: center; transition: opacity var(--dur); }
+    .tile-ico { display: grid; place-items: center; width: 100%; aspect-ratio: 1; border-radius: 24%; background: var(--cc); color: var(--on-bright); box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.2); transition: transform var(--dur-fast) var(--spring), background-color var(--dur); }
+    .tile-ico .ico { width: 52%; height: 52%; }
+    .tile:active .tile-ico { transform: scale(0.93); }
+    .tile-name { font-family: var(--font-display); font-size: 0.98rem; font-weight: 760; letter-spacing: -0.015em; line-height: 1.15; }
+    .tile-who { font-size: 0.75rem; color: var(--faint); margin-top: -4px; }
+    .tile.is-off .tile-ico { background: var(--surface-2); color: var(--faint); box-shadow: none; }
+    .tile.is-off .tile-name { color: var(--soft); }
+    .tile.is-na { opacity: 0.28; }
     .cat-tempo { --cc: var(--c-tempo); }
     .cat-nerves { --cc: var(--c-nerves); }
     .cat-snap { --cc: var(--c-snap); }
@@ -173,7 +171,8 @@
     .sheet-box { --cc: var(--c-tempo); width: min(100%, 560px); max-height: 88dvh; overflow: auto; padding: 22px 20px max(20px, env(safe-area-inset-bottom, 0px)); border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--surface); box-shadow: var(--shadow); animation: sheet-in 320ms var(--ease); }
     @keyframes sheet-in { from { transform: translateY(40%); opacity: 0; } }
     .sheet-grip { width: 44px; height: 5px; border-radius: 3px; background: var(--line-strong); margin: 0 auto 18px; }
-    .sheet-ico { width: 64px; height: 64px; color: var(--cc); margin-bottom: 12px; }
+    .sheet-ico { display: grid; place-items: center; width: 76px; height: 76px; border-radius: 24%; background: var(--cc); color: var(--on-bright); margin-bottom: 14px; box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.2); }
+    .sheet-ico .ico { width: 52%; height: 52%; }
     .sheet-box h2 { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1; margin-bottom: 10px; }
     .sheet-box p { color: var(--soft); margin-bottom: 10px; }
     .sheet-meta { font-size: 0.9rem; color: var(--faint); }
@@ -217,7 +216,6 @@
     .arena[hidden] { display: none; }
     .arena .grid { position: absolute; inset: 0; }
     .arena .zone { cursor: pointer; transition: background-color var(--dur); }
-    .arena .zone::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 120%, color-mix(in srgb, var(--pc) 38%, transparent), transparent 65%); pointer-events: none; }
     .arena .zone-inner { padding: max(14px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(14px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); gap: 8px; }
     .zone-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .zone-name { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--pc); letter-spacing: -0.01em; transition: color var(--dur-fast); }
@@ -228,7 +226,7 @@
     .pips i.new { animation: pip 600ms var(--spring); }
     @keyframes pip { 0% { transform: scale(0.2); } 60% { transform: scale(1.8); } }
     .zone-stage { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 10px; }
-    .zone-big { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; font-size: min(30cqmin, 9rem); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; text-shadow: 0 6px 0 rgba(0, 0, 0, 0.25); }
+    .zone-big { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; font-size: min(30cqmin, 9rem); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
     .zone-big.is-mid { font-size: min(19cqmin, 6rem); }
     .zone-big.is-long { font-size: min(12cqmin, 4rem); letter-spacing: -0.03em; }
     .zone-big.pop { animation: pop 260ms var(--spring); }
@@ -242,27 +240,25 @@
     @keyframes ring { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
     .zone-bar { width: min(100%, 380px); height: 16px; border-radius: 999px; background: rgba(0, 0, 0, 0.3); overflow: hidden; }
     .zone-bar[hidden] { display: none; }
-    .zone-bar i { display: block; height: 100%; width: 100%; border-radius: 999px; background: var(--pc); transform-origin: left; transform: scaleX(0); box-shadow: 0 0 18px var(--pc); }
+    .zone-bar i { display: block; height: 100%; width: 100%; border-radius: 999px; background: var(--pc); transform-origin: left; transform: scaleX(0); }
     .zone-extra { width: 100%; display: flex; justify-content: center; align-items: center; color: var(--pc); }
     .zone-extra:empty { display: none; }
     .zone.is-canvas .zone-extra { flex: 1; min-height: 0; position: relative; }
     .zone-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .ready-ico { width: min(26cqmin, 110px); height: min(26cqmin, 110px); }
+    .ready-ico { display: grid; place-items: center; width: min(28cqmin, 120px); height: min(28cqmin, 120px); border-radius: 24%; background: var(--pc); color: var(--deep); box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.2); }
+    .ready-ico .ico { width: 54%; height: 54%; }
 
     .zone.is-tap::after { content: ''; position: absolute; inset: 0; background: var(--pc); opacity: 0; animation: flash 180ms ease-out; pointer-events: none; }
     @keyframes flash { from { opacity: 0.22; } }
     .zone.is-ready .zone-hint::before { animation: none; background: currentColor; }
     .zone.is-out { background: #0d0914; }
-    .zone.is-out::before { opacity: 0; }
     .zone.is-out .zone-stage { opacity: 0.55; filter: grayscale(0.6); }
     .zone.is-go { background: var(--go); color: var(--on-bright); }
     .zone.is-go .zone-small, .zone.is-go .zone-hint, .zone.is-go .zone-name { color: var(--on-bright); }
     .zone.is-win { background: var(--pc); color: var(--on-bright); }
-    .zone.is-win::before { background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.45), transparent 60%); }
     .zone.is-win .zone-name, .zone.is-win .zone-small, .zone.is-win .zone-hint { color: var(--on-bright); }
     .zone.is-win .pips i { border-color: var(--on-bright); }
     .zone.is-win .pips i.on { background: var(--on-bright); }
-    .zone.is-win .zone-big { text-shadow: none; }
     .zone.is-hot { background: color-mix(in srgb, var(--stop) 45%, var(--deep)); }
     .zone.is-run { background: color-mix(in srgb, var(--run) 30%, var(--deep)); }
     .zone.is-stop { background: color-mix(in srgb, var(--stop) 40%, var(--deep)); }
@@ -274,21 +270,21 @@
     .zone-name b { font-weight: inherit; }
     @container (max-width: 250px) { .zone-name b { display: none; } .pips i { width: 10px; height: 10px; } }
 
-    .bomb { width: min(42cqmin, 170px); height: auto; color: var(--text); animation: bomb-tick var(--tick, 900ms) ease-in-out infinite; filter: drop-shadow(0 0 20px var(--stop)); }
+    .bomb { width: min(42cqmin, 170px); height: auto; color: var(--text); animation: bomb-tick var(--tick, 900ms) ease-in-out infinite; }
     .bomb .spark { fill: var(--p4); animation: spark 160ms steps(2) infinite; }
     @keyframes bomb-tick { 50% { transform: scale(1.12) rotate(-4deg); } }
     @keyframes spark { 50% { fill: var(--stop); } }
-    .shape { width: min(48cqmin, 220px); height: auto; filter: drop-shadow(0 8px 0 rgba(0, 0, 0, 0.3)); }
+    .shape { width: min(48cqmin, 220px); height: auto; }
     .dots { width: min(70cqmin, 320px); height: auto; color: var(--text); }
-    .balloon { width: min(58cqmin, 260px); height: auto; color: var(--pc); filter: drop-shadow(0 0 24px color-mix(in srgb, var(--pc) 60%, transparent)); }
+    .balloon { width: min(58cqmin, 260px); height: auto; color: var(--pc); }
     .balloon.pop { animation: wobble 220ms var(--spring); }
     @keyframes wobble { 0% { transform: scale(1.12, 0.9); } 100% { transform: scale(1); } }
-    .lamp { width: min(34cqmin, 150px); height: min(34cqmin, 150px); border-radius: 50%; background: var(--stop); box-shadow: 0 0 60px var(--stop), inset 0 -10px 0 rgba(0, 0, 0, 0.25); }
-    .lamp.is-green { background: var(--run); box-shadow: 0 0 60px var(--run), inset 0 -10px 0 rgba(0, 0, 0, 0.25); }
+    .lamp { width: min(34cqmin, 150px); height: min(34cqmin, 150px); border-radius: 50%; background: var(--stop); border: 10px solid var(--bg-deep); }
+    .lamp.is-green { background: var(--run); }
 
     .track { position: relative; width: min(100%, 440px); height: 72px; border-radius: 18px; background: rgba(0, 0, 0, 0.35); overflow: hidden; }
     .track-win { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--pc) 45%, transparent); border-left: 3px solid var(--pc); border-right: 3px solid var(--pc); }
-    .track-mark { position: absolute; top: 6px; bottom: 6px; width: 8px; margin-left: -4px; border-radius: 4px; background: var(--text); box-shadow: 0 0 16px var(--text); }
+    .track-mark { position: absolute; top: 6px; bottom: 6px; width: 8px; margin-left: -4px; border-radius: 4px; background: var(--text); }
     .track.is-hit .track-win { background: var(--pc); }
 
     .fx { position: absolute; inset: 0; z-index: 4; pointer-events: none; width: 100%; height: 100%; }
@@ -313,7 +309,7 @@
     .panel-actions .primary { color: #fff; }
     .panel-sound { display: flex; justify-content: center; margin-top: 12px; }
 
-    @media (min-width: 480px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (min-width: 480px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     @media (orientation: landscape) and (pointer: coarse) {
       .arena .grid[data-players="2"] { grid-template: "a b" 1fr / var(--fa, 1fr) var(--fb, 1fr); }
       .arena .grid[data-players="2"] .zone[data-p] .zone-inner { inset: auto; left: 50%; top: 50%; width: 100cqh; height: 100cqw; transform: translate(-50%, -50%) rotate(90deg); }
@@ -344,10 +340,7 @@
       </div>
     </header>
 
-    <section class="hero">
-      <h1>Ein Handy. <span>Vier Daumen.</span></h1>
-      <p>19 schnelle Duelle für 1 bis 4 Leute. Handy flach hinlegen, jeder nimmt sich eine Ecke.</p>
-    </section>
+    <h1 class="tagline" id="tagline">Partyspiele für ein Handy</h1>
 
     <section aria-labelledby="countTitle">
       <h2 class="block-title" id="countTitle">Wie viele spielen?</h2>
@@ -456,7 +449,15 @@
     dart: '<circle cx="24" cy="24" r="19"/><circle cx="24" cy="24" r="11"/><circle cx="24" cy="24" r="3.5" fill="currentColor"/>',
     stack: '<rect x="7" y="34" width="34" height="9" rx="2" fill="currentColor"/><rect x="11" y="22" width="28" height="9" rx="2" fill="currentColor"/><rect x="15" y="10" width="20" height="9" rx="2" fill="currentColor"/>',
     runner: '<path d="M4 41h40M14 41V24M34 41V24M11 26h26"/><circle cx="33" cy="10" r="5" fill="currentColor"/>',
-    flap: '<path d="M4 28c7-11 15-11 20 0 5-11 13-11 20 0"/><circle cx="24" cy="31" r="4" fill="currentColor"/>'
+    flap: '<path d="M4 28c7-11 15-11 20 0 5-11 13-11 20 0"/><circle cx="24" cy="31" r="4" fill="currentColor"/>',
+    shot: '<circle cx="32" cy="15" r="8" fill="currentColor"/><path d="M6 42c5-12 11-19 18-23" stroke-dasharray="3 5"/>',
+    higher: '<path d="M24 42V8M10 22 24 8l14 14"/>',
+    blind: '<path d="M6 21c8 10 28 10 36 0M12 28l-3 5M24 31v6M36 28l3 5"/>',
+    hoop: '<rect x="35" y="4" width="8" height="22" rx="1"/><path d="M9 14h26M13 14l3 11h11l3-11"/><circle cx="15" cy="38" r="7" fill="currentColor"/>',
+    rope: '<path d="M6 10c0 32 36 32 36 0"/><circle cx="24" cy="12" r="4" fill="currentColor"/><path d="M24 17v11M19 38l5-10 5 10"/>',
+    fish: '<path d="M7 24c8-12 23-12 29 0-6 12-21 12-29 0z" fill="currentColor"/><path d="M36 24l7-7v14z" fill="currentColor"/>',
+    lanes: '<path d="M16 4v40M32 4v40" opacity=".45"/><rect x="18" y="27" width="12" height="16" rx="3" fill="currentColor"/><rect x="34" y="7" width="10" height="9" fill="currentColor"/>',
+    trail: '<path d="M8 42V12h20v18h12V9"/><rect x="36" y="3" width="8" height="8" fill="currentColor"/>'
   };
   var BOMB = '<svg class="bomb" viewBox="0 0 100 100" aria-hidden="true"><circle cx="44" cy="58" r="32" fill="currentColor"/><circle cx="33" cy="47" r="8" fill="#fff" opacity=".35"/><rect x="52" y="20" width="18" height="16" rx="3" fill="currentColor" transform="rotate(35 61 28)"/><path d="M68 20 C 74 10, 82 12, 86 6" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle class="spark" cx="88" cy="6" r="7"/></svg>';
   var SOUND_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
@@ -608,7 +609,7 @@
 
   function arcade(setup) {
     return function (g) {
-      var st = [], out = [], score = [];
+      var st = [], out = [], score = [], t0 = g.now();
       g.each(function (z, p) {
         st[p] = { c: g.canvas(p), p: p, edge: g.edge(p) };
         score[p] = 0;
@@ -627,10 +628,19 @@
         if (v === score[p]) return;
         score[p] = v;
         g.z[p].set('', setup.label(v));
-        g.sfx('hit');
-        survival(g, out, score, setup.label);
+        if (!setup.quiet) g.sfx('hit');
+        if (!setup.duration) survival(g, out, score, setup.label);
       }
       g.frame(function (now, dt) {
+        if (setup.duration) {
+          var left = 1 - (now - t0) / setup.duration;
+          g.each(function (z) { z.bar(Math.max(0, left)); });
+          if (left <= 0) {
+            var best = maxOf(score), lines = g.map(function (q) { return setup.label(score[q]); });
+            g.finish(g.n > 1 && best > 0 ? indicesOf(g.n, function (q) { return score[q] === best; }) : [], lines, { solo: { text: lines[0], value: score[0], better: 'high' } });
+            return;
+          }
+        }
         setup.step(world, now, dt);
         for (var p = 0; p < g.n && g.active(); p++) {
           var s = st[p];
@@ -1271,7 +1281,6 @@
           });
           if (out || s.darts.length >= 3) return;
           x.save();
-          x.shadowColor = col.text; x.shadowBlur = 6;
           x.strokeStyle = col.text; x.lineWidth = 1.1;
           var lx = s.phase === 0 ? w.fx(s, t) : s.x;
           x.beginPath(); x.moveTo(lx, 3); x.lineTo(lx, 97); x.stroke();
@@ -1330,7 +1339,7 @@
           x.fillStyle = alpha(col.pc, 0.5);
           s.debris.forEach(function (d) { x.fillRect(d.x, d.y, d.w, bh - 0.8); });
           if (!s.dead) {
-            x.save(); x.shadowColor = col.text; x.shadowBlur = 8;
+            x.save();
             x.fillStyle = col.text; x.fillRect(s.x, base - (s.tower.length + 1) * bh + shift - 4, s.wd, bh - 0.8);
             x.restore();
           }
@@ -1383,7 +1392,6 @@
           if (!s.trail) return;
           s.trail.forEach(function (ty, i) { if (i) { x.fillStyle = alpha(col.pc, 0.14 * (6 - i) / 6); x.fillRect(17 - i * 2.2, gy - 9 - ty, 6, 9); } });
           x.save();
-          if (!out) { x.shadowColor = col.pc; x.shadowBlur = 10; }
           x.fillStyle = out ? alpha(col.text, 0.25) : col.pc;
           x.fillRect(17, gy - 9 - (s.y || 0), 6, 9);
           x.restore();
@@ -1445,12 +1453,331 @@
           var by = s.y || 45, tilt = Math.max(-0.5, Math.min(0.8, (s.vy || 0) / 140));
           x.save();
           x.translate(25, by); x.rotate(tilt);
-          if (!out) { x.shadowColor = col.pc; x.shadowBlur = 12; }
           x.fillStyle = out ? alpha(col.text, 0.25) : col.pc;
           x.beginPath(); x.arc(0, 0, 3.2, 0, 6.2832); x.fill();
           x.beginPath(); x.moveTo(-1.5, 0); x.lineTo(-5, (s.flap || 0) > 0.5 ? -4.5 : 3); x.lineTo(1, 0.5); x.fill();
           x.fillStyle = col.bgDeep; x.fillRect(1, -1.4, 1.2, 1.2);
           x.restore();
+        }
+      })
+    },
+    {
+      id: 'shot', cat: 'nerves', name: 'Kugelstoßen', players: [1, 2, 3, 4],
+      rule: 'Halte gedrückt, um Kraft aufzuladen, und lass bei voll los. Ab 60 Prozent ist die Anzeige weg. Zu lang gehalten ist ungültig.',
+      start: function (g) {
+        var st = [], t0 = g.now(), done = false, full = 1300;
+        g.each(function (z, p) { st[p] = { start: 0, res: null }; z.set('Halten', 'Finger drauf' + (FINE ? ' oder Taste halten' : '') + ', bei voll loslassen'); z.bar(0); });
+        function meters(v) { return v.toFixed(1).replace('.', ',') + ' m'; }
+        function end() {
+          if (done) return;
+          done = true;
+          var best = maxOf(g.map(function (q) { return st[q].res || 0; }));
+          var lines = g.map(function (q) { return st[q].res == null ? 'Nicht geworfen' : (st[q].res === 0 ? 'Übertreten, ungültig' : meters(st[q].res)); });
+          g.finish(g.n > 1 && best > 0 ? indicesOf(g.n, function (q) { return st[q].res === best; }) : [], lines, { solo: st[0].res ? { text: meters(st[0].res), value: Math.round(st[0].res * 10), better: 'high' } : { text: st[0].res === 0 ? 'Ungültig' : 'Kein Wurf' }, soloSmall: lines[0] });
+        }
+        function letGo(p, now) {
+          var s = st[p], pw = (now - s.start) / full, lim = g.edge(p) ? 1.14 : 1;
+          s.res = pw > lim ? 0 : (2 + 20 * Math.pow(Math.min(pw, 1), 1.3)) * (g.edge(p) ? 1.08 : 1);
+          var z = g.z[p];
+          z.bar(null);
+          z.cls('is-ready', true);
+          z.set(s.res ? meters(s.res) : 'Übertreten', s.res ? 'Weit geworfen' : 'Zu lang gehalten');
+          z.pop();
+          if (s.res) g.sfx('hit'); else g.bad(p);
+          if (st.every(function (v) { return v.res != null; })) g.later(end, 300);
+        }
+        g.frame(function (now) {
+          g.each(function (z, p) {
+            var s = st[p];
+            if (!s.start || s.res != null) return;
+            var pw = (now - s.start) / full;
+            if (pw > 1.7) { letGo(p, now); return; }
+            if (pw < 0.6) { z.bar(pw); z.big(Math.round(pw * 100) + ' %'); } else { z.bar(null); z.big('?'); }
+          });
+          if (now - t0 > 9000) end();
+        });
+        return {
+          tap: function (p) {
+            var s = st[p];
+            if (s.start || s.res != null) return;
+            s.start = g.now();
+            g.z[p].set('0 %', 'Loslassen bei voll');
+          },
+          release: function (p) {
+            var s = st[p];
+            if (!s.start || s.res != null) return;
+            letGo(p, g.now());
+          }
+        };
+      }
+    },
+    {
+      id: 'higher', cat: 'snap', name: 'Höher', players: [1, 2, 3, 4],
+      rule: 'Zahlen blitzen auf. Tippe, wenn die Zahl größer ist als die davor.',
+      start: snap({
+        intro: 'Achtung', hint: 'Größer als eben? Dann tippen', wait: 1300, fastest: 650,
+        item: function (want, prev) {
+          if (!prev) { var f = 20 + randInt(60); return { v: f, big: String(f), match: false }; }
+          var pv = prev.v, v;
+          if (want && pv < 99) v = pv + 1 + randInt(Math.min(30, 99 - pv));
+          else v = Math.max(1, pv - randInt(31));
+          return { v: v, big: String(v), match: v > pv };
+        }
+      })
+    },
+    {
+      id: 'blind', cat: 'timing', name: 'Blind zählen', players: [1, 2, 3, 4],
+      rule: 'Oben steht eine Zahl. Tippe genau so oft, ohne Anzeige. Nach sieben Sekunden wird gezählt, wer am nächsten dran ist, gewinnt.',
+      start: function (g) {
+        var goal = 12 + randInt(14), c = [], dur = 7000, t0 = g.now(), done = false;
+        g.each(function (z, p) { c[p] = 0; z.set(String(goal), 'Genau so oft tippen'); z.bar(1); });
+        function eff(q) { return g.edge(q) && c[q] ? goal + Math.round((c[q] - goal) * 0.3) : c[q]; }
+        function end() {
+          if (done) return;
+          done = true;
+          var d = g.map(function (q) { return c[q] ? Math.abs(eff(q) - goal) : Infinity; });
+          var best = minOf(d);
+          var lines = g.map(function (q) { return c[q] ? plural(eff(q), 'Tipp', 'Tipps') + (d[q] === 0 ? ', genau ' + goal : ', Ziel war ' + goal) : 'Nicht getippt'; });
+          g.finish(g.n > 1 && best !== Infinity ? indicesOf(g.n, function (q) { return d[q] === best; }) : [], lines, { solo: c[0] ? { text: d[0] === 0 ? 'Genau' : d[0] + ' daneben', value: d[0], better: 'low' } : { text: 'Nicht getippt' }, soloSmall: lines[0] });
+        }
+        g.every(function () {
+          var left = Math.max(0, 1 - (g.now() - t0) / dur);
+          g.each(function (z) { z.bar(left); });
+          if (left <= 0) end();
+        }, 100);
+        return { tap: function (p) { c[p]++; } };
+      }
+    },
+    {
+      id: 'hoop', cat: 'timing', name: 'Korbwurf', players: [1, 2, 3, 4],
+      rule: 'Die Kraftanzeige pendelt. Tippe, wenn sie auf Höhe der Markierung ist, dann fliegt der Ball in den Korb. Wer in 20 Sekunden die meisten Körbe wirft, gewinnt.',
+      start: arcade({
+        label: function (v) { return plural(v, 'Korb', 'Körbe'); },
+        duration: 20000,
+        init: function () { var r = seeded(randInt(1e9)), t = []; for (var i = 0; i < 60; i++) t.push(0.2 + r() * 0.65); return { targets: t }; },
+        step: function () {},
+        move: function (w, s, dt, now) {
+          if (!s.init) { s.init = true; s.n = 0; s.state = 0; s.shot = 0; s.ph = Math.random() * 6.28; s.ft = 0; }
+          s.pw = 0.5 + 0.5 * Math.sin(now / 1000 * 2.7 + s.ph);
+          if (s.state === 1) {
+            s.ft += dt;
+            if (s.ft >= 0.7) { s.state = 0; s.shot++; if (s.made) s.n++; s.flash = s.made ? 1 : 0; }
+          }
+          s.flash = Math.max(0, (s.flash || 0) - dt * 2.5);
+          return s.n;
+        },
+        tap: function (w, s) {
+          if (!s.init || s.state !== 0) return;
+          s.state = 1; s.ft = 0; s.from = s.pw;
+          s.made = Math.abs(s.pw - w.targets[s.shot % 60]) <= (s.edge ? 0.15 : 0.075);
+        },
+        draw: function (w, s, c) {
+          var x = c.ctx, col = c.col;
+          field(c, x);
+          if (!s.init) return;
+          var tg = w.targets[s.shot % 60], hx = 48 + tg * 42;
+          x.fillStyle = alpha(col.text, 0.15); x.fillRect(6, 12, 7, 76);
+          x.fillStyle = alpha(col.pc, 0.55); x.fillRect(6, 88 - (tg + 0.075) * 76, 7, 0.15 * 76);
+          x.fillStyle = col.text; x.fillRect(4, 88 - (s.state === 1 ? s.from : s.pw) * 76 - 1, 11, 2.4);
+          x.fillStyle = alpha(col.text, 0.85); x.fillRect(hx + 7, 22, 1.6, 22);
+          x.fillStyle = s.flash > 0 ? col.text : col.pc; x.fillRect(hx - 6, 34, 13, 2);
+          x.fillStyle = alpha(col.text, 0.12); x.fillRect(0, 88, 100, 12);
+          var bx = 24, by = 80;
+          if (s.state === 1) {
+            var k = s.ft / 0.7, ex = 48 + s.from * 42, ey = 34;
+            bx = 24 + (ex - 24) * k; by = 80 + (ey - 80) * k - Math.sin(k * Math.PI) * 32;
+            if (!s.made && k > 0.85) by += (k - 0.85) * 120;
+          }
+          x.beginPath(); x.arc(bx, by, 3.6, 0, 6.2832); x.fillStyle = '#ff9142'; x.fill();
+          x.strokeStyle = col.bgDeep; x.lineWidth = 0.6; x.beginPath(); x.moveTo(bx - 3.6, by); x.lineTo(bx + 3.6, by); x.stroke();
+        }
+      })
+    },
+    {
+      id: 'rope', cat: 'timing', name: 'Seilspringen', players: [1, 2, 3, 4],
+      rule: 'Das Seil schwingt immer schneller. Tippe, um zu springen, wenn es unten ankommt. Wer hängen bleibt, ist raus.',
+      start: arcade({
+        label: function (v) { return plural(v, 'Sprung', 'Sprünge'); },
+        init: function () { return { t: 0, T: 1.3, ph: 0.35, pass: 0 }; },
+        step: function (w, now, dt) {
+          w.t += dt;
+          if (w.t < 0.6) return;
+          w.ph += dt / w.T;
+          if (w.ph >= 1) { w.ph -= 1; w.T = Math.max(0.52, w.T * 0.965); w.pass++; }
+        },
+        move: function (w, s, dt) {
+          if (!s.init) { s.init = true; s.y = 0; s.vy = 0; s.n = 0; s.seen = 0; }
+          if (s.edge && s.y <= 0.01 && (1 - w.ph) * w.T < 0.16 && (1 - w.ph) * w.T > 0.05) s.vy = 95;
+          s.vy -= 420 * dt;
+          s.y = Math.max(0, s.y + s.vy * dt);
+          if (s.y === 0) s.vy = Math.max(0, s.vy);
+          if (w.pass !== s.seen) { s.seen = w.pass; if (s.y < 3) return 'out'; s.n++; }
+          return s.n;
+        },
+        tap: function (w, s) { if (s.init && s.y <= 0.01) s.vy = 95; },
+        draw: function (w, s, c, out) {
+          var x = c.ctx, col = c.col, a = w.ph * Math.PI * 2, sag = 58 + 28 * Math.cos(a), front = Math.cos(a) > 0;
+          field(c, x);
+          x.fillStyle = alpha(col.text, 0.15); x.fillRect(0, 86, 100, 1.2);
+          function rope() { x.strokeStyle = col.text; x.lineWidth = front ? 1.8 : 1; x.beginPath(); x.moveTo(12, 58); x.quadraticCurveTo(50, 2 * sag - 58, 88, 58); x.stroke(); }
+          if (!front) rope();
+          var py = 86 - (s.y || 0);
+          x.fillStyle = out ? alpha(col.text, 0.25) : col.pc;
+          x.fillRect(46, py - 14, 8, 11);
+          x.beginPath(); x.arc(50, py - 18, 3.6, 0, 6.2832); x.fill();
+          x.fillRect(46.5, py - 3, 2.4, 3); x.fillRect(51.1, py - 3, 2.4, 3);
+          x.fillStyle = col.text; x.fillRect(9, 55, 4, 8); x.fillRect(87, 55, 4, 8);
+          if (front) rope();
+        }
+      })
+    },
+    {
+      id: 'fish', cat: 'skill', name: 'Angeln', players: [1, 2, 3, 4],
+      rule: 'Tippe, um den Haken fallen zu lassen. Triffst du einen Fisch, hängt er dran. Wer in 20 Sekunden die meisten fängt, gewinnt.',
+      start: arcade({
+        label: function (v) { return plural(v, 'Fisch', 'Fische'); },
+        duration: 20000,
+        init: function () { return { r: seeded(randInt(1e9)), t: 0, fish: [], next: 0.2, id: 0 }; },
+        step: function (w, now, dt) {
+          w.t += dt;
+          while (w.t >= w.next) {
+            var dir = w.r() < 0.5 ? 1 : -1;
+            w.fish.push({ id: w.id++, born: w.next, y: 34 + w.r() * 50, v: (14 + w.r() * 24) * dir, x0: dir > 0 ? -8 : 108, size: 3 + w.r() * 2.2 });
+            w.next += 0.6 + w.r() * 0.8;
+          }
+          w.fish = w.fish.filter(function (f) { var fx = f.x0 + f.v * (w.t - f.born); return fx > -12 && fx < 112; });
+        },
+        move: function (w, s, dt) {
+          if (!s.init) { s.init = true; s.hy = 14; s.state = 0; s.caught = {}; s.n = 0; s.hook = null; }
+          if (s.state === 1) {
+            s.hy += 150 * dt;
+            if (s.hy >= 92) { s.hy = 92; s.state = 2; }
+            for (var i = 0; i < w.fish.length; i++) {
+              var f = w.fish[i];
+              if (s.caught[f.id]) continue;
+              var fx = f.x0 + f.v * (w.t - f.born);
+              if (Math.hypot(fx - 50, f.y - s.hy) < f.size + (s.edge ? 6 : 2.5)) { s.caught[f.id] = true; s.hook = f; s.state = 2; s.n++; break; }
+            }
+          } else if (s.state === 2) {
+            s.hy -= 130 * dt;
+            if (s.hy <= 14) { s.hy = 14; s.state = 0; s.hook = null; }
+          }
+          return s.n;
+        },
+        tap: function (w, s) { if (s.init && s.state === 0) s.state = 1; },
+        draw: function (w, s, c) {
+          var x = c.ctx, col = c.col;
+          field(c, x);
+          x.fillStyle = alpha(col.pc, 0.12); x.fillRect(0, 24, 100, 76);
+          x.fillStyle = alpha(col.text, 0.18); x.fillRect(0, 24, 100, 0.8);
+          if (!s.init) return;
+          function fishAt(fx, fy, f, hooked) {
+            var d = hooked ? 0 : (f.v > 0 ? 1 : -1);
+            x.fillStyle = hooked ? col.text : col.pc;
+            x.beginPath();
+            if (hooked) { x.ellipse(fx, fy + f.size, f.size * 0.7, f.size * 1.3, 0, 0, 6.2832); } else { x.ellipse(fx, fy, f.size * 1.5, f.size, 0, 0, 6.2832); }
+            x.fill();
+            if (!hooked) { x.beginPath(); x.moveTo(fx - d * f.size * 1.3, fy); x.lineTo(fx - d * f.size * 2.4, fy - f.size); x.lineTo(fx - d * f.size * 2.4, fy + f.size); x.fill(); x.fillStyle = col.bgDeep; x.fillRect(fx + d * f.size * 0.7 - 0.6, fy - 0.9, 1.2, 1.2); }
+          }
+          w.fish.forEach(function (f) { if (!s.caught[f.id]) fishAt(f.x0 + f.v * (w.t - f.born), f.y, f, false); });
+          x.strokeStyle = alpha(col.text, 0.7); x.lineWidth = 0.6;
+          x.beginPath(); x.moveTo(50, 4); x.lineTo(50, s.hy); x.stroke();
+          x.strokeStyle = col.text; x.lineWidth = 1.2;
+          x.beginPath(); x.arc(50, s.hy + 1.5, 2, 0, Math.PI); x.stroke();
+          if (s.hook) fishAt(50, s.hy + 2, s.hook, true);
+          x.fillStyle = col.text; x.fillRect(42, 2, 16, 3);
+        }
+      })
+    },
+    {
+      id: 'lanes', cat: 'skill', name: 'Spurwechsel', players: [1, 2, 3, 4],
+      rule: 'Dein Auto fährt von allein. Jeder Tipp wechselt die Spur. Weich den Blöcken aus, es wird immer schneller. Wer zuletzt noch fährt, gewinnt.',
+      start: arcade({
+        label: function (v) { return plural(v, 'Block', 'Blöcke'); },
+        init: function () {
+          var r = seeded(randInt(1e9)), w = { r: r, d: 0, v: 36, obs: [] }, y = 120;
+          while (w.obs.length < 6) { w.obs.push([r() < 0.5 ? 0 : 1, y]); y += 30 + r() * 30; }
+          return w;
+        },
+        step: function (w, now, dt) {
+          w.v = Math.min(115, w.v + 3 * dt);
+          w.d += w.v * dt;
+          var last = w.obs[w.obs.length - 1];
+          if (last[1] - w.d < 200) w.obs.push([w.r() < 0.5 ? 0 : 1, last[1] + Math.max(20, 44 - w.v * 0.12) + w.r() * 28]);
+          w.obs = w.obs.filter(function (o) { return o[1] - w.d > -40; });
+        },
+        move: function (w, s, dt) {
+          if (!s.init) { s.init = true; s.lane = 0; s.x = 30; }
+          if (s.edge) {
+            var mine = w.obs.some(function (o) { var dy = o[1] - w.d; return o[0] === s.lane && dy > 0 && dy < 20; });
+            var other = w.obs.some(function (o) { var dy = o[1] - w.d; return o[0] !== s.lane && dy > -14 && dy < 16; });
+            if (mine && !other) s.lane = 1 - s.lane;
+          }
+          var tx = s.lane ? 70 : 30;
+          s.x += Math.max(-dt * 420, Math.min(dt * 420, tx - s.x));
+          var passed = 0;
+          for (var i = 0; i < w.obs.length; i++) {
+            var o = w.obs[i], dy = o[1] - w.d, ox = o[0] ? 70 : 30;
+            if (dy < -10) passed++;
+            if (Math.abs(dy) < 9 && Math.abs(s.x - ox) < 15) return 'out';
+          }
+          return passed;
+        },
+        tap: function (w, s) { if (s.init) s.lane = 1 - s.lane; },
+        draw: function (w, s, c, out) {
+          var x = c.ctx, col = c.col;
+          field(c, x);
+          x.fillStyle = alpha(col.text, 0.06); x.fillRect(10, 0, 80, 100);
+          x.fillStyle = alpha(col.text, 0.35);
+          for (var k = 0; k < 8; k++) { var dy = ((k * 16 + w.d) % 128) - 14; x.fillRect(49.3, dy, 1.4, 7); }
+          w.obs.forEach(function (o) {
+            var sy = 80 - (o[1] - w.d);
+            if (sy > -10 && sy < 110) { x.fillStyle = col.text; x.fillRect((o[0] ? 70 : 30) - 11, sy - 4, 22, 8); x.fillStyle = '#ff3b5c'; x.fillRect((o[0] ? 70 : 30) - 11, sy + 2.4, 22, 1.6); }
+          });
+          if (!s.init) return;
+          x.fillStyle = out ? alpha(col.text, 0.25) : col.pc;
+          x.fillRect(s.x - 6, 74, 12, 14);
+          x.fillStyle = col.bgDeep; x.fillRect(s.x - 4, 76.5, 8, 3.5);
+          x.fillStyle = alpha(col.bgDeep, 0.6); x.fillRect(s.x - 7, 77, 1.6, 3); x.fillRect(s.x + 5.4, 77, 1.6, 3); x.fillRect(s.x - 7, 83, 1.6, 3); x.fillRect(s.x + 5.4, 83, 1.6, 3);
+        }
+      })
+    },
+    {
+      id: 'trail', cat: 'skill', name: 'Lichtspur', players: [1, 2, 3, 4],
+      rule: 'Du ziehst eine Spur hinter dir her. Jeder Tipp biegt nach rechts ab. Fahr nicht gegen die Wand oder deine Spur. Wer am längsten fährt, gewinnt.',
+      start: arcade({
+        label: function (v) { return plural(v, 'Feld', 'Felder'); },
+        quiet: true,
+        init: function () { return { t: 0, acc: 0, step: 0.16, ticks: 0, tick: false }; },
+        step: function (w, now, dt) {
+          w.t += dt; w.tick = false;
+          if (w.t < 0.6) return;
+          w.acc += dt;
+          if (w.acc >= w.step) { w.acc -= w.step; w.ticks++; w.tick = true; w.step = Math.max(0.075, w.step * 0.993); }
+        },
+        move: function (w, s) {
+          var N = 20, D = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+          if (!s.init) { s.init = true; s.x = 10; s.y = 17; s.dir = 0; s.cells = {}; s.cells['10,17'] = 1; s.path = [[10, 17]]; s.turns = 0; }
+          if (!w.tick) return s.path.length - 1;
+          if (s.turns) { s.dir = (s.dir + s.turns) % 4; s.turns = 0; }
+          function blocked(d) { var nx = s.x + D[d][0], ny = s.y + D[d][1]; return nx < 0 || ny < 0 || nx >= N || ny >= N || s.cells[nx + ',' + ny]; }
+          if (s.edge && blocked(s.dir)) { for (var k = 1; k < 4; k++) { if (!blocked((s.dir + k) % 4)) { s.dir = (s.dir + k) % 4; break; } } }
+          if (blocked(s.dir)) return 'out';
+          s.x += D[s.dir][0]; s.y += D[s.dir][1];
+          s.cells[s.x + ',' + s.y] = 1;
+          s.path.push([s.x, s.y]);
+          return s.path.length - 1;
+        },
+        tap: function (w, s) { if (s.init) s.turns = (s.turns + 1) % 4; },
+        draw: function (w, s, c, out) {
+          var x = c.ctx, col = c.col, u = 5;
+          field(c, x);
+          x.strokeStyle = alpha(col.text, 0.18); x.lineWidth = 0.6; x.strokeRect(0.3, 0.3, 99.4, 99.4);
+          if (!s.init) return;
+          x.fillStyle = out ? alpha(col.text, 0.2) : alpha(col.pc, 0.55);
+          s.path.forEach(function (q) { x.fillRect(q[0] * u + 0.5, q[1] * u + 0.5, u - 1, u - 1); });
+          x.fillStyle = out ? alpha(col.text, 0.4) : col.text;
+          x.fillRect(s.x * u, s.y * u, u, u);
         }
       })
     }
@@ -1687,7 +2014,7 @@
   }
 
   function saveBest(id, solo) {
-    if (!solo || typeof solo.value !== 'number') return '';
+    if (!solo || typeof solo.value !== 'number' || (solo.better === 'high' && solo.value <= 0)) return '';
     var b = readBest(id);
     var better = !b || (solo.better === 'low' ? solo.value < b.v : solo.value > b.v);
     if (better) { store('party_best_' + id, JSON.stringify({ v: solo.value, t: solo.text })); return b ? 'Neuer Bestwert, vorher ' + b.t : 'Erster Bestwert'; }
@@ -1964,9 +2291,9 @@
         b.className = 'tile cat-' + gm.cat + (ok && on ? ' is-in' : '') + (ok && !on ? ' is-off' : '') + (ok ? '' : ' is-na');
         b.dataset.id = gm.id;
         b.setAttribute('aria-label', gm.name + ', ' + cat.name + ', für ' + whoText(gm) + (ok ? (on ? ', in der Mischung' : ', nicht in der Mischung') : ', nicht für eure Anzahl'));
-        b.innerHTML = '<span class="tile-ico">' + icon(gm.id) + '</span><span class="tile-name"></span><span class="tile-who"></span><span class="tile-dot" aria-hidden="true"></span>';
+        b.innerHTML = '<span class="tile-ico">' + icon(gm.id) + '</span><span class="tile-name"></span><span class="tile-who"></span>';
         b.querySelector('.tile-name').textContent = gm.name;
-        b.querySelector('.tile-who').textContent = cat.name + ', ' + whoText(gm);
+        b.querySelector('.tile-who').textContent = whoText(gm);
         b.addEventListener('click', function () { SFX.tap(); openSheet(gm); });
         root.appendChild(b);
       });
@@ -2091,6 +2418,7 @@
   if (savedPlayers >= 1 && savedPlayers <= 4) S.n = savedPlayers;
   var spt = store('party_points') && document.querySelector('input[name="points"][value="' + store('party_points') + '"]');
   if (spt) spt.checked = true;
+  document.getElementById('tagline').textContent = GAMES.length + ' Partyspiele für 1 bis 4 an einem Handy';
   paintSound();
   renderHome();
 })();

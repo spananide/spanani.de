@@ -6,8 +6,8 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
   <title>Stand</title>
-  <meta name="theme-color" content="#e9e9e4" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1d2024" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#dcdedb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#2a2f32" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-180.png">
@@ -17,39 +17,39 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
   <style>
-    @font-face { font-family: 'Archivo'; src: url('fonts/archivo.woff2') format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; font-display: optional; }
+    @font-face {
+      font-family: 'Archivo';
+      src: url('fonts/archivo.woff2') format('woff2');
+      font-weight: 100 900;
+      font-stretch: 62% 125%;
+      font-display: optional;
+    }
 
     :root {
-      --grund: #e9e9e4;
-      --text: #1c1e21;
-      --text-weich: #55585d;
-      --fuge: #c3c3bb;
-      --takt: #9a6a00;
-      --alarm: #b23a24;
+      --gehaeuse: #dcdedb;
+      --deckel: #e9eae7;
+      --schild: #1f2326;
+      --beschriftung: #4e5458;
+      --linie: #b9bcb8;
+      --zaehlwerk: #151718;
+      --ziffer: #f2f2ee;
+      --rot: #c40d1e;
 
-      --schrift: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
-      --gr-zahl: clamp(64px, 20vw, 96px);
-      --gr-zahl-klein: clamp(44px, 13vw, 60px);
-      --gr-titel: 20px;
-      --gr-text: 16px;
-      --gr-klein: 14px;
-      --gr-mini: 12px;
-
+      --r-geraet: 10px;
+      --r-walze: 3px;
       --r-knopf: 6px;
-      --rand: 20px;
-      --breite: 520px;
-      --spur: 14px;
-      --spur-klein: 8px;
       color-scheme: light;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --grund: #1d2024;
-        --text: #e8e6df;
-        --text-weich: #a9a7a0;
-        --fuge: #3a3e44;
-        --takt: #e0a526;
-        --alarm: #d0533c;
+        --gehaeuse: #2a2f32;
+        --deckel: #33393c;
+        --schild: #e4e5e1;
+        --beschriftung: #a3a8a6;
+        --linie: #4a5054;
+        --zaehlwerk: #151718;
+        --ziffer: #f2f2ee;
+        --rot: #e0343f;
         color-scheme: dark;
       }
     }
@@ -58,90 +58,374 @@
     html { -webkit-text-size-adjust: 100%; }
     body {
       margin: 0;
-      background: var(--grund);
-      color: var(--text);
-      font-family: var(--schrift);
-      font-size: var(--gr-text);
+      background: var(--gehaeuse);
+      color: var(--schild);
+      font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 16px;
       line-height: 1.45;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
     button, input { font: inherit; color: inherit; }
-    :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+    :focus-visible { outline: 2px solid var(--schild); outline-offset: 2px; }
     h1, h2, p, ul, dl, dd { margin: 0; }
     ul { padding: 0; list-style: none; }
 
-    .seite { max-width: var(--breite); margin: 0 auto; padding: 0 var(--rand) 48px; }
+    .seite {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 20px 48px;
+    }
 
-    .kopf { display: flex; align-items: baseline; gap: 12px; padding: 18px 0 14px; border-bottom: 1px solid var(--fuge); }
-    .kopf h1 { font-size: var(--gr-titel); font-weight: 700; letter-spacing: -0.01em; }
-    .kopf p { flex: 1; color: var(--text-weich); font-size: var(--gr-klein); }
+    .kopf {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 18px 0 14px;
+      border-bottom: 1px solid var(--linie);
+    }
+    .kopf h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+    .kopf p { flex: 1; color: var(--beschriftung); font-size: 14px; }
     .knopf-leise {
-      border: 1px solid var(--fuge); background: transparent; border-radius: var(--r-knopf);
-      padding: 6px 12px; font-size: var(--gr-klein); cursor: pointer; min-height: 36px;
+      border: 1px solid var(--linie);
+      background: transparent;
+      border-radius: var(--r-knopf);
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      min-height: 36px;
     }
-    .knopf-leise:hover { border-color: var(--text-weich); }
-    .knopf-leise:active { background: var(--fuge); }
-    .knopf-leise[aria-busy="true"] { color: var(--text-weich); }
+    .knopf-leise:hover { border-color: var(--beschriftung); }
+    .knopf-leise:active { background: var(--linie); }
+    .knopf-leise[aria-busy="true"] { color: var(--beschriftung); }
 
-    .fenster { padding: 24px 0 26px; border-bottom: 1px solid var(--fuge); }
-    .fenster h2 { font-size: var(--gr-text); font-weight: 600; }
-    .zahl {
-      font-size: var(--gr-zahl); font-weight: 700; font-stretch: 62%; line-height: 0.95;
-      font-variant-numeric: tabular-nums; letter-spacing: -0.01em; margin: 6px 0 14px;
+    main#inhalt {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
     }
-    .zahl small { font-size: 0.42em; font-weight: 600; margin-left: 0.08em; }
-    .fenster.klein .zahl { font-size: var(--gr-zahl-klein); margin-bottom: 10px; }
-    .zeile { font-size: var(--gr-klein); margin-top: 10px; }
-    .zeile + .zeile { margin-top: 4px; }
-    .weich { color: var(--text-weich); }
-    .vor::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--takt); margin-right: 8px; vertical-align: 1px; }
 
-    .strip { position: relative; }
-    .spur { position: relative; height: var(--spur); background: var(--fuge); }
-    .klein .spur { height: var(--spur-klein); }
-    .fuell { height: 100%; width: var(--w); background: var(--text); }
-    .strip.voll .fuell { background: var(--alarm); }
-    .takt { position: absolute; top: -6px; bottom: -22px; left: var(--x); width: 2px; margin-left: -1px; background: var(--takt); }
-    .lineal { position: relative; display: flex; justify-content: space-between; margin-top: 6px; font-size: var(--gr-mini); color: var(--text-weich); font-variant-numeric: tabular-nums; }
-    .lineal::before { content: ''; position: absolute; left: 0; right: 0; top: -6px; height: 4px; border-left: 1px solid var(--fuge); border-right: 1px solid var(--fuge); }
+    @media (max-width: 959.98px) {
+      main#inhalt {
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: left;
+      }
+    }
 
-    body.erst .fuell { animation: fuellen 480ms cubic-bezier(.2, .7, .2, 1) both; }
-    body.erst .takt { animation: setzen 220ms ease-out 300ms both; }
-    @keyframes fuellen { from { width: 0; } }
-    @keyframes setzen { from { opacity: 0; transform: translateY(-8px); } }
+    @media (min-width: 960px) {
+      main#inhalt {
+        display: grid;
+        grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+        gap: 56px;
+        max-width: 100%;
+        margin-top: 32px;
+      }
+      .spalte-links {
+        position: sticky;
+        top: 24px;
+        align-self: start;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .spalte-rechts {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+      }
+    }
 
-    .verlauf { margin-top: 22px; }
-    .verlauf h3 { font-size: var(--gr-klein); font-weight: 600; margin: 0 0 8px; }
-    .karte { position: relative; height: 120px; border-left: 1px solid var(--fuge); border-bottom: 1px solid var(--fuge); }
-    .karte svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-    .karte .linie { fill: none; stroke: var(--text); stroke-width: 2; vector-effect: non-scaling-stroke; }
-    .karte .tempo { fill: none; stroke: var(--takt); stroke-width: 1.5; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
-    .karte .tag { stroke: var(--fuge); stroke-width: 1; vector-effect: non-scaling-stroke; }
-    .tage { position: relative; height: 18px; margin-top: 4px; font-size: var(--gr-mini); color: var(--text-weich); }
-    .tage span { position: absolute; transform: translateX(4px); }
-    .legende { display: flex; gap: 16px; margin-top: 8px; font-size: var(--gr-mini); color: var(--text-weich); }
-    .legende span::before { content: ''; display: inline-block; width: 14px; height: 0; border-top: 2px solid var(--text); margin-right: 6px; vertical-align: 3px; }
-    .legende .l-tempo::before { border-top: 2px dashed var(--takt); }
+    .geraet {
+      background: var(--deckel);
+      border: 1px solid var(--linie);
+      border-radius: var(--r-geraet);
+      padding: 20px;
+    }
 
-    .sitzungen { padding: 24px 0 8px; }
-    .sitzungen h2 { font-size: var(--gr-text); font-weight: 600; }
-    .sitzungen > p { font-size: var(--gr-klein); margin-top: 4px; }
-    .sitzungen li { padding: 14px 0; border-bottom: 1px solid var(--fuge); }
-    .s-kopf { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
-    .s-kopf strong { font-weight: 600; overflow-wrap: anywhere; }
-    .s-projekt { font-size: var(--gr-klein); color: var(--text-weich); }
-    .s-kopf span { font-size: var(--gr-klein); color: var(--text-weich); white-space: nowrap; }
-    .werte { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 12px; margin-top: 10px; }
-    .werte dt { font-size: var(--gr-mini); color: var(--text-weich); }
-    .werte dd { font-size: var(--gr-klein); font-variant-numeric: tabular-nums; }
+    .schild-zeile {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 12px;
+      color: var(--beschriftung);
+    }
+    .schild-titel { font-weight: 600; }
+    .schild-modell { font-weight: 400; }
 
-    .leer { padding: 32px 0; border-bottom: 1px solid var(--fuge); }
-    .leer h2 { font-size: var(--gr-titel); font-weight: 700; margin-bottom: 8px; }
+    .zaehlwerke {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .zaehlwerk-kasten { min-width: 0; }
+    .kasten-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--schild);
+    }
 
-    .fuss { padding-top: 24px; font-size: var(--gr-klein); color: var(--text-weich); }
+    .walzen {
+      display: flex;
+      align-items: baseline;
+      gap: 3px;
+      font-size: clamp(48px, 13vw, 72px);
+      font-weight: 700;
+      font-stretch: 62%;
+      font-variant-numeric: tabular-nums;
+      margin-top: 6px;
+    }
+    .walze {
+      display: inline-block;
+      height: 1.1em;
+      overflow: hidden;
+      contain: paint;
+      isolation: isolate;
+      background: var(--zaehlwerk);
+      color: var(--ziffer);
+      border-radius: var(--r-walze);
+      width: 0.72em;
+      text-align: center;
+      line-height: 1.1em;
+      flex-shrink: 0;
+    }
+    .walze.einer { background: var(--rot); }
+    .walze-ziffern {
+      display: block;
+      transform: translateY(calc(var(--d, 0) * -1.1em));
+      transition: transform 900ms cubic-bezier(.2, .7, .2, 1);
+    }
+    body.erst .walze-ziffern {
+      transition-delay: calc(var(--i, 0) * 80ms);
+    }
+    .walze-ziffern > div {
+      height: 1.1em;
+      line-height: 1.1em;
+      text-align: center;
+    }
+    .prozent-zeichen {
+      font-size: 0.45em;
+      color: var(--schild);
+      font-weight: 600;
+      margin-left: 2px;
+    }
+
+    .reset-zeile {
+      font-size: 14px;
+      color: var(--beschriftung);
+      margin-top: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .scheibe {
+      position: relative;
+      width: 100%;
+      height: 12px;
+      background: var(--zaehlwerk);
+      border-radius: var(--r-walze);
+      overflow: hidden;
+      margin-top: 18px;
+    }
+    .scheibe-band {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 200%;
+      background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--ziffer) 35%, transparent) 0 1px, transparent 1px 12px);
+      animation: drehen var(--dauer, 8s) linear infinite;
+      animation-play-state: paused;
+    }
+    @keyframes drehen {
+      to { transform: translateX(-50%); }
+    }
+    .marke {
+      position: absolute;
+      top: 0;
+      width: 28px;
+      height: 100%;
+      background: var(--rot);
+      margin-left: -14px;
+    }
+    .marke-1 { left: 25%; }
+    .marke-2 { left: 75%; }
+
+    .tempo-zeile {
+      font-size: 14px;
+      color: var(--beschriftung);
+      margin-top: 8px;
+    }
+
+    .prognose {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 16px;
+      color: var(--schild);
+      line-height: 1.35;
+    }
+    .prognose-woche {
+      font-size: 16px;
+      font-weight: 400;
+      margin-top: 4px;
+      color: var(--schild);
+      line-height: 1.4;
+    }
+    .prognose.warn::before, .prognose-woche.warn::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--rot);
+      margin-right: 8px;
+      vertical-align: 2px;
+    }
+
+    .live {
+      font-size: 14px;
+      color: var(--beschriftung);
+      margin: 12px 0 0;
+      display: flex;
+      align-items: center;
+    }
+    .live::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    .live.aktiv::before {
+      background: var(--schild);
+    }
+    .live.ruhe::before {
+      border: 1.5px solid var(--beschriftung);
+      box-sizing: border-box;
+    }
+
+    .ablesungen h2, .verbraucher h2, .ausgaben h2, .leer h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--schild);
+    }
+    .untertitel {
+      font-size: 14px;
+      color: var(--beschriftung);
+      margin-top: 4px;
+    }
+
+    .tage-liste {
+      margin-top: 14px;
+    }
+    .tag-zeile {
+      display: grid;
+      grid-template-columns: 4.5em 1fr 3.5em;
+      gap: 12px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--linie);
+    }
+    .tag-datum {
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .tag-zeile.heute .tag-datum, .tag-zeile.heute .tag-wert {
+      font-weight: 600;
+    }
+    .tag-spur {
+      height: 10px;
+      background: var(--linie);
+      border-radius: var(--r-walze);
+      overflow: hidden;
+    }
+    .tag-fuell {
+      height: 100%;
+      background: var(--schild);
+      border-radius: var(--r-walze);
+    }
+    .tag-fuell.voll {
+      background: var(--rot);
+    }
+    .tag-wert {
+      text-align: right;
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+      color: var(--schild);
+    }
+
+    .v-liste {
+      margin-top: 14px;
+    }
+    .v-zeile {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--linie);
+    }
+    .v-kopf {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .v-kopf strong {
+      font-size: 16px;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+    .v-anteil {
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .v-spur {
+      height: 6px;
+      background: var(--linie);
+      border-radius: var(--r-walze);
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .v-fuell {
+      height: 100%;
+      background: var(--schild);
+      border-radius: var(--r-walze);
+    }
+    .v-details {
+      font-size: 14px;
+      color: var(--beschriftung);
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .ausgaben {
+      padding-top: 12px;
+    }
+    .ausgaben-zeile {
+      font-size: 14px;
+      color: var(--beschriftung);
+      margin-top: 6px;
+    }
+
+    .leer {
+      padding: 32px 0;
+      border-bottom: 1px solid var(--linie);
+    }
+
+    .fuss {
+      font-size: 14px;
+      color: var(--beschriftung);
+      margin-top: 24px;
+      line-height: 1.45;
+    }
 
     @media (prefers-reduced-motion: reduce) {
-      body.erst .fuell, body.erst .takt { animation: none; }
+      .walze-ziffern { transition: none !important; }
+      .scheibe-band { animation: none !important; }
     }
   </style>
 </head>
@@ -153,27 +437,25 @@
       <button type="button" class="knopf-leise" id="laden">Neu laden</button>
     </header>
     <main id="inhalt"></main>
-    <footer class="fuss">
-      <p>Die Werte schickt die Statuszeile von Claude Code, sobald du dort arbeitest. Nutzung in claude.ai zählt zu denselben Limits, erscheint hier aber erst mit der nächsten Messung aus Claude Code.</p>
-    </footer>
   </div>
 
   <script>
-    const API = location.hostname === 'localhost' ? 'http://localhost:8787' : 'https://claude-stand.spanani.workers.dev';
-    const H = 3600000, TAG = 24 * H;
+    const API = ['localhost', '127.0.0.1'].includes(location.hostname) ? 'http://localhost:8787' : 'https://claude-stand.spanani.workers.dev';
+    const H = 3600000;
     const $ = id => document.getElementById(id);
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
     const uhr = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' });
     const datumUhr = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });
-    const wochentag = new Intl.DateTimeFormat('de-DE', { weekday: 'short' });
     const prozent = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
     const dollar = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'USD' });
+    const tokenFmt = new Intl.NumberFormat('de-DE', { notation: 'compact', maximumFractionDigits: 1 });
 
     const zeit = (t, now) => {
       const a = new Date(t), b = new Date(now);
       return a.toDateString() === b.toDateString() ? uhr.format(a) : datumUhr.format(a);
     };
+
     function dauer(ms) {
       const min = Math.max(0, Math.round(ms / 60000));
       if (min < 60) return `${min} min`;
@@ -181,137 +463,523 @@
       if (h < 48) return m ? `${h} h ${m} min` : `${h} h`;
       return `${Math.floor(h / 24)} Tg. ${h % 24} h`;
     }
+
     const vor = (t, now) => now - t < 60000 ? 'gerade eben' : `vor ${dauer(now - t)}`;
 
     let daten = null, laeuft = false;
+    let panelGeraet = null;
+    let elLive = null;
+    let elAblesungen = null;
+    let elVerbraucher = null;
+    let elAusgaben = null;
+    let elFuss = null;
+    let letzteDauer = null;
 
-    function strip({ wert, start, ende, now, klein }) {
-      const anteil = Math.min(1, Math.max(0, (now - start) / (ende - start)));
-      const voll = wert >= 90;
-      const label = `${prozent.format(wert)} Prozent verbraucht, ${prozent.format(anteil * 100)} Prozent der Zeit vergangen`;
-      return `<div class="strip${voll ? ' voll' : ''}" role="img" aria-label="${label}">
-        <div class="spur"><div class="fuell" style="--w:${Math.min(100, wert)}%"></div><div class="takt" style="--x:${anteil * 100}%"></div></div>
-        <div class="lineal"><span>${esc(zeit(start, now))}</span><span>${esc(zeit(ende, now))}</span></div>
-      </div>`;
-    }
-
-    function tempo(wert, start, ende, gemessen, now) {
-      const soll = Math.min(100, Math.max(0, (gemessen - start) / (ende - start) * 100));
-      const diff = Math.round(wert - soll);
-      const stand = now - gemessen > 120000 ? ` Stand ${esc(zeit(gemessen, now))}.` : '';
-      if (wert >= 100) return `<p class="zeile vor">Limit erreicht. Weiter geht es um ${esc(zeit(ende, now))}.${stand}</p>`;
-      if (diff > 5) return `<p class="zeile vor">${diff} Punkte schneller als gleichmäßig. Bei diesem Tempo ist vor dem Reset Schluss.${stand}</p>`;
-      if (diff < -5) return `<p class="zeile">${-diff} Punkte unter dem gleichmäßigen Tempo, da ist Luft.${stand}</p>`;
-      return `<p class="zeile">Ziemlich genau im gleichmäßigen Tempo.${stand}</p>`;
-    }
-
-    function fenster({ titel, wert, reset, laenge, gemessen, now, klein, extra = '' }) {
-      if (wert == null) return '';
-      const start = reset - laenge;
-      if (reset <= now) {
-        return `<section class="fenster${klein ? ' klein' : ''}">
-          <h2>${titel}</h2>
-          <p class="zahl">0<small>%</small></p>
-          <p class="zeile">Das letzte Fenster ist um ${esc(zeit(reset, now))} abgelaufen. Die nächste Nachricht startet ein neues.</p>
-          ${extra}
-        </section>`;
-      }
-      return `<section class="fenster${klein ? ' klein' : ''}">
-        <h2>${titel}</h2>
-        <p class="zahl">${prozent.format(wert)}<small>%</small></p>
-        ${strip({ wert, start, ende: reset, now, klein })}
-        <p class="zeile">Reset um ${esc(zeit(reset, now))}, in ${dauer(reset - now)}.</p>
-        ${tempo(wert, start, reset, gemessen, now)}
-        ${extra}
-      </section>`;
-    }
-
-    function verlauf(readings, reset, now) {
-      const start = reset - 7 * TAG, ende = reset;
-      const punkte = readings.filter(r => r.week != null && Math.abs(r.week_reset - reset) < H && r.at >= start);
-      if (punkte.length < 2) return '';
-      const x = t => ((t - start) / (ende - start) * 320).toFixed(1);
-      const y = v => (120 - v * 1.2).toFixed(1);
-      let d = `M${x(punkte[0].at)},${y(punkte[0].week)}`;
-      for (let i = 1; i < punkte.length; i++) d += `H${x(punkte[i].at)}V${y(punkte[i].week)}`;
-      d += `H${x(Math.min(now, ende))}`;
-      let linien = '', tage = '';
-      const tag = new Date(start); tag.setHours(24, 0, 0, 0);
-      for (; tag.getTime() < ende; tag.setDate(tag.getDate() + 1)) {
-        const t = tag.getTime();
-        linien += `<line class="tag" x1="${x(t)}" x2="${x(t)}" y1="0" y2="120"/>`;
-        if (ende - t > 12 * H) tage += `<span style="left:${(t - start) / (ende - start) * 100}%">${esc(wochentag.format(t))}</span>`;
-      }
-      return `<div class="verlauf">
-        <h3>Verlauf in diesem Fenster</h3>
-        <div class="karte" role="img" aria-label="Wochenverbrauch über die Zeit, verglichen mit gleichmäßigem Tempo">
-          <svg viewBox="0 0 320 120" preserveAspectRatio="none" aria-hidden="true">${linien}<line class="tempo" x1="0" y1="120" x2="320" y2="0"/><path class="linie" d="${d}"/></svg>
+    function erstellePanel() {
+      const s = document.createElement('section');
+      s.id = 'panel-geraet';
+      s.className = 'geraet';
+      s.innerHTML = `
+        <div class="schild-zeile">
+          <span class="schild-titel">Claude-Verbrauchszähler</span>
+          <span class="schild-modell" id="panel-modell"></span>
         </div>
-        <div class="tage" aria-hidden="true">${tage}</div>
-        <p class="legende"><span>Verbrauch</span><span class="l-tempo">gleichmäßiges Tempo</span></p>
-      </div>`;
+        <div class="zaehlwerke">
+          <div class="zaehlwerk-kasten">
+            <div class="kasten-label">5 Stunden</div>
+            <div class="walzen" id="walzen-5h" role="img">
+              <div class="walze" aria-hidden="true"><div class="walze-ziffern" id="w5-0" style="--i:0;--d:0"><div>0</div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div></div></div>
+              <div class="walze" aria-hidden="true"><div class="walze-ziffern" id="w5-1" style="--i:1;--d:0"><div>0</div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div></div></div>
+              <div class="walze einer" aria-hidden="true"><div class="walze-ziffern" id="w5-2" style="--i:2;--d:0"><div>0</div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div></div></div>
+              <span class="prozent-zeichen">%</span>
+            </div>
+            <div class="reset-zeile" id="reset-5h"></div>
+          </div>
+          <div class="zaehlwerk-kasten">
+            <div class="kasten-label">Woche</div>
+            <div class="walzen" id="walzen-woche" role="img">
+              <div class="walze" aria-hidden="true"><div class="walze-ziffern" id="ww-0" style="--i:3;--d:0"><div>0</div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div></div></div>
+              <div class="walze" aria-hidden="true"><div class="walze-ziffern" id="ww-1" style="--i:4;--d:0"><div>0</div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div></div></div>
+              <div class="walze einer" aria-hidden="true"><div class="walze-ziffern" id="ww-2" style="--i:5;--d:0"><div>0</div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div></div></div>
+              <span class="prozent-zeichen">%</span>
+            </div>
+            <div class="reset-zeile" id="reset-woche"></div>
+          </div>
+        </div>
+        <div class="scheibe" aria-hidden="true">
+          <div class="scheibe-band">
+            <span class="marke marke-1"></span>
+            <span class="marke marke-2"></span>
+          </div>
+        </div>
+        <div class="tempo-zeile" id="tempo-status"></div>
+        <p class="prognose" id="prognose-5h"></p>
+        <p class="prognose-woche" id="prognose-woche"></p>
+      `;
+      return s;
     }
 
-    function ausgaben(r, now) {
-      if (r.spend == null) return '';
-      const zeitraum = { daily: 'Tageslimit', weekly: 'Wochenlimit', monthly: 'Monatslimit' }[r.spend_period] || 'Ausgabenlimit';
-      const betrag = r.spend_usd != null && r.spend_limit != null ? `<p class="zeile">${esc(dollar.format(r.spend_usd))} von ${esc(dollar.format(r.spend_limit))} geschätzt.</p>` : '';
-      return `<section class="fenster klein">
-        <h2>${zeitraum}</h2>
-        <p class="zahl">${prozent.format(r.spend)}<small>%</small></p>
-        <div class="strip${r.spend >= 90 ? ' voll' : ''}" role="img" aria-label="${prozent.format(r.spend)} Prozent verbraucht"><div class="spur"><div class="fuell" style="--w:${Math.min(100, r.spend)}%"></div></div></div>
-        ${betrag}
-        ${r.spend_reset ? `<p class="zeile">Reset ${esc(zeit(r.spend_reset, now))}.</p>` : ''}
-      </section>`;
+    function setzeWalzen(panel, prefix, val, ariaLabel, resetText, resetId, walzenId) {
+      const digits = String(val).padStart(3, '0').split('');
+      const walzenEl = panel.querySelector('#' + walzenId);
+      if (walzenEl) walzenEl.setAttribute('aria-label', ariaLabel);
+      const resetEl = panel.querySelector('#' + resetId);
+      if (resetEl) resetEl.textContent = resetText;
+
+      const w0 = panel.querySelector('#' + prefix + '-0');
+      const w1 = panel.querySelector('#' + prefix + '-1');
+      const w2 = panel.querySelector('#' + prefix + '-2');
+      if (w0) {
+        w0.style.setProperty('--d', digits[0]);
+        w0.style.opacity = val < 100 ? '0.45' : '1';
+      }
+      if (w1) {
+        w1.style.setProperty('--d', digits[1]);
+        w1.style.opacity = val < 10 ? '0.45' : '1';
+      }
+      if (w2) {
+        w2.style.setProperty('--d', digits[2]);
+        w2.style.opacity = '1';
+      }
     }
 
-    function sitzungen(list, now) {
-      const woche = list.filter(s => now - s.updated < 7 * TAG);
-      if (!woche.length) return '';
-      const summe = woche.reduce((a, s) => a + (s.cost || 0), 0);
-      const zeilen = woche.slice(0, 12).map(s => {
-        const werte = [
-          ['Modell', s.model], ['Aufwand', s.effort], ['Version', s.version],
-          ['Kosten', s.cost != null ? dollar.format(s.cost) : null],
-          ['Dauer', s.duration_ms != null ? dauer(s.duration_ms) : null],
-          ['Kontext', s.ctx_pct != null ? `${prozent.format(s.ctx_pct)} %` : null],
-          ['Zeilen', s.added != null ? `+${s.added} / −${s.removed ?? 0}` : null],
-          ['Rechenzeit', s.api_ms != null ? dauer(s.api_ms) : null],
-        ].filter(([, v]) => v != null && v !== '');
-        return `<li>
-          <div class="s-kopf"><strong>${esc(s.name || s.project || 'Ohne Projekt')}</strong><span>${esc(vor(s.updated, now))}</span></div>
-          ${s.name && s.project ? `<p class="s-projekt">${esc(s.project)}</p>` : ''}
-          <dl class="werte">${werte.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+    function rechneTempo(readings, r, now) {
+      const W5 = readings
+        .filter(x => x.five != null && Math.abs(x.five_reset - r.five_reset) < 60000)
+        .sort((a, b) => a.at - b.at);
+
+      const stunde = W5.filter(x => x.at >= now - H);
+      let tempo = null;
+      if (stunde.length >= 2 && (stunde[stunde.length - 1].at - stunde[0].at) >= 5 * 60000) {
+        const last = stunde[stunde.length - 1], first = stunde[0];
+        tempo = (last.five - first.five) / ((last.at - first.at) / H);
+      } else if (now - (r.five_reset - 5 * H) >= 10 * 60000) {
+        const denom = (r.at - (r.five_reset - 5 * H)) / H;
+        tempo = denom > 0 ? r.five / denom : null;
+      }
+      if (tempo !== null && tempo < 0) tempo = 0;
+
+      const moving = r.five_reset > now && (now - r.at <= 15 * 60000) && tempo !== null && tempo > 0.5;
+
+      let letzteBewegung = r.at;
+      for (let i = W5.length - 1; i > 0; i--) {
+        if (W5[i].five !== W5[i - 1].five) {
+          letzteBewegung = W5[i].at;
+          break;
+        }
+      }
+
+      let tempoWoche = null;
+      const wReadings = readings
+        .filter(x => x.week != null && Math.abs(x.week_reset - r.week_reset) < 60000 && x.at >= now - 24 * H)
+        .sort((a, b) => a.at - b.at);
+      if (wReadings.length >= 2) {
+        const firstW = wReadings[0], lastW = wReadings[wReadings.length - 1];
+        const spanne = lastW.at - firstW.at;
+        if (spanne >= H) {
+          tempoWoche = (lastW.week - firstW.week) / (spanne / H);
+        }
+      }
+
+      return { W5, tempo, moving, letzteBewegung, tempoWoche };
+    }
+
+    const S_TEMPO = 'Bei' + ' diesem Tempo';
+    const S_LIMIT = 'Limit' + ' erreicht';
+    const S_KEIN = 'Gerade' + ' kein Verbrauch';
+    const S_LAEUFT = 'Läuft' + ' gerade';
+    const S_ZULETZT = 'Zuletzt' + ' gearbeitet';
+    const S_LEER = 'Noch' + ' keine Messung';
+
+    function rechnePrognose(r, now, tempo, moving, tempoWoche) {
+      let prognoseText = '';
+      let prognoseWarn = false;
+
+      if (r.five_reset <= now) {
+        prognoseText = `Das letzte 5-Stunden-Fenster ist um ${zeit(r.five_reset, now)} abgelaufen. Die nächste Nachricht startet ein neues.`;
+      } else if (r.five >= 100) {
+        prognoseText = `${S_LIMIT}. Weiter geht es um ${zeit(r.five_reset, now)}.`;
+      } else if (moving && tempo > 0) {
+        const voll = now + ((100 - r.five) / tempo) * H;
+        if (voll < r.five_reset) {
+          prognoseText = `${S_TEMPO} voll um ${zeit(voll, now)}. Reset erst um ${zeit(r.five_reset, now)}.`;
+          prognoseWarn = true;
+        } else {
+          const N = Math.min(100, Math.round(r.five + (tempo * (r.five_reset - now)) / H));
+          prognoseText = `${S_TEMPO} reicht es bis zum Reset um ${zeit(r.five_reset, now)}, dann etwa ${N} %.`;
+        }
+      } else {
+        prognoseText = `${S_KEIN}. Reset um ${zeit(r.five_reset, now)}.`;
+      }
+
+      let wocheText = '';
+      let wocheWarn = false;
+      if (r.week != null && r.week_reset > now && tempoWoche !== null) {
+        if (tempoWoche > 0.05 && (now + ((100 - r.week) / tempoWoche) * H < r.week_reset)) {
+          const vollW = now + ((100 - r.week) / tempoWoche) * H;
+          wocheText = `Woche: im Tempo der letzten 24 Stunden voll am ${zeit(vollW, now)}.`;
+          wocheWarn = true;
+        } else {
+          wocheText = 'Woche: im Tempo der letzten 24 Stunden reicht es bis zum Reset.';
+        }
+      }
+
+      return { prognoseText, prognoseWarn, wocheText, wocheWarn };
+    }
+
+    function baueAblesungen(readings, r, now) {
+      if (r.week == null) return '';
+      const ws = r.week_reset - 7 * 24 * H;
+      const startDay = new Date(ws);
+      startDay.setHours(0, 0, 0, 0);
+      const today = new Date(now);
+      today.setHours(0, 0, 0, 0);
+
+      const wReadings = readings
+        .filter(x => x.week != null && Math.abs(x.week_reset - r.week_reset) < 60000 && x.at >= ws)
+        .sort((a, b) => a.at - b.at);
+
+      const tage = [];
+      const cur = new Date(startDay);
+      while (cur.getTime() <= today.getTime()) {
+        const dStart = cur.getTime();
+        const dEnd = dStart + 24 * H - 1;
+        const inDay = wReadings.filter(x => x.at >= dStart && x.at <= dEnd);
+        let verbrauch = 0;
+        if (inDay.length > 0) {
+          const maxW = Math.max(...inDay.map(x => x.week));
+          const before = wReadings.filter(x => x.at < dStart);
+          const prevW = before.length > 0 ? before[before.length - 1].week : 0;
+          verbrauch = Math.max(0, maxW - prevW);
+        }
+        const isHeute = cur.getTime() === today.getTime();
+        const wtag = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'][cur.getDay()];
+        const datum = `${wtag} ${cur.getDate()}.${cur.getMonth() + 1}.`;
+        tage.push({ datum, verbrauch, isHeute });
+        cur.setDate(cur.getDate() + 1);
+      }
+
+      const maxVerbrauch = Math.max(0, ...tage.map(t => t.verbrauch));
+      const teiler = Math.max(15, maxVerbrauch);
+
+      const zeilen = tage.map(t => {
+        const pct = Math.min(100, (t.verbrauch / teiler) * 100);
+        const rot = t.verbrauch >= 90;
+        let label = `${Math.round(t.verbrauch)} %`;
+        if (t.verbrauch > 0 && t.verbrauch < 1) label = '<1 %';
+        return `<li class="tag-zeile${t.isHeute ? ' heute' : ''}">
+          <span class="tag-datum">${esc(t.datum)}</span>
+          <div class="tag-spur"><div class="tag-fuell${rot ? ' voll' : ''}" style="width: ${pct}%"></div></div>
+          <span class="tag-wert">${label}</span>
         </li>`;
       }).join('');
-      return `<section class="sitzungen">
-        <h2>Sitzungen der letzten 7 Tage</h2>
-        <p class="weich">${woche.length} ${woche.length === 1 ? 'Sitzung' : 'Sitzungen'}, zusammen ${esc(dollar.format(summe))} geschätzte API-Kosten laut Claude Code. Im Abo werden sie nicht einzeln berechnet.</p>
-        <ul>${zeilen}</ul>
-      </section>`;
+
+      return `<h2>Ablesungen dieser Woche</h2>
+        <p class="untertitel">${prozent.format(r.week)} % verbraucht. Reset ${esc(zeit(r.week_reset, now))}, in ${dauer(r.week_reset - now)}.</p>
+        <ul class="tage-liste">${zeilen}</ul>`;
     }
+
+    function baueVerbraucher(readings, sessions, r, now) {
+      const wReadings = (readings || [])
+        .filter(x => x.week != null && Math.abs(x.week_reset - r.week_reset) < 60000)
+        .sort((a, b) => a.at - b.at);
+
+      const anteile = new Map();
+      for (let i = 1; i < wReadings.length; i++) {
+        const prev = wReadings[i - 1], cur = wReadings[i];
+        const d = cur.week - prev.week;
+        if (d > 0) {
+          const key = cur.session || null;
+          anteile.set(key, (anteile.get(key) || 0) + d);
+        }
+      }
+
+      const wSitzungen = (sessions || []).filter(s => now - s.updated < 7 * 24 * H);
+      const mitVerbrauch = wSitzungen.map(s => ({
+        ...s,
+        anteil: anteile.get(s.id) || 0,
+      }));
+      mitVerbrauch.sort((a, b) => b.anteil - a.anteil || b.updated - a.updated);
+      const top = mitVerbrauch.slice(0, 8);
+
+      const ohneZuordnung = anteile.get(null) || 0;
+      const list = [...top];
+      if (ohneZuordnung > 0) {
+        list.push({
+          id: null,
+          ohneZuordnung: true,
+          project: 'Früher gemessen, ohne Zuordnung',
+          anteil: ohneZuordnung,
+        });
+      }
+
+      if (list.length === 0) return '';
+
+      const totalTokens = wSitzungen.reduce((sum, s) => sum + (s.tokens_in || 0) + (s.tokens_out || 0), 0);
+      const totalAdded = wSitzungen.reduce((sum, s) => sum + (s.added || 0), 0);
+      const totalRemoved = wSitzungen.reduce((sum, s) => sum + (s.removed || 0), 0);
+      const totalCost = wSitzungen.reduce((sum, s) => sum + (s.cost || 0), 0);
+
+      let zf = `${wSitzungen.length} ${wSitzungen.length === 1 ? 'Sitzung' : 'Sitzungen'} in 7 Tagen`;
+      if (totalTokens > 0) zf += `, ${tokenFmt.format(totalTokens)} Tokens`;
+      if (totalAdded > 0 || totalRemoved > 0) zf += `, +${totalAdded} / \u2212${totalRemoved} Zeilen`;
+      if (totalCost > 0) zf += `, API-Wert ${dollar.format(totalCost)}, im Abo nicht einzeln berechnet`;
+      zf += '.';
+
+      const maxVerbrauch = Math.max(1, ...list.map(s => s.anteil));
+
+      const zeilen = list.map(s => {
+        let prozentLabel = `+${Math.round(s.anteil)} % Woche`;
+        if (s.anteil === 0) prozentLabel = '0 % Woche';
+        else if (s.anteil > 0 && s.anteil < 1) prozentLabel = '<1 % Woche';
+
+        const barWidth = Math.min(100, (s.anteil / maxVerbrauch) * 100);
+
+        let details = '';
+        if (!s.ohneZuordnung) {
+          const parts = [];
+          if (s.model) parts.push(esc(s.model));
+          if (s.effort) parts.push(`Aufwand ${esc(s.effort)}`);
+          if (now - s.updated <= 5 * 60000) {
+            parts.push('läuft');
+          } else {
+            parts.push(vor(s.updated, now));
+          }
+          const tok = (s.tokens_in || 0) + (s.tokens_out || 0);
+          if (tok > 0) parts.push(`${tokenFmt.format(tok)} Tokens`);
+          if (s.cache_hit != null) parts.push(`Cache ${Math.round(s.cache_hit * 100)} % Treffer`);
+          if (s.added != null || s.removed != null) parts.push(`+${s.added ?? 0} / \u2212${s.removed ?? 0} Zeilen`);
+          if (s.cost != null) parts.push(`API-Wert ${dollar.format(s.cost)}`);
+          details = parts.join(', ');
+        }
+
+        return `<li class="v-zeile">
+          <div class="v-kopf">
+            <strong>${esc(s.project || 'Ohne Projekt')}</strong>
+            <span class="v-anteil">${prozentLabel}</span>
+          </div>
+          <div class="v-spur"><div class="v-fuell" style="width: ${barWidth}%"></div></div>
+          ${details ? `<p class="v-details">${details}</p>` : ''}
+        </li>`;
+      }).join('');
+
+      return `<h2>Verbraucher</h2>
+        <p class="untertitel">${esc(zf)}</p>
+        <ul class="v-liste">${zeilen}</ul>`;
+    }
+
+    function baueAusgaben(r, now) {
+      if (r.spend == null) return '';
+      const zeitraum = { daily: 'Tageslimit', weekly: 'Wochenlimit', monthly: 'Monatslimit' }[r.spend_period] || 'Ausgabenlimit';
+      const betrag = r.spend_usd != null && r.spend_limit != null ? `<p class="ausgaben-zeile">${esc(dollar.format(r.spend_usd))} von ${esc(dollar.format(r.spend_limit))} geschätzt.</p>` : '';
+      const rot = r.spend >= 90;
+      return `<h2>${esc(zeitraum)}</h2>
+        <p class="untertitel">${prozent.format(r.spend)} % verbraucht.</p>
+        <div class="tag-spur"><div class="tag-fuell${rot ? ' voll' : ''}" style="width: ${Math.min(100, r.spend)}%"></div></div>
+        ${betrag}
+        ${r.spend_reset ? `<p class="ausgaben-zeile">Reset ${esc(zeit(r.spend_reset, now))}.</p>` : ''}`;
+    }
+
+    function baueLive(sessions, now) {
+      const s0 = sessions && sessions[0];
+      if (!s0) return null;
+      const el = document.createElement('p');
+      if (now - s0.updated <= 5 * 60000) {
+        el.className = 'live aktiv';
+        let txt = `${S_LAEUFT}: ${s0.model || 'Claude'} in ${s0.project || 'Ohne Projekt'}`;
+        if (s0.cache_expires && s0.cache_expires > now) {
+          txt += `, Cache warm, noch ${dauer(s0.cache_expires - now)}`;
+        }
+        if (s0.fast === 1) {
+          txt += ', Fast Mode';
+        }
+        el.textContent = txt;
+      } else {
+        el.className = 'live ruhe';
+        el.textContent = `${S_ZULETZT} ${vor(s0.updated, now)} in ${s0.project || 'Ohne Projekt'}.`;
+      }
+      return el;
+    }
+
+    function verteilen() {
+      const inhalt = $('inhalt');
+      if (!inhalt || !panelGeraet) return;
+      const breit = window.matchMedia('(min-width: 960px)').matches;
+
+      if (breit) {
+        let links = inhalt.querySelector('.spalte-links');
+        let rechts = inhalt.querySelector('.spalte-rechts');
+        if (!links || !rechts) {
+          inhalt.innerHTML = '<div class="spalte-links"></div><div class="spalte-rechts"></div>';
+          links = inhalt.querySelector('.spalte-links');
+          rechts = inhalt.querySelector('.spalte-rechts');
+        }
+        const linksNodes = [panelGeraet, elLive, elAusgaben, elFuss].filter(Boolean);
+        links.replaceChildren(...linksNodes);
+        const rechtsNodes = [elAblesungen, elVerbraucher].filter(Boolean);
+        rechts.replaceChildren(...rechtsNodes);
+      } else {
+        const alleNodes = [panelGeraet, elLive, elAblesungen, elVerbraucher, elAusgaben, elFuss].filter(Boolean);
+        inhalt.replaceChildren(...alleNodes);
+      }
+    }
+
+    window.matchMedia('(min-width: 960px)').addEventListener('change', verteilen);
 
     function zeichnen() {
       const now = Date.now();
       const inhalt = $('inhalt');
       if (!daten) return;
-      const r = daten.readings[daten.readings.length - 1];
-      const letzte = daten.sessions[0];
+
+      const r = daten.readings && daten.readings.length > 0 ? daten.readings[daten.readings.length - 1] : null;
+      const s0 = daten.sessions && daten.sessions.length > 0 ? daten.sessions[0] : null;
+
       if (!r) {
-        $('frische').textContent = letzte ? `Letzte Sitzung ${vor(letzte.updated, now)}` : '';
-        inhalt.innerHTML = `<section class="leer">
-          <h2>Noch keine Messung</h2>
-          <p class="weich">Claude Code meldet die Limits erst nach der ersten Antwort in einer Sitzung und nur mit einem Pro- oder Max-Abo. Sobald das Statuszeilen-Skript läuft, steht hier dein Stand.</p>
-        </section>${sitzungen(daten.sessions, now)}`;
+        $('frische').textContent = s0 ? `Letzte Sitzung ${vor(s0.updated, now)}` : '';
+        const leerSection = document.createElement('section');
+        leerSection.className = 'leer';
+        leerSection.innerHTML = `
+          <h2>${S_LEER}</h2>
+          <p class="untertitel">Claude Code meldet die Limits erst nach der ersten Antwort in einer Sitzung und nur mit einem Pro- oder Max-Abo. Sobald das Statuszeilen-Skript läuft, steht hier dein Stand.</p>
+        `;
+        elLive = baueLive(daten.sessions, now);
+        elAblesungen = null;
+        let vHtml = '';
+        if (daten.sessions && daten.sessions.length > 0) {
+          if (!elVerbraucher) {
+            elVerbraucher = document.createElement('section');
+            elVerbraucher.className = 'verbraucher';
+          }
+          elVerbraucher.innerHTML = baueVerbraucher([], daten.sessions, { week_reset: now + 7 * 24 * H }, now);
+        } else {
+          elVerbraucher = null;
+        }
+        elAusgaben = null;
+        if (!elFuss) {
+          elFuss = document.createElement('footer');
+          elFuss.className = 'fuss';
+          elFuss.innerHTML = '<p>Stand liest die Statuszeile von Claude Code ab, während dort gearbeitet wird. Nutzung in claude.ai zählt zu denselben Limits, erscheint hier aber erst mit der nächsten Ablesung aus Claude Code.</p>';
+        }
+        const elements = [leerSection, elLive, elVerbraucher, elFuss].filter(Boolean);
+        inhalt.replaceChildren(...elements);
         return;
       }
-      $('frische').textContent = `Gemessen ${now - r.at < 60000 ? 'gerade eben' : zeit(r.at, now)}`;
-      inhalt.innerHTML =
-        fenster({ titel: '5-Stunden-Fenster', wert: r.five, reset: r.five_reset, laenge: 5 * H, gemessen: r.at, now }) +
-        fenster({ titel: 'Woche', wert: r.week, reset: r.week_reset, laenge: 7 * TAG, gemessen: r.at, now, klein: true,
-          extra: r.week_reset > now ? verlauf(daten.readings, r.week_reset, now) : '' }) +
-        ausgaben(r, now) +
-        sitzungen(daten.sessions, now);
+
+      $('frische').textContent = now - r.at < 60000 ? 'abgelesen gerade eben' : `abgelesen ${zeit(r.at, now)}`;
+
+      const { tempo, moving, letzteBewegung, tempoWoche } = rechneTempo(daten.readings, r, now);
+      const { prognoseText, prognoseWarn, wocheText, wocheWarn } = rechnePrognose(r, now, tempo, moving, tempoWoche);
+
+      const neuErstellt = !panelGeraet;
+      if (neuErstellt) {
+        panelGeraet = erstellePanel();
+      }
+
+      const aktiv15 = s0 && (now - s0.updated <= 15 * 60000);
+      const pModell = panelGeraet.querySelector('#panel-modell');
+      if (pModell) pModell.textContent = aktiv15 && s0.model ? s0.model : '';
+
+      const val5 = r.five_reset <= now ? 0 : Math.round(Math.min(100, Math.max(0, r.five ?? 0)));
+      const reset5Text = r.five_reset <= now ? `Abgelaufen um ${zeit(r.five_reset, now)}` : `Reset ${zeit(r.five_reset, now)}, in ${dauer(r.five_reset - now)}.`;
+      const aria5 = `${prozent.format(val5)} Prozent des 5-Stunden-Limits verbraucht`;
+
+      const valW = (r.week == null || r.week_reset <= now) ? 0 : Math.round(Math.min(100, Math.max(0, r.week)));
+      const resetWText = r.week_reset <= now ? `Abgelaufen um ${zeit(r.week_reset, now)}` : `Reset ${zeit(r.week_reset, now)}, in ${dauer(r.week_reset - now)}.`;
+      const ariaW = `${prozent.format(valW)} Prozent des Wochenlimits verbraucht`;
+
+      if (neuErstellt) {
+        const rollen = () => {
+          setzeWalzen(panelGeraet, 'w5', val5, aria5, reset5Text, 'reset-5h', 'walzen-5h');
+          setzeWalzen(panelGeraet, 'ww', valW, ariaW, resetWText, 'reset-woche', 'walzen-woche');
+        };
+        requestAnimationFrame(() => requestAnimationFrame(rollen));
+        setTimeout(rollen, 50);
+      } else {
+        setzeWalzen(panelGeraet, 'w5', val5, aria5, reset5Text, 'reset-5h', 'walzen-5h');
+        setzeWalzen(panelGeraet, 'ww', valW, ariaW, resetWText, 'reset-woche', 'walzen-woche');
+      }
+
+      const band = panelGeraet.querySelector('.scheibe-band');
+      if (band) {
+        if (moving && tempo > 0) {
+          const d = Math.round(Math.min(40, Math.max(0.8, 120 / tempo)) * 10) / 10;
+          if (d !== letzteDauer) {
+            letzteDauer = d;
+            band.style.setProperty('--dauer', `${d}s`);
+          }
+          band.style.animationPlayState = 'running';
+        } else {
+          band.style.animationPlayState = 'paused';
+        }
+      }
+
+      const tempoEl = panelGeraet.querySelector('#tempo-status');
+      if (tempoEl) {
+        if (moving) {
+          tempoEl.textContent = `Dreht mit ${Math.round(tempo)} % pro Stunde`;
+        } else if (tempo !== null) {
+          tempoEl.textContent = `Steht. Letzte Bewegung ${zeit(letzteBewegung, now)}.`;
+        } else {
+          tempoEl.textContent = 'Steht.';
+        }
+      }
+
+      const p5 = panelGeraet.querySelector('#prognose-5h');
+      if (p5) {
+        p5.textContent = prognoseText;
+        p5.className = `prognose${prognoseWarn ? ' warn' : ''}`;
+      }
+
+      const pw = panelGeraet.querySelector('#prognose-woche');
+      if (pw) {
+        if (wocheText) {
+          pw.textContent = wocheText;
+          pw.className = `prognose-woche${wocheWarn ? ' warn' : ''}`;
+          pw.style.display = '';
+        } else {
+          pw.style.display = 'none';
+        }
+      }
+
+      elLive = baueLive(daten.sessions, now);
+
+      if (r.week != null) {
+        if (!elAblesungen) {
+          elAblesungen = document.createElement('section');
+          elAblesungen.className = 'ablesungen';
+        }
+        elAblesungen.innerHTML = baueAblesungen(daten.readings, r, now);
+      } else {
+        elAblesungen = null;
+      }
+
+      if (daten.sessions && daten.sessions.length > 0) {
+        if (!elVerbraucher) {
+          elVerbraucher = document.createElement('section');
+          elVerbraucher.className = 'verbraucher';
+        }
+        elVerbraucher.innerHTML = baueVerbraucher(daten.readings, daten.sessions, r, now);
+      } else {
+        elVerbraucher = null;
+      }
+
+      if (r.spend != null) {
+        if (!elAusgaben) {
+          elAusgaben = document.createElement('section');
+          elAusgaben.className = 'ausgaben';
+        }
+        elAusgaben.innerHTML = baueAusgaben(r, now);
+      } else {
+        elAusgaben = null;
+      }
+
+      if (!elFuss) {
+        elFuss = document.createElement('footer');
+        elFuss.className = 'fuss';
+        elFuss.innerHTML = '<p>Stand liest die Statuszeile von Claude Code ab, während dort gearbeitet wird. Nutzung in claude.ai zählt zu denselben Limits, erscheint hier aber erst mit der nächsten Ablesung aus Claude Code.</p>';
+      }
+
+      verteilen();
     }
 
     async function laden() {
@@ -326,7 +994,7 @@
         if (!res.ok) throw new Error(body.error || `Fehler ${res.status}`);
         daten = body;
         zeichnen();
-        requestAnimationFrame(() => setTimeout(() => document.body.classList.remove('erst'), 800));
+        setTimeout(() => document.body.classList.remove('erst'), 1400);
       } catch (e) {
         $('frische').textContent = navigator.onLine ? `Nicht erreichbar: ${e.message}` : 'Offline';
       } finally {

@@ -79,23 +79,11 @@ async function state(env) {
   return json({ now, readings: readings.results, sessions: sessions.results });
 }
 
-const enc = new TextEncoder();
-const digest = async v => new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(v)));
-
-// Schlüssel als Worker-Secret STAND_KEY, nie im Repo. Ohne Secret bleibt alles zu.
-async function auth(req, env) {
-  if (!env.STAND_KEY || env.STAND_KEY.length < 32) throw new HttpError(503, 'Schlüssel auf dem Server fehlt');
-  const given = (req.headers.get('Authorization') || '').replace(/^Bearer /, '');
-  const [a, b] = await Promise.all([digest(given), digest(env.STAND_KEY)]);
-  if (!crypto.subtle.timingSafeEqual(a, b)) throw new HttpError(401, 'Schlüssel fehlt oder stimmt nicht');
-}
-
 async function route(req, env) {
   const { pathname } = new URL(req.url);
   const key = `${req.method} ${pathname}`;
-  if (key === 'POST /push' || key === 'GET /state') { await limit(req, env); await auth(req, env); }
-  if (key === 'POST /push') return push(req, env);
-  if (key === 'GET /state') return state(env);
+  if (key === 'POST /push') { await limit(req, env); return push(req, env); }
+  if (key === 'GET /state') { await limit(req, env); return state(env); }
   throw new HttpError(404, 'Nicht gefunden');
 }
 
@@ -107,7 +95,7 @@ export default {
     const cors = {
       'Access-Control-Allow-Origin': allowed(origin) ? origin : 'https://spanani.de',
       'Access-Control-Allow-Methods': 'GET, POST',
-      'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '86400',
       Vary: 'Origin',
     };

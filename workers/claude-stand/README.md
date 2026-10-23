@@ -8,17 +8,16 @@ Es gibt keine offizielle API für die Abo-Limits. Claude Code gibt seiner Status
 
 - `POST /push` speichert die Sitzung und eine Messung, wenn sich ein Wert geändert hat oder 10 Minuten vergangen sind. Älter als 35 Tage wird gelöscht.
 - `GET /state` liefert Messungen und Sitzungen der letzten 8 Tage, ohne Sitzungsnamen.
-- Beide brauchen den Schlüssel `STAND_KEY` als `Authorization: Bearer …`. Er ist ein Worker-Secret und steht nirgends im Repo; ohne gesetztes Secret antwortet der Worker mit 503. Die Adressen von App und Worker sind öffentlich (das Repo ist öffentlich), geschützt sind die Daten nur durch den Schlüssel. Sitzungsnamen werden weder übertragen noch angezeigt. Dazu Ratenlimit (60 pro Minute und IP) und Prüfung der Felder.
+- Beide sind ohne Code offen (Wunsch des Betreibers). Wer die Adresse kennt (das Repo ist öffentlich), sieht Prozente, Modelle und Projektnamen und könnte Messungen einschicken; Sitzungsnamen werden weder übertragen noch angezeigt. Schutz nur durch Ratenlimit (60 pro Minute und IP) und Prüfung der Felder.
 
 ## Einmalig einrichten
 
-0. Schlüssel erzeugen: `openssl rand -base64 32 | tr '+/' '-_' | tr -d '='` und als Repository-Secret `STAND_KEY` hinterlegen. Der Workflow setzt ihn bei jedem Lauf als Worker-Secret.
 1. Workflow `.github/workflows/claude-stand.yml` starten (läuft auch bei jeder Änderung am Worker). Er legt die D1-Datenbank an und deployt. `CLOUDFLARE_API_TOKEN` und `CLOUDFLARE_ACCOUNT_ID` gibt es schon für tonne-push.
-2. Das Skript `.claude/stand-statusline.sh` ist im Repo als `statusLine` in `.claude/settings.json` eingetragen und läuft in jeder Claude-Code-Sitzung in diesem Repo. Es braucht `jq` und `curl` und den Schlüssel in `~/.claude/stand-key` (oder in `CLAUDE_STAND_KEY`); ohne Schlüssel schickt es nichts.
+2. Das Skript `.claude/stand-statusline.sh` ist im Repo als `statusLine` in `.claude/settings.json` eingetragen und läuft in jeder Claude-Code-Sitzung in diesem Repo. Es braucht `jq` und `curl`.
    - Cloud-Sitzungen (claude.ai/code) rufen die Statuszeile nicht auf (getestet im Oktober 2026), von dort kommt also nichts an.
    - Am Rechner: Claude Code im Ordner des Repos starten und dem Ordner vertrauen.
    Ob es lief, steht in `$TMPDIR/claude-stand-last.json` (letzte Limits) und `$TMPDIR/claude-stand-status` (HTTP-Code der letzten Übertragung).
-3. `https://spanani.de/c-r8kq2wv5zn/#key=SCHLÜSSEL` auf dem Handy öffnen und zum Home-Bildschirm hinzufügen. Die Seite merkt sich den Schlüssel im `localStorage` und nimmt ihn aus der Adresse. Fragt die App vom Home-Bildschirm trotzdem danach (eigener Speicher auf iOS), den Schlüssel einmal ins Feld einfügen.
+3. `https://spanani.de/c-r8kq2wv5zn/` auf dem Handy öffnen und zum Home-Bildschirm hinzufügen.
 
 ## Gestaltung („Zählerstand“)
 

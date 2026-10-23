@@ -1,4 +1,4 @@
-const CACHE = 'stand-v1';
+const CACHE = 'stand-v2';
 const SHELL = ['./', 'manifest.webmanifest', 'icon-192.png', 'fonts/archivo.woff2'];
 
 self.addEventListener('install', e => {

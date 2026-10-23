@@ -4,7 +4,7 @@ Static site (plain HTML, CSS, vanilla JS, no build step) on GitHub Pages from `m
 
 `/t-7yhbbwj4/` (waste-collection reminders) and `/f-jft9sz2y13/` (family app "Zuhause": shopping list, tasks, calendar, pinboard, waste dates) are private apps with their own look (not the spanani design system), both backed by `workers/tonne-push` (family routes under `/f/`). Never link them from the site or add them to the sitemap; design rules, data model and yearly update steps are in `workers/tonne-push/README.md`.
 
-`/c-r8kq2wv5zn/` ("Stand": the owner's Claude Code usage limits) is a third private app, backed by `workers/claude-stand`. Same rules: no link, no sitemap, `noindex`. Its design rules ("Pace") and setup are in `workers/claude-stand/README.md`.
+`/c-r8kq2wv5zn/` ("Stand": the owner's Claude Code usage limits) is a third private app, backed by `workers/claude-stand`. Same rules: no link, no sitemap, `noindex`. The repo is public, so these paths are not secret: data must be protected by the worker (Stand: `STAND_KEY` bearer key; Zuhause: member tokens), never by the URL. Its design rules ("Pace") and setup are in `workers/claude-stand/README.md`.
 
 ## Languages, tools and third parties
 

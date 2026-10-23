@@ -138,6 +138,8 @@
     .leer { padding: 32px 0; border-bottom: 1px solid var(--fuge); }
     .leer h2 { font-size: var(--gr-titel); font-weight: 700; margin-bottom: 8px; }
 
+    .schluessel { display: flex; gap: 8px; margin-top: 16px; }
+    .schluessel input { flex: 1; min-width: 0; min-height: 36px; padding: 6px 10px; border: 1px solid var(--fuge); border-radius: var(--r-knopf); background: transparent; font-size: var(--gr-klein); }
     .fuss { padding-top: 24px; font-size: var(--gr-klein); color: var(--text-weich); }
 
     @media (prefers-reduced-motion: reduce) {
@@ -160,6 +162,16 @@
 
   <script>
     const API = location.hostname === 'localhost' ? 'http://localhost:8787' : 'https://claude-stand.spanani.workers.dev';
+    const ABLAGE = 'stand-key';
+    let schluessel = (() => {
+      const m = location.hash.match(/key=([A-Za-z0-9_-]{32,})/);
+      if (m) {
+        try { localStorage.setItem(ABLAGE, m[1]); } catch {}
+        history.replaceState(null, '', location.pathname + location.search);
+        return m[1];
+      }
+      try { return localStorage.getItem(ABLAGE) || ''; } catch { return ''; }
+    })();
     const H = 3600000, TAG = 24 * H;
     const $ = id => document.getElementById(id);
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -321,8 +333,9 @@
       knopf.setAttribute('aria-busy', 'true');
       knopf.textContent = 'Lädt …';
       try {
-        const res = await fetch(`${API}/state`, { cache: 'no-store' });
+        const res = await fetch(`${API}/state`, { cache: 'no-store', headers: { Authorization: `Bearer ${schluessel}` } });
         const body = await res.json().catch(() => ({}));
+        if (res.status === 401) { fragen(); $('frische').textContent = ''; return; }
         if (!res.ok) throw new Error(body.error || `Fehler ${res.status}`);
         daten = body;
         zeichnen();
@@ -334,6 +347,24 @@
         knopf.removeAttribute('aria-busy');
         knopf.textContent = 'Neu laden';
       }
+    }
+
+    function fragen() {
+      $('inhalt').innerHTML = `
+        <section class="leer">
+          <h2>Schlüssel fehlt</h2>
+          <p class="weich">Öffne Stand einmal mit deinem Link, der mit #key= endet, oder füg den Schlüssel hier ein. Er bleibt nur auf diesem Gerät.</p>
+          <form class="schluessel" id="schluessel">
+            <input name="k" type="password" autocomplete="off" aria-label="Schlüssel" required minlength="32">
+            <button class="knopf-leise">Speichern</button>
+          </form>
+        </section>`;
+      $('schluessel').addEventListener('submit', e => {
+        e.preventDefault();
+        schluessel = e.target.k.value.trim().replace(/^.*key=/, '');
+        try { localStorage.setItem(ABLAGE, schluessel); } catch {}
+        laden();
+      });
     }
 
     $('laden').addEventListener('click', laden);

@@ -13,9 +13,9 @@ if [ -n "$key" ] && [ $((now - last)) -ge 10 ]; then
   (
     printf '%s' "$in" | jq -c '{
       session: .session_id,
-      name: .session_name,
       project: (if .workspace.repo.name then "\(.workspace.repo.owner)/\(.workspace.repo.name)" else ((.workspace.project_dir // .cwd // "") | split("/") | last) end),
       model: .model.display_name,
+      model_id: .model.id,
       version: .version,
       effort: .effort.level,
       cost: .cost.total_cost_usd,
@@ -25,6 +25,13 @@ if [ -n "$key" ] && [ $((now - last)) -ge 10 ]; then
       removed: .cost.total_lines_removed,
       ctx_pct: .context_window.used_percentage,
       ctx_size: .context_window.context_window_size,
+      tokens_in: .context_window.total_input_tokens,
+      tokens_out: .context_window.total_output_tokens,
+      cache_hit: .prompt_cache.hit_ratio,
+      cache_warm: .prompt_cache.warm,
+      cache_expires: .prompt_cache.expires_at,
+      fast: .fast_mode,
+      thinking: .thinking.enabled,
       rate_limits: .rate_limits
     }' | curl -s -m 5 -o "$dir/claude-stand-response" -w '%{http_code}\n' -X POST -H 'Content-Type: application/json' -H "Authorization: Bearer $key" --data-binary @- "$url"
   ) > "$dir/claude-stand-status" 2>&1 &

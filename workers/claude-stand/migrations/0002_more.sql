@@ -1,0 +1,10 @@
+ALTER TABLE readings ADD COLUMN session TEXT;
+ALTER TABLE sessions ADD COLUMN model_id TEXT;
+ALTER TABLE sessions ADD COLUMN tokens_in INTEGER;
+ALTER TABLE sessions ADD COLUMN tokens_out INTEGER;
+ALTER TABLE sessions ADD COLUMN cache_hit REAL;
+ALTER TABLE sessions ADD COLUMN cache_warm INTEGER;
+ALTER TABLE sessions ADD COLUMN cache_expires INTEGER;
+ALTER TABLE sessions ADD COLUMN fast INTEGER;
+ALTER TABLE sessions ADD COLUMN thinking INTEGER;
+UPDATE sessions SET name = NULL;

@@ -20,6 +20,7 @@ const str = (v, n = 80) => (typeof v === 'string' && v ? v.slice(0, n) : null);
 const num = (v, min = 0, max = 1e9) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : null);
 const int = (v, min, max) => { const n = num(v, min, max); return n === null ? null : Math.round(n); };
 const ms = v => { const n = num(v, 1e9, 1e10); return n === null ? null : Math.round(n * 1000); };
+const bool = v => (typeof v === 'boolean' ? (v ? 1 : 0) : null);
 
 function reading(rl, now) {
   if (!rl || typeof rl !== 'object') return null;
@@ -43,20 +44,23 @@ async function push(req, env) {
   const id = str(b.session, 64);
   if (!id) throw new HttpError(400, 'Sitzung fehlt');
   const writes = [
-    env.DB.prepare(`INSERT INTO sessions (id, name, project, model, version, effort, cost, duration_ms, api_ms, added, removed, ctx_pct, ctx_size, started, updated)
-      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?14)
-      ON CONFLICT (id) DO UPDATE SET name = ?2, project = ?3, model = ?4, version = ?5, effort = ?6, cost = ?7, duration_ms = ?8, api_ms = ?9,
-        added = ?10, removed = ?11, ctx_pct = ?12, ctx_size = ?13, updated = ?14`)
-      .bind(id, str(b.name), str(b.project), str(b.model, 40), str(b.version, 20), str(b.effort, 12), num(b.cost, 0, 1e5),
+    env.DB.prepare(`INSERT INTO sessions (id, project, model, version, effort, cost, duration_ms, api_ms, added, removed, ctx_pct, ctx_size, started, updated, model_id, tokens_in, tokens_out, cache_hit, cache_warm, cache_expires, fast, thinking)
+      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21)
+      ON CONFLICT (id) DO UPDATE SET project = ?2, model = ?3, version = ?4, effort = ?5, cost = ?6, duration_ms = ?7, api_ms = ?8,
+        added = ?9, removed = ?10, ctx_pct = ?11, ctx_size = ?12, updated = ?13, model_id = ?14, tokens_in = ?15, tokens_out = ?16,
+        cache_hit = ?17, cache_warm = ?18, cache_expires = ?19, fast = ?20, thinking = ?21`)
+      .bind(id, str(b.project), str(b.model, 40), str(b.version, 20), str(b.effort, 12), num(b.cost, 0, 1e5),
         int(b.duration_ms, 0, 1e11), int(b.api_ms, 0, 1e11), int(b.added, 0, 1e8), int(b.removed, 0, 1e8),
-        num(b.ctx_pct, 0, 100), int(b.ctx_size, 0, 1e8), now),
+        num(b.ctx_pct, 0, 100), int(b.ctx_size, 0, 1e8), now,
+        str(b.model_id, 60), int(b.tokens_in, 0, 1e11), int(b.tokens_out, 0, 1e11), num(b.cache_hit, 0, 1),
+        bool(b.cache_warm), ms(b.cache_expires), bool(b.fast), bool(b.thinking)),
   ];
   const r = reading(b.rate_limits, now);
   if (r) {
     const last = await env.DB.prepare('SELECT * FROM readings ORDER BY at DESC LIMIT 1').first();
     if (!last || now - last.at > QUIET || FIELDS.some(k => last[k] !== r[k])) {
       writes.push(
-        env.DB.prepare(`INSERT INTO readings (at, ${FIELDS.join(', ')}) VALUES (${['?', ...FIELDS.map(() => '?')].join(', ')})`).bind(r.at, ...FIELDS.map(k => r[k])),
+        env.DB.prepare(`INSERT INTO readings (at, session, ${FIELDS.join(', ')}) VALUES (${['?', '?', ...FIELDS.map(() => '?')].join(', ')})`).bind(r.at, id, ...FIELDS.map(k => r[k])),
         env.DB.prepare('DELETE FROM readings WHERE at < ?').bind(now - KEEP),
         env.DB.prepare('DELETE FROM sessions WHERE updated < ?').bind(now - KEEP),
       );
@@ -69,8 +73,8 @@ async function push(req, env) {
 async function state(env) {
   const now = Date.now();
   const [readings, sessions] = await env.DB.batch([
-    env.DB.prepare(`SELECT at, ${FIELDS.join(', ')} FROM readings WHERE at >= ? ORDER BY at`).bind(now - HISTORY),
-    env.DB.prepare('SELECT * FROM sessions WHERE updated >= ? ORDER BY updated DESC').bind(now - HISTORY),
+    env.DB.prepare(`SELECT at, session, ${FIELDS.join(', ')} FROM readings WHERE at >= ? ORDER BY at`).bind(now - HISTORY),
+    env.DB.prepare('SELECT id, project, model, version, effort, cost, duration_ms, api_ms, added, removed, ctx_pct, ctx_size, started, updated, model_id, tokens_in, tokens_out, cache_hit, cache_warm, cache_expires, fast, thinking FROM sessions WHERE updated >= ? ORDER BY updated DESC').bind(now - HISTORY),
   ]);
   return json({ now, readings: readings.results, sessions: sessions.results });
 }

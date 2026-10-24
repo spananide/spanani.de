@@ -223,8 +223,10 @@ address a:hover { text-decoration-thickness: 2px; }
   padding-inline: var(--gutter);
   min-height: var(--nav-h);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-5);
+  gap: 8px var(--space-5);
+  padding-block: 12px;
 }
 .brand {
   display: inline-flex;
@@ -249,8 +251,9 @@ address a:hover { text-decoration-thickness: 2px; }
 }
 .nav-links {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-5);
+  gap: var(--space-1) var(--space-5);
 }
 .nav-link {
   font-size: var(--fs-sm);
@@ -258,6 +261,7 @@ address a:hover { text-decoration-thickness: 2px; }
   color: var(--ink-soft);
   text-decoration: none;
   padding-block: 6px;
+  white-space: nowrap;
   border-bottom: 2px solid transparent;
   transition: color var(--dur-fast), border-color var(--dur-fast);
 }
@@ -1008,8 +1012,8 @@ input[type="color"].input { width: 64px; padding: 4px; cursor: pointer; }
   .change-shots { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 680px) {
-  .nav-inner { gap: var(--space-4); }
-  .nav-links { gap: var(--space-4); }
+  .nav-inner { column-gap: var(--space-4); }
+  .nav-links { column-gap: var(--space-4); }
   .dock-btn span { display: none; }
   .dock-btn { padding: 0 10px; width: 38px; justify-content: center; }
 }
@@ -1018,8 +1022,7 @@ input[type="color"].input { width: 64px; padding: 4px; cursor: pointer; }
   .intro .actions .btn { width: 100%; }
 }
 @media (max-width: 420px) {
-  .nav-inner { flex-wrap: wrap; padding-block: 12px; row-gap: 8px; }
-  .nav-links { flex-basis: 100%; flex-wrap: wrap; row-gap: var(--space-1); }
+  .nav-links { flex-basis: 100%; column-gap: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

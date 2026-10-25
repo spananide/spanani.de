@@ -16,6 +16,7 @@ Es gibt keine offizielle API für die Abo-Limits. Claude Code gibt seiner Status
 2. Das Skript `.claude/stand-statusline.sh` ist im Repo als `statusLine` in `.claude/settings.json` eingetragen und läuft in jeder Claude-Code-Sitzung in diesem Repo. Es braucht `jq` und `curl`.
    - Cloud-Sitzungen (claude.ai/code) rufen die Statuszeile nicht auf (getestet im Oktober 2026), von dort kommt also nichts an.
    - Am Rechner: Claude Code im Ordner des Repos starten und dem Ordner vertrauen.
+   - Für alle Ordner: Skript nach `~/.claude/` kopieren und als `statusLine` in `~/.claude/settings.json` eintragen. Unter Windows `.claude/stand-statusline.ps1` (PowerShell, ohne jq) mit `powershell -NoProfile -ExecutionPolicy Bypass -File <Pfad>`.
    Ob es lief, steht in `$TMPDIR/claude-stand-last.json` (letzte Limits) und `$TMPDIR/claude-stand-status` (HTTP-Code der letzten Übertragung).
 3. `https://spanani.de/c-r8kq2wv5zn/` auf dem Handy öffnen und zum Home-Bildschirm hinzufügen.
 

@@ -26,8 +26,23 @@ Es gibt keine offizielle API für die Abo-Limits. Claude Code gibt seiner Status
    - Für alle Ordner: Skript nach `~/.claude/` kopieren und als `statusLine` in `~/.claude/settings.json` eintragen. Unter Windows `.claude/stand-statusline.ps1` (PowerShell, ohne jq) mit `powershell -NoProfile -ExecutionPolicy Bypass -File <Pfad>`.
    Ob es lief, steht in `$TMPDIR/claude-stand-last.json` (letzte Limits) und `$TMPDIR/claude-stand-status` (HTTP-Code der letzten Übertragung).
 3. `https://spanani.de/c-r8kq2wv5zn/` auf dem Handy öffnen und zum Home-Bildschirm hinzufügen. Für Mitteilungen dort „Mitteilungen einschalten“ (auf dem iPhone nur aus der Home-Bildschirm-App).
+4. Windows-App (optional): `.claude/stand-tray.ps1` und `.claude/stand-tray.ico` neben die Statuszeile nach `~/.claude/` kopieren und einmal `powershell -NoProfile -ExecutionPolicy Bypass -File ~/.claude/stand-tray.ps1 -Install` ausführen. Das legt „Claude Stand“ im Startmenü und im Autostart an, startet die App und holt ihr Symbol aus dem Überlauf auf die Taskleiste.
 
-Prüfen: `node c-r8kq2wv5zn/logik.js` (Rechnungen der Seite) und `node workers/claude-stand/test.mjs` (wann der Cron meldet).
+Prüfen: `node c-r8kq2wv5zn/logik.js` (Rechnungen der Seite), `node workers/claude-stand/test.mjs` (wann der Cron meldet) und `powershell -File .claude/stand-tray.ps1 -Test` (Windows-Statuszeile und App).
+
+## Windows: Statuszeile und App im Infobereich
+
+Claude Code gibt der Statuszeile nur den aktuellen Kontext, keine Summen. Darum zählt `stand-statusline.ps1` die `usage`-Zeilen des Transkripts selbst zusammen (jede Antwort einmal, auch wenn sie über mehrere Zeilen geht) und liest dabei nur, was seit dem letzten Lauf dazukam. Ergebnis je Sitzung in `~/.claude/stand/<Sitzungs-ID>.json`: Tokens (gesendet: Eingabe plus Cache, empfangen: Ausgabe), Kosten, die letzten Limits und alles noch einmal je Stunde. Neue Kosten gehen in die Stunden der dabei gelesenen Tokens; nur beim ersten Lauf einer Sitzung reicht das zurück und ist nach Tokenanzahl statt Preis verteilt. Diese Dateien bleiben auf dem Rechner, an `/push` geht unverändert dasselbe wie vorher.
+
+Die Statuszeile zeigt zwei Zeilen: diese Unterhaltung (Modell, Kontext, Tokens gesendet/empfangen, Kosten, Dauer, Zeilen +/−, Cache-Trefferquote) und die Limits mit Countdown bis zum Reset, grün unter 70 %, gelb ab 70 %, rot ab 90 %.
+
+`stand-tray.ps1` (PowerShell und WPF, ohne Installation) liest diese Dateien alle 2 Sekunden:
+
+- Symbol im Infobereich: die 5-Stunden-Prozent als Zahl, rot ab 90 %. Klick öffnet den Zähler über der Taskleiste, Klick daneben oder Esc schließt ihn. Rechtsklick: Stand im Browser öffnen, Mit Windows starten, Beenden. Ein zweiter Start (Startmenü) öffnet den Zähler der laufenden App.
+- Limits wie auf der Seite: neuestes Fenster, darin der höchste Wert aller Sitzungen; nach dem Reset 0.
+- Heute und diese Woche (seit Beginn des Wochenfensters): Summe der Stunden aller Sitzungen dieses Rechners.
+- Die Scheibe dreht sich wie beim Stromzähler: einmal in 24 Sekunden bei 1 $ pro Stunde, mit der Wurzel schneller (4 $ doppelt, 16 $ viermal so schnell, höchstens 10-fach). Tempo über die letzten 5 Minuten, jede Sitzung ab ihrem ersten Auftauchen; ohne Meldung seit 2 Minuten steht sie.
+- Gestaltung wie „Zählerstand“ unten (dieselben Farben, hell/dunkel nach der Taskleiste); Schrift Bahnschrift (in Windows enthalten, DIN-Familie) statt Archivo, Walzen in Bold Condensed. Unter jedem Zähler ein Balken mit Strich für gleichmäßiges Tempo. Bewegung nur bei Walzen, Scheibe und Öffnen; „Animationen anzeigen“ aus in Windows schaltet sie ab.
 
 ## Wie die Seite rechnet (`c-r8kq2wv5zn/logik.js`)
 

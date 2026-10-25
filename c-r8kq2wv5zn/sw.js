@@ -1,4 +1,4 @@
-const CACHE = 'stand-v5';
+const CACHE = 'stand-v6';
 const SHELL = ['./', 'logik.js', 'manifest.webmanifest', 'icon-192.png', 'fonts/archivo.woff2'];
 
 self.addEventListener('install', e => {
@@ -20,7 +20,9 @@ self.addEventListener('fetch', e => {
 self.addEventListener('push', e => {
   let m = { title: 'Stand', body: '' };
   try { m = e.data.json(); } catch {}
-  e.waitUntil(self.registration.showNotification(m.title, { body: m.body, tag: m.tag, icon: 'icon-192.png', lang: 'de' }));
+  const schritte = [self.registration.showNotification(m.title, { body: m.body, tag: m.tag, icon: 'icon-192.png', lang: 'de' })];
+  if (typeof m.badge === 'number' && 'setAppBadge' in self.navigator) schritte.push((m.badge ? self.navigator.setAppBadge(m.badge) : self.navigator.clearAppBadge()).catch(() => {}));
+  e.waitUntil(Promise.all(schritte));
 });
 self.addEventListener('notificationclick', e => {
   e.notification.close();

@@ -59,7 +59,7 @@ async function push(req, env) {
     const last = await env.DB.prepare('SELECT * FROM readings ORDER BY at DESC LIMIT 1').first();
     if (!last || now - last.at > QUIET || FIELDS.some(k => last[k] !== r[k])) {
       writes.push(
-        env.DB.prepare(`INSERT INTO readings (at, session, ${FIELDS.join(', ')}) VALUES (${['?', '?', ...FIELDS.map(() => '?')].join(', ')})`).bind(r.at, id, ...FIELDS.map(k => r[k])),
+        env.DB.prepare(`INSERT INTO readings (at, session, cost, ${FIELDS.join(', ')}) VALUES (${['?', '?', '?', ...FIELDS.map(() => '?')].join(', ')})`).bind(r.at, id, num(b.cost, 0, 1e5), ...FIELDS.map(k => r[k])),
         env.DB.prepare('DELETE FROM readings WHERE at < ?').bind(now - KEEP),
         env.DB.prepare('DELETE FROM sessions WHERE updated < ?').bind(now - KEEP),
         env.DB.prepare('DELETE FROM sent WHERE reset < ?').bind(now - KEEP),
@@ -75,31 +75,53 @@ async function state(env, url) {
   const now = Date.now();
   const since = Math.max(now - KEEP, Number(url.searchParams.get('since')) || 0);
   const [readings, sessions] = await env.DB.batch([
-    env.DB.prepare(`SELECT at, session, ${FIELDS.join(', ')} FROM readings WHERE at > ? ORDER BY at`).bind(since),
+    env.DB.prepare(`SELECT at, session, cost, ${FIELDS.join(', ')} FROM readings WHERE at > ? ORDER BY at`).bind(since),
     env.DB.prepare(`SELECT ${SESSION_FIELDS} FROM sessions WHERE updated > ? ORDER BY updated DESC`).bind(since),
   ]);
   return json({ now, keep: KEEP, readings: readings.results, sessions: sessions.results });
 }
 
-// A limit that reset in the last hour and had reached VOLL % gets one push per window.
+// Per limit: 'reset' when its window reset in the last hour after reaching VOLL %, 'warn' while the running window is at VOLL % or more.
 export function faellig(rows, now) {
   const out = [];
-  for (const [kind, reset] of [['five', 'five_reset'], ['week', 'week_reset']]) {
-    const newest = rows.find(r => r[reset] != null && r[kind] != null);
+  for (const [kind, resetKey] of [['five', 'five_reset'], ['week', 'week_reset']]) {
+    const newest = rows.find(r => r[resetKey] != null && r[kind] != null);
     if (!newest) continue;
-    const at = Math.round(newest[reset] / 60000) * 60000;
-    if (at > now || at <= now - H) continue;
-    const peak = Math.max(...rows.filter(r => r[kind] != null && Math.abs(r[reset] - newest[reset]) < 60000).map(r => r[kind]));
-    if (peak >= VOLL) out.push({ kind, reset: at, peak });
+    const reset = Math.round(newest[resetKey] / 60000) * 60000;
+    const peak = Math.max(...rows.filter(r => r[kind] != null && Math.abs(r[resetKey] - newest[resetKey]) < 60000).map(r => r[kind]));
+    if (peak < VOLL) continue;
+    if (reset <= now && reset > now - H) out.push({ kind, art: 'reset', reset, peak });
+    if (reset > now) out.push({ kind, art: 'warn', reset, peak });
   }
   return out;
 }
 
-const uhr = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
+// Week at the pace of the last 24 hours (or since the window began, when there is no reading from 24 hours ago):
+// when it would be full, if that is more than half an hour before the reset. rows: { at, week } of the running week, oldest first.
+export function knapp(rows, now, reset) {
+  const start = reset - 7 * 24 * H, t0 = Math.max(start, now - 24 * H);
+  let jetzt = 0, damals = null;
+  for (const r of rows) {
+    jetzt = Math.max(jetzt, r.week);
+    if (r.at <= t0) damals = jetzt;
+  }
+  const von = damals === null ? start : t0;
+  const proMs = (jetzt - (damals ?? 0)) / (now - von);
+  if (!(proMs > 0) || jetzt >= 100) return null;
+  const voll = now + (100 - jetzt) / proMs;
+  return voll < reset - 30 * 60000 ? { voll, jetzt } : null;
+}
 
-function nachricht({ kind, reset, peak }) {
-  const was = kind === 'five' ? 'Das 5-Stunden-Limit' : 'Das Wochenlimit';
-  return { title: 'Claude ist wieder frei', body: `${was} ist seit ${uhr.format(reset)} zurückgesetzt (vorher ${Math.round(peak)} %).`, tag: `stand-${kind}` };
+const uhr = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
+const tagUhr = new Intl.DateTimeFormat('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
+
+// badge: the 5-hour % for the app icon (0 clears it); the service worker applies it.
+export function nachricht(a) {
+  const name = a.kind === 'five' ? '5-Stunden-Limit' : 'Wochenlimit';
+  const wann = t => (a.kind === 'five' ? `um ${uhr.format(t)}` : `am ${tagUhr.format(t)}`);
+  if (a.art === 'reset') return { title: 'Claude ist wieder frei', body: `Das ${name} ist seit ${uhr.format(a.reset)} zurückgesetzt (vorher ${Math.round(a.peak)} %).`, tag: `stand-${a.kind}`, ...(a.kind === 'five' && { badge: 0 }) };
+  if (a.art === 'warn') return { title: `${name} bei ${Math.round(a.peak)} %`, body: `Wieder frei ${wann(a.reset)}.`, tag: `stand-${a.kind}`, ...(a.kind === 'five' && { badge: Math.round(a.peak) }) };
+  return { title: 'Die Woche wird knapp', body: `${Math.round(a.jetzt)} % verbraucht. Im Tempo der letzten 24 Stunden ist das Wochenlimit am ${tagUhr.format(a.voll)} voll, der Reset kommt erst am ${tagUhr.format(a.reset)}.`, tag: 'stand-week-knapp' };
 }
 
 async function senden(env, sub, message) {
@@ -110,13 +132,23 @@ async function senden(env, sub, message) {
 
 async function melden(env, now) {
   const { results } = await env.DB.prepare('SELECT five, five_reset, week, week_reset FROM readings ORDER BY at DESC LIMIT 30').all();
-  for (const f of faellig(results, now)) {
-    const neu = await env.DB.prepare('INSERT OR IGNORE INTO sent (kind, reset) VALUES (?, ?)').bind(f.kind, f.reset).run();
+  const anlaesse = faellig(results, now);
+  const w = results.find(r => r.week_reset != null && r.week != null);
+  if (w && w.week_reset > now && new Date(now).getUTCMinutes() % 15 === 0) {
+    const rows = (await env.DB.prepare('SELECT at, week FROM readings WHERE at > ? AND week IS NOT NULL AND ABS(week_reset - ?) < 60000 ORDER BY at')
+      .bind(w.week_reset - 7 * 24 * H, w.week_reset).all()).results;
+    const k = knapp(rows, now, w.week_reset);
+    if (k) anlaesse.push({ kind: 'week', art: 'knapp', reset: Math.round(w.week_reset / 60000) * 60000, ...k });
+  }
+  for (const a of anlaesse) {
+    const neu = await env.DB.prepare('INSERT OR IGNORE INTO sent (kind, reset) VALUES (?, ?)').bind(a.art === 'reset' ? a.kind : `${a.kind}-${a.art}`, a.reset).run();
     if (!neu.meta.changes) continue;
-    const subs = (await env.DB.prepare('SELECT * FROM subs').all()).results;
-    await Promise.allSettled(subs.map(s => senden(env, s, nachricht(f))));
+    const subs = (await env.DB.prepare(`SELECT * FROM subs WHERE ${a.art} = 1`).all()).results;
+    await Promise.allSettled(subs.map(s => senden(env, s, nachricht(a))));
   }
 }
+
+const wahl = v => (typeof v === 'boolean' ? (v ? 1 : 0) : null);
 
 async function route(req, env) {
   const url = new URL(req.url);
@@ -126,15 +158,18 @@ async function route(req, env) {
   if (key === 'GET /key') return json({ key: env.VAPID_PUBLIC });
   if (key === 'PUT /sub') {
     await limit(req, env);
-    const s = pushKeys((await body(req)).sub);
+    const b = await body(req);
+    const s = pushKeys(b.sub);
     const [count, exists] = await env.DB.batch([
       env.DB.prepare('SELECT COUNT(*) AS n FROM subs'),
       env.DB.prepare('SELECT 1 AS x FROM subs WHERE endpoint = ?').bind(s.endpoint),
     ]);
     if (!exists.results.length && count.results[0].n >= MAX_SUBS) throw new HttpError(409, 'Es sind schon zu viele Geräte angemeldet.');
-    await env.DB.prepare('INSERT INTO subs (endpoint, p256dh, auth, created) VALUES (?1, ?2, ?3, ?4) ON CONFLICT (endpoint) DO UPDATE SET p256dh = ?2, auth = ?3')
-      .bind(s.endpoint, s.p256dh, s.auth, Date.now()).run();
-    return json({ ok: true });
+    // Choices left out keep their stored value, so the page can re-register without knowing them.
+    const row = await env.DB.prepare(`INSERT INTO subs (endpoint, p256dh, auth, created, reset, warn, knapp) VALUES (?1, ?2, ?3, ?4, COALESCE(?5, 1), COALESCE(?6, 0), COALESCE(?7, 0))
+      ON CONFLICT (endpoint) DO UPDATE SET p256dh = ?2, auth = ?3, reset = COALESCE(?5, reset), warn = COALESCE(?6, warn), knapp = COALESCE(?7, knapp)
+      RETURNING reset, warn, knapp`).bind(s.endpoint, s.p256dh, s.auth, Date.now(), wahl(b.reset), wahl(b.warn), wahl(b.knapp)).first();
+    return json({ ok: true, reset: !!row.reset, warn: !!row.warn, knapp: !!row.knapp });
   }
   if (key === 'DELETE /sub') {
     await limit(req, env);
@@ -145,7 +180,7 @@ async function route(req, env) {
     await limit(req, env);
     const sub = await env.DB.prepare('SELECT * FROM subs WHERE endpoint = ?').bind(endpointOf((await body(req)).endpoint)).first();
     if (!sub) throw new HttpError(404, 'Dieses Gerät ist nicht angemeldet. Schalte die Mitteilungen neu ein.');
-    const ok = await senden(env, sub, { title: 'So sieht die Mitteilung aus', body: `Kommt, wenn ein Limit zurückgesetzt ist, das mindestens ${VOLL} % erreicht hatte.`, tag: 'stand-test' });
+    const ok = await senden(env, sub, { title: 'So sieht die Mitteilung aus', body: 'So meldet sich Stand, wenn sich bei deinen Claude-Limits etwas tut.', tag: 'stand-test' });
     if (!ok) throw new HttpError(502, 'Der Push-Dienst hat die Nachricht nicht angenommen. Schalte die Mitteilungen aus und wieder ein.');
     return json({ ok: true });
   }

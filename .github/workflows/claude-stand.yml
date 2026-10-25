@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'workers/claude-stand/**'
+      - 'workers/tonne-push/src/push.js'
+      - 'workers/tonne-push/src/common.js'
       - '.github/workflows/claude-stand.yml'
   workflow_dispatch:
 
@@ -58,8 +60,24 @@ jobs:
         if: steps.check.outputs.ok == 'true'
         run: $WRANGLER deploy
 
+      - name: VAPID keys
+        if: steps.check.outputs.ok == 'true'
+        run: |
+          if $WRANGLER secret list --format json | jq -e '.[] | select(.name == "VAPID_PRIVATE")' > /dev/null; then
+            echo "VAPID keys already set"
+            exit 0
+          fi
+          keys=$(node ../tonne-push/keys.mjs)
+          pub=$(printf '%s\n' "$keys" | sed -n 's/^VAPID_PUBLIC *= *//p')
+          priv=$(printf '%s\n' "$keys" | sed -n 's/^VAPID_PRIVATE *= *//p')
+          echo "::add-mask::$priv"
+          test -n "$pub" && test -n "$priv"
+          printf '%s' "$pub" | $WRANGLER secret put VAPID_PUBLIC
+          printf '%s' "$priv" | $WRANGLER secret put VAPID_PRIVATE
+
       - name: Smoke test
         if: steps.check.outputs.ok == 'true'
         run: |
           sleep 5
           curl -fsS https://claude-stand.spanani.workers.dev/state | jq -e '.readings | type == "array"'
+          curl -fsS https://claude-stand.spanani.workers.dev/key | jq -e '.key | startswith("B")'

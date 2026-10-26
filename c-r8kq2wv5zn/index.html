@@ -2,1453 +2,1293 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
-  <title>Usage Monitor for Claude</title>
-
-  <meta name="theme-color" content="#0c0e12" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f2f4f8" media="(prefers-color-scheme: light)">
+  <title>Stand</title>
+  <meta name="theme-color" content="#dcdedb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#2a2f32" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Claude Usage">
   <meta name="mobile-web-app-capable" content="yes">
-
+  <meta name="apple-mobile-web-app-title" content="Stand">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
   <style>
     @font-face {
       font-family: 'Archivo';
       src: url('fonts/archivo.woff2') format('woff2');
       font-weight: 100 900;
-      font-style: normal;
-      font-display: swap;
-    }
-
-    @font-face {
-      font-family: 'Atkinson Mono';
-      src: url('fonts/atkinson-mono-var.woff2') format('woff2');
-      font-weight: 200 800;
-      font-style: normal;
-      font-display: swap;
+      font-stretch: 62% 125%;
+      font-display: optional;
     }
 
     :root {
-      --bg: #0c0e12;
-      --panel: #13171f;
-      --panel-elevated: #1a202c;
-      --panel-inset: #090b0e;
-      --border: #222836;
-      --border-muted: #181d27;
-      --border-focus: #3b82f6;
+      --gehaeuse: #dcdedb;
+      --deckel: #e9eae7;
+      --schild: #1f2326;
+      --beschriftung: #4e5458;
+      --linie: #b9bcb8;
+      --zaehlwerk: #151718;
+      --ziffer: #f2f2ee;
+      --rot: #c40d1e;
+      --zone: color-mix(in srgb, var(--rot) 12%, transparent);
 
-      --ink: #e8ecf4;
-      --ink-secondary: #8e99aa;
-      --ink-muted: #576275;
-      --ink-dim: #3d4654;
-
-      --cadence-blue: #3b82f6;
-      --thermal-coral: #e2553b;
-      --warning-amber: #e59e19;
-      --stable-green: #10b981;
-      --pro-amber: #eab308;
-      --aux-gemini: #60a5fa;
-
-      --font-sans: 'Archivo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: 'Atkinson Mono', ui-monospace, "Cascadia Code", monospace;
-
-      --r-panel: 8px;
-      --r-inner: 4px;
-      --r-track: 2px;
-
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      color-scheme: dark;
+      --r-geraet: 10px;
+      --r-walze: 3px;
+      --r-knopf: 6px;
+      --grund: var(--gehaeuse);
+      color-scheme: light;
     }
-
-    @media (prefers-color-scheme: light) {
+    @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #f2f4f8;
-        --panel: #ffffff;
-        --panel-elevated: #f8fafc;
-        --panel-inset: #e9eef5;
-        --border: #d4dbe5;
-        --border-muted: #e4e9f0;
-        --border-focus: #2563eb;
-
-        --ink: #0f141d;
-        --ink-secondary: #475467;
-        --ink-muted: #667085;
-        --ink-dim: #98a2b3;
-
-        --cadence-blue: #2563eb;
-        --thermal-coral: #dc2626;
-        --warning-amber: #d97706;
-        --stable-green: #059669;
-        --pro-amber: #b45309;
-        --aux-gemini: #2563eb;
-        color-scheme: light;
+        --gehaeuse: #2a2f32;
+        --deckel: #33393c;
+        --schild: #e4e5e1;
+        --beschriftung: #a3a8a6;
+        --linie: #4a5054;
+        --zaehlwerk: #151718;
+        --ziffer: #f2f2ee;
+        --rot: #e0343f;
+        --zone: color-mix(in srgb, var(--rot) 18%, transparent);
+        color-scheme: dark;
       }
     }
 
-    html, body {
-      overflow-x: hidden;
-      width: 100%;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { -webkit-text-size-adjust: 100%; }
     body {
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--font-sans);
-      font-size: 13.5px;
+      margin: 0;
+      background: var(--gehaeuse);
+      color: var(--schild);
+      font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 16px;
       line-height: 1.45;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
+    button { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--schild); outline-offset: 2px; }
+    h1, h2, p, ul { margin: 0; }
+    ul { padding: 0; list-style: none; }
+    .zahl { font-variant-numeric: tabular-nums; }
 
-    #app {
-      width: 100%;
-      max-width: 620px;
-      margin: 0 auto;
-      padding: calc(var(--safe-top) + 12px) 12px calc(var(--safe-bottom) + 74px);
+    .seite { max-width: 1120px; margin: 0 auto; padding: 0 20px 48px; }
+
+    .kopf {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 18px 0 14px;
+      border-bottom: 1px solid var(--linie);
+    }
+    .kopf h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+    .kopf p { flex: 1; min-width: 0; color: var(--beschriftung); font-size: 14px; }
+
+    .knopf-leise, .knopf {
+      border: 1px solid var(--linie);
+      background: transparent;
+      border-radius: var(--r-knopf);
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      min-height: 36px;
+    }
+    .knopf-leise:hover { border-color: var(--beschriftung); }
+    .knopf-leise:active { background: var(--linie); }
+    .knopf-leise[aria-busy="true"], button:disabled { color: var(--beschriftung); cursor: default; }
+    .knopf { background: var(--schild); border-color: var(--schild); color: var(--gehaeuse); font-weight: 600; }
+    .knopf:disabled { background: var(--linie); border-color: var(--linie); }
+
+    /* Phone: one column, sections in reading order. Desktop: meter sticky on the left, the rest on the right. */
+    main {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 32px;
+      max-width: 560px;
+      margin: 24px auto 0;
     }
-
-    @media (min-width: 768px) {
-      #app {
-        margin: 28px auto 48px;
-        padding: 0 16px;
+    .spalte-links, .spalte-rechts { display: contents; }
+    #geraet { order: 1; }
+    #live { order: 2; }
+    #ausgaben { order: 3; }
+    #leer { order: 4; }
+    #woche { order: 5; }
+    #wert { order: 6; }
+    #projekte { order: 7; }
+    #rhythmus { order: 8; }
+    #sitzungen { order: 9; }
+    #verlauf { order: 10; }
+    #melden { order: 11; }
+    .fuss { order: 12; }
+    @media (min-width: 960px) {
+      main {
+        display: grid;
+        grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+        gap: 56px;
+        max-width: none;
+        margin-top: 32px;
+        align-items: start;
       }
+      .spalte-links { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
+      .spalte-rechts { display: flex; flex-direction: column; gap: 48px; min-width: 0; }
     }
 
-    .telemetry-deck {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--r-panel);
-      overflow: hidden;
-    }
+    h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.005em; }
+    .untertitel { font-size: 14px; color: var(--beschriftung); margin-top: 4px; }
+    .kopfzeile { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 
-    .deck-header {
+    /* The meter */
+    .geraet {
+      --grund: var(--deckel);
+      background: var(--deckel);
+      border: 1px solid var(--linie);
+      border-radius: var(--r-geraet);
+      padding: 20px;
+    }
+    .schild-zeile {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      background: var(--panel-elevated);
+      align-items: baseline;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--beschriftung);
     }
-
-    .deck-identity {
+    .schild-titel { font-weight: 600; }
+    .zaehlwerke { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+    .zaehlwerk-kasten { min-width: 0; }
+    .kasten-label { font-size: 14px; font-weight: 600; }
+    .walzen {
       display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      min-width: 0;
+      align-items: baseline;
+      gap: 3px;
+      font-size: clamp(46px, 12.5vw, 72px);
+      font-weight: 700;
+      font-stretch: 62%;
+      font-variant-numeric: tabular-nums;
+      margin-top: 6px;
+    }
+    .walze {
+      height: 1.1em;
+      width: 0.72em;
+      overflow: hidden;
+      contain: paint;
+      background: var(--zaehlwerk);
+      color: var(--ziffer);
+      border-radius: var(--r-walze);
+      text-align: center;
+      line-height: 1.1em;
+      flex-shrink: 0;
+    }
+    .walze.einer { background: var(--rot); }
+    .walze-ziffern {
+      transform: translateY(calc(var(--d, 0) * -1.1em));
+      transition: transform 900ms cubic-bezier(.2, .7, .2, 1);
+    }
+    body.erst .walze-ziffern { transition-delay: calc(var(--i, 0) * 80ms); }
+    .walze-ziffern > div { height: 1.1em; }
+    .walze.vorn .walze-ziffern { opacity: 0.45; }
+    .prozent-zeichen { font-size: 0.45em; font-weight: 600; margin-left: 2px; }
+    .reset-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
+
+    .tempo-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 8px; }
+    .prognose { font-size: 20px; font-weight: 600; margin-top: 10px; line-height: 1.35; }
+    .warn::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--rot);
+      margin-right: 8px;
+      vertical-align: 2px;
     }
 
-    .indicator-node {
+    /* Chart recorder: the line charts and the history strip */
+    .schreiber {
+      position: relative;
+      margin-top: 16px;
+      touch-action: pan-y;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .schreiber svg { display: block; overflow: visible; }
+    .schreiber text { font-size: 12px; fill: var(--beschriftung); font-variant-numeric: tabular-nums; }
+    .schreiber .y { text-anchor: end; }
+    .schreiber .x { text-anchor: middle; }
+    .schreiber .heute { fill: var(--schild); font-weight: 600; }
+    .schreiber .ende { text-anchor: end; }
+    .gitter { stroke: var(--linie); stroke-width: 1; }
+    .achse { stroke: var(--beschriftung); stroke-width: 1; }
+    .zone { fill: var(--zone); }
+    .fest { fill: none; stroke: var(--schild); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .offen { fill: none; stroke: var(--schild); stroke-width: 1.5; stroke-dasharray: 2 4; stroke-linecap: round; }
+    .prognose-linie { fill: none; stroke: var(--beschriftung); stroke-width: 1.5; stroke-dasharray: 6 4; }
+    .plan { stroke: var(--beschriftung); stroke-width: 1; stroke-dasharray: 1 4; stroke-linecap: round; }
+    .jetzt-linie { stroke: var(--beschriftung); stroke-width: 1; }
+    .punkt { fill: var(--schild); stroke: var(--grund); stroke-width: 2; }
+    .voll-marke { fill: var(--rot); stroke: var(--grund); stroke-width: 2; }
+    .geist { fill: none; stroke: var(--beschriftung); stroke-width: 1.5; opacity: 0.6; stroke-linejoin: round; }
+    .spur-linie { stroke: var(--linie); stroke-width: 4; stroke-linecap: round; }
+    .tick { stroke: var(--schild); stroke-width: 1.5; }
+    .zelle { fill: var(--schild); }
+    .zelle.leer { fill: var(--linie); opacity: 0.4; }
+    .balken { fill: var(--schild); }
+    .balken.voll { fill: var(--rot); }
+    .band { fill: var(--linie); opacity: 0.35; }
+    .kreuz line { stroke: var(--schild); stroke-width: 1; }
+    .kreuz circle { fill: var(--schild); stroke: var(--grund); stroke-width: 2; }
+    .tip {
+      position: absolute;
+      top: -6px;
+      z-index: 2;
+      transform: translate(-50%, -100%);
+      pointer-events: none;
+      background: var(--zaehlwerk);
+      color: var(--ziffer);
+      font-size: 13px;
+      line-height: 1.35;
+      padding: 6px 9px;
+      border-radius: var(--r-walze);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .tip strong { font-size: 15px; }
+
+    .legende { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 13px; color: var(--beschriftung); }
+    .legende li { display: flex; align-items: center; gap: 6px; }
+    .legende svg { display: block; overflow: visible; }
+    h3 { font-size: 16px; font-weight: 600; margin: 24px 0 0; }
+
+    /* Running sessions */
+    .live-liste { display: flex; flex-direction: column; gap: 6px; }
+    .live { font-size: 14px; color: var(--beschriftung); display: flex; align-items: flex-start; }
+    .live::before {
+      content: '';
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--ink-dim);
+      margin: 6px 8px 0 0;
       flex-shrink: 0;
-      transition: background 0.2s ease;
     }
+    .live.aktiv { color: var(--schild); }
+    .live.aktiv::before { background: var(--schild); }
+    .live.ruhe::before { border: 1.5px solid var(--beschriftung); }
 
-    .indicator-node.live {
-      background: var(--stable-green);
-    }
+    /* Week */
+    .kernsatz { font-size: 20px; font-weight: 600; line-height: 1.35; margin-top: 8px; }
+    .tagesbalken { margin-top: 4px; }
+    .luecken { font-size: 14px; color: var(--beschriftung); margin-top: 10px; }
 
-    .title-line {
-      font-size: 13.5px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      color: var(--ink);
-    }
-
-    .plan-tag {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--pro-amber);
-      background: var(--panel-inset);
-      border: 1px solid var(--border);
-      padding: 2px 7px;
-      border-radius: var(--r-inner);
-    }
-
-    .deck-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-action {
-      background: var(--panel-inset);
-      border: 1px solid var(--border);
-      color: var(--ink-secondary);
-      font-family: var(--font-sans);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 5px 10px;
-      border-radius: var(--r-inner);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: color 0.15s ease, border-color 0.15s ease;
-    }
-
-    .btn-action:hover {
-      color: var(--ink);
-      border-color: var(--border-focus);
-    }
-
-    .btn-action:focus-visible {
-      outline: 2px solid var(--border-focus);
-      outline-offset: 1px;
-    }
-
-    .btn-action svg {
-      width: 12px;
-      height: 12px;
-    }
-
-    .spinning {
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    .nav-strip {
-      display: flex;
-      background: var(--panel);
-      border-bottom: 1px solid var(--border);
-    }
-
-    @media (max-width: 767px) {
-      .nav-strip {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 99;
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        border-top: 1px solid var(--border);
-        border-bottom: none;
-        padding-bottom: calc(var(--safe-bottom) + 4px);
-        background: var(--panel);
-      }
-    }
-
-    .nav-item {
-      min-width: 0;
+    /* Projects and sessions */
+    .umschalter { display: inline-flex; border: 1px solid var(--linie); border-radius: var(--r-knopf); overflow: hidden; }
+    .umschalter button {
+      border: 0;
       background: transparent;
-      border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--ink-muted);
-      font-family: var(--font-sans);
-      font-size: 10.5px;
-      font-weight: 600;
-      padding: 7px 2px;
+      padding: 6px 12px;
+      font-size: 14px;
+      min-height: 36px;
       cursor: pointer;
+      color: var(--beschriftung);
+    }
+    .umschalter button[aria-pressed="true"] { background: var(--schild); color: var(--gehaeuse); font-weight: 600; }
+    .liste { margin-top: 12px; }
+    .zeile { padding: 14px 0; border-bottom: 1px solid var(--linie); }
+    .zeile-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+    .zeile-kopf strong { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+    .zeile-kopf span { font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .zeile-kopf .laeuft { font-weight: 600; }
+    .spur { height: 6px; background: var(--linie); border-radius: var(--r-walze); overflow: hidden; margin: 8px 0; }
+    .fuell { height: 100%; background: var(--schild); border-radius: var(--r-walze); }
+    .fuell.offen-fuell { background: var(--beschriftung); }
+    .fuell.voll { background: var(--rot); }
+    .details { font-size: 14px; color: var(--beschriftung); line-height: 1.45; }
+    .details + .details { margin-top: 2px; }
+    .kontext { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
+    .kontext .spur { margin: 0; }
+    #mehr { margin-top: 14px; }
+
+    /* History */
+    .wochen-liste { margin-top: 10px; }
+    .wochen-liste li {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      transition: color 0.15s ease, border-color 0.15s ease;
-    }
-
-    .nav-item span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-    }
-
-    @media (min-width: 768px) {
-      .nav-item {
-        flex: 1;
-        flex-direction: row;
-        justify-content: center;
-        gap: 6px;
-        padding: 9px 12px;
-        font-size: 12.5px;
-      }
-    }
-
-    .nav-item:hover {
-      color: var(--ink-secondary);
-    }
-
-    .nav-item.active {
-      color: var(--ink);
-      border-bottom-color: var(--cadence-blue);
-      background: var(--panel-elevated);
-    }
-
-    .nav-item svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .view-stage {
-      display: none;
-      flex-direction: column;
+      justify-content: space-between;
       gap: 12px;
-      padding: 14px;
-    }
-
-    .view-stage.active {
-      display: flex;
-    }
-
-    .instrument-unit {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 12px;
-      background: var(--panel-inset);
-      border: 1px solid var(--border-muted);
-      border-radius: var(--r-inner);
-    }
-
-    .instrument-unit.hero {
-      padding: 14px;
-      border-color: var(--border);
-    }
-
-    .unit-meta-bar {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-
-    .unit-title {
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--ink-secondary);
-    }
-
-    .hero-readout-row {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .hero-metric-figure {
-      font-family: var(--font-mono);
-      font-size: 32px;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: -0.02em;
-      color: var(--ink);
+      font-size: 14px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--linie);
       font-variant-numeric: tabular-nums;
     }
+    .wochen-liste .laeuft { font-weight: 600; }
 
-    .hero-detail-col {
-      text-align: right;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+    /* Worth */
+    .abo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 16px; }
+    .abo-frage { font-size: 14px; font-weight: 600; width: 100%; }
+    .eigen { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--beschriftung); }
+    .eigen input {
+      width: 5.5em;
+      min-height: 36px;
+      padding: 4px 8px;
+      border: 1px solid var(--linie);
+      border-radius: var(--r-knopf);
+      background: transparent;
+      color: var(--schild);
+      font: inherit;
+      font-size: 14px;
     }
+    .abo-satz { font-size: 16px; margin-top: 12px; line-height: 1.45; }
 
-    .hero-detail-primary {
-      font-family: var(--font-mono);
-      font-size: 12.5px;
-      color: var(--ink-secondary);
-      font-variant-numeric: tabular-nums;
-    }
+    /* Notifications */
+    .wahl { border: 0; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 10px; }
+    .wahl legend { font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px; }
+    .wahl label { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; cursor: pointer; }
+    .wahl input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--schild); flex-shrink: 0; }
+    .hinweis { font-size: 14px; margin-top: 10px; }
+    .knoepfe { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .status { font-size: 14px; color: var(--beschriftung); margin-top: 8px; min-height: 1.45em; }
+    .status.fehler { color: var(--schild); font-weight: 600; }
 
-    .hero-detail-secondary {
-      font-family: var(--font-mono);
-      font-size: 11.5px;
-      color: var(--ink-muted);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .gauge-track-chassis {
-      position: relative;
-      height: 10px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--r-track);
-      overflow: hidden;
-    }
-
-    .gauge-fill {
-      height: 100%;
-      border-radius: var(--r-track);
-      background: var(--cadence-blue);
-      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
-    }
-
-    .gauge-fill.thermal {
-      background: var(--thermal-coral);
-    }
-
-    .gauge-fill.warning {
-      background: var(--warning-amber);
-    }
-
-    .vernier-cursor {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: #ffffff;
-      pointer-events: none;
-      z-index: 2;
-      transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .division-matrix {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      pointer-events: none;
-    }
-
-    .matrix-line {
-      border-right: 1px solid var(--border);
-      height: 100%;
-    }
-
-    .pacing-delta-strip {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 4px;
-      font-size: 11.5px;
-      font-family: var(--font-mono);
-    }
-
-    .delta-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-weight: 600;
-    }
-
-    .delta-status.ahead {
-      color: var(--stable-green);
-    }
-
-    .delta-status.behind {
-      color: var(--thermal-coral);
-    }
-
-    .delta-status.neutral {
-      color: var(--ink-muted);
-    }
-
-    .aux-engine-compartment {
-      margin-top: 4px;
-      padding: 8px 10px;
-      background: var(--bg);
-      border: 1px solid var(--border-muted);
-      border-radius: var(--r-inner);
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .aux-header-line {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 4px;
-      font-size: 10.5px;
-      color: var(--ink-muted);
-    }
-
-    .aux-title {
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      color: var(--ink-muted);
-    }
-
-    .aux-telemetry {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: var(--ink-dim);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .aux-track-line {
-      height: 3px;
-      background: var(--panel-elevated);
-      border-radius: 1.5px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .aux-fill-line {
-      height: 100%;
-      background: var(--aux-gemini);
-      opacity: 0.55;
-      border-radius: 1.5px;
-      transition: width 0.3s ease;
-    }
-
-    .arbitrage-bench {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    @media (max-width: 600px) {
-      .arbitrage-bench {
-        grid-template-columns: 1fr;
-      }
-      .deck-header {
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-      .title-line {
-        font-size: 13px;
-      }
-      .plan-tag {
-        font-size: 10px;
-        padding: 1px 5px;
-      }
-      .hero-metric-figure {
-        font-size: 28px;
-      }
-    }
-
-    .bench-cell {
-      background: var(--panel-inset);
-      border: 1px solid var(--border-muted);
-      border-radius: var(--r-inner);
-      padding: 9px 11px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .cell-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--ink-muted);
-    }
-
-    .cell-value {
-      font-family: var(--font-mono);
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--ink);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .cell-subtext {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--ink-secondary);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .account-strip {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 10px 12px;
-      background: var(--panel-inset);
-      border: 1px solid var(--border-muted);
-      border-radius: var(--r-inner);
-      font-size: 12px;
-    }
-
-    .account-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .account-label {
-      color: var(--ink-secondary);
-    }
-
-    .account-val {
-      font-family: var(--font-mono);
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    .chart-chassis {
-      height: 200px;
-      width: 100%;
-      background: var(--panel-inset);
-      border: 1px solid var(--border-muted);
-      border-radius: var(--r-inner);
-      position: relative;
-    }
-
-    .chart-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .chart-legend {
-      display: flex;
-      gap: 14px;
-      font-size: 11.5px;
-      font-family: var(--font-mono);
-      color: var(--ink-secondary);
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .legend-pip {
-      width: 8px;
-      height: 8px;
-      border-radius: 1px;
-    }
-
-    .daily-flow-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-top: 6px;
-    }
-
-    .daily-row {
-      display: grid;
-      grid-template-columns: 58px 1fr 40px;
-      align-items: center;
-      gap: 8px;
-      font-size: 11.5px;
-      font-family: var(--font-mono);
-    }
-
-    .daily-track {
-      height: 6px;
-      background: var(--panel-inset);
-      border: 1px solid var(--border-muted);
-      border-radius: 1px;
-      overflow: hidden;
-    }
-
-    .daily-fill {
-      height: 100%;
-      background: var(--cadence-blue);
-    }
-
-    .project-log-unit {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      padding: 9px 11px;
-      background: var(--panel-inset);
-      border: 1px solid var(--border-muted);
-      border-radius: var(--r-inner);
-    }
-
-    .project-header-line {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12.5px;
-      font-weight: 600;
-    }
-
-    .project-cost-stat {
-      font-family: var(--font-mono);
-      color: var(--stable-green);
-    }
-
-    .project-meta-line {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--ink-muted);
-    }
-
-    .diff-pos { color: var(--stable-green); }
-    .diff-neg { color: var(--thermal-coral); }
-
-    .heatmap-board {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-
-    .heatmap-lane {
-      display: grid;
-      grid-template-columns: 26px repeat(24, 1fr);
-      gap: 2px;
-      align-items: center;
-    }
-
-    .heatmap-day-label {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--ink-muted);
-    }
-
-    .heatmap-cell {
-      height: 16px;
-      border-radius: 1px;
-      background: var(--panel-elevated);
-    }
-
-    .footer-stamp {
-      padding: 10px 14px;
-      border-top: 1px solid var(--border);
-      background: var(--panel-elevated);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      color: var(--ink-muted);
-    }
+    .ausgaben-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
+    .leer { padding: 8px 0 24px; border-bottom: 1px solid var(--linie); }
+    .fuss { font-size: 14px; color: var(--beschriftung); }
 
     @media (prefers-reduced-motion: reduce) {
-      .gauge-fill,
-      .vernier-cursor,
-      .aux-fill-line {
-        transition: none !important;
-      }
-      .spinning {
-        animation: none !important;
-      }
+      .walze-ziffern { transition: none !important; }
     }
   </style>
 </head>
-<body>
-  <div id="app">
-    <div class="telemetry-deck">
-      <header class="deck-header">
-        <div class="deck-identity">
-          <div id="status-beacon" class="indicator-node live"></div>
-          <span class="title-line">Usage Monitor</span>
-          <span class="plan-tag">Claude Pro</span>
-        </div>
+<body class="erst">
+  <div class="seite">
+    <header class="kopf">
+      <h1>Stand</h1>
+      <p id="frische" aria-live="polite"></p>
+      <button type="button" class="knopf-leise" id="laden">Neu laden</button>
+    </header>
 
-        <div class="deck-controls">
-          <button class="btn-action" id="btn-sync" title="Daten aktualisieren">
-            <svg id="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-            </svg>
-            <span id="sync-label">Sync</span>
-          </button>
-        </div>
-      </header>
+    <main>
+      <div class="spalte-links">
+        <section class="geraet" id="geraet" hidden>
+          <div class="schild-zeile">
+            <span class="schild-titel">Claude-Verbrauchszähler</span>
+            <span id="modell"></span>
+          </div>
+          <div class="zaehlwerke">
+            <div class="zaehlwerk-kasten">
+              <div class="kasten-label">5 Stunden</div>
+              <div class="walzen" id="walzen-five" role="img"></div>
+              <p class="reset-zeile" id="reset-five"></p>
+            </div>
+            <div class="zaehlwerk-kasten">
+              <div class="kasten-label">Woche</div>
+              <div class="walzen" id="walzen-week" role="img"></div>
+              <p class="reset-zeile" id="reset-week"></p>
+            </div>
+          </div>
+          <div class="schreiber" id="chart-five"></div>
+          <p class="tempo-zeile" id="tempo-five"></p>
+          <p class="prognose" id="prognose-five"></p>
+        </section>
+        <div class="live-liste" id="live"></div>
+        <section id="ausgaben" hidden></section>
+      </div>
 
-      <nav class="nav-strip">
-        <button class="nav-item active" data-tab="tab-status">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          <span>Limits</span>
-        </button>
+      <div class="spalte-rechts">
+        <section class="leer" id="leer" hidden>
+          <h2>Noch keine Messung</h2>
+          <p class="untertitel">Claude Code meldet die Limits erst nach der ersten Antwort in einer Sitzung und nur mit einem Pro- oder Max-Abo. Sobald das Statuszeilen-Skript läuft, steht hier dein Stand.</p>
+        </section>
 
-        <button class="nav-item" data-tab="tab-charts">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          <span>Verlauf</span>
-        </button>
+        <section id="woche" hidden>
+          <h2>Woche</h2>
+          <p class="kernsatz" id="woche-satz"></p>
+          <p class="untertitel" id="woche-unter"></p>
+          <p class="untertitel" id="woche-vergleich" hidden></p>
+          <div class="schreiber" id="chart-week"></div>
+          <ul class="legende" aria-hidden="true">
+            <li><svg width="22" height="8"><line class="fest" x1="1" y1="4" x2="21" y2="4"/></svg>diese Woche</li>
+            <li id="legende-geist" hidden><svg width="22" height="8"><line class="geist" x1="1" y1="4" x2="21" y2="4"/></svg>letzte Woche</li>
+            <li><svg width="22" height="8"><line class="plan" x1="1" y1="4" x2="21" y2="4"/></svg>gleichmäßiges Tempo</li>
+            <li><svg width="22" height="8"><line class="prognose-linie" x1="1" y1="4" x2="21" y2="4"/></svg>Prognose</li>
+            <li><svg width="22" height="8"><line class="offen" x1="1" y1="4" x2="21" y2="4"/></svg>nicht gemessen</li>
+          </ul>
+          <div class="schreiber tagesbalken" id="chart-tage"></div>
+          <p class="luecken" id="luecken" hidden></p>
+        </section>
 
-        <button class="nav-item" data-tab="tab-projects">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          <span>Projekte</span>
-        </button>
+        <section id="wert" hidden>
+          <h2>Wert</h2>
+          <p class="kernsatz" id="wert-satz"></p>
+          <p class="untertitel" id="wert-unter"></p>
+          <div class="abo">
+            <p class="abo-frage">Dein Abo im Monat</p>
+            <div class="umschalter" role="group" aria-label="Abo">
+              <button type="button" data-abo="20" aria-pressed="false">Pro 20 $</button>
+              <button type="button" data-abo="100" aria-pressed="false">Max 5x 100 $</button>
+              <button type="button" data-abo="200" aria-pressed="false">Max 20x 200 $</button>
+            </div>
+            <label class="eigen">oder <input type="number" min="1" max="10000" step="1" inputmode="numeric" id="abo-eigen" aria-label="Eigener Betrag in US-Dollar"> $</label>
+          </div>
+          <p class="abo-satz" id="abo-satz"></p>
+        </section>
 
-        <button class="nav-item" data-tab="tab-heatmap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span>Rhythmus</span>
-        </button>
+        <section id="projekte" hidden>
+          <div class="kopfzeile">
+            <h2>Projekte</h2>
+            <div class="umschalter" role="group" aria-label="Zeitraum">
+              <button type="button" data-zeitraum="woche" aria-pressed="true">Diese Woche</button>
+              <button type="button" data-zeitraum="alles" aria-pressed="false">35 Tage</button>
+            </div>
+          </div>
+          <p class="untertitel" id="projekte-unter"></p>
+          <ul class="liste" id="projekte-liste"></ul>
+        </section>
 
-        <button class="nav-item" data-tab="tab-settings">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span>Alerts</span>
-        </button>
-      </nav>
+        <section id="rhythmus" hidden>
+          <h2>Rhythmus</h2>
+          <p class="untertitel" id="rhythmus-unter"></p>
+          <div class="schreiber" id="chart-rhythmus"></div>
+          <div id="heute">
+            <h3>Letzte 24 Stunden</h3>
+            <p class="untertitel">Jede Sitzung als Linie, jeder Strich eine Ablesung, dahinter die 5-Stunden-Fenster.</p>
+            <div class="schreiber" id="chart-heute"></div>
+          </div>
+        </section>
 
-      <main class="deck-body">
-        <div class="view-stage active" id="tab-status">
-          <section class="instrument-unit hero">
-            <div class="unit-meta-bar">
-              <span class="unit-title">5-Stunden-Limit</span>
-              <span id="five-reset-clock" style="font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-secondary);">Reset in --</span>
-            </div>
+        <section id="sitzungen" hidden>
+          <h2>Sitzungen</h2>
+          <p class="untertitel" id="sitzungen-unter"></p>
+          <ul class="liste" id="sitzungen-liste"></ul>
+          <button type="button" class="knopf-leise" id="mehr" hidden></button>
+        </section>
 
-            <div class="hero-readout-row">
-              <div class="hero-metric-figure" id="five-pct-txt">0%</div>
-              <div class="hero-detail-col">
-                <span class="hero-detail-primary" id="five-burn-rate">0,00 $ / h</span>
-                <span class="hero-detail-secondary" id="five-pace-sub">-- %/h Tempo</span>
-              </div>
-            </div>
+        <section id="verlauf" hidden>
+          <h2>Verlauf</h2>
+          <p class="untertitel" id="verlauf-unter"></p>
+          <div class="schreiber" id="chart-verlauf"></div>
+          <ul class="wochen-liste" id="wochen"></ul>
+        </section>
 
-            <div class="gauge-track-chassis">
-              <div class="gauge-fill" id="five-bar" style="width: 0%;"></div>
-              <div class="vernier-cursor" id="five-pace-tick" style="left: 0%;" title="Vergangene Zeit im 5h-Fenster"></div>
-            </div>
+        <section id="melden">
+          <h2>Mitteilungen</h2>
+          <p class="untertitel">Stand meldet sich auf diesem Gerät, wenn sich bei deinen Limits etwas tut. Was genau, wählst du nach dem Einschalten.</p>
+          <p class="hinweis" id="melden-hinweis" hidden></p>
+          <div class="knoepfe">
+            <button type="button" class="knopf" id="melden-an">Mitteilungen einschalten</button>
+            <button type="button" class="knopf-leise" id="melden-test" hidden>Test-Mitteilung schicken</button>
+            <button type="button" class="knopf-leise" id="melden-aus" hidden>Mitteilungen ausschalten</button>
+          </div>
+          <fieldset class="wahl" id="melden-wahl" hidden>
+            <legend>Melden, wenn</legend>
+            <label><input type="checkbox" data-wahl="reset"> ein Limit nach mindestens 90 % wieder frei ist</label>
+            <label><input type="checkbox" data-wahl="warn"> das 5-Stunden- oder Wochenlimit 90 % erreicht</label>
+            <label><input type="checkbox" data-wahl="knapp"> die Woche im Tempo der letzten 24 Stunden vor dem Reset voll wäre</label>
+          </fieldset>
+          <p class="status" id="melden-status" aria-live="polite"></p>
+          <p class="untertitel" id="abzeichen-hinweis" hidden>Das App-Symbol zeigt den 5-Stunden-Stand vom letzten Öffnen, eine Reset-Mitteilung setzt es auf null. Abschalten kannst du das in den Mitteilungs-Einstellungen deines Geräts.</p>
+        </section>
 
-            <div class="pacing-delta-strip">
-              <div class="delta-status neutral" id="five-delta-badge">
-                <span id="five-delta-txt">Berechne Pacing …</span>
-              </div>
-              <span style="color: var(--ink-muted);" id="five-elapsed-sub">Fensterzeit: 0%</span>
-            </div>
-          </section>
-
-          <section class="instrument-unit">
-            <div class="unit-meta-bar">
-              <span class="unit-title">Wochen-Kontingent (7 Tage)</span>
-              <span id="week-reset-clock" style="font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-secondary);">Reset am --</span>
-            </div>
-
-            <div class="hero-readout-row">
-              <div class="hero-metric-figure" id="week-pct-txt" style="font-size: 26px;">0%</div>
-              <div class="hero-detail-col">
-                <span class="hero-detail-primary" id="week-budget-sub">Rest: -- % / Tag</span>
-                <span class="hero-detail-secondary" id="week-active-model">Claude 3.7 Sonnet</span>
-              </div>
-            </div>
-
-            <div class="gauge-track-chassis">
-              <div class="gauge-fill" id="week-bar" style="width: 0%;"></div>
-              <div class="division-matrix">
-                <div class="matrix-line"></div>
-                <div class="matrix-line"></div>
-                <div class="matrix-line"></div>
-                <div class="matrix-line"></div>
-                <div class="matrix-line"></div>
-                <div class="matrix-line"></div>
-                <div></div>
-              </div>
-              <div class="vernier-cursor" id="week-pace-tick" style="left: 0%;" title="Vergangene Zeit der Woche"></div>
-            </div>
-
-            <div class="pacing-delta-strip">
-              <div class="delta-status neutral" id="week-delta-badge">
-                <span id="week-delta-txt">Wochen-Pacing stabil</span>
-              </div>
-              <span style="color: var(--ink-muted);" id="week-elapsed-sub">Woche: 0% verstrichen</span>
-            </div>
-
-            <div class="aux-engine-compartment">
-              <div class="aux-header-line">
-                <span class="aux-title">Antigravity · Gemini Puffer</span>
-                <span class="aux-telemetry" id="aux-gemini-stats">0% · 0 Tok · 0,00 $</span>
-              </div>
-              <div class="aux-track-line">
-                <div class="aux-fill-line" id="aux-gemini-bar" style="width: 0%;"></div>
-              </div>
-            </div>
-          </section>
-
-          <section class="instrument-unit">
-            <div class="unit-meta-bar">
-              <span class="unit-title">API-Gegenwert (20 $ Flat)</span>
-            </div>
-            <div class="arbitrage-bench">
-              <div class="bench-cell">
-                <span class="cell-label">Heute</span>
-                <span class="cell-value" id="val-cost-today">0,00 $</span>
-                <span class="cell-subtext" id="val-tok-today">0 Tokens</span>
-              </div>
-              <div class="bench-cell">
-                <span class="cell-label">Diese Woche</span>
-                <span class="cell-value" id="val-cost-week">0,00 $</span>
-                <span class="cell-subtext" id="val-tok-week">0 Tokens</span>
-              </div>
-              <div class="bench-cell">
-                <span class="cell-label">30-Tage Arbitrage</span>
-                <span class="cell-value" id="val-cost-30d">0,00 $</span>
-                <span class="cell-subtext" id="val-roi-sub" style="color: var(--stable-green);">1,0x Pro-Wert</span>
-              </div>
-            </div>
-          </section>
-
-          <section class="account-strip">
-            <div class="account-row">
-              <span class="account-label">Aktives Modell</span>
-              <span class="account-val" id="meta-model-name">Claude 3.7 Sonnet</span>
-            </div>
-            <div class="account-row">
-              <span class="account-label">Sitzung & Projekt</span>
-              <span class="account-val" id="meta-session-info">Bereit</span>
-            </div>
-          </section>
-        </div>
-
-        <div class="view-stage" id="tab-charts">
-          <section class="instrument-unit">
-            <div class="unit-meta-bar">
-              <span class="unit-title">Verlauf & Limit-Entwicklung</span>
-            </div>
-            <div class="chart-chassis" id="chart-viewport">
-              <svg class="chart-canvas" id="chart-svg"></svg>
-            </div>
-            <div class="chart-legend">
-              <div class="legend-item">
-                <div class="legend-pip" style="background: var(--cadence-blue);"></div>
-                <span>5-Stunden-Limit</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-pip" style="background: var(--thermal-coral);"></div>
-                <span>Wochen-Limit</span>
-              </div>
-            </div>
-
-            <div style="margin-top: 10px;">
-              <span class="unit-title" style="display: block; margin-bottom: 6px;">Tagesanteil der laufenden Woche</span>
-              <div class="daily-flow-grid" id="daily-bars-container"></div>
-            </div>
-          </section>
-        </div>
-
-        <div class="view-stage" id="tab-projects">
-          <section class="instrument-unit">
-            <div class="unit-meta-bar">
-              <span class="unit-title">Erfasste Codebase-Projekte</span>
-              <span id="projects-count" style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">0 erfasst</span>
-            </div>
-            <div id="projects-list-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
-          </section>
-        </div>
-
-        <div class="view-stage" id="tab-heatmap">
-          <section class="instrument-unit">
-            <div class="unit-meta-bar">
-              <span class="unit-title">Wochen-Aktivität (24h × 7 Tage)</span>
-            </div>
-            <div class="heatmap-board" id="heatmap-container"></div>
-          </section>
-        </div>
-
-        <div class="view-stage" id="tab-settings">
-          <section class="instrument-unit">
-            <div class="unit-meta-bar">
-              <span class="unit-title">Reset-Mitteilungen</span>
-            </div>
-            <p style="font-size: 12.5px; color: var(--ink-secondary);">
-              Sendet eine geräteübergreifende Push-Mitteilung an dieses Smartphone, sobald das 5-Stunden-Limit nach einer Sperre wieder freigegeben ist.
-            </p>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
-              <button class="btn-action" id="btn-push-on" style="background: var(--cadence-blue); color: #fff; border: none;">Push-Mitteilungen aktivieren</button>
-              <button class="btn-action" id="btn-push-test" style="display: none;">Test-Alarm senden</button>
-              <button class="btn-action" id="btn-push-off" style="display: none;">Deaktivieren</button>
-            </div>
-            <span id="push-status-text" style="font-size: 11px; font-family: var(--font-mono); color: var(--ink-muted);"></span>
-          </section>
-
-          <section class="account-strip">
-            <div class="account-row">
-              <span class="account-label">Tarif</span>
-              <span class="account-val" style="color: var(--pro-amber);">Claude Pro Flatrate (20 $/Mo)</span>
-            </div>
-            <div class="account-row">
-              <span class="account-label">Ausweich-Puffer</span>
-              <span class="account-val">Antigravity CLI (Gemini)</span>
-            </div>
-            <div class="account-row">
-              <span class="account-label">Worker Endpoint</span>
-              <span class="account-val">claude-stand.spanani.workers.dev</span>
-            </div>
-          </section>
-        </div>
-      </main>
-
-      <footer class="footer-stamp">
-        <span id="last-updated-label">Aktualisiere Telemetrie …</span>
-        <span style="font-family: var(--font-mono);">v2.4 Telemetry</span>
-      </footer>
-    </div>
+        <footer class="fuss">
+          <p>Stand liest die Statuszeile von Claude Code ab, während dort gearbeitet wird. Nutzung in claude.ai, auf anderen Geräten oder in Cloud-Sitzungen zählt zu denselben Limits, erscheint hier aber erst mit der nächsten Ablesung und ist dann als nicht gemessen markiert.</p>
+        </footer>
+      </div>
+    </main>
   </div>
 
   <script src="logik.js"></script>
-
   <script>
-    'use strict';
-
     const API = ['localhost', '127.0.0.1'].includes(location.hostname) ? 'http://localhost:8787' : 'https://claude-stand.spanani.workers.dev';
-    const geldDE = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    
-    let rawData = null;
-    let pushSub = null;
-    let swReg = null;
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-    function $(id) { return document.getElementById(id); }
+    let geladen = 0;
+    let daten = null, versatz = 0, laeuft = false, zeitraum = 'woche', alleSitzungen = false, gezeichnet = false;
+    const jetzt = () => Date.now() + versatz; // server clock, so countdowns match the reset times
 
-    function haptic() {
-      if ('vibrate' in navigator) navigator.vibrate(8);
+    const uhr = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const tagUhr = new Intl.DateTimeFormat('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+    const datumUhr = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const tagDatum = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric' });
+    const wochentag = new Intl.DateTimeFormat('de-DE', { weekday: 'short' });
+    const datum = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'numeric' });
+    const ganz = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
+    const dollar = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'USD' });
+    const kompakt = new Intl.NumberFormat('de-DE', { notation: 'compact', maximumFractionDigits: 1 });
+
+    const pz = n => (n > 0 && n < 1 ? '<1' : ganz.format(n)) + ' %';
+    const tagName = t => wochentag.format(t).replace('.', '');
+
+    function zeit(t) {
+      const a = new Date(t), b = new Date(jetzt());
+      if (a.toDateString() === b.toDateString()) return uhr.format(a);
+      const morgen = new Date(b); morgen.setDate(b.getDate() + 1);
+      if (a.toDateString() === morgen.toDateString()) return `morgen ${uhr.format(a)}`;
+      const gestern = new Date(b); gestern.setDate(b.getDate() - 1);
+      if (a.toDateString() === gestern.toDateString()) return `gestern ${uhr.format(a)}`;
+      return Math.abs(t - b) < 6 * TAG ? tagUhr.format(a) : datumUhr.format(a);
     }
 
-    function createSampleData() {
-      const now = Date.now();
-      const H = 3600000, TAG = 24 * H;
-      const R5 = now + 2.1 * H;
-      const RW = now + 4.5 * TAG;
-      const r = (min, five, week, cost, s) => ({
-        at: now - min * 60000, session: s, cost, five, five_reset: R5, week, week_reset: RW
+    function dauer(ms) {
+      const min = Math.max(0, Math.round(ms / 60000));
+      if (min < 60) return `${min} min`;
+      const h = Math.floor(min / 60), m = min % 60;
+      if (h < 48) return m ? `${h} h ${m} min` : `${h} h`;
+      return `${Math.floor(h / 24)} Tg. ${h % 24} h`;
+    }
+
+    function countdown(ms) {
+      if (ms >= H) return dauer(ms);
+      const s = Math.max(0, Math.floor(ms / 1000));
+      return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} min`;
+    }
+    const datiert = t => new Date(t).toDateString() === new Date(jetzt()).toDateString() ? `heute ${uhr.format(t)}` : zeit(t);
+    const bis = t => `<span data-bis="${t}">${countdown(t - jetzt())}</span>`;
+    const vor = t => jetzt() - t < 60000 ? 'gerade eben' : `vor ${dauer(jetzt() - t)}`;
+
+    // Rolling counters
+    function walzenBauen(el, start) {
+      el.innerHTML = [0, 1, 2].map(i => `<div class="walze${i === 2 ? ' einer' : ''}" aria-hidden="true"><div class="walze-ziffern" style="--i:${start + i};--d:0">${'0123456789'.split('').map(d => `<div>${d}</div>`).join('')}</div></div>`).join('') + '<span class="prozent-zeichen" aria-hidden="true">%</span>';
+    }
+    walzenBauen($('walzen-five'), 0);
+    walzenBauen($('walzen-week'), 3);
+
+    function walzenSetzen(el, wert, label) {
+      el.setAttribute('aria-label', label);
+      const ziffern = String(wert).padStart(3, '0');
+      el.querySelectorAll('.walze').forEach((w, i) => {
+        w.querySelector('.walze-ziffern').style.setProperty('--d', ziffern[i]);
+        w.classList.toggle('vorn', (i === 0 && wert < 100) || (i === 1 && wert < 10));
+      });
+    }
+
+    // Line chart of one limit window: measured steps solid, unmeasured stretches dashed, forecast dashed and grey.
+    function pfade(f, x, y, ende) {
+      let fest = '', offen = '';
+      let a = { at: f.start, v: 0 };
+      f.punkte.forEach((p, i) => {
+        if (p.luecke || i === 0) offen += `M${x(a.at)},${y(a.v)}L${x(p.at)},${y(p.v)}`;
+        else fest += `M${x(a.at)},${y(a.v)}H${x(p.at)}V${y(p.v)}`;
+        a = p;
+      });
+      if (ende > a.at) fest += `M${x(a.at)},${y(a.v)}H${x(ende)}`;
+      return { fest, offen };
+    }
+
+    function fensterChart(el, f, o) {
+      const breite = Math.max(260, el.clientWidth), hoehe = o.hoehe;
+      const p = { l: 34, r: 12, t: 12, b: 24 };
+      const w = breite - p.l - p.r, h = hoehe - p.t - p.b;
+      const x = t => +(p.l + (t - f.start) / (f.reset - f.start) * w).toFixed(1);
+      const y = v => +(p.t + (1 - v / 100) * h).toFixed(1);
+      const now = jetzt(), ende = Math.min(now, f.reset);
+      let s = `<rect class="zone" x="${p.l}" y="${y(100)}" width="${w}" height="${y(90) - y(100)}"/>`;
+      for (const v of [25, 50, 75, 100]) s += `<line class="gitter" x1="${p.l}" x2="${p.l + w}" y1="${y(v)}" y2="${y(v)}"/>`;
+      for (const v of [0, 50, 100]) s += `<text class="y" x="${p.l - 6}" y="${y(v) + 4}">${v === 100 ? '100 %' : v}</text>`;
+      s += o.raster(x, p, h);
+      s += `<line class="achse" x1="${p.l}" x2="${p.l + w}" y1="${y(0)}" y2="${y(0)}"/>`;
+      if (o.plan) s += `<line class="plan" x1="${x(f.start)}" y1="${y(0)}" x2="${x(f.reset)}" y2="${y(100)}"/>`;
+      if (o.geist) {
+        const g = o.geist, xg = t => x(t - g.start + f.start);
+        const { fest: gf, offen: go } = pfade(g, xg, y, g.reset);
+        s += `<path class="geist" d="${gf}${go}"/>`;
+      }
+      const { fest, offen } = pfade(f, x, y, ende);
+      s += `<path class="offen" d="${offen}"/><path class="fest" d="${fest}"/>`;
+      const t = o.tempo;
+      if (f.reset > now) {
+        if (t && t.proStunde > 0 && (t.aktiv || o.plan)) {
+          const zielT = t.voll && t.voll > now ? t.voll : f.reset, zielV = t.voll && t.voll > now ? 100 : t.amEnde;
+          s += `<path class="prognose-linie" d="M${x(now)},${y(f.peak)}L${x(zielT)},${y(zielV)}"/>`;
+          if (t.voll && t.voll > now) s += `<circle class="voll-marke" cx="${x(t.voll)}" cy="${y(100)}" r="5"/>`;
+        }
+        s += `<line class="jetzt-linie" x1="${x(now)}" x2="${x(now)}" y1="${p.t}" y2="${y(0)}"/>`;
+      }
+      s += `<circle class="punkt" cx="${x(ende)}" cy="${y(f.peak)}" r="4.5"/>`;
+      s += `<g class="kreuz" hidden><line y1="${p.t}" y2="${y(0)}"/><circle r="4.5"/></g>`;
+      el.innerHTML = `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}" role="img" aria-label="${esc(o.label)}">${s}</svg><div class="tip" hidden></div>`;
+
+      const nachId = new Map(daten.sessions.map(x => [x.id, x]));
+      el._finde = px => {
+        const tt = f.start + (px - p.l) / w * (f.reset - f.start);
+        if (tt < f.start || tt > ende) return null;
+        const v = wertBei(f, tt);
+        let i = f.punkte.length - 1;
+        while (i >= 0 && f.punkte[i].at > tt) i--;
+        const naechster = f.punkte[i + 1];
+        const wer = i < 0 || (naechster && naechster.luecke) ? 'nicht gemessen' : (nachId.get(f.punkte[i].session) || {}).project || '';
+        const geist = o.geist ? `<br>letzte Woche ${pz(wertBei(o.geist, o.geist.start + tt - f.start))}` : '';
+        return { x: x(tt), y: y(v), html: `<strong>${pz(v)}</strong><br>${esc(o.tipZeit(tt))}${wer ? `<br>${esc(wer)}` : ''}${geist}` };
+      };
+      return { x, p, w };
+    }
+
+    function stundenRaster(f) {
+      return (x, p, h) => {
+        const stunden = [];
+        const d = new Date(f.start); d.setMinutes(0, 0, 0);
+        for (d.setHours(d.getHours() + 1); d.getTime() < f.reset; d.setHours(d.getHours() + 1)) stunden.push(d.getTime());
+        const abstand = x(f.start + H) - x(f.start);
+        const jede = abstand < 46 ? 2 : 1;
+        return stunden.map((t, i) => `<line class="gitter" x1="${x(t)}" x2="${x(t)}" y1="${p.t}" y2="${p.t + h}"/>` +
+          (i % jede === 0 ? `<text class="x" x="${x(t)}" y="${p.t + h + 17}">${uhr.format(t)}</text>` : '')).join('');
+      };
+    }
+
+    function tageRaster(f) {
+      return (x, p, h) => {
+        let s = '';
+        const heute = new Date(jetzt()).toDateString();
+        const d = new Date(f.start); d.setHours(0, 0, 0, 0);
+        while (d.getTime() < f.reset) {
+          const von = Math.max(d.getTime(), f.start);
+          const neu = new Date(d); neu.setDate(d.getDate() + 1);
+          const bisT = Math.min(neu.getTime(), f.reset);
+          if (d.getTime() > f.start) s += `<line class="gitter" x1="${x(d.getTime())}" x2="${x(d.getTime())}" y1="${p.t}" y2="${p.t + h}"/>`;
+          if (x(bisT) - x(von) >= 22) s += `<text class="x${d.toDateString() === heute ? ' heute' : ''}" x="${(x(von) + x(bisT)) / 2}" y="${p.t + h + 17}">${tagName(d)}</text>`;
+          d.setTime(neu.getTime());
+        }
+        return s;
+      };
+    }
+
+    // Measured rise per calendar day, on the same x scale as the week chart above it.
+    function tageChart(el, f, skala, liste) {
+      const breite = Math.max(260, el.clientWidth), hoehe = 62;
+      const { x, p } = skala;
+      const max = Math.max(10, ...liste.map(d => d.gemessen));
+      const h = hoehe - 20;
+      let s = `<line class="achse" x1="${p.l}" x2="${x(f.reset)}" y1="${hoehe - 2}" y2="${hoehe - 2}"/>`;
+      s += `<text class="y" x="${p.l - 10}" y="${hoehe - 18}">pro</text><text class="y" x="${p.l - 10}" y="${hoehe - 4}">Tag</text>`;
+      for (const d of liste) {
+        const x0 = x(d.von) + 1, x1 = x(d.bis) - 1;
+        if (x1 - x0 < 4) continue;
+        const bh = d.gemessen ? Math.max(2, d.gemessen / max * h) : 0;
+        if (bh) s += `<rect class="balken" x="${x0}" y="${hoehe - 2 - bh}" width="${x1 - x0}" height="${bh}" rx="2"/>`;
+        s += `<text class="x" x="${(x0 + x1) / 2}" y="${hoehe - 6 - bh}">${d.gemessen ? pz(d.gemessen) : ''}</text>`;
+      }
+      el.innerHTML = `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}" role="img" aria-label="${esc(liste.map(d => `${tagDatum.format(d.von)}: ${pz(d.gemessen)} gemessen`).join(', '))}">${s}</svg><div class="tip" hidden></div>`;
+      el._finde = px => {
+        const d = liste.find(d => px >= x(d.von) && px < x(d.bis));
+        if (!d) return null;
+        return { x: (x(d.von) + x(d.bis)) / 2, y: null, html: `<strong>${pz(d.gemessen)}</strong> gemessen<br>${esc(tagDatum.format(d.von))}${d.offen ? `<br>${pz(d.offen)} nicht gemessen` : ''}` };
+      };
+    }
+
+    // Every 5-hour window of the last 35 days as a bar (start to reset, height = peak), weeks as bands behind.
+    function verlaufChart(el, f5, fw) {
+      const breite = Math.max(260, el.clientWidth), hoehe = 120;
+      const p = { l: 34, r: 12, t: 22, b: 24 };
+      const w = breite - p.l - p.r, h = hoehe - p.t - p.b;
+      const now = jetzt();
+      const erste = Math.min(...f5.map(f => f.start), ...fw.map(f => f.start), now);
+      const a = new Date(Math.max(now - 35 * TAG, Math.min(erste, now - 7 * TAG))); a.setHours(0, 0, 0, 0);
+      const e = new Date(now); e.setHours(24, 0, 0, 0);
+      const x0 = a.getTime(), x1 = e.getTime();
+      const x = t => +(p.l + (Math.min(x1, Math.max(x0, t)) - x0) / (x1 - x0) * w).toFixed(1);
+      const y = v => +(p.t + (1 - v / 100) * h).toFixed(1);
+      let s = '';
+      fw.forEach((f, i) => {
+        if (f.reset < x0) return;
+        if (i % 2 === 0) s += `<rect class="band" x="${x(f.start)}" y="${p.t - 18}" width="${x(f.reset) - x(f.start)}" height="${h + 18}"/>`;
+        if (x(f.reset) - x(f.start) > 70) s += `<text x="${x(f.start) + 4}" y="${p.t - 6}">Woche ${pz(f.peak)}</text>`;
+      });
+      s += `<line class="gitter" x1="${p.l}" x2="${p.l + w}" y1="${y(100)}" y2="${y(100)}"/>`;
+      s += `<text class="y" x="${p.l - 6}" y="${y(100) + 4}">100 %</text><text class="y" x="${p.l - 6}" y="${y(0) + 4}">0</text>`;
+      const tage = Math.round((x1 - x0) / TAG);
+      const d = new Date(x0);
+      for (let i = 0; i < tage; i++, d.setDate(d.getDate() + 1)) {
+        const t = d.getTime(), mitte = t + TAG / 2;
+        if (tage <= 12) s += `<text class="x${d.toDateString() === new Date(now).toDateString() ? ' heute' : ''}" x="${x(mitte)}" y="${hoehe - 6}">${tagName(d)}</text>`;
+        else if (d.getDay() === 1) s += `<line class="gitter" x1="${x(t)}" x2="${x(t)}" y1="${p.t}" y2="${y(0)}"/><text class="x" x="${x(t)}" y="${hoehe - 6}">${datum.format(d)}</text>`;
+      }
+      for (const f of f5) {
+        if (f.reset < x0) continue;
+        const bx = x(f.start), bw = Math.max(2, x(Math.min(f.reset, now)) - bx - 1);
+        s += `<rect class="balken${f.peak >= 90 ? ' voll' : ''}" x="${bx}" y="${y(f.peak)}" width="${bw}" height="${Math.max(1, y(0) - y(f.peak))}" rx="${bw > 5 ? 2 : 0}"/>`;
+      }
+      s += `<line class="achse" x1="${p.l}" x2="${p.l + w}" y1="${y(0)}" y2="${y(0)}"/>`;
+      el.innerHTML = `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}" role="img" aria-label="${esc(`${f5.length} 5-Stunden-Fenster, ${f5.filter(f => f.peak >= 90).length} davon über 90 %`)}">${s}</svg><div class="tip" hidden></div>`;
+      el._finde = px => {
+        let best = null, abst = 14;
+        for (const f of f5) {
+          const mitte = (x(f.start) + x(Math.min(f.reset, now))) / 2;
+          const dd = px >= x(f.start) && px <= x(Math.min(f.reset, now)) ? 0 : Math.abs(px - mitte);
+          if (dd < abst) { abst = dd; best = f; }
+        }
+        if (!best) return null;
+        return { x: (x(best.start) + x(Math.min(best.reset, now))) / 2, y: null, html: `<strong>${pz(best.peak)}</strong> Spitze<br>${esc(tagDatum.format(best.start))}, ${uhr.format(best.start)} bis ${uhr.format(best.reset)}` };
+      };
+    }
+
+    // Weekday x hour grid of measured 5-hour rises; four steps of one ink, empty cells faint.
+    const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+    const LANG = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+    function rhythmusChart(el, zellen) {
+      const breite = Math.max(260, el.clientWidth);
+      const l = 28, oben = 16, zw = (breite - l) / 24, zh = Math.min(22, Math.max(14, zw));
+      const hoehe = oben + 7 * zh + 30;
+      const max = Math.max(...zellen.flat().map(z => z.plus));
+      const stufe = v => (v ? Math.max(1, Math.ceil(v / max * 4)) : 0);
+      const deckkraft = [0, 0.22, 0.45, 0.7, 1];
+      let s = '';
+      for (const h of [0, 6, 12, 18]) s += `<text x="${l + h * zw}" y="11">${h} Uhr</text>`;
+      zellen.forEach((tag, d) => {
+        s += `<text class="y" x="${l - 6}" y="${oben + d * zh + zh / 2 + 4}">${WOCHENTAGE[d]}</text>`;
+        tag.forEach((z, h) => {
+          const st = stufe(z.plus);
+          s += `<rect class="zelle${st ? '' : ' leer'}" x="${(l + h * zw).toFixed(1)}" y="${(oben + d * zh).toFixed(1)}" width="${(zw - 2).toFixed(1)}" height="${(zh - 2).toFixed(1)}" rx="2"${st ? ` fill-opacity="${deckkraft[st]}"` : ''}/>`;
+        });
+      });
+      const ly = oben + 7 * zh + 12;
+      s += `<text class="ende" x="${breite - 4 * 16 - 26}" y="${ly + 10}">wenig</text>`;
+      for (let i = 1; i <= 4; i++) s += `<rect class="zelle" x="${breite - (5 - i) * 16 - 22}" y="${ly}" width="14" height="12" rx="2" fill-opacity="${deckkraft[i]}"/>`;
+      s += `<text class="ende" x="${breite}" y="${ly + 10}">viel</text>`;
+      el.innerHTML = `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}" role="img" aria-label="Verbrauch nach Wochentag und Uhrzeit">${s}</svg><div class="tip" hidden></div>`;
+      el._finde = (px, py) => {
+        const h = Math.floor((px - l) / zw), d = Math.floor((py - oben) / zh);
+        if (h < 0 || h > 23 || d < 0 || d > 6) return null;
+        const z = zellen[d][h];
+        return { x: l + h * zw + zw / 2, y: null, oben: oben + d * zh, html: z.plus ? `<strong>${pz(z.plus)}</strong> von 5 Stunden<br>${LANG[d]}, ${h} bis ${h + 1} Uhr<br>an ${z.tage.size} ${z.tage.size === 1 ? 'Tag' : 'Tagen'}` : `${LANG[d]}, ${h} bis ${h + 1} Uhr<br>kein gemessener Verbrauch` };
+      };
+    }
+
+    // The last 24 hours: one row per session (line = alive, ticks = readings), 5-hour windows as bands behind.
+    function heuteChart(el, zeilen, f5) {
+      const breite = Math.max(260, el.clientWidth), reihe = 36;
+      const p = { t: 6, b: 22 };
+      const hoehe = p.t + zeilen.length * reihe + p.b;
+      // Axis from shortly before the first session of the last 24 hours, at least three hours wide.
+      const now = jetzt();
+      const x0 = Math.max(now - 24 * H, Math.min(now - 3 * H, Math.floor((Math.min(...zeilen.map(z => z.von)) - 20 * 60000) / H) * H));
+      const x = t => +((Math.min(now, Math.max(x0, t)) - x0) / (now - x0) * breite).toFixed(1);
+      const schritt = now - x0 <= 8 * H ? 1 : 3;
+      let s = '';
+      for (const f of f5) {
+        if (f.reset < x0 || f.start > now) continue;
+        s += `<rect class="band" x="${x(f.start) + 1}" y="0" width="${Math.max(0, x(f.reset) - x(f.start) - 2)}" height="${hoehe - p.b}"/>`;
+      }
+      const d = new Date(x0); d.setMinutes(0, 0, 0);
+      d.setHours(d.getHours() + schritt - (d.getHours() % schritt));
+      for (; d.getTime() < now; d.setHours(d.getHours() + schritt)) {
+        const xt = x(d.getTime());
+        s += `<line class="gitter" x1="${xt}" x2="${xt}" y1="0" y2="${hoehe - p.b}"/>`;
+        if (xt > 18 && xt < breite - 18) s += `<text class="x" x="${xt}" y="${hoehe - 6}">${uhr.format(d)}</text>`;
+      }
+      zeilen.forEach((z, i) => {
+        const y0 = p.t + i * reihe, laeuftJetzt = now - z.s.updated <= 5 * 60000;
+        const name = `${z.s.project || 'Ohne Projekt'}${laeuftJetzt ? ', läuft' : ''}`;
+        const rechts = x(z.von) + name.length * 7.5 > breite; // label would run off the right edge: end it there
+        s += `<text class="${rechts ? 'ende ' : ''}heute" x="${rechts ? breite : x(z.von)}" y="${y0 + 12}">${esc(name)}</text>`;
+        s += `<line class="spur-linie" x1="${x(z.von)}" x2="${Math.max(x(z.bis), x(z.von) + 1)}" y1="${y0 + 23}" y2="${y0 + 23}"/>`;
+        for (const t of z.ticks) s += `<line class="tick" x1="${x(t)}" x2="${x(t)}" y1="${y0 + 17}" y2="${y0 + 29}"/>`;
+      });
+      s += `<line class="achse" x1="0" x2="${breite}" y1="${hoehe - p.b}" y2="${hoehe - p.b}"/>`;
+      el.innerHTML = `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}" role="img" aria-label="${esc(`${zeilen.length} Sitzungen in den letzten 24 Stunden: ${zeilen.map(z => z.s.project || 'Ohne Projekt').join(', ')}`)}">${s}</svg><div class="tip" hidden></div>`;
+      el._finde = (px, py) => {
+        const i = Math.floor((py - p.t) / reihe), z = zeilen[i];
+        if (!z) return null;
+        const teile = [z.s.model, `${uhr.format(z.von)} bis ${now - z.s.updated <= 5 * 60000 ? 'jetzt' : uhr.format(z.bis)}`, `${z.ticks.length} ${z.ticks.length === 1 ? 'Ablesung' : 'Ablesungen'}`];
+        if (z.s.cost != null) teile.push(`API-Wert ${dollar.format(z.s.cost)}`);
+        return { x: Math.min(Math.max(px, x(z.von)), Math.max(x(z.bis), x(z.von))), y: null, oben: p.t + i * reihe, html: `<strong>${esc(z.s.project || 'Ohne Projekt')}</strong><br>${teile.filter(Boolean).map(esc).join('<br>')}` };
+      };
+    }
+
+    // One hover/tap layer per chart box. The chart sets el._finde(px) on every redraw.
+    function zeigeTip(el, e) {
+      const svg = el.querySelector('svg'), tip = el.querySelector('.tip'), kreuz = el.querySelector('.kreuz');
+      if (!svg || !el._finde) return;
+      const r = svg.getBoundingClientRect();
+      const treffer = el._finde(e.clientX - r.left, e.clientY - r.top);
+      if (!treffer) return versteckeTip(el);
+      tip.innerHTML = treffer.html;
+      tip.hidden = false;
+      const halb = tip.offsetWidth / 2;
+      tip.style.left = `${Math.min(r.width - halb, Math.max(halb, treffer.x))}px`;
+      tip.style.top = treffer.oben != null ? `${treffer.oben - 6}px` : '';
+      if (kreuz) {
+        kreuz.toggleAttribute('hidden', treffer.y == null);
+        kreuz.querySelector('line').setAttribute('x1', treffer.x);
+        kreuz.querySelector('line').setAttribute('x2', treffer.x);
+        kreuz.querySelector('circle').setAttribute('cx', treffer.x);
+        kreuz.querySelector('circle').setAttribute('cy', treffer.y ?? 0);
+      }
+    }
+    function versteckeTip(el) {
+      const tip = el.querySelector('.tip'), kreuz = el.querySelector('.kreuz');
+      if (tip) tip.hidden = true;
+      if (kreuz) kreuz.setAttribute('hidden', '');
+    }
+    for (const el of document.querySelectorAll('.schreiber')) {
+      el.addEventListener('pointermove', e => zeigeTip(el, e));
+      el.addEventListener('pointerdown', e => zeigeTip(el, e));
+      el.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') versteckeTip(el); });
+    }
+    document.addEventListener('pointerdown', e => {
+      for (const el of document.querySelectorAll('.schreiber')) if (!el.contains(e.target)) versteckeTip(el);
+    });
+
+    function zeichneMeter(f5, fw, s0) {
+      const now = jetzt();
+      const a5 = f5[f5.length - 1], aw = fw[fw.length - 1];
+      $('geraet').hidden = false;
+      const aktiv = s0 && now - s0.updated <= 15 * 60000;
+      $('modell').textContent = aktiv && s0.model ? s0.model : '';
+
+      const offen5 = a5 && a5.reset > now;
+      const v5 = offen5 ? Math.round(Math.min(100, a5.peak)) : 0;
+      walzenSetzen($('walzen-five'), v5, `${v5} Prozent des 5-Stunden-Limits verbraucht`);
+      abzeichen(v5);
+      $('reset-five').innerHTML = !a5 ? 'Noch nicht gemessen.' : offen5 ? `Reset ${esc(zeit(a5.reset))}<br>in ${bis(a5.reset)}` : `Frei seit ${esc(zeit(a5.reset))}.`;
+
+      const offenW = aw && aw.reset > now;
+      const vw = offenW ? Math.round(Math.min(100, aw.peak)) : 0;
+      walzenSetzen($('walzen-week'), vw, `${vw} Prozent des Wochenlimits verbraucht`);
+      $('reset-week').innerHTML = !aw ? 'Noch nicht gemessen.' : offenW ? `Reset ${esc(zeit(aw.reset))}<br>in ${bis(aw.reset)}` : `Frei seit ${esc(zeit(aw.reset))}.`;
+
+      const chart = $('chart-five');
+      chart.hidden = !a5;
+      if (!a5) {
+        $('tempo-five').textContent = '';
+        $('prognose-five').textContent = '';
+        return;
+      }
+      const t = tempo(a5, now, H);
+      fensterChart(chart, a5, {
+        hoehe: 150, tempo: t, raster: stundenRaster(a5), tipZeit: tt => `${uhr.format(tt)} Uhr`,
+        label: `5-Stunden-Fenster von ${uhr.format(a5.start)} bis ${uhr.format(a5.reset)}, jetzt ${pz(a5.peak)}`,
       });
 
-      const readings = [
-        r(180, 15, 38, 1.2, 's1'),
-        r(120, 24, 42, 2.5, 's1'),
-        r(60, 36, 47, 4.4, 's2'),
-        r(25, 45, 52, 6.1, 's2'),
-        r(5, 51, 54, 7.8, 's3')
-      ];
-
-      const sessions = [
-        { id: 's3', project: 'spanani.de', model: 'Claude 3.7 Sonnet', cost: 7.8, started: now - 35 * 60000, updated: now - 3 * 60000, added: 420, removed: 110, tokens_in: 340000, tokens_out: 12400 },
-        { id: 's2', project: 'antigravity-cli', model: 'Claude 3.7 Sonnet', cost: 6.1, started: now - 110 * 60000, updated: now - 25 * 60000, added: 160, removed: 35, tokens_in: 280000, tokens_out: 9200 },
-        { id: 's1', project: 'Apps', model: 'Claude 3.5 Opus', cost: 2.5, started: now - 220 * 60000, updated: now - 120 * 60000, added: 70, removed: 10, tokens_in: 110000, tokens_out: 4800 },
-        { id: 'gem-1', project: 'antigravity-cli', model: 'gemini-2.5-flash', cost: 0.08, started: now - 80 * 60000, updated: now - 15 * 60000, added: 45, removed: 8, tokens_in: 64000, tokens_out: 3200 }
-      ];
-
-      return { now, readings, sessions, keep: 35 * TAG };
-    }
-
-    function formatGeld(val) {
-      if (val == null || isNaN(val)) return '0,00 $';
-      return geldDE.format(val) + ' $';
-    }
-
-    function formatTokens(n) {
-      if (!n || isNaN(n)) return '0 Tokens';
-      if (n >= 1e9) return (n / 1e9).toFixed(1).replace('.', ',') + ' Mrd.';
-      if (n >= 1e6) return (n / 1e6).toFixed(1).replace('.', ',') + ' Mio.';
-      if (n >= 1e3) return (n / 1e3).toFixed(0) + ' Tsd.';
-      return n + ' Tokens';
-    }
-
-    function formatCountdown(sec, resetTs) {
-      if (sec <= 0) return 'Reset fällig';
-      const h = Math.floor(sec / 3600);
-      const m = Math.floor((sec % 3600) / 60);
-      const timeStr = resetTs ? ` (${new Date(resetTs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })})` : '';
-      if (h > 24) {
-        const d = Math.floor(h / 24);
-        return `Reset in ${d}d ${h % 24}h${timeStr}`;
-      }
-      return `Reset in ${h}h ${m}m${timeStr}`;
-    }
-
-    function renderApp() {
-      if (!rawData) return;
-      const now = Date.now();
-      const f5List = fenster(rawData.readings, 'five');
-      const fwList = fenster(rawData.readings, 'week');
-      const f5 = f5List[f5List.length - 1];
-      const fw = fwList[fwList.length - 1];
-
-      const lastSession = rawData.sessions.find(s => !s.model || !s.model.toLowerCase().includes('gemini')) || rawData.sessions[0];
-      const isLive = lastSession && (now - lastSession.updated) < 180000;
-      $('status-beacon').className = isLive ? 'indicator-node live' : 'indicator-node';
-      
-      const activeModelStr = lastSession ? (lastSession.model || 'Claude 3.7 Sonnet') : 'Bereit';
-      $('meta-model-name').textContent = activeModelStr;
-      $('week-active-model').textContent = activeModelStr;
-      $('meta-session-info').textContent = lastSession ? `${lastSession.project || 'spanani.de'} (${lastSession.id.slice(0, 8)})` : 'Bereit';
-
-      if (f5) {
-        const peak5 = Math.round(f5.peak);
-        $('five-pct-txt').textContent = `${peak5}%`;
-        const bar5 = $('five-bar');
-        bar5.style.width = `${Math.min(100, Math.max(0, f5.peak))}%`;
-        bar5.className = f5.peak >= 90 ? 'gauge-fill thermal' : f5.peak >= 75 ? 'gauge-fill warning' : 'gauge-fill';
-
-        const windowDuration = 5 * 3600000;
-        const timeElapsed = Math.min(windowDuration, Math.max(0, windowDuration - (f5.reset - now)));
-        const elapsedPct = (timeElapsed / windowDuration) * 100;
-        $('five-pace-tick').style.left = `${Math.min(100, Math.max(0, elapsedPct))}%`;
-        $('five-elapsed-sub').textContent = `Fensterzeit: ${Math.round(elapsedPct)}%`;
-
-        const delta = Math.round(elapsedPct - f5.peak);
-        const badge = $('five-delta-badge');
-        const badgeTxt = $('five-delta-txt');
-        if (delta >= 3) {
-          badge.className = 'delta-status ahead';
-          badgeTxt.textContent = `+${delta}% Vorlauf (Puffer verfügbar)`;
-        } else if (delta <= -3) {
-          badge.className = 'delta-status behind';
-          badgeTxt.textContent = `${delta}% Über Tempo (Verbrauch drosseln)`;
-        } else {
-          badge.className = 'delta-status neutral';
-          badgeTxt.textContent = 'Exakt im Soll-Tempo';
-        }
-
-        const restSec = Math.max(0, (f5.reset - now) / 1000);
-        $('five-reset-clock').textContent = formatCountdown(restSec, f5.reset);
-
-        const t5 = tempo(f5, now, 3600000);
-        $('five-pace-sub').textContent = t5.proStunde > 0 ? `+${t5.proStunde.toFixed(1)} %/h Tempo` : 'Inaktiv';
-      }
-
-      if (fw) {
-        const peakW = Math.round(fw.peak);
-        $('week-pct-txt').textContent = `${peakW}%`;
-        const barW = $('week-bar');
-        barW.style.width = `${Math.min(100, Math.max(0, fw.peak))}%`;
-        barW.className = fw.peak >= 90 ? 'gauge-fill thermal' : fw.peak >= 75 ? 'gauge-fill warning' : 'gauge-fill';
-
-        const weekDuration = 7 * 86400000;
-        const weekElapsed = Math.min(weekDuration, Math.max(0, weekDuration - (fw.reset - now)));
-        const weekElapsedPct = (weekElapsed / weekDuration) * 100;
-        $('week-pace-tick').style.left = `${Math.min(100, Math.max(0, weekElapsedPct))}%`;
-        $('week-elapsed-sub').textContent = `Woche: ${Math.round(weekElapsedPct)}% verstrichen`;
-
-        const wDelta = Math.round(weekElapsedPct - fw.peak);
-        const wBadge = $('week-delta-badge');
-        const wBadgeTxt = $('week-delta-txt');
-        if (wDelta >= 4) {
-          wBadge.className = 'delta-status ahead';
-          wBadgeTxt.textContent = `+${wDelta}% Wochen-Puffer`;
-        } else if (wDelta <= -4) {
-          wBadge.className = 'delta-status behind';
-          wBadgeTxt.textContent = `${wDelta}% Über Wochen-Soll`;
-        } else {
-          wBadge.className = 'delta-status neutral';
-          wBadgeTxt.textContent = 'Wochen-Pacing stabil';
-        }
-
-        const resetDate = new Date(fw.reset);
-        const dayName = resetDate.toLocaleDateString('de-DE', { weekday: 'short' });
-        const timeStr = resetDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-        $('week-reset-clock').textContent = `Reset am ${dayName}, ${timeStr}`;
-
-        const pl = plan(fw, now);
-        if (pl.proTag != null) {
-          $('week-budget-sub').textContent = `Rest: ${pl.proTag.toFixed(1)} % / Tag`;
-        }
-      }
-
-      let burnRate = 0;
-      if (rawData.readings.length >= 2) {
-        const recent = rawData.readings.slice(-6);
-        const dt = (recent[recent.length - 1].at - recent[0].at) / 3600000;
-        const dc = (recent[recent.length - 1].cost || 0) - (recent[0].cost || 0);
-        if (dt > 0.05 && dc >= 0) burnRate = dc / dt;
-      }
-      $('five-burn-rate').textContent = `${burnRate.toFixed(2)} $ / h`;
-
-      let gemCost = 0, gemTokens = 0, gemCount = 0;
-      for (const s of rawData.sessions) {
-        const m = (s.model || '').toLowerCase();
-        if (m.includes('gemini') || m.includes('antigravity')) {
-          gemCost += (s.cost || 0);
-          gemTokens += ((s.tokens_in || s.input_tokens || 0) + (s.tokens_out || s.output_tokens || 0));
-          gemCount++;
-        }
-      }
-      const gemBar = $('aux-gemini-bar');
-      const gemStats = $('aux-gemini-stats');
-      if (gemCount > 0) {
-        const estGemPct = Math.min(100, Math.round((gemTokens / 1000000) * 100));
-        gemBar.style.width = `${Math.max(5, estGemPct)}%`;
-        gemStats.textContent = `${estGemPct}% · ${formatTokens(gemTokens)} · ${formatGeld(gemCost)}`;
+      let tempoText = '', satz = '', warn = false;
+      if (!offen5) {
+        tempoText = `Letztes Fenster ${uhr.format(a5.start)} bis ${uhr.format(a5.reset)}, Spitze ${pz(a5.peak)}.`;
+        satz = 'Frei. Die nächste Nachricht startet ein neues 5-Stunden-Fenster.';
+      } else if (a5.peak >= 100) {
+        tempoText = `Limit erreicht ${t.letzte ? esc(zeit(t.letzte)) : ''}.`;
+        satz = `Limit erreicht. Weiter geht es ${zeit(a5.reset)}.`;
+        warn = true;
+      } else if (t.aktiv && t.proStunde > 0.5) {
+        tempoText = `Steigt um ${ganz.format(t.proStunde)} % pro Stunde.`;
+        if (t.voll) { satz = `Bei diesem Tempo voll um ${uhr.format(t.voll)}, Reset erst ${zeit(a5.reset)}.`; warn = true; }
+        else satz = `Bei diesem Tempo reicht es bis zum Reset, dann etwa ${pz(t.amEnde)}.`;
       } else {
-        gemBar.style.width = '0%';
-        gemStats.textContent = '0% · 0 Tokens · 0,00 $ (Bereit)';
+        tempoText = t.letzte ? `Steht seit ${zeit(t.letzte)}.` : 'Steht.';
+        satz = `Gerade kein Verbrauch. Noch ${pz(100 - a5.peak)} frei bis ${zeit(a5.reset)}.`;
       }
-
-      let costToday = 0, tokToday = 0;
-      let costWeek = 0, tokWeek = 0;
-      const weekStart = now - 7 * 86400000;
-
-      for (const s of rawData.sessions) {
-        const isClaude = !(s.model || '').toLowerCase().includes('gemini');
-        if (!isClaude) continue;
-        if (s.updated >= now - 86400000) {
-          costToday += (s.cost || 0);
-          tokToday += ((s.tokens_in || s.input_tokens || 0) + (s.tokens_out || s.output_tokens || 0));
-        }
-        if (s.updated >= weekStart) {
-          costWeek += (s.cost || 0);
-          tokWeek += ((s.tokens_in || s.input_tokens || 0) + (s.tokens_out || s.output_tokens || 0));
-        }
-      }
-
-      $('val-cost-today').textContent = formatGeld(costToday);
-      $('val-tok-today').textContent = formatTokens(tokToday);
-      $('val-cost-week').textContent = formatGeld(costWeek);
-      $('val-tok-week').textContent = formatTokens(tokWeek);
-
-      const claudeSessions = rawData.sessions.filter(s => !(s.model || '').toLowerCase().includes('gemini'));
-      const ap = apiWert(claudeSessions, now);
-      if (ap) {
-        $('val-cost-30d').textContent = formatGeld(ap.dollar);
-        const proFlat = 20;
-        const roi = ap.dollar > 0 ? (ap.dollar / proFlat).toFixed(1) : '1.0';
-        $('val-roi-sub').textContent = `${roi}x Pro-Wert`;
-      }
-
-      renderCharts(f5, fw);
-      renderProjects(fwList);
-      renderHeatmap(f5List);
+      $('tempo-five').textContent = tempoText;
+      $('prognose-five').textContent = satz;
+      $('prognose-five').className = `prognose${warn ? ' warn' : ''}`;
     }
 
-    function renderCharts(f5, fw) {
-      const svg = $('chart-svg');
-      const box = $('chart-viewport');
-      const W = box.clientWidth || 590, H = box.clientHeight || 200;
-
-      let html = '';
-      for (let y = 0; y <= 100; y += 25) {
-        const yPos = H - (y / 100) * (H - 24) - 12;
-        html += `<line x1="0" y1="${yPos}" x2="${W}" y2="${yPos}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
-        html += `<text x="6" y="${yPos - 3}" fill="rgba(255,255,255,0.3)" font-size="9" font-family="monospace">${y}%</text>`;
-      }
-
-      if (f5 && f5.punkte && f5.punkte.length >= 2) {
-        const pts = f5.punkte;
-        const t0 = pts[0].at, dt = Math.max(1, pts[pts.length - 1].at - t0);
-        let path = '';
-        pts.forEach((p, i) => {
-          const x = ((p.at - t0) / dt) * (W - 24) + 12;
-          const y = H - (p.v / 100) * (H - 24) - 12;
-          path += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)} `;
-        });
-        html += `<path d="${path}" fill="none" stroke="var(--cadence-blue)" stroke-width="2"/>`;
-      }
-
-      if (fw && fw.punkte && fw.punkte.length >= 2) {
-        const pts = fw.punkte;
-        const t0 = pts[0].at, dt = Math.max(1, pts[pts.length - 1].at - t0);
-        let path = '';
-        pts.forEach((p, i) => {
-          const x = ((p.at - t0) / dt) * (W - 24) + 12;
-          const y = H - (p.v / 100) * (H - 24) - 12;
-          path += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)} `;
-        });
-        html += `<path d="${path}" fill="none" stroke="var(--thermal-coral)" stroke-width="1.8"/>`;
-      }
-
-      svg.innerHTML = html;
-
-      if (fw) {
-        const tg = tage(fw, Date.now());
-        const maxVal = Math.max(1, ...tg.liste.map(d => d.gemessen + d.offen));
-        let bHtml = '';
-        tg.liste.slice(-7).forEach(d => {
-          const dateStr = new Date(d.von).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
-          const wGem = ((d.gemessen / maxVal) * 100).toFixed(1);
-          bHtml += `
-            <div class="daily-row">
-              <span style="color: var(--ink-secondary);">${dateStr}</span>
-              <div class="daily-track">
-                <div class="daily-fill" style="width: ${wGem}%;"></div>
-              </div>
-              <span style="text-align: right; color: var(--ink); font-weight: 600;">${Math.round(d.gemessen + d.offen)}%</span>
-            </div>
-          `;
-        });
-        $('daily-bars-container').innerHTML = bHtml;
-      }
+    function zeichneLive(sessions) {
+      const now = jetzt();
+      const laufend = sessions.filter(s => now - s.updated <= 5 * 60000);
+      const el = $('live');
+      if (laufend.length) {
+        el.innerHTML = laufend.map(s => {
+          let t = `Läuft: ${esc(s.model || 'Claude')} in ${esc(s.project || 'Ohne Projekt')}`;
+          if (s.ctx_pct != null) t += `, Kontext ${pz(s.ctx_pct)}`;
+          if (s.cache_expires && s.cache_expires > now) t += `, Cache warm noch ${bis(s.cache_expires)}`;
+          if (s.fast === 1) t += ', Fast Mode';
+          return `<p class="live aktiv"><span>${t}</span></p>`;
+        }).join('');
+      } else if (sessions[0]) {
+        el.innerHTML = `<p class="live ruhe"><span>Zuletzt gearbeitet ${esc(vor(sessions[0].updated))} in ${esc(sessions[0].project || 'Ohne Projekt')}.</span></p>`;
+      } else el.innerHTML = '';
     }
 
-    function renderProjects(fwList) {
-      const container = $('projects-list-container');
-      const prjs = projekte(fwList, rawData.sessions, 0, Infinity);
-      $('projects-count').textContent = `${prjs.length} erfasst`;
+    function zeichneAusgaben(readings) {
+      const r = [...readings].reverse().find(x => x.spend != null);
+      const el = $('ausgaben');
+      el.hidden = !r;
+      if (!r) return;
+      const name = { daily: 'Tageslimit', weekly: 'Wochenlimit', monthly: 'Monatslimit' }[r.spend_period] || 'Ausgabenlimit';
+      el.innerHTML = `<h2>${esc(name)}</h2>
+        <p class="untertitel">${pz(r.spend)} verbraucht${r.spend_reset ? `, Reset ${esc(zeit(r.spend_reset))}` : ''}.</p>
+        <div class="spur"><div class="fuell${r.spend >= 90 ? ' voll' : ''}" style="width:${Math.min(100, r.spend)}%"></div></div>
+        ${r.spend_usd != null && r.spend_limit != null ? `<p class="ausgaben-zeile">${esc(dollar.format(r.spend_usd))} von ${esc(dollar.format(r.spend_limit))} geschätzt.</p>` : ''}`;
+    }
 
-      let html = '';
-      prjs.forEach(p => {
-        html += `
-          <div class="project-log-unit">
-            <div class="project-header-line">
-              <span style="color: var(--ink);">${p.name || 'Ohne Projekt'}</span>
-              <span class="project-cost-stat">${formatGeld(p.kosten)}</span>
-            </div>
-            <div class="project-meta-line">
-              <span>${p.sitzungen.length} Sitzungen · +${p.plus}% Anteil</span>
-              <span><span class="diff-pos">+${p.plusZeilen}</span> / <span class="diff-neg">-${p.minusZeilen}</span> Zeilen</span>
-            </div>
-          </div>
-        `;
+    function zeichneWoche(aw, vorher) {
+      const now = jetzt();
+      const el = $('woche');
+      el.hidden = !aw || aw.reset <= now;
+      if (el.hidden) return;
+      const pl = plan(aw, now), t = tempo(aw, now, 24 * H);
+      const a = Math.round(pl.abstand);
+      $('woche-satz').textContent = a >= 2 ? `${pz(a)} über dem gleichmäßigen Tempo.` : a <= -2 ? `${pz(-a)} unter dem gleichmäßigen Tempo.` : 'Genau im gleichmäßigen Tempo.';
+      let unter = `${pz(aw.peak)} verbraucht. Bis ${zeit(aw.reset)} bleiben ${pz(100 - aw.peak)}`;
+      unter += pl.proTag != null && pl.tageRest >= 1 ? `, das sind ${pz(pl.proTag)} pro Tag.` : '.';
+      if (t.proStunde > 0.05) unter += t.voll ? ` Im Tempo der letzten 24 Stunden voll ${zeit(t.voll)}.` : ` Im Tempo der letzten 24 Stunden reicht es, dann etwa ${pz(t.amEnde)}.`;
+      $('woche-unter').textContent = unter;
+      $('woche-satz').className = `kernsatz${t.voll ? ' warn' : ''}`;
+
+      const skala = fensterChart($('chart-week'), aw, {
+        hoehe: 190, tempo: t, plan: true, geist: vorher, raster: tageRaster(aw), tipZeit: tt => tagUhr.format(tt),
+        label: `Woche bis ${tagUhr.format(aw.reset)}: ${pz(aw.peak)} verbraucht, gleichmäßig wären ${pz(pl.soll)}`,
       });
-      container.innerHTML = html;
+      $('legende-geist').hidden = !vorher;
+      $('woche-vergleich').hidden = !vorher;
+      if (vorher) {
+        const v = vergleich(vorher, aw, now), diff = Math.round(aw.peak - v.damals);
+        $('woche-vergleich').textContent = `Letzte Woche um diese Zeit: ${pz(v.damals)}${diff ? `, jetzt ${pz(Math.abs(diff))} ${diff > 0 ? 'mehr' : 'weniger'}` : ', genauso viel wie jetzt'}. Am Ende waren es ${pz(v.ende)}.`;
+      }
+      const { liste, luecken } = tage(aw, now);
+      tageChart($('chart-tage'), aw, skala, liste);
+      $('luecken').hidden = !luecken.length;
+      $('luecken').textContent = luecken.length ? `Nicht gemessen: ${luecken.map(l => `${pz(l.plus)} zwischen ${datiert(l.von)} und ${datiert(l.bis)}`).join(', ')}. Das kam von claude.ai, einem anderen Gerät oder einer Cloud-Sitzung.` : '';
     }
 
-    function renderHeatmap(f5List) {
-      const container = $('heatmap-container');
-      const matrix = rhythmus(f5List, Date.now() - 30 * 86400000);
-      const days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-      const maxVal = Math.max(1, ...matrix.flat().map(c => c.plus));
+    let aboPreis = null;
+    try { aboPreis = Number(localStorage.getItem('stand-abo')) || null; } catch {}
+    const komma = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 });
 
-      let html = '<div class="heatmap-lane"><span></span>';
-      for (let h = 0; h < 24; h += 2) html += `<span style="grid-column: span 2; font-size: 9px; font-family: var(--font-mono); color: var(--ink-dim); text-align: center;">${h}</span>`;
-      html += '</div>';
-
-      matrix.forEach((row, dayIdx) => {
-        html += `<div class="heatmap-lane"><span class="heatmap-day-label">${days[dayIdx]}</span>`;
-        row.forEach((cell, h) => {
-          const intensity = cell.plus > 0 ? Math.min(1, Math.max(0.18, cell.plus / maxVal)) : 0;
-          const bg = intensity > 0 ? `rgba(59, 130, 246, ${intensity})` : 'var(--panel-elevated)';
-          html += `<div class="heatmap-cell" style="background:${bg};" title="${days[dayIdx]} ${h}:00: +${Math.round(cell.plus)}%"></div>`;
-        });
-        html += '</div>';
-      });
-
-      container.innerHTML = html;
+    function zeichneWert(fw) {
+      const now = jetzt();
+      const aw = fw[fw.length - 1];
+      const w = aw ? wert(daten.readings, fw, daten.sessions, aw.start) : null;
+      const a = apiWert(daten.sessions, now);
+      $('wert').hidden = !w && !a;
+      if (!w && !a) return;
+      if (!w) {
+        $('wert-satz').textContent = 'Kurs folgt.';
+        $('wert-unter').textContent = 'Ab jetzt speichert Stand bei jeder Ablesung die Kosten der Sitzung mit. Sobald 2 % der Woche so gemessen sind, steht hier, was 1 % deines Wochenlimits wert ist.';
+      } else if (w.proProzent == null) {
+        $('wert-satz').textContent = 'Kurs folgt.';
+        $('wert-unter').textContent = `Seit ${zeit(w.seit)} gemessen: ${dollar.format(w.dollar)} für ${pz(w.prozent)} der Woche. Ab 2 % steht hier der Kurs.`;
+      } else {
+        $('wert-satz').textContent = `1 % der Woche ≈ ${dollar.format(w.proProzent)} API-Wert.`;
+        $('wert-unter').textContent = `Das ganze Wochenlimit ≈ ${dollar.format(w.proProzent * 100)}. Gerechnet seit ${zeit(w.seit)}: ${dollar.format(w.dollar)} in Claude Code für ${pz(w.prozent)} der Woche.`;
+      }
+      document.querySelectorAll('[data-abo]').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.abo) === aboPreis)));
+      if (document.activeElement !== $('abo-eigen')) $('abo-eigen').value = aboPreis && ![20, 100, 200].includes(aboPreis) ? aboPreis : '';
+      let satz = '';
+      if (a) {
+        const voll = a.tage >= 29.5, monat = voll ? a.dollar : a.proTag * 30.4;
+        satz = voll
+          ? `In 30 Tagen ${dollar.format(a.dollar)} API-Wert in Claude Code`
+          : `In ${a.tage < 2 ? 'gut einem Tag' : `${ganz.format(a.tage)} Tagen`} ${dollar.format(a.dollar)} API-Wert in Claude Code, ${dollar.format(a.proTag)} pro Tag. Hochgerechnet ${dollar.format(monat)} im Monat`;
+        satz += aboPreis ? `, ${komma.format(monat / aboPreis)}-mal so viel wie dein Abo.` : '. Wähl dein Abo, dann steht hier, wie oft es sich lohnt.';
+      }
+      $('abo-satz').textContent = satz;
     }
 
-    async function syncData() {
-      haptic();
-      $('sync-icon').classList.add('spinning');
-      $('sync-label').textContent = 'Sync …';
+    function aboSetzen(preis) {
+      aboPreis = preis > 0 ? preis : null;
+      try { aboPreis ? localStorage.setItem('stand-abo', String(aboPreis)) : localStorage.removeItem('stand-abo'); } catch {}
+      zeichnen();
+    }
+    document.querySelectorAll('[data-abo]').forEach(b => b.addEventListener('click', () => aboSetzen(Number(b.dataset.abo))));
+    $('abo-eigen').addEventListener('change', e => aboSetzen(Math.min(10000, Math.round(Number(e.target.value)))));
 
+    function zeichneRhythmus(f5) {
+      const now = jetzt();
+      const zellen = rhythmus(f5, now - 35 * TAG);
+      const zeilen = zeitleiste(daten.sessions, daten.readings, now - 24 * H, now);
+      const summe = zellen.flat().reduce((n, z) => n + z.plus, 0);
+      $('rhythmus').hidden = !summe && !zeilen.length;
+      if ($('rhythmus').hidden) return;
+      let top = null;
+      zellen.forEach((tag, d) => tag.forEach((z, h) => { if (!top || z.plus > top.plus) top = { plus: z.plus, d, h }; }));
+      $('rhythmus-unter').textContent = `Gemessener Verbrauch in Claude Code nach Wochentag und Uhrzeit, letzte 35 Tage.${top && top.plus ? ` Am meisten: ${LANG[top.d]}, ${top.h} bis ${top.h + 1} Uhr.` : ''}`;
+      rhythmusChart($('chart-rhythmus'), zellen);
+      $('heute').hidden = !zeilen.length;
+      if (zeilen.length) heuteChart($('chart-heute'), zeilen, f5);
+    }
+
+    // The 5-hour % on the app icon, where the platform supports it.
+    function abzeichen(v) {
+      if (!('setAppBadge' in navigator)) return;
+      (v > 0 ? navigator.setAppBadge(v) : navigator.clearAppBadge()).catch(() => {});
+    }
+
+    function zeichneProjekte(f5, fw) {
+      const now = jetzt();
+      const aw = fw[fw.length - 1];
+      const woche = zeitraum === 'woche' && aw;
+      const von = woche ? aw.start : 0;
+      const zeilen = projekte(fw, daten.sessions, von, Infinity);
+      $('projekte').hidden = !zeilen.length;
+      if (!zeilen.length) return;
+      const summe = zeilen.reduce((n, z) => n + z.plus, 0);
+      const gemessen = zeilen.filter(z => !z.offen).reduce((n, z) => n + z.plus, 0);
+      $('projekte-unter').textContent = woche
+        ? `${pz(summe)} der Woche verbraucht, ${pz(gemessen)} davon in Claude Code gemessen.`
+        : `Zusammen ${pz(summe)} eines Wochenlimits in 35 Tagen, ${pz(gemessen)} davon gemessen.`;
+      $('projekte-liste').innerHTML = zeilen.map(z => {
+        const details = [];
+        if (z.offen) details.push('claude.ai, andere Geräte, Cloud-Sitzungen oder Lücken zwischen Ablesungen');
+        if (z.name === 'Ohne Zuordnung') details.push('gemessen, bevor Stand die Sitzung mitgeschickt hat');
+        if (z.sitzungen.length) details.push(`${z.sitzungen.length} ${z.sitzungen.length === 1 ? 'Sitzung' : 'Sitzungen'}`);
+        if (z.kosten > 0) details.push(`API-Wert ${dollar.format(z.kosten)}`);
+        if (z.plusZeilen || z.minusZeilen) details.push(`+${ganz.format(z.plusZeilen)} / −${ganz.format(z.minusZeilen)} Zeilen`);
+        if (z.zuletzt) details.push(now - z.zuletzt <= 5 * 60000 ? 'läuft' : `zuletzt ${vor(z.zuletzt)}`);
+        return `<li class="zeile">
+          <div class="zeile-kopf"><strong>${esc(z.offen ? 'Nicht gemessen' : z.name)}</strong><span>${z.plus ? '+' : ''}${pz(z.plus)}</span></div>
+          <div class="spur"><div class="fuell${z.offen ? ' offen-fuell' : ''}" style="width:${summe ? z.plus / summe * 100 : 0}%"></div></div>
+          <p class="details">${esc(details.join(', '))}</p>
+        </li>`;
+      }).join('');
+    }
+
+    function zeichneSitzungen(f5, fw) {
+      const now = jetzt();
+      const liste = daten.sessions;
+      $('sitzungen').hidden = !liste.length;
+      if (!liste.length) return;
+      const summe = (fl, id) => fl.reduce((n, f) => n + (f.zuwachs.get(id) || 0), 0);
+      const kosten = liste.reduce((n, s) => n + (s.cost || 0), 0);
+      const woche = liste.filter(s => now - s.updated < 7 * TAG).length;
+      $('sitzungen-unter').textContent = `${woche} in 7 Tagen, ${liste.length} in 35 Tagen. API-Wert zusammen ${dollar.format(kosten)}, im Abo nicht einzeln berechnet.`;
+      const zeigen = alleSitzungen ? liste : liste.slice(0, 6);
+      $('sitzungen-liste').innerHTML = zeigen.map(s => {
+        const laeuftJetzt = now - s.updated <= 5 * 60000;
+        const meta = [s.model, s.effort && `Aufwand ${s.effort}`, s.thinking === 1 && 'Denken an', s.fast === 1 && 'Fast Mode', s.version && `Claude Code ${s.version}`].filter(Boolean);
+        const zeit1 = [`${laeuftJetzt ? 'seit' : 'ab'} ${zeit(s.started)}`];
+        if (s.duration_ms >= 60000) zeit1.push(`${dauer(s.duration_ms)} lang${s.api_ms >= 60000 ? `, davon ${dauer(s.api_ms)} Antworten` : ''}`);
+        const werte = [];
+        const p5 = summe(f5, s.id), pw = summe(fw, s.id);
+        if (p5 || pw) werte.push(`${pz(p5)} von 5 Stunden, ${pz(pw)} der Woche`);
+        if (s.added != null || s.removed != null) werte.push(`+${ganz.format(s.added ?? 0)} / −${ganz.format(s.removed ?? 0)} Zeilen`);
+        if (s.cost != null) werte.push(`API-Wert ${dollar.format(s.cost)}`);
+        let cache = '';
+        if (s.cache_hit != null) cache = `Cache ${pz(s.cache_hit * 100)} Treffer`;
+        if (s.cache_expires && s.cache_expires > now) cache += `${cache ? ', ' : 'Cache '}warm noch ${bis(s.cache_expires)}`;
+        const kontext = s.ctx_pct != null ? `<div class="kontext"><div class="spur"><div class="fuell${s.ctx_pct >= 90 ? ' voll' : ''}" style="width:${Math.min(100, s.ctx_pct)}%"></div></div><span>Kontext ${pz(s.ctx_pct)}${s.ctx_size ? ` von ${kompakt.format(s.ctx_size)}` : ''}</span></div>` : '';
+        return `<li class="zeile">
+          <div class="zeile-kopf"><strong>${esc(s.project || 'Ohne Projekt')}</strong><span class="${laeuftJetzt ? 'laeuft' : ''}">${laeuftJetzt ? 'läuft' : esc(vor(s.updated))}</span></div>
+          <p class="details">${esc(meta.join(', '))}</p>
+          <p class="details">${esc(zeit1.join(', '))}</p>
+          ${kontext}
+          ${werte.length || cache ? `<p class="details">${esc(werte.join(', '))}${werte.length && cache ? ', ' : ''}${cache}</p>` : ''}
+        </li>`;
+      }).join('');
+      $('mehr').hidden = liste.length <= 6;
+      $('mehr').textContent = alleSitzungen ? 'Weniger zeigen' : `Alle ${liste.length} zeigen`;
+    }
+
+    function zeichneVerlauf(f5, fw) {
+      const now = jetzt();
+      $('verlauf').hidden = !f5.length && !fw.length;
+      if (!f5.length && !fw.length) return;
+      const am = f5.filter(f => f.peak >= 90).length;
+      const tage = Math.max(1, Math.round((now - Math.min(...f5.map(f => f.start), ...fw.map(f => f.start))) / TAG));
+      $('verlauf-unter').textContent = `${f5.length} ${f5.length === 1 ? '5-Stunden-Fenster' : '5-Stunden-Fenster'} mit Claude Code in ${Math.min(35, tage)} Tagen, ${am === 1 ? 'eins' : am} davon über 90 %.`;
+      verlaufChart($('chart-verlauf'), f5, fw);
+      $('wochen').innerHTML = [...fw].reverse().map(f => {
+        const offen = f.reset > now;
+        return `<li class="${offen ? 'laeuft' : ''}"><span>Woche ${esc(datum.format(f.start))} bis ${esc(datum.format(f.reset))}${offen ? ', läuft' : ''}</span><span>${f.peak >= 90 ? '<span class="warn"></span>' : ''}${pz(f.peak)}</span></li>`;
+      }).join('');
+    }
+
+    function zeichnen() {
+      if (!daten) return;
+      const now = jetzt();
+      const f5 = fenster(daten.readings, 'five'), fw = fenster(daten.readings, 'week');
+      const s0 = daten.sessions[0];
+      const letzte = daten.readings[daten.readings.length - 1];
+      $('frische').textContent = letzte ? (now - letzte.at < 60000 ? 'abgelesen gerade eben' : `abgelesen ${zeit(letzte.at)}`) : (s0 ? `Letzte Sitzung ${vor(s0.updated)}` : '');
+      const leer = !f5.length && !fw.length;
+      $('leer').hidden = !leer;
+      if (leer) $('geraet').hidden = true;
+      else zeichneMeter(f5, fw, s0);
+      zeichneLive(daten.sessions);
+      zeichneAusgaben(daten.readings);
+      zeichneWoche(fw[fw.length - 1], fw.length > 1 ? fw[fw.length - 2] : null);
+      zeichneWert(fw);
+      zeichneProjekte(f5, fw);
+      zeichneRhythmus(f5);
+      zeichneSitzungen(f5, fw);
+      zeichneVerlauf(f5, fw);
+      gezeichnet = true;
+    }
+
+    async function laden() {
+      if (laeuft) return;
+      laeuft = true;
+      const knopf = $('laden');
+      knopf.setAttribute('aria-busy', 'true');
+      knopf.textContent = 'Lädt …';
       try {
-        const res = await fetch(`${API}/state`, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        rawData = rawData ? einmischen(rawData, json) : json;
-        $('last-updated-label').textContent = `Aktualisiert um ${new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
-      } catch (err) {
-        if (!rawData) rawData = createSampleData();
-        $('last-updated-label').textContent = 'Lokale Telemetrie aktiv';
+        const seit = daten ? Math.max(daten.readings.length ? daten.readings[daten.readings.length - 1].at : 0, daten.sessions.length ? daten.sessions[0].updated : 0) : 0;
+        const res = await fetch(`${API}/state${seit ? `?since=${seit}` : ''}`, { cache: 'no-store' });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || `Fehler ${res.status}`);
+        versatz = body.now - Date.now();
+        geladen = Date.now();
+        daten = einmischen(daten, body);
+        zeichnen();
+        setTimeout(() => document.body.classList.remove('erst'), 1400);
+      } catch (e) {
+        $('frische').textContent = navigator.onLine ? `Nicht erreichbar: ${e.message}` : 'Offline';
       } finally {
-        $('sync-icon').classList.remove('spinning');
-        $('sync-label').textContent = 'Sync';
-        renderApp();
+        laeuft = false;
+        knopf.removeAttribute('aria-busy');
+        knopf.textContent = 'Neu laden';
       }
     }
 
-    document.querySelectorAll('.nav-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        haptic();
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.view-stage').forEach(t => t.classList.remove('active'));
+    $('laden').addEventListener('click', laden);
+    $('mehr').addEventListener('click', () => { alleSitzungen = !alleSitzungen; zeichnen(); });
+    for (const b of document.querySelectorAll('[data-zeitraum]')) {
+      b.addEventListener('click', () => {
+        zeitraum = b.dataset.zeitraum;
+        document.querySelectorAll('[data-zeitraum]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        zeichnen();
+      });
+    }
 
-        btn.classList.add('active');
-        const tabId = btn.dataset.tab;
-        $(tabId).classList.add('active');
+    // Countdowns tick every second; a countdown reaching zero redraws, so a reset shows up at once.
+    setInterval(() => {
+      let null_ = false;
+      for (const el of document.querySelectorAll('[data-bis]')) {
+        const rest = Number(el.dataset.bis) - jetzt();
+        if (rest <= 0) null_ = true;
+        el.textContent = countdown(rest);
+      }
+      if (null_) zeichnen();
+    }, 1000);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') laden(); });
+    // Every 15 s while a session is running, otherwise every minute.
+    setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      const aktiv = daten && daten.sessions.some(s => jetzt() - s.updated <= 5 * 60000);
+      if (Date.now() - geladen >= (aktiv ? 15000 : 60000)) laden();
+    }, 5000);
+    setInterval(() => { if (document.visibilityState === 'visible' && gezeichnet) zeichnen(); }, 30000);
+    let groesse = 0;
+    new ResizeObserver(() => { cancelAnimationFrame(groesse); groesse = requestAnimationFrame(() => { if (gezeichnet) zeichnen(); }); }).observe(document.querySelector('main'));
 
-        if (tabId === 'tab-charts') {
-          setTimeout(() => {
-            if (rawData) {
-              const f5 = fenster(rawData.readings, 'five');
-              const fw = fenster(rawData.readings, 'week');
-              renderCharts(f5[f5.length - 1], fw[fw.length - 1]);
-            }
-          }, 30);
+    // Notifications when a limit resets (web push via the claude-stand worker)
+    let reg = null, abo = null;
+
+    function meldenStatus(text, fehler = false) {
+      $('melden-status').textContent = text;
+      $('melden-status').className = fehler ? 'status fehler' : 'status';
+    }
+
+    function pushHinweis() {
+      const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const app = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+      if (!('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window)) {
+        return ios && !app
+          ? 'Auf dem iPhone kommen Mitteilungen nur an, wenn Stand auf dem Home-Bildschirm liegt. Tippe in Safari auf Teilen, dann auf „Zum Home-Bildschirm“, und öffne Stand von dort.'
+          : 'Dieser Browser kann keine Push-Mitteilungen empfangen.';
+      }
+      if (Notification.permission === 'denied') return 'Mitteilungen sind für Stand blockiert. Erlaube sie in den Einstellungen deines Geräts, dann klappt es.';
+      return '';
+    }
+
+    async function api(method, path, body) {
+      let r;
+      try {
+        r = await fetch(API + path, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+      } catch {
+        throw new Error('Keine Verbindung zum Server. Bist du online?');
+      }
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || 'Der Server antwortet gerade nicht. Versuch es gleich nochmal.');
+      return j;
+    }
+    const schluessel = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0));
+
+    async function beschaeftigt(knopf, text, fn) {
+      const alt = knopf.textContent;
+      knopf.disabled = true;
+      knopf.textContent = text;
+      try { return await fn(); } finally { knopf.disabled = false; knopf.textContent = alt; }
+    }
+
+    function meldenZeigen() {
+      const hinweis = pushHinweis();
+      $('melden-hinweis').textContent = hinweis;
+      $('melden-hinweis').hidden = !hinweis;
+      $('melden-an').hidden = !!abo;
+      $('melden-an').disabled = !!hinweis || !reg;
+      $('melden-test').hidden = !abo;
+      $('melden-aus').hidden = !abo;
+      $('melden-wahl').hidden = !abo;
+      $('abzeichen-hinweis').hidden = !('setAppBadge' in navigator) || !abo;
+    }
+
+    function wahlZeigen(w) {
+      for (const box of document.querySelectorAll('[data-wahl]')) {
+        const k = box.dataset.wahl;
+        box.checked = typeof w[k] === 'boolean' ? w[k] : k === 'reset';
+      }
+    }
+
+    for (const box of document.querySelectorAll('[data-wahl]')) {
+      box.addEventListener('change', async () => {
+        try {
+          wahlZeigen(await api('PUT', '/sub', { sub: abo.toJSON(), [box.dataset.wahl]: box.checked }));
+          meldenStatus('Gespeichert.');
+        } catch (e) {
+          box.checked = !box.checked;
+          meldenStatus(e.message, true);
         }
       });
-    });
-
-    $('btn-sync').addEventListener('click', syncData);
-
-    const b64ToUint8 = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0));
-
-    async function updatePushUI() {
-      if (!swReg) return;
-      try {
-        pushSub = await swReg.pushManager.getSubscription();
-        $('btn-push-on').style.display = pushSub ? 'none' : 'inline-flex';
-        $('btn-push-test').style.display = pushSub ? 'inline-flex' : 'none';
-        $('btn-push-off').style.display = pushSub ? 'inline-flex' : 'none';
-        $('push-status-text').textContent = pushSub ? 'Push-Mitteilungen aktiv' : 'Mitteilungen sind inaktiv';
-      } catch (err) {
-        $('push-status-text').textContent = 'Push in diesem Browser nicht verfügbar';
-      }
     }
 
-    $('btn-push-on').addEventListener('click', async () => {
-      haptic();
+    $('melden-an').addEventListener('click', async () => {
+      meldenStatus('');
+      const erlaubnis = await Notification.requestPermission();
+      if (erlaubnis !== 'granted') {
+        meldenZeigen();
+        return meldenStatus(erlaubnis === 'denied' ? 'Mitteilungen sind blockiert. Erlaube sie in den Einstellungen deines Geräts.' : 'Ohne Erlaubnis für Mitteilungen kann nichts ankommen.', true);
+      }
       try {
-        const perm = await Notification.requestPermission();
-        if (perm !== 'granted') throw new Error('Erlaubnis verweigert');
-        const rKey = await fetch(`${API}/key`);
-        const { key } = await rKey.json();
-        pushSub = await swReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToUint8(key) });
-        await fetch(`${API}/sub`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sub: pushSub.toJSON(), reset: true }) });
-        $('push-status-text').textContent = 'Erfolgreich aktiviert';
-        updatePushUI();
+        await beschaeftigt($('melden-an'), 'Wird eingeschaltet …', async () => {
+          const { key } = await api('GET', '/key');
+          abo = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: schluessel(key) });
+          wahlZeigen(await api('PUT', '/sub', { sub: abo.toJSON() }));
+        });
+        meldenZeigen();
+        meldenStatus('Eingeschaltet. Wähl unten, wann Stand sich melden soll.');
       } catch (e) {
-        $('push-status-text').textContent = e.message || 'Aktivierung fehlgeschlagen';
+        abo = null;
+        meldenZeigen();
+        meldenStatus(e.message || 'Das hat nicht geklappt. Versuch es nochmal.', true);
       }
     });
 
-    $('btn-push-test').addEventListener('click', async () => {
-      haptic();
+    $('melden-test').addEventListener('click', async () => {
+      const knopf = $('melden-test');
       try {
-        if (!pushSub) return;
-        await fetch(`${API}/test`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: pushSub.endpoint }) });
-        $('push-status-text').textContent = 'Test-Mitteilung gesendet';
+        await beschaeftigt(knopf, 'Wird geschickt …', () => api('POST', '/test', { endpoint: abo.endpoint }));
+        meldenStatus('Test-Mitteilung geschickt.');
       } catch (e) {
-        $('push-status-text').textContent = 'Fehler beim Senden';
+        meldenStatus(e.message, true);
       }
     });
 
-    $('btn-push-off').addEventListener('click', async () => {
-      haptic();
+    $('melden-aus').addEventListener('click', async () => {
       try {
-        if (!pushSub) return;
-        await fetch(`${API}/sub`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: pushSub.endpoint }) });
-        await pushSub.unsubscribe();
-        pushSub = null;
-        updatePushUI();
+        await beschaeftigt($('melden-aus'), 'Wird ausgeschaltet …', async () => {
+          await api('DELETE', '/sub', { endpoint: abo.endpoint });
+          await abo.unsubscribe();
+        });
+        abo = null;
+        meldenZeigen();
+        meldenStatus('Mitteilungen sind aus.');
       } catch (e) {
-        $('push-status-text').textContent = 'Deaktivierung fehlgeschlagen';
+        meldenStatus(e.message, true);
       }
     });
 
-    setInterval(() => {
-      if (!rawData) return;
-      const now = Date.now();
-      const f5List = fenster(rawData.readings, 'five');
-      const fwList = fenster(rawData.readings, 'week');
-      if (f5List.length) $('five-reset-clock').textContent = formatCountdown(Math.max(0, (f5List[f5List.length - 1].reset - now) / 1000), f5List[f5List.length - 1].reset);
-      if (fwList.length) {
-        const fw = fwList[fwList.length - 1];
-        const resetDate = new Date(fw.reset);
-        const dayName = resetDate.toLocaleDateString('de-DE', { weekday: 'short' });
-        const timeStr = resetDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-        $('week-reset-clock').textContent = `Reset am ${dayName}, ${timeStr}`;
+    (async () => {
+      if ('serviceWorker' in navigator) {
+        try {
+          reg = await navigator.serviceWorker.register('sw.js', { scope: './' });
+          await navigator.serviceWorker.ready;
+          abo = reg.pushManager ? await reg.pushManager.getSubscription() : null;
+        } catch {}
       }
-    }, 1000);
+      meldenZeigen();
+      if (abo) api('PUT', '/sub', { sub: abo.toJSON() }).then(wahlZeigen).catch(() => wahlZeigen({}));
+    })();
 
-    setInterval(() => {
-      if (document.visibilityState === 'visible') syncData();
-    }, 30000);
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js', { scope: './' })
-        .then(reg => { swReg = reg; updatePushUI(); })
-        .catch(() => {});
-    }
-
-    rawData = createSampleData();
-    renderApp();
-    syncData();
+    laden();
   </script>
 </body>
 </html>

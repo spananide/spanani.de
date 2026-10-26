@@ -1,6 +1,6 @@
 // node workers/claude-stand/test.mjs
 import assert from 'node:assert/strict';
-import { faellig, knapp, nachricht } from './src/index.js';
+import { faellig, knapp, nachricht, pruefen } from './src/index.js';
 
 const H = 3600000, now = 1793000040000; // a whole minute
 const reset = Math.round((now - 10 * 60000) / 60000) * 60000;
@@ -28,4 +28,14 @@ assert.deepEqual(nachricht(reset97).badge, 0, 'a 5-hour reset clears the app bad
 assert.equal(nachricht({ kind: 'week', art: 'reset', reset, peak: 95 }).badge, undefined, 'a week reset leaves it');
 assert.equal(nachricht({ kind: 'five', art: 'warn', reset, peak: 92.4 }).badge, 92);
 assert.match(nachricht({ kind: 'week', art: 'knapp', reset: W, voll: now + 36 * H, jetzt: 64 }).body, /^64 % verbraucht\. /);
+
+assert.deepEqual(await pruefen('zu-kurz', null), { ok: false, store: null }, 'short key fails');
+const key1 = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+const p1 = await pruefen(key1, null);
+assert.equal(p1.ok, true, 'valid key with no stored hash succeeds');
+assert.match(p1.store, /^[0-9a-f]{64}$/, 'store is a 64-char hex string');
+assert.deepEqual(await pruefen(key1, p1.store), { ok: true, store: null }, 'same key with stored hash succeeds');
+const key2 = 'fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210';
+assert.deepEqual(await pruefen(key2, p1.store), { ok: false, store: null }, 'different key fails');
+
 console.log('claude-stand ok');

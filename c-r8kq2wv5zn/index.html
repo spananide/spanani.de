@@ -75,7 +75,7 @@
     ul { padding: 0; list-style: none; }
     .zahl { font-variant-numeric: tabular-nums; }
 
-    .seite { max-width: 1120px; margin: 0 auto; padding: 0 20px 48px; }
+    .seite { max-width: 600px; margin: 0 auto; padding: 0 20px 48px; }
 
     .kopf {
       display: flex;
@@ -102,7 +102,7 @@
     .knopf { background: var(--schild); border-color: var(--schild); color: var(--gehaeuse); font-weight: 600; }
     .knopf:disabled { background: var(--linie); border-color: var(--linie); }
 
-    /* Phone: one column, sections in reading order. Desktop: meter sticky on the left, the rest on the right. */
+    /* One column, centered */
     main {
       display: flex;
       flex-direction: column;
@@ -110,35 +110,9 @@
       max-width: 560px;
       margin: 24px auto 0;
     }
-    .spalte-links, .spalte-rechts { display: contents; }
-    #geraet { order: 1; }
-    #live { order: 2; }
-    #ausgaben { order: 3; }
-    #leer { order: 4; }
-    #woche { order: 5; }
-    #wert { order: 6; }
-    #projekte { order: 7; }
-    #rhythmus { order: 8; }
-    #sitzungen { order: 9; }
-    #verlauf { order: 10; }
-    #melden { order: 11; }
-    .fuss { order: 12; }
-    @media (min-width: 960px) {
-      main {
-        display: grid;
-        grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
-        gap: 56px;
-        max-width: none;
-        margin-top: 32px;
-        align-items: start;
-      }
-      .spalte-links { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
-      .spalte-rechts { display: flex; flex-direction: column; gap: 48px; min-width: 0; }
-    }
 
     h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.005em; }
     .untertitel { font-size: 14px; color: var(--beschriftung); margin-top: 4px; }
-    .kopfzeile { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 
     /* The meter */
     .geraet {
@@ -193,7 +167,6 @@
     .prozent-zeichen { font-size: 0.45em; font-weight: 600; margin-left: 2px; }
     .reset-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
 
-    .tempo-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 8px; }
     .prognose { font-size: 20px; font-weight: 600; margin-top: 10px; line-height: 1.35; }
     .warn::before {
       content: '';
@@ -205,7 +178,7 @@
       vertical-align: 2px;
     }
 
-    /* Chart recorder: the line charts and the history strip */
+    /* Chart recorder */
     .schreiber {
       position: relative;
       margin-top: 16px;
@@ -230,11 +203,6 @@
     .jetzt-linie { stroke: var(--beschriftung); stroke-width: 1; }
     .punkt { fill: var(--schild); stroke: var(--grund); stroke-width: 2; }
     .voll-marke { fill: var(--rot); stroke: var(--grund); stroke-width: 2; }
-    .geist { fill: none; stroke: var(--beschriftung); stroke-width: 1.5; opacity: 0.6; stroke-linejoin: round; }
-    .spur-linie { stroke: var(--linie); stroke-width: 4; stroke-linecap: round; }
-    .tick { stroke: var(--schild); stroke-width: 1.5; }
-    .zelle { fill: var(--schild); }
-    .zelle.leer { fill: var(--linie); opacity: 0.4; }
     .balken { fill: var(--schild); }
     .balken.voll { fill: var(--rot); }
     .band { fill: var(--linie); opacity: 0.35; }
@@ -257,60 +225,27 @@
     }
     .tip strong { font-size: 15px; }
 
-    .legende { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 13px; color: var(--beschriftung); }
-    .legende li { display: flex; align-items: center; gap: 6px; }
-    .legende svg { display: block; overflow: visible; }
-    h3 { font-size: 16px; font-weight: 600; margin: 24px 0 0; }
-
-    /* Running sessions */
-    .live-liste { display: flex; flex-direction: column; gap: 6px; }
-    .live { font-size: 14px; color: var(--beschriftung); display: flex; align-items: flex-start; }
-    .live::before {
-      content: '';
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin: 6px 8px 0 0;
-      flex-shrink: 0;
-    }
-    .live.aktiv { color: var(--schild); }
-    .live.aktiv::before { background: var(--schild); }
-    .live.ruhe::before { border: 1.5px solid var(--beschriftung); }
-
     /* Week */
     .kernsatz { font-size: 20px; font-weight: 600; line-height: 1.35; margin-top: 8px; }
     .tagesbalken { margin-top: 4px; }
-    .luecken { font-size: 14px; color: var(--beschriftung); margin-top: 10px; }
 
-    /* Projects and sessions */
-    .umschalter { display: inline-flex; border: 1px solid var(--linie); border-radius: var(--r-knopf); overflow: hidden; }
-    .umschalter button {
-      border: 0;
-      background: transparent;
-      padding: 6px 12px;
-      font-size: 14px;
-      min-height: 36px;
-      cursor: pointer;
-      color: var(--beschriftung);
-    }
-    .umschalter button[aria-pressed="true"] { background: var(--schild); color: var(--gehaeuse); font-weight: 600; }
+    /* Unterhaltungen */
     .liste { margin-top: 12px; }
     .zeile { padding: 14px 0; border-bottom: 1px solid var(--linie); }
-    .zeile-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-    .zeile-kopf strong { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+    .zeile-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; min-width: 0; }
+    .zeile-kopf strong { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; min-width: 0; }
     .zeile-kopf span { font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .zeile-kopf .laeuft { font-weight: 600; }
-    .spur { height: 6px; background: var(--linie); border-radius: var(--r-walze); overflow: hidden; margin: 8px 0; }
-    .fuell { height: 100%; background: var(--schild); border-radius: var(--r-walze); }
-    .fuell.offen-fuell { background: var(--beschriftung); }
-    .fuell.voll { background: var(--rot); }
     .details { font-size: 14px; color: var(--beschriftung); line-height: 1.45; }
     .details + .details { margin-top: 2px; }
-    .kontext { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
-    .kontext .spur { margin: 0; }
-    #mehr { margin-top: 14px; }
 
-    /* History */
+    /* History & Details */
+    summary { cursor: pointer; user-select: none; }
+    #verlauf-details > summary { font-size: 20px; font-weight: 700; letter-spacing: -0.005em; }
+    #verlauf-details[open] > summary { margin-bottom: 4px; }
+    #unterhaltungen-mehr { margin-top: 14px; }
+    #unterhaltungen-mehr > summary { font-size: 14px; color: var(--beschriftung); }
+    #unterhaltungen-mehr > summary:hover { color: var(--schild); }
     .wochen-liste { margin-top: 10px; }
     .wochen-liste li {
       display: flex;
@@ -323,23 +258,6 @@
     }
     .wochen-liste .laeuft { font-weight: 600; }
 
-    /* Worth */
-    .abo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 16px; }
-    .abo-frage { font-size: 14px; font-weight: 600; width: 100%; }
-    .eigen { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--beschriftung); }
-    .eigen input {
-      width: 5.5em;
-      min-height: 36px;
-      padding: 4px 8px;
-      border: 1px solid var(--linie);
-      border-radius: var(--r-knopf);
-      background: transparent;
-      color: var(--schild);
-      font: inherit;
-      font-size: 14px;
-    }
-    .abo-satz { font-size: 16px; margin-top: 12px; line-height: 1.45; }
-
     /* Notifications */
     .wahl { border: 0; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 10px; }
     .wahl legend { font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px; }
@@ -350,9 +268,32 @@
     .status { font-size: 14px; color: var(--beschriftung); margin-top: 8px; min-height: 1.45em; }
     .status.fehler { color: var(--schild); font-weight: 600; }
 
+    /* Spend limit */
+    .spur { height: 6px; background: var(--linie); border-radius: var(--r-walze); overflow: hidden; margin: 8px 0; }
+    .fuell { height: 100%; background: var(--schild); border-radius: var(--r-walze); }
+    .fuell.voll { background: var(--rot); }
     .ausgaben-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
+
     .leer { padding: 8px 0 24px; border-bottom: 1px solid var(--linie); }
+
+    /* Footer & Key control */
     .fuss { font-size: 14px; color: var(--beschriftung); }
+    .schluessel { margin-top: 16px; }
+    .schluessel summary { color: var(--beschriftung); }
+    .schluessel summary:hover { color: var(--schild); }
+    .schluessel-form { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .schluessel-form label { font-size: 14px; font-weight: 600; color: var(--schild); }
+    .schluessel-form input {
+      padding: 6px 10px;
+      border: 1px solid var(--linie);
+      border-radius: var(--r-knopf);
+      background: transparent;
+      color: var(--schild);
+      font: inherit;
+      font-size: 14px;
+      max-width: 320px;
+    }
+    .schluessel-knoepfe { display: flex; gap: 8px; align-items: center; }
 
     @media (prefers-reduced-motion: reduce) {
       .walze-ziffern { transition: none !important; }
@@ -364,135 +305,104 @@
     <header class="kopf">
       <h1>Stand</h1>
       <p id="frische" aria-live="polite"></p>
-      <button type="button" class="knopf-leise" id="laden">Neu laden</button>
     </header>
 
     <main>
-      <div class="spalte-links">
-        <section class="geraet" id="geraet" hidden>
-          <div class="schild-zeile">
-            <span class="schild-titel">Claude-Verbrauchszähler</span>
-            <span id="modell"></span>
+      <section class="geraet" id="geraet" hidden>
+        <div class="schild-zeile">
+          <span class="schild-titel">Claude-Verbrauchszähler</span>
+          <span id="modell"></span>
+        </div>
+        <div class="zaehlwerke">
+          <div class="zaehlwerk-kasten">
+            <div class="kasten-label">5 Stunden</div>
+            <div class="walzen" id="walzen-five" role="img"></div>
+            <p class="reset-zeile" id="reset-five"></p>
           </div>
-          <div class="zaehlwerke">
-            <div class="zaehlwerk-kasten">
-              <div class="kasten-label">5 Stunden</div>
-              <div class="walzen" id="walzen-five" role="img"></div>
-              <p class="reset-zeile" id="reset-five"></p>
-            </div>
-            <div class="zaehlwerk-kasten">
-              <div class="kasten-label">Woche</div>
-              <div class="walzen" id="walzen-week" role="img"></div>
-              <p class="reset-zeile" id="reset-week"></p>
-            </div>
+          <div class="zaehlwerk-kasten">
+            <div class="kasten-label">Woche</div>
+            <div class="walzen" id="walzen-week" role="img"></div>
+            <p class="reset-zeile" id="reset-week"></p>
           </div>
-          <div class="schreiber" id="chart-five"></div>
-          <p class="tempo-zeile" id="tempo-five"></p>
-          <p class="prognose" id="prognose-five"></p>
-        </section>
-        <div class="live-liste" id="live"></div>
-        <section id="ausgaben" hidden></section>
-      </div>
+        </div>
+        <div class="schreiber" id="chart-five"></div>
+        <p class="prognose" id="prognose-five"></p>
+      </section>
 
-      <div class="spalte-rechts">
-        <section class="leer" id="leer" hidden>
-          <h2>Noch keine Messung</h2>
-          <p class="untertitel">Claude Code meldet die Limits erst nach der ersten Antwort in einer Sitzung und nur mit einem Pro- oder Max-Abo. Sobald das Statuszeilen-Skript läuft, steht hier dein Stand.</p>
-        </section>
+      <section class="leer" id="leer" hidden>
+        <h2>Noch keine Messung</h2>
+        <p class="untertitel">Claude Code meldet die Limits erst nach der ersten Antwort in einer Sitzung und nur mit einem Pro- oder Max-Abo. Sobald das Statuszeilen-Skript läuft, steht hier dein Stand.</p>
+      </section>
 
-        <section id="woche" hidden>
-          <h2>Woche</h2>
-          <p class="kernsatz" id="woche-satz"></p>
-          <p class="untertitel" id="woche-unter"></p>
-          <p class="untertitel" id="woche-vergleich" hidden></p>
-          <div class="schreiber" id="chart-week"></div>
-          <ul class="legende" aria-hidden="true">
-            <li><svg width="22" height="8"><line class="fest" x1="1" y1="4" x2="21" y2="4"/></svg>diese Woche</li>
-            <li id="legende-geist" hidden><svg width="22" height="8"><line class="geist" x1="1" y1="4" x2="21" y2="4"/></svg>letzte Woche</li>
-            <li><svg width="22" height="8"><line class="plan" x1="1" y1="4" x2="21" y2="4"/></svg>gleichmäßiges Tempo</li>
-            <li><svg width="22" height="8"><line class="prognose-linie" x1="1" y1="4" x2="21" y2="4"/></svg>Prognose</li>
-            <li><svg width="22" height="8"><line class="offen" x1="1" y1="4" x2="21" y2="4"/></svg>nicht gemessen</li>
-          </ul>
-          <div class="schreiber tagesbalken" id="chart-tage"></div>
-          <p class="luecken" id="luecken" hidden></p>
-        </section>
+      <section id="ausgaben" hidden></section>
 
-        <section id="wert" hidden>
-          <h2>Wert</h2>
-          <p class="kernsatz" id="wert-satz"></p>
-          <p class="untertitel" id="wert-unter"></p>
-          <div class="abo">
-            <p class="abo-frage">Dein Abo im Monat</p>
-            <div class="umschalter" role="group" aria-label="Abo">
-              <button type="button" data-abo="20" aria-pressed="false">Pro 20 $</button>
-              <button type="button" data-abo="100" aria-pressed="false">Max 5x 100 $</button>
-              <button type="button" data-abo="200" aria-pressed="false">Max 20x 200 $</button>
-            </div>
-            <label class="eigen">oder <input type="number" min="1" max="10000" step="1" inputmode="numeric" id="abo-eigen" aria-label="Eigener Betrag in US-Dollar"> $</label>
-          </div>
-          <p class="abo-satz" id="abo-satz"></p>
-        </section>
+      <section id="woche" hidden>
+        <h2>Woche</h2>
+        <p class="kernsatz" id="woche-satz"></p>
+        <p class="untertitel" id="woche-unter"></p>
+        <div class="schreiber" id="chart-week"></div>
+        <div class="schreiber tagesbalken" id="chart-tage"></div>
+      </section>
 
-        <section id="projekte" hidden>
-          <div class="kopfzeile">
-            <h2>Projekte</h2>
-            <div class="umschalter" role="group" aria-label="Zeitraum">
-              <button type="button" data-zeitraum="woche" aria-pressed="true">Diese Woche</button>
-              <button type="button" data-zeitraum="alles" aria-pressed="false">35 Tage</button>
-            </div>
-          </div>
-          <p class="untertitel" id="projekte-unter"></p>
-          <ul class="liste" id="projekte-liste"></ul>
-        </section>
+      <section id="wert" hidden>
+        <h2>Wert</h2>
+        <p class="kernsatz" id="wert-satz"></p>
+        <p class="untertitel" id="wert-unter"></p>
+      </section>
 
-        <section id="rhythmus" hidden>
-          <h2>Rhythmus</h2>
-          <p class="untertitel" id="rhythmus-unter"></p>
-          <div class="schreiber" id="chart-rhythmus"></div>
-          <div id="heute">
-            <h3>Letzte 24 Stunden</h3>
-            <p class="untertitel">Jede Sitzung als Linie, jeder Strich eine Ablesung, dahinter die 5-Stunden-Fenster.</p>
-            <div class="schreiber" id="chart-heute"></div>
-          </div>
-        </section>
+      <section id="unterhaltungen" hidden>
+        <h2>Unterhaltungen</h2>
+        <ul class="liste" id="unterhaltungen-liste"></ul>
+        <details id="unterhaltungen-mehr" hidden>
+          <summary id="unterhaltungen-summary"></summary>
+          <ul class="liste" id="unterhaltungen-rest"></ul>
+        </details>
+      </section>
 
-        <section id="sitzungen" hidden>
-          <h2>Sitzungen</h2>
-          <p class="untertitel" id="sitzungen-unter"></p>
-          <ul class="liste" id="sitzungen-liste"></ul>
-          <button type="button" class="knopf-leise" id="mehr" hidden></button>
-        </section>
-
-        <section id="verlauf" hidden>
-          <h2>Verlauf</h2>
+      <section id="verlauf" hidden>
+        <details id="verlauf-details">
+          <summary>Verlauf</summary>
           <p class="untertitel" id="verlauf-unter"></p>
           <div class="schreiber" id="chart-verlauf"></div>
           <ul class="wochen-liste" id="wochen"></ul>
-        </section>
+        </details>
+      </section>
 
-        <section id="melden">
-          <h2>Mitteilungen</h2>
-          <p class="untertitel">Stand meldet sich auf diesem Gerät, wenn sich bei deinen Limits etwas tut. Was genau, wählst du nach dem Einschalten.</p>
-          <p class="hinweis" id="melden-hinweis" hidden></p>
-          <div class="knoepfe">
-            <button type="button" class="knopf" id="melden-an">Mitteilungen einschalten</button>
-            <button type="button" class="knopf-leise" id="melden-test" hidden>Test-Mitteilung schicken</button>
-            <button type="button" class="knopf-leise" id="melden-aus" hidden>Mitteilungen ausschalten</button>
+      <section id="melden">
+        <h2>Mitteilungen</h2>
+        <p class="untertitel">Meldet sich auf diesem Gerät, wenn ein Limit wieder frei ist oder knapp wird.</p>
+        <p class="hinweis" id="melden-hinweis" hidden></p>
+        <div class="knoepfe">
+          <button type="button" class="knopf" id="melden-an">Mitteilungen einschalten</button>
+          <button type="button" class="knopf-leise" id="melden-test" hidden>Test-Mitteilung schicken</button>
+          <button type="button" class="knopf-leise" id="melden-aus" hidden>Mitteilungen ausschalten</button>
+        </div>
+        <fieldset class="wahl" id="melden-wahl" hidden>
+          <legend>Melden, wenn</legend>
+          <label><input type="checkbox" data-wahl="reset"> ein Limit nach mindestens 90 % wieder frei ist</label>
+          <label><input type="checkbox" data-wahl="warn"> das 5-Stunden- oder Wochenlimit 90 % erreicht</label>
+          <label><input type="checkbox" data-wahl="knapp"> die Woche im Tempo der letzten 24 Stunden vor dem Reset voll wäre</label>
+        </fieldset>
+        <p class="status" id="melden-status" aria-live="polite"></p>
+        <p class="untertitel" id="abzeichen-hinweis" hidden>Das App-Symbol zeigt den 5-Stunden-Stand vom letzten Öffnen, eine Reset-Mitteilung setzt es auf null. Abschalten kannst du das in den Mitteilungs-Einstellungen deines Geräts.</p>
+      </section>
+
+      <footer class="fuss">
+        <p>Stand liest die Statuszeile von Claude Code ab. Nutzung in claude.ai oder auf anderen Geräten erscheint erst mit der nächsten Ablesung.</p>
+        <details class="schluessel">
+          <summary>Chat-Namen anzeigen</summary>
+          <div class="schluessel-form">
+            <label for="schluessel">Schlüssel</label>
+            <input type="password" id="schluessel" autocomplete="off">
+            <div class="schluessel-knoepfe">
+              <button type="button" class="knopf-leise" id="schluessel-speichern">Speichern</button>
+              <button type="button" class="knopf-leise" id="schluessel-entfernen" hidden>Entfernen</button>
+            </div>
+            <p class="hinweis">Den Schlüssel kopierst du per Rechtsklick auf das Stand-Symbol in Windows.</p>
+            <p class="status" id="schluessel-status" aria-live="polite"></p>
           </div>
-          <fieldset class="wahl" id="melden-wahl" hidden>
-            <legend>Melden, wenn</legend>
-            <label><input type="checkbox" data-wahl="reset"> ein Limit nach mindestens 90 % wieder frei ist</label>
-            <label><input type="checkbox" data-wahl="warn"> das 5-Stunden- oder Wochenlimit 90 % erreicht</label>
-            <label><input type="checkbox" data-wahl="knapp"> die Woche im Tempo der letzten 24 Stunden vor dem Reset voll wäre</label>
-          </fieldset>
-          <p class="status" id="melden-status" aria-live="polite"></p>
-          <p class="untertitel" id="abzeichen-hinweis" hidden>Das App-Symbol zeigt den 5-Stunden-Stand vom letzten Öffnen, eine Reset-Mitteilung setzt es auf null. Abschalten kannst du das in den Mitteilungs-Einstellungen deines Geräts.</p>
-        </section>
-
-        <footer class="fuss">
-          <p>Stand liest die Statuszeile von Claude Code ab, während dort gearbeitet wird. Nutzung in claude.ai, auf anderen Geräten oder in Cloud-Sitzungen zählt zu denselben Limits, erscheint hier aber erst mit der nächsten Ablesung und ist dann als nicht gemessen markiert.</p>
-        </footer>
-      </div>
+        </details>
+      </footer>
     </main>
   </div>
 
@@ -503,8 +413,8 @@
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
     let geladen = 0;
-    let daten = null, versatz = 0, laeuft = false, zeitraum = 'woche', alleSitzungen = false, gezeichnet = false;
-    const jetzt = () => Date.now() + versatz; // server clock, so countdowns match the reset times
+    let daten = null, versatz = 0, laeuft = false, gezeichnet = false;
+    const jetzt = () => Date.now() + versatz;
 
     const uhr = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' });
     const tagUhr = new Intl.DateTimeFormat('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
@@ -515,6 +425,7 @@
     const ganz = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
     const dollar = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'USD' });
     const kompakt = new Intl.NumberFormat('de-DE', { notation: 'compact', maximumFractionDigits: 1 });
+    const komma = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 });
 
     const pz = n => (n > 0 && n < 1 ? '<1' : ganz.format(n)) + ' %';
     const tagName = t => wochentag.format(t).replace('.', '');
@@ -542,7 +453,6 @@
       const s = Math.max(0, Math.floor(ms / 1000));
       return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} min`;
     }
-    const datiert = t => new Date(t).toDateString() === new Date(jetzt()).toDateString() ? `heute ${uhr.format(t)}` : zeit(t);
     const bis = t => `<span data-bis="${t}">${countdown(t - jetzt())}</span>`;
     const vor = t => jetzt() - t < 60000 ? 'gerade eben' : `vor ${dauer(jetzt() - t)}`;
 
@@ -588,13 +498,6 @@
       s += o.raster(x, p, h);
       s += `<line class="achse" x1="${p.l}" x2="${p.l + w}" y1="${y(0)}" y2="${y(0)}"/>`;
       if (o.plan) s += `<line class="plan" x1="${x(f.start)}" y1="${y(0)}" x2="${x(f.reset)}" y2="${y(100)}"/>`;
-      if (o.geist) {
-        const g = o.geist, xg = t => x(t - g.start + f.start);
-        const { fest: gf, offen: go } = pfade(g, xg, y, g.reset);
-        s += `<path class="geist" d="${gf}${go}"/>`;
-      }
-      const { fest, offen } = pfade(f, x, y, ende);
-      s += `<path class="offen" d="${offen}"/><path class="fest" d="${fest}"/>`;
       const t = o.tempo;
       if (f.reset > now) {
         if (t && t.proStunde > 0 && (t.aktiv || o.plan)) {
@@ -604,6 +507,8 @@
         }
         s += `<line class="jetzt-linie" x1="${x(now)}" x2="${x(now)}" y1="${p.t}" y2="${y(0)}"/>`;
       }
+      const { fest, offen } = pfade(f, x, y, ende);
+      s += `<path class="offen" d="${offen}"/><path class="fest" d="${fest}"/>`;
       s += `<circle class="punkt" cx="${x(ende)}" cy="${y(f.peak)}" r="4.5"/>`;
       s += `<g class="kreuz" hidden><line y1="${p.t}" y2="${y(0)}"/><circle r="4.5"/></g>`;
       el.innerHTML = `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}" role="img" aria-label="${esc(o.label)}">${s}</svg><div class="tip" hidden></div>`;
@@ -616,9 +521,9 @@
         let i = f.punkte.length - 1;
         while (i >= 0 && f.punkte[i].at > tt) i--;
         const naechster = f.punkte[i + 1];
-        const wer = i < 0 || (naechster && naechster.luecke) ? 'nicht gemessen' : (nachId.get(f.punkte[i].session) || {}).project || '';
-        const geist = o.geist ? `<br>letzte Woche ${pz(wertBei(o.geist, o.geist.start + tt - f.start))}` : '';
-        return { x: x(tt), y: y(v), html: `<strong>${pz(v)}</strong><br>${esc(o.tipZeit(tt))}${wer ? `<br>${esc(wer)}` : ''}${geist}` };
+        const s = i < 0 ? null : nachId.get(f.punkte[i].session);
+        const wer = i < 0 || (naechster && naechster.luecke) ? 'nicht gemessen' : (s ? s.name || '' : '');
+        return { x: x(tt), y: y(v), html: `<strong>${pz(v)}</strong><br>${esc(o.tipZeit(tt))}${wer ? `<br>${esc(wer)}` : ''}` };
       };
       return { x, p, w };
     }
@@ -721,79 +626,6 @@
       };
     }
 
-    // Weekday x hour grid of measured 5-hour rises; four steps of one ink, empty cells faint.
-    const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-    const LANG = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
-    function rhythmusChart(el, zellen) {
-      const breite = Math.max(260, el.clientWidth);
-      const l = 28, oben = 16, zw = (breite - l) / 24, zh = Math.min(22, Math.max(14, zw));
-      const hoehe = oben + 7 * zh + 30;
-      const max = Math.max(...zellen.flat().map(z => z.plus));
-      const stufe = v => (v ? Math.max(1, Math.ceil(v / max * 4)) : 0);
-      const deckkraft = [0, 0.22, 0.45, 0.7, 1];
-      let s = '';
-      for (const h of [0, 6, 12, 18]) s += `<text x="${l + h * zw}" y="11">${h} Uhr</text>`;
-      zellen.forEach((tag, d) => {
-        s += `<text class="y" x="${l - 6}" y="${oben + d * zh + zh / 2 + 4}">${WOCHENTAGE[d]}</text>`;
-        tag.forEach((z, h) => {
-          const st = stufe(z.plus);
-          s += `<rect class="zelle${st ? '' : ' leer'}" x="${(l + h * zw).toFixed(1)}" y="${(oben + d * zh).toFixed(1)}" width="${(zw - 2).toFixed(1)}" height="${(zh - 2).toFixed(1)}" rx="2"${st ? ` fill-opacity="${deckkraft[st]}"` : ''}/>`;
-        });
-      });
-      const ly = oben + 7 * zh + 12;
-      s += `<text class="ende" x="${breite - 4 * 16 - 26}" y="${ly + 10}">wenig</text>`;
-      for (let i = 1; i <= 4; i++) s += `<rect class="zelle" x="${breite - (5 - i) * 16 - 22}" y="${ly}" width="14" height="12" rx="2" fill-opacity="${deckkraft[i]}"/>`;
-      s += `<text class="ende" x="${breite}" y="${ly + 10}">viel</text>`;
-      el.innerHTML = `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}" role="img" aria-label="Verbrauch nach Wochentag und Uhrzeit">${s}</svg><div class="tip" hidden></div>`;
-      el._finde = (px, py) => {
-        const h = Math.floor((px - l) / zw), d = Math.floor((py - oben) / zh);
-        if (h < 0 || h > 23 || d < 0 || d > 6) return null;
-        const z = zellen[d][h];
-        return { x: l + h * zw + zw / 2, y: null, oben: oben + d * zh, html: z.plus ? `<strong>${pz(z.plus)}</strong> von 5 Stunden<br>${LANG[d]}, ${h} bis ${h + 1} Uhr<br>an ${z.tage.size} ${z.tage.size === 1 ? 'Tag' : 'Tagen'}` : `${LANG[d]}, ${h} bis ${h + 1} Uhr<br>kein gemessener Verbrauch` };
-      };
-    }
-
-    // The last 24 hours: one row per session (line = alive, ticks = readings), 5-hour windows as bands behind.
-    function heuteChart(el, zeilen, f5) {
-      const breite = Math.max(260, el.clientWidth), reihe = 36;
-      const p = { t: 6, b: 22 };
-      const hoehe = p.t + zeilen.length * reihe + p.b;
-      // Axis from shortly before the first session of the last 24 hours, at least three hours wide.
-      const now = jetzt();
-      const x0 = Math.max(now - 24 * H, Math.min(now - 3 * H, Math.floor((Math.min(...zeilen.map(z => z.von)) - 20 * 60000) / H) * H));
-      const x = t => +((Math.min(now, Math.max(x0, t)) - x0) / (now - x0) * breite).toFixed(1);
-      const schritt = now - x0 <= 8 * H ? 1 : 3;
-      let s = '';
-      for (const f of f5) {
-        if (f.reset < x0 || f.start > now) continue;
-        s += `<rect class="band" x="${x(f.start) + 1}" y="0" width="${Math.max(0, x(f.reset) - x(f.start) - 2)}" height="${hoehe - p.b}"/>`;
-      }
-      const d = new Date(x0); d.setMinutes(0, 0, 0);
-      d.setHours(d.getHours() + schritt - (d.getHours() % schritt));
-      for (; d.getTime() < now; d.setHours(d.getHours() + schritt)) {
-        const xt = x(d.getTime());
-        s += `<line class="gitter" x1="${xt}" x2="${xt}" y1="0" y2="${hoehe - p.b}"/>`;
-        if (xt > 18 && xt < breite - 18) s += `<text class="x" x="${xt}" y="${hoehe - 6}">${uhr.format(d)}</text>`;
-      }
-      zeilen.forEach((z, i) => {
-        const y0 = p.t + i * reihe, laeuftJetzt = now - z.s.updated <= 5 * 60000;
-        const name = `${z.s.project || 'Ohne Projekt'}${laeuftJetzt ? ', läuft' : ''}`;
-        const rechts = x(z.von) + name.length * 7.5 > breite; // label would run off the right edge: end it there
-        s += `<text class="${rechts ? 'ende ' : ''}heute" x="${rechts ? breite : x(z.von)}" y="${y0 + 12}">${esc(name)}</text>`;
-        s += `<line class="spur-linie" x1="${x(z.von)}" x2="${Math.max(x(z.bis), x(z.von) + 1)}" y1="${y0 + 23}" y2="${y0 + 23}"/>`;
-        for (const t of z.ticks) s += `<line class="tick" x1="${x(t)}" x2="${x(t)}" y1="${y0 + 17}" y2="${y0 + 29}"/>`;
-      });
-      s += `<line class="achse" x1="0" x2="${breite}" y1="${hoehe - p.b}" y2="${hoehe - p.b}"/>`;
-      el.innerHTML = `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}" role="img" aria-label="${esc(`${zeilen.length} Sitzungen in den letzten 24 Stunden: ${zeilen.map(z => z.s.project || 'Ohne Projekt').join(', ')}`)}">${s}</svg><div class="tip" hidden></div>`;
-      el._finde = (px, py) => {
-        const i = Math.floor((py - p.t) / reihe), z = zeilen[i];
-        if (!z) return null;
-        const teile = [z.s.model, `${uhr.format(z.von)} bis ${now - z.s.updated <= 5 * 60000 ? 'jetzt' : uhr.format(z.bis)}`, `${z.ticks.length} ${z.ticks.length === 1 ? 'Ablesung' : 'Ablesungen'}`];
-        if (z.s.cost != null) teile.push(`API-Wert ${dollar.format(z.s.cost)}`);
-        return { x: Math.min(Math.max(px, x(z.von)), Math.max(x(z.bis), x(z.von))), y: null, oben: p.t + i * reihe, html: `<strong>${esc(z.s.project || 'Ohne Projekt')}</strong><br>${teile.filter(Boolean).map(esc).join('<br>')}` };
-      };
-    }
-
     // One hover/tap layer per chart box. The chart sets el._finde(px) on every redraw.
     function zeigeTip(el, e) {
       const svg = el.querySelector('svg'), tip = el.querySelector('.tip'), kreuz = el.querySelector('.kreuz');
@@ -849,7 +681,6 @@
       const chart = $('chart-five');
       chart.hidden = !a5;
       if (!a5) {
-        $('tempo-five').textContent = '';
         $('prognose-five').textContent = '';
         return;
       }
@@ -859,42 +690,20 @@
         label: `5-Stunden-Fenster von ${uhr.format(a5.start)} bis ${uhr.format(a5.reset)}, jetzt ${pz(a5.peak)}`,
       });
 
-      let tempoText = '', satz = '', warn = false;
+      let satz = '', warn = false;
       if (!offen5) {
-        tempoText = `Letztes Fenster ${uhr.format(a5.start)} bis ${uhr.format(a5.reset)}, Spitze ${pz(a5.peak)}.`;
         satz = 'Frei. Die nächste Nachricht startet ein neues 5-Stunden-Fenster.';
       } else if (a5.peak >= 100) {
-        tempoText = `Limit erreicht ${t.letzte ? esc(zeit(t.letzte)) : ''}.`;
         satz = `Limit erreicht. Weiter geht es ${zeit(a5.reset)}.`;
         warn = true;
       } else if (t.aktiv && t.proStunde > 0.5) {
-        tempoText = `Steigt um ${ganz.format(t.proStunde)} % pro Stunde.`;
         if (t.voll) { satz = `Bei diesem Tempo voll um ${uhr.format(t.voll)}, Reset erst ${zeit(a5.reset)}.`; warn = true; }
         else satz = `Bei diesem Tempo reicht es bis zum Reset, dann etwa ${pz(t.amEnde)}.`;
       } else {
-        tempoText = t.letzte ? `Steht seit ${zeit(t.letzte)}.` : 'Steht.';
         satz = `Gerade kein Verbrauch. Noch ${pz(100 - a5.peak)} frei bis ${zeit(a5.reset)}.`;
       }
-      $('tempo-five').textContent = tempoText;
       $('prognose-five').textContent = satz;
       $('prognose-five').className = `prognose${warn ? ' warn' : ''}`;
-    }
-
-    function zeichneLive(sessions) {
-      const now = jetzt();
-      const laufend = sessions.filter(s => now - s.updated <= 5 * 60000);
-      const el = $('live');
-      if (laufend.length) {
-        el.innerHTML = laufend.map(s => {
-          let t = `Läuft: ${esc(s.model || 'Claude')} in ${esc(s.project || 'Ohne Projekt')}`;
-          if (s.ctx_pct != null) t += `, Kontext ${pz(s.ctx_pct)}`;
-          if (s.cache_expires && s.cache_expires > now) t += `, Cache warm noch ${bis(s.cache_expires)}`;
-          if (s.fast === 1) t += ', Fast Mode';
-          return `<p class="live aktiv"><span>${t}</span></p>`;
-        }).join('');
-      } else if (sessions[0]) {
-        el.innerHTML = `<p class="live ruhe"><span>Zuletzt gearbeitet ${esc(vor(sessions[0].updated))} in ${esc(sessions[0].project || 'Ohne Projekt')}.</span></p>`;
-      } else el.innerHTML = '';
     }
 
     function zeichneAusgaben(readings) {
@@ -909,7 +718,7 @@
         ${r.spend_usd != null && r.spend_limit != null ? `<p class="ausgaben-zeile">${esc(dollar.format(r.spend_usd))} von ${esc(dollar.format(r.spend_limit))} geschätzt.</p>` : ''}`;
     }
 
-    function zeichneWoche(aw, vorher) {
+    function zeichneWoche(aw) {
       const now = jetzt();
       const el = $('woche');
       el.hidden = !aw || aw.reset <= now;
@@ -924,76 +733,43 @@
       $('woche-satz').className = `kernsatz${t.voll ? ' warn' : ''}`;
 
       const skala = fensterChart($('chart-week'), aw, {
-        hoehe: 190, tempo: t, plan: true, geist: vorher, raster: tageRaster(aw), tipZeit: tt => tagUhr.format(tt),
+        hoehe: 190, tempo: t, plan: true, raster: tageRaster(aw), tipZeit: tt => tagUhr.format(tt),
         label: `Woche bis ${tagUhr.format(aw.reset)}: ${pz(aw.peak)} verbraucht, gleichmäßig wären ${pz(pl.soll)}`,
       });
-      $('legende-geist').hidden = !vorher;
-      $('woche-vergleich').hidden = !vorher;
-      if (vorher) {
-        const v = vergleich(vorher, aw, now), diff = Math.round(aw.peak - v.damals);
-        $('woche-vergleich').textContent = `Letzte Woche um diese Zeit: ${pz(v.damals)}${diff ? `, jetzt ${pz(Math.abs(diff))} ${diff > 0 ? 'mehr' : 'weniger'}` : ', genauso viel wie jetzt'}. Am Ende waren es ${pz(v.ende)}.`;
-      }
-      const { liste, luecken } = tage(aw, now);
+      const { liste } = tage(aw, now);
       tageChart($('chart-tage'), aw, skala, liste);
-      $('luecken').hidden = !luecken.length;
-      $('luecken').textContent = luecken.length ? `Nicht gemessen: ${luecken.map(l => `${pz(l.plus)} zwischen ${datiert(l.von)} und ${datiert(l.bis)}`).join(', ')}. Das kam von claude.ai, einem anderen Gerät oder einer Cloud-Sitzung.` : '';
     }
 
-    let aboPreis = null;
-    try { aboPreis = Number(localStorage.getItem('stand-abo')) || null; } catch {}
-    const komma = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 });
+    const PRO = 20;
 
     function zeichneWert(fw) {
       const now = jetzt();
       const aw = fw[fw.length - 1];
       const w = aw ? wert(daten.readings, fw, daten.sessions, aw.start) : null;
       const a = apiWert(daten.sessions, now);
-      $('wert').hidden = !w && !a;
-      if (!w && !a) return;
-      if (!w) {
-        $('wert-satz').textContent = 'Kurs folgt.';
-        $('wert-unter').textContent = 'Ab jetzt speichert Stand bei jeder Ablesung die Kosten der Sitzung mit. Sobald 2 % der Woche so gemessen sind, steht hier, was 1 % deines Wochenlimits wert ist.';
-      } else if (w.proProzent == null) {
-        $('wert-satz').textContent = 'Kurs folgt.';
-        $('wert-unter').textContent = `Seit ${zeit(w.seit)} gemessen: ${dollar.format(w.dollar)} für ${pz(w.prozent)} der Woche. Ab 2 % steht hier der Kurs.`;
-      } else {
-        $('wert-satz').textContent = `1 % der Woche ≈ ${dollar.format(w.proProzent)} API-Wert.`;
-        $('wert-unter').textContent = `Das ganze Wochenlimit ≈ ${dollar.format(w.proProzent * 100)}. Gerechnet seit ${zeit(w.seit)}: ${dollar.format(w.dollar)} in Claude Code für ${pz(w.prozent)} der Woche.`;
-      }
-      document.querySelectorAll('[data-abo]').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.abo) === aboPreis)));
-      if (document.activeElement !== $('abo-eigen')) $('abo-eigen').value = aboPreis && ![20, 100, 200].includes(aboPreis) ? aboPreis : '';
+
       let satz = '';
+      if (aw) {
+        const ws = daten.sessions.filter(s => s.updated >= aw.start);
+        const dollarWert = (w && w.dollar != null) ? w.dollar : ws.reduce((n, s) => n + (s.cost || 0), 0);
+        const tokenSumme = ws.reduce((n, s) => n + (s.tokens_in || 0) + (s.tokens_out || 0), 0);
+        satz = tokenSumme > 0
+          ? `${dollar.format(dollarWert)} API-Wert diese Woche, ${kompakt.format(tokenSumme)} Tokens.`
+          : `${dollar.format(dollarWert)} API-Wert diese Woche.`;
+      }
+
+      let unter = '';
       if (a) {
         const voll = a.tage >= 29.5, monat = voll ? a.dollar : a.proTag * 30.4;
-        satz = voll
-          ? `In 30 Tagen ${dollar.format(a.dollar)} API-Wert in Claude Code`
-          : `In ${a.tage < 2 ? 'gut einem Tag' : `${ganz.format(a.tage)} Tagen`} ${dollar.format(a.dollar)} API-Wert in Claude Code, ${dollar.format(a.proTag)} pro Tag. Hochgerechnet ${dollar.format(monat)} im Monat`;
-        satz += aboPreis ? `, ${komma.format(monat / aboPreis)}-mal so viel wie dein Abo.` : '. Wähl dein Abo, dann steht hier, wie oft es sich lohnt.';
+        unter = `Auf den Monat gerechnet etwa ${dollar.format(monat)}, ${komma.format(monat / PRO)}-mal dein Pro-Abo (20 $).`;
       }
-      $('abo-satz').textContent = satz;
-    }
 
-    function aboSetzen(preis) {
-      aboPreis = preis > 0 ? preis : null;
-      try { aboPreis ? localStorage.setItem('stand-abo', String(aboPreis)) : localStorage.removeItem('stand-abo'); } catch {}
-      zeichnen();
-    }
-    document.querySelectorAll('[data-abo]').forEach(b => b.addEventListener('click', () => aboSetzen(Number(b.dataset.abo))));
-    $('abo-eigen').addEventListener('change', e => aboSetzen(Math.min(10000, Math.round(Number(e.target.value)))));
-
-    function zeichneRhythmus(f5) {
-      const now = jetzt();
-      const zellen = rhythmus(f5, now - 35 * TAG);
-      const zeilen = zeitleiste(daten.sessions, daten.readings, now - 24 * H, now);
-      const summe = zellen.flat().reduce((n, z) => n + z.plus, 0);
-      $('rhythmus').hidden = !summe && !zeilen.length;
-      if ($('rhythmus').hidden) return;
-      let top = null;
-      zellen.forEach((tag, d) => tag.forEach((z, h) => { if (!top || z.plus > top.plus) top = { plus: z.plus, d, h }; }));
-      $('rhythmus-unter').textContent = `Gemessener Verbrauch in Claude Code nach Wochentag und Uhrzeit, letzte 35 Tage.${top && top.plus ? ` Am meisten: ${LANG[top.d]}, ${top.h} bis ${top.h + 1} Uhr.` : ''}`;
-      rhythmusChart($('chart-rhythmus'), zellen);
-      $('heute').hidden = !zeilen.length;
-      if (zeilen.length) heuteChart($('chart-heute'), zeilen, f5);
+      $('wert').hidden = !satz && !unter;
+      if ($('wert').hidden) return;
+      $('wert-satz').textContent = satz;
+      $('wert-satz').hidden = !satz;
+      $('wert-unter').textContent = unter;
+      $('wert-unter').hidden = !unter;
     }
 
     // The 5-hour % on the app icon, where the platform supports it.
@@ -1002,140 +778,155 @@
       (v > 0 ? navigator.setAppBadge(v) : navigator.clearAppBadge()).catch(() => {});
     }
 
-    function zeichneProjekte(f5, fw) {
-      const now = jetzt();
-      const aw = fw[fw.length - 1];
-      const woche = zeitraum === 'woche' && aw;
-      const von = woche ? aw.start : 0;
-      const zeilen = projekte(fw, daten.sessions, von, Infinity);
-      $('projekte').hidden = !zeilen.length;
-      if (!zeilen.length) return;
-      const summe = zeilen.reduce((n, z) => n + z.plus, 0);
-      const gemessen = zeilen.filter(z => !z.offen).reduce((n, z) => n + z.plus, 0);
-      $('projekte-unter').textContent = woche
-        ? `${pz(summe)} der Woche verbraucht, ${pz(gemessen)} davon in Claude Code gemessen.`
-        : `Zusammen ${pz(summe)} eines Wochenlimits in 35 Tagen, ${pz(gemessen)} davon gemessen.`;
-      $('projekte-liste').innerHTML = zeilen.map(z => {
-        const details = [];
-        if (z.offen) details.push('claude.ai, andere Geräte, Cloud-Sitzungen oder Lücken zwischen Ablesungen');
-        if (z.name === 'Ohne Zuordnung') details.push('gemessen, bevor Stand die Sitzung mitgeschickt hat');
-        if (z.sitzungen.length) details.push(`${z.sitzungen.length} ${z.sitzungen.length === 1 ? 'Sitzung' : 'Sitzungen'}`);
-        if (z.kosten > 0) details.push(`API-Wert ${dollar.format(z.kosten)}`);
-        if (z.plusZeilen || z.minusZeilen) details.push(`+${ganz.format(z.plusZeilen)} / −${ganz.format(z.minusZeilen)} Zeilen`);
-        if (z.zuletzt) details.push(now - z.zuletzt <= 5 * 60000 ? 'läuft' : `zuletzt ${vor(z.zuletzt)}`);
-        return `<li class="zeile">
-          <div class="zeile-kopf"><strong>${esc(z.offen ? 'Nicht gemessen' : z.name)}</strong><span>${z.plus ? '+' : ''}${pz(z.plus)}</span></div>
-          <div class="spur"><div class="fuell${z.offen ? ' offen-fuell' : ''}" style="width:${summe ? z.plus / summe * 100 : 0}%"></div></div>
-          <p class="details">${esc(details.join(', '))}</p>
-        </li>`;
-      }).join('');
+    function zeileBauen(s, now, fw) {
+      const laeuft = now - s.updated <= 5 * 60000;
+      const titel = s.name || ('Unterhaltung ' + zeit(s.started));
+      const pw = fw.reduce((n, f) => n + (f.zuwachs.get(s.id) || 0), 0);
+      const teile = [];
+      if (s.duration_ms) teile.push(dauer(s.duration_ms));
+      if (s.cost) teile.push(dollar.format(s.cost));
+      if (pw > 0) teile.push(`${pz(pw)} der Woche`);
+      return `<li class="zeile">
+        <div class="zeile-kopf">
+          <strong>${esc(titel)}</strong>
+          <span class="${laeuft ? 'laeuft' : ''}">${esc(laeuft ? 'läuft' : vor(s.updated))}</span>
+        </div>
+        ${teile.length ? `<p class="details">${esc(teile.join(', '))}</p>` : ''}
+      </li>`;
     }
 
-    function zeichneSitzungen(f5, fw) {
-      const now = jetzt();
+    function zeichneUnterhaltungen(fw) {
       const liste = daten.sessions;
-      $('sitzungen').hidden = !liste.length;
+      const el = $('unterhaltungen');
+      el.hidden = !liste.length;
       if (!liste.length) return;
-      const summe = (fl, id) => fl.reduce((n, f) => n + (f.zuwachs.get(id) || 0), 0);
-      const kosten = liste.reduce((n, s) => n + (s.cost || 0), 0);
-      const woche = liste.filter(s => now - s.updated < 7 * TAG).length;
-      $('sitzungen-unter').textContent = `${woche} in 7 Tagen, ${liste.length} in 35 Tagen. API-Wert zusammen ${dollar.format(kosten)}, im Abo nicht einzeln berechnet.`;
-      const zeigen = alleSitzungen ? liste : liste.slice(0, 6);
-      $('sitzungen-liste').innerHTML = zeigen.map(s => {
-        const laeuftJetzt = now - s.updated <= 5 * 60000;
-        const meta = [s.model, s.effort && `Aufwand ${s.effort}`, s.thinking === 1 && 'Denken an', s.fast === 1 && 'Fast Mode', s.version && `Claude Code ${s.version}`].filter(Boolean);
-        const zeit1 = [`${laeuftJetzt ? 'seit' : 'ab'} ${zeit(s.started)}`];
-        if (s.duration_ms >= 60000) zeit1.push(`${dauer(s.duration_ms)} lang${s.api_ms >= 60000 ? `, davon ${dauer(s.api_ms)} Antworten` : ''}`);
-        const werte = [];
-        const p5 = summe(f5, s.id), pw = summe(fw, s.id);
-        if (p5 || pw) werte.push(`${pz(p5)} von 5 Stunden, ${pz(pw)} der Woche`);
-        if (s.added != null || s.removed != null) werte.push(`+${ganz.format(s.added ?? 0)} / −${ganz.format(s.removed ?? 0)} Zeilen`);
-        if (s.cost != null) werte.push(`API-Wert ${dollar.format(s.cost)}`);
-        let cache = '';
-        if (s.cache_hit != null) cache = `Cache ${pz(s.cache_hit * 100)} Treffer`;
-        if (s.cache_expires && s.cache_expires > now) cache += `${cache ? ', ' : 'Cache '}warm noch ${bis(s.cache_expires)}`;
-        const kontext = s.ctx_pct != null ? `<div class="kontext"><div class="spur"><div class="fuell${s.ctx_pct >= 90 ? ' voll' : ''}" style="width:${Math.min(100, s.ctx_pct)}%"></div></div><span>Kontext ${pz(s.ctx_pct)}${s.ctx_size ? ` von ${kompakt.format(s.ctx_size)}` : ''}</span></div>` : '';
-        return `<li class="zeile">
-          <div class="zeile-kopf"><strong>${esc(s.project || 'Ohne Projekt')}</strong><span class="${laeuftJetzt ? 'laeuft' : ''}">${laeuftJetzt ? 'läuft' : esc(vor(s.updated))}</span></div>
-          <p class="details">${esc(meta.join(', '))}</p>
-          <p class="details">${esc(zeit1.join(', '))}</p>
-          ${kontext}
-          ${werte.length || cache ? `<p class="details">${esc(werte.join(', '))}${werte.length && cache ? ', ' : ''}${cache}</p>` : ''}
-        </li>`;
-      }).join('');
-      $('mehr').hidden = liste.length <= 6;
-      $('mehr').textContent = alleSitzungen ? 'Weniger zeigen' : `Alle ${liste.length} zeigen`;
+      const now = jetzt();
+      $('unterhaltungen-liste').innerHTML = liste.slice(0, 3).map(s => zeileBauen(s, now, fw)).join('');
+      const mehr = $('unterhaltungen-mehr');
+      if (liste.length > 3) {
+        mehr.hidden = false;
+        $('unterhaltungen-summary').textContent = `Alle ${liste.length} zeigen`;
+        if (mehr.open) {
+          $('unterhaltungen-rest').innerHTML = liste.slice(3).map(s => zeileBauen(s, now, fw)).join('');
+        }
+      } else {
+        mehr.hidden = true;
+        mehr.open = false;
+        $('unterhaltungen-rest').innerHTML = '';
+      }
     }
+
+    $('unterhaltungen-mehr').addEventListener('toggle', () => { if ($('unterhaltungen-mehr').open && daten) zeichneUnterhaltungen(fenster(daten.readings, 'week')); });
 
     function zeichneVerlauf(f5, fw) {
       const now = jetzt();
       $('verlauf').hidden = !f5.length && !fw.length;
-      if (!f5.length && !fw.length) return;
+      if ($('verlauf').hidden) return;
       const am = f5.filter(f => f.peak >= 90).length;
       const tage = Math.max(1, Math.round((now - Math.min(...f5.map(f => f.start), ...fw.map(f => f.start))) / TAG));
       $('verlauf-unter').textContent = `${f5.length} ${f5.length === 1 ? '5-Stunden-Fenster' : '5-Stunden-Fenster'} mit Claude Code in ${Math.min(35, tage)} Tagen, ${am === 1 ? 'eins' : am} davon über 90 %.`;
-      verlaufChart($('chart-verlauf'), f5, fw);
-      $('wochen').innerHTML = [...fw].reverse().map(f => {
-        const offen = f.reset > now;
-        return `<li class="${offen ? 'laeuft' : ''}"><span>Woche ${esc(datum.format(f.start))} bis ${esc(datum.format(f.reset))}${offen ? ', läuft' : ''}</span><span>${f.peak >= 90 ? '<span class="warn"></span>' : ''}${pz(f.peak)}</span></li>`;
-      }).join('');
+      const det = $('verlauf-details');
+      if (det.open) {
+        verlaufChart($('chart-verlauf'), f5, fw);
+        $('wochen').innerHTML = [...fw].reverse().map(f => {
+          const offen = f.reset > now;
+          return `<li class="${offen ? 'laeuft' : ''}"><span>Woche ${esc(datum.format(f.start))} bis ${esc(datum.format(f.reset))}${offen ? ', läuft' : ''}</span><span>${f.peak >= 90 ? '<span class="warn"></span>' : ''}${pz(f.peak)}</span></li>`;
+        }).join('');
+      }
+    }
+
+    $('verlauf-details').addEventListener('toggle', () => { if ($('verlauf-details').open && daten) zeichneVerlauf(fenster(daten.readings, 'five'), fenster(daten.readings, 'week')); });
+
+    function frischeAktualisieren() {
+      if (!daten) { $('frische').textContent = ''; return; }
+      const now = jetzt();
+      const s0 = daten.sessions[0];
+      const letzte = daten.readings[daten.readings.length - 1];
+      $('frische').textContent = letzte ? (now - letzte.at < 60000 ? 'abgelesen gerade eben' : `abgelesen ${zeit(letzte.at)}`) : (s0 ? `Letzte Sitzung ${vor(s0.updated)}` : '');
     }
 
     function zeichnen() {
       if (!daten) return;
-      const now = jetzt();
       const f5 = fenster(daten.readings, 'five'), fw = fenster(daten.readings, 'week');
       const s0 = daten.sessions[0];
-      const letzte = daten.readings[daten.readings.length - 1];
-      $('frische').textContent = letzte ? (now - letzte.at < 60000 ? 'abgelesen gerade eben' : `abgelesen ${zeit(letzte.at)}`) : (s0 ? `Letzte Sitzung ${vor(s0.updated)}` : '');
+      frischeAktualisieren();
       const leer = !f5.length && !fw.length;
       $('leer').hidden = !leer;
       if (leer) $('geraet').hidden = true;
       else zeichneMeter(f5, fw, s0);
-      zeichneLive(daten.sessions);
       zeichneAusgaben(daten.readings);
-      zeichneWoche(fw[fw.length - 1], fw.length > 1 ? fw[fw.length - 2] : null);
+      zeichneWoche(fw[fw.length - 1]);
       zeichneWert(fw);
-      zeichneProjekte(f5, fw);
-      zeichneRhythmus(f5);
-      zeichneSitzungen(f5, fw);
+      zeichneUnterhaltungen(fw);
       zeichneVerlauf(f5, fw);
       gezeichnet = true;
     }
 
+    function holeSchluessel() {
+      try { return localStorage.getItem('stand-key') || ''; } catch { return ''; }
+    }
+    function setzeSchluessel(k) {
+      try {
+        if (k) localStorage.setItem('stand-key', k);
+        else localStorage.removeItem('stand-key');
+      } catch {}
+    }
+    function schluesselStatus(msg) {
+      $('schluessel-status').textContent = msg;
+    }
+    function schluesselAktualisieren() {
+      const k = holeSchluessel();
+      $('schluessel').value = k;
+      $('schluessel-entfernen').hidden = !k;
+    }
+
+    $('schluessel-speichern').addEventListener('click', () => {
+      const wert = $('schluessel').value.trim();
+      if (!wert) return;
+      setzeSchluessel(wert);
+      schluesselAktualisieren();
+      try { localStorage.removeItem('stand-daten'); } catch {}
+      daten = null;
+      schluesselStatus('Gespeichert.');
+      laden();
+    });
+
+    $('schluessel-entfernen').addEventListener('click', () => {
+      setzeSchluessel('');
+      schluesselAktualisieren();
+      try { localStorage.removeItem('stand-daten'); } catch {}
+      daten = null;
+      schluesselStatus('Entfernt.');
+      laden();
+    });
+
     async function laden() {
       if (laeuft) return;
       laeuft = true;
-      const knopf = $('laden');
-      knopf.setAttribute('aria-busy', 'true');
-      knopf.textContent = 'Lädt …';
+      const basis = daten;
       try {
         const seit = daten ? Math.max(daten.readings.length ? daten.readings[daten.readings.length - 1].at : 0, daten.sessions.length ? daten.sessions[0].updated : 0) : 0;
-        const res = await fetch(`${API}/state${seit ? `?since=${seit}` : ''}`, { cache: 'no-store' });
+        const key = holeSchluessel();
+        const headers = key ? { 'X-Stand-Key': key } : {};
+        const res = await fetch(`${API}/state${seit ? `?since=${seit}` : ''}`, { cache: 'no-store', headers });
         const body = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(body.error || `Fehler ${res.status}`);
+        if (daten !== basis) { setTimeout(laden); return; } // key changed meanwhile: this answer belongs to the old data
         versatz = body.now - Date.now();
         geladen = Date.now();
-        daten = einmischen(daten, body);
-        zeichnen();
+        if (gezeichnet && (!body.readings || !body.readings.length) && (!body.sessions || !body.sessions.length)) {
+          frischeAktualisieren();
+        } else {
+          daten = einmischen(daten, body);
+          zeichnen();
+        }
+        try { localStorage.setItem('stand-daten', JSON.stringify({ daten, versatz })); } catch {}
         setTimeout(() => document.body.classList.remove('erst'), 1400);
       } catch (e) {
         $('frische').textContent = navigator.onLine ? `Nicht erreichbar: ${e.message}` : 'Offline';
       } finally {
         laeuft = false;
-        knopf.removeAttribute('aria-busy');
-        knopf.textContent = 'Neu laden';
       }
-    }
-
-    $('laden').addEventListener('click', laden);
-    $('mehr').addEventListener('click', () => { alleSitzungen = !alleSitzungen; zeichnen(); });
-    for (const b of document.querySelectorAll('[data-zeitraum]')) {
-      b.addEventListener('click', () => {
-        zeitraum = b.dataset.zeitraum;
-        document.querySelectorAll('[data-zeitraum]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-        zeichnen();
-      });
     }
 
     // Countdowns tick every second; a countdown reaching zero redraws, so a reset shows up at once.
@@ -1148,6 +939,7 @@
       }
       if (null_) zeichnen();
     }, 1000);
+
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') laden(); });
     // Every 15 s while a session is running, otherwise every minute.
     setInterval(() => {
@@ -1288,6 +1080,18 @@
       if (abo) api('PUT', '/sub', { sub: abo.toJSON() }).then(wahlZeigen).catch(() => wahlZeigen({}));
     })();
 
+    schluesselAktualisieren();
+    try {
+      const cached = localStorage.getItem('stand-daten');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.daten) {
+          daten = parsed.daten;
+          versatz = parsed.versatz || 0;
+          zeichnen();
+        }
+      }
+    } catch {}
     laden();
   </script>
 </body>

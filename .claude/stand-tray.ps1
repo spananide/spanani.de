@@ -122,12 +122,15 @@ if ($Test) {
   [IO.File]::WriteAllText($transcript, ($lines -join "`n") + "`n" + (& $msg 'msg_C' 100 10 ([DateTime]::UtcNow.ToString('o'))))  # last line still being written
   $run = {
     param($cost)
-    $p = @{ session_id = 'test'; transcript_path = $transcript; model = @{ display_name = 'Opus 5.5' }; cost = @{ total_cost_usd = $cost }
+    $p = @{ session_id = 'test'; session_name = 'Mein Chat'; transcript_path = $transcript; model = @{ display_name = 'Opus 5.5' }; cost = @{ total_cost_usd = $cost }
             rate_limits = @{ five_hour = @{ used_percentage = 12; resets_at = $now + 100 }; seven_day = @{ used_percentage = 34; resets_at = $now + 9999 } } }
     $p | ConvertTo-Json -Depth 4 -Compress | powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'stand-statusline.ps1')
   }
   $null = & $run 0.5
   $s = Get-Content (Join-Path $tmp 'test.json') -Raw | ConvertFrom-Json
+  Check ($s.name -eq 'Mein Chat') "test.json hat name Mein Chat"
+  $k = if (Test-Path (Join-Path $tmp 'key')) { (Get-Content (Join-Path $tmp 'key') -Raw).Trim() } else { '' }
+  Check ($k -match '^[0-9a-f]{64}$') "key existiert und ist 64 Hex-Zeichen ($k)"
   Check ($s.in -eq 111 -and $s.out -eq 7) "Statuszeile: msg_A einmal, halbe Zeile wartet ($($s.in)/$($s.out))"
   [IO.File]::AppendAllText($transcript, "`n")
   $out = & $run 0.75

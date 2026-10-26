@@ -37,23 +37,35 @@ function reading(rl, now) {
 const FIELDS = ['five', 'five_reset', 'week', 'week_reset', 'spend', 'spend_reset', 'spend_usd', 'spend_limit', 'spend_period'];
 const SESSION_FIELDS = 'id, project, model, version, effort, cost, duration_ms, api_ms, added, removed, ctx_pct, ctx_size, started, updated, model_id, tokens_in, tokens_out, cache_hit, cache_warm, cache_expires, fast, thinking';
 
+export async function pruefen(key, stored) {
+  if (typeof key !== 'string' || key.length < 32 || key.length > 128) return { ok: false, store: null };
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key));
+  const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  if (!stored) return { ok: true, store: hash };
+  return { ok: hash === stored, store: null };
+}
+
 async function push(req, env) {
   const b = await body(req);
   const now = Date.now();
   const id = str(b.session, 64);
   if (!id) throw new HttpError(400, 'Sitzung fehlt');
+  const stored = (await env.DB.prepare("SELECT v FROM config WHERE k = 'key'").first())?.v;
+  const k = await pruefen(req.headers.get('X-Stand-Key'), stored);
+  const name = k.ok ? str(b.name, 120) : null;
   const writes = [
-    env.DB.prepare(`INSERT INTO sessions (id, project, model, version, effort, cost, duration_ms, api_ms, added, removed, ctx_pct, ctx_size, started, updated, model_id, tokens_in, tokens_out, cache_hit, cache_warm, cache_expires, fast, thinking)
-      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21)
+    env.DB.prepare(`INSERT INTO sessions (id, project, model, version, effort, cost, duration_ms, api_ms, added, removed, ctx_pct, ctx_size, started, updated, model_id, tokens_in, tokens_out, cache_hit, cache_warm, cache_expires, fast, thinking, name)
+      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22)
       ON CONFLICT (id) DO UPDATE SET project = ?2, model = ?3, version = ?4, effort = ?5, cost = ?6, duration_ms = ?7, api_ms = ?8,
         added = ?9, removed = ?10, ctx_pct = ?11, ctx_size = ?12, updated = ?13, model_id = ?14, tokens_in = ?15, tokens_out = ?16,
-        cache_hit = ?17, cache_warm = ?18, cache_expires = ?19, fast = ?20, thinking = ?21`)
+        cache_hit = ?17, cache_warm = ?18, cache_expires = ?19, fast = ?20, thinking = ?21, name = COALESCE(?22, name)`)
       .bind(id, str(b.project), str(b.model, 40), str(b.version, 20), str(b.effort, 12), num(b.cost, 0, 1e5),
         int(b.duration_ms, 0, 1e11), int(b.api_ms, 0, 1e11), int(b.added, 0, 1e8), int(b.removed, 0, 1e8),
         num(b.ctx_pct, 0, 100), int(b.ctx_size, 0, 1e8), now,
         str(b.model_id, 60), int(b.tokens_in, 0, 1e11), int(b.tokens_out, 0, 1e11), num(b.cache_hit, 0, 1),
-        bool(b.cache_warm), ms(b.cache_expires), bool(b.fast), bool(b.thinking)),
+        bool(b.cache_warm), ms(b.cache_expires), bool(b.fast), bool(b.thinking), name),
   ];
+  if (k.store) writes.push(env.DB.prepare("INSERT OR IGNORE INTO config (k, v) VALUES ('key', ?)").bind(k.store));
   const r = reading(b.rate_limits, now);
   if (r) {
     const last = await env.DB.prepare('SELECT * FROM readings ORDER BY at DESC LIMIT 1').first();
@@ -71,12 +83,15 @@ async function push(req, env) {
 }
 
 // Without `since` the page gets all 35 days once; afterwards only what changed since its newest row.
-async function state(env, url) {
+async function state(env, url, req) {
   const now = Date.now();
   const since = Math.max(now - KEEP, Number(url.searchParams.get('since')) || 0);
+  const stored = (await env.DB.prepare("SELECT v FROM config WHERE k = 'key'").first())?.v;
+  const k = await pruefen(req.headers.get('X-Stand-Key'), stored);
+  const ok = stored && k.ok;
   const [readings, sessions] = await env.DB.batch([
     env.DB.prepare(`SELECT at, session, cost, ${FIELDS.join(', ')} FROM readings WHERE at > ? ORDER BY at`).bind(since),
-    env.DB.prepare(`SELECT ${SESSION_FIELDS} FROM sessions WHERE updated > ? ORDER BY updated DESC`).bind(since),
+    env.DB.prepare(`SELECT ${SESSION_FIELDS}${ok ? ', name' : ''} FROM sessions WHERE updated > ? ORDER BY updated DESC`).bind(since),
   ]);
   return json({ now, keep: KEEP, readings: readings.results, sessions: sessions.results });
 }
@@ -154,7 +169,7 @@ async function route(req, env) {
   const url = new URL(req.url);
   const key = `${req.method} ${url.pathname}`;
   if (key === 'POST /push') { await limit(req, env); return push(req, env); }
-  if (key === 'GET /state') { await limit(req, env); return state(env, url); }
+  if (key === 'GET /state') { await limit(req, env); return state(env, url, req); }
   if (key === 'GET /key') return json({ key: env.VAPID_PUBLIC });
   if (key === 'PUT /sub') {
     await limit(req, env);
@@ -195,7 +210,7 @@ export default {
     const cors = {
       'Access-Control-Allow-Origin': allowed(origin) ? origin : 'https://spanani.de',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Stand-Key',
       'Access-Control-Max-Age': '86400',
       Vary: 'Origin',
     };

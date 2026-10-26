@@ -3,55 +3,33 @@ $ErrorActionPreference = 'SilentlyContinue'
 $d = [Console]::In.ReadToEnd() | ConvertFrom-Json
 $url = if ($env:CLAUDE_STAND_URL) { $env:CLAUDE_STAND_URL } else { 'https://claude-stand.spanani.workers.dev/push' }
 $dir = [IO.Path]::GetTempPath()
-$stamp = Join-Path $dir 'claude-stand-sent'
-$now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-$last = 0
-if (Test-Path $stamp) { [long]::TryParse((Get-Content $stamp -Raw).Trim(), [ref]$last) | Out-Null }
 $repo = $d.workspace.repo
 $folder = if ($d.workspace.project_dir) { $d.workspace.project_dir } else { $d.cwd }
 $project = if ($repo.name) { "$($repo.owner)/$($repo.name)" } elseif ($folder) { Split-Path -Leaf $folder } else { $null }
-
-if ($now - $last -ge 10) {
-  Set-Content $stamp $now
-  $body = [ordered]@{
-    session       = $d.session_id
-    project       = $project
-    model         = $d.model.display_name
-    model_id      = $d.model.id
-    version       = $d.version
-    effort        = $d.effort.level
-    cost          = $d.cost.total_cost_usd
-    duration_ms   = $d.cost.total_duration_ms
-    api_ms        = $d.cost.total_api_duration_ms
-    added         = $d.cost.total_lines_added
-    removed       = $d.cost.total_lines_removed
-    ctx_pct       = $d.context_window.used_percentage
-    ctx_size      = $d.context_window.context_window_size
-    tokens_in     = $d.context_window.total_input_tokens
-    tokens_out    = $d.context_window.total_output_tokens
-    cache_hit     = $d.prompt_cache.hit_ratio
-    cache_warm    = $d.prompt_cache.warm
-    cache_expires = $d.prompt_cache.expires_at
-    fast          = $d.fast_mode
-    thinking      = $d.thinking.enabled
-    rate_limits   = $d.rate_limits
-  } | ConvertTo-Json -Depth 6 -Compress
-  try {
-    $r = Invoke-WebRequest -Uri $url -Method Post -Body ([Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'application/json' -TimeoutSec 4 -UseBasicParsing
-    Set-Content (Join-Path $dir 'claude-stand-status') $r.StatusCode
-  } catch {
-    Set-Content (Join-Path $dir 'claude-stand-status') $_.Exception.Message
-  }
-}
+$now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
 
 # Totals of this conversation for the terminal and the tray app (stand-tray.ps1), one file per session.
 # Claude Code only hands over the current context, so the usage lines of the transcript are added up,
 # reading only the bytes that are new since the last run. Tokens and cost are also kept per local hour.
 $in = 0; $out = 0
 $cost = [double]$d.cost.total_cost_usd
+$store = if ($env:CLAUDE_STAND_DIR) { $env:CLAUDE_STAND_DIR } else { Join-Path $HOME '.claude\stand' }
+New-Item -ItemType Directory -Force $store | Out-Null
+$key = $null
+try {
+  $keyFile = Join-Path $store 'key'
+  if (-not (Test-Path -LiteralPath $keyFile)) {
+    $bytes = New-Object byte[] 32
+    [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+    $hex = [BitConverter]::ToString($bytes).Replace('-', '').ToLower()
+    [IO.File]::WriteAllText($keyFile, $hex)
+  }
+  $key = (Get-Content -LiteralPath $keyFile -Raw).Trim()
+} catch {
+  $key = $null
+}
+
 if ($d.session_id) {
-  $store = if ($env:CLAUDE_STAND_DIR) { $env:CLAUDE_STAND_DIR } else { Join-Path $HOME '.claude\stand' }
-  New-Item -ItemType Directory -Force $store | Out-Null
   $file = Join-Path $store "$($d.session_id).json"
   $lock = New-Object Threading.Mutex($false, "claude-stand-$($d.session_id)")
   try { $null = $lock.WaitOne(3000) } catch {}
@@ -59,7 +37,7 @@ if ($d.session_id) {
     $s = if (Test-Path -LiteralPath $file) { Get-Content -LiteralPath $file -Raw | ConvertFrom-Json }
     $hours = @{}
     foreach ($p in $s.hours.PSObject.Properties) { $hours[$p.Name] = @($p.Value) }
-    $add = { param($key, $a, $b, $c) if (-not $hours[$key]) { $hours[$key] = @(0, 0, 0.0) }; $h = $hours[$key]; $h[0] += $a; $h[1] += $b; $h[2] += $c }
+    $add = { param($k, $a, $b, $c) if (-not $hours[$k]) { $hours[$k] = @(0, 0, 0.0) }; $h = $hours[$k]; $h[0] += $a; $h[1] += $b; $h[2] += $c }
     $offset = [long]$s.offset; $lastId = $s.lastId; $in = [long]$s.in; $out = [long]$s.out
     $lastUse = if ($s.lastUse) { @($s.lastUse) } else { @(0, 0) }
     $added = @{}
@@ -88,9 +66,9 @@ if ($d.session_id) {
           if ($id -and $id -eq $lastId) { $dIn = $use[0] - $lastUse[0]; $dOut = $use[1] - $lastUse[1] } else { $dIn = $use[0]; $dOut = $use[1] }
           $ts = [regex]::Matches($line, '"timestamp":"([^"]+)"')
           $when = if ($ts.Count) { [DateTimeOffset]::Parse($ts[$ts.Count - 1].Groups[1].Value).LocalDateTime } else { Get-Date }
-          $key = $when.ToString('yyyy-MM-ddTHH')
-          & $add $key $dIn $dOut 0
-          $added[$key] += $dIn + $dOut
+          $hourKey = $when.ToString('yyyy-MM-ddTHH')
+          & $add $hourKey $dIn $dOut 0
+          $added[$hourKey] += $dIn + $dOut
           $in += $dIn; $out += $dOut; $lastId = $id; $lastUse = $use
         }
       }
@@ -108,6 +86,7 @@ if ($d.session_id) {
 
     $rl = $d.rate_limits
     $json = [ordered]@{
+      name      = $d.session_name
       project   = $project
       model     = $d.model.display_name
       updated   = $now
@@ -125,6 +104,49 @@ if ($d.session_id) {
     } | ConvertTo-Json -Depth 4 -Compress
     [IO.File]::WriteAllText($file, $json)
   } finally { $lock.ReleaseMutex() }
+}
+
+$stamp = Join-Path $dir 'claude-stand-sent'
+$last = 0
+if (Test-Path $stamp) { [long]::TryParse((Get-Content $stamp -Raw).Trim(), [ref]$last) | Out-Null }
+
+if ($now - $last -ge 10) {
+  Set-Content $stamp $now
+  $body = [ordered]@{
+    session       = $d.session_id
+    name          = $d.session_name
+    project       = $project
+    model         = $d.model.display_name
+    model_id      = $d.model.id
+    version       = $d.version
+    effort        = $d.effort.level
+    cost          = $d.cost.total_cost_usd
+    duration_ms   = $d.cost.total_duration_ms
+    api_ms        = $d.cost.total_api_duration_ms
+    added         = $d.cost.total_lines_added
+    removed       = $d.cost.total_lines_removed
+    ctx_pct       = $d.context_window.used_percentage
+    ctx_size      = $d.context_window.context_window_size
+    tokens_in     = $in
+    tokens_out    = $out
+    cache_hit     = $d.prompt_cache.hit_ratio
+    cache_warm    = $d.prompt_cache.warm
+    cache_expires = $d.prompt_cache.expires_at
+    fast          = $d.fast_mode
+    thinking      = $d.thinking.enabled
+    rate_limits   = $d.rate_limits
+  } | ConvertTo-Json -Depth 6 -Compress
+  try {
+    $bodyFile = Join-Path $dir "claude-stand-body-$($d.session_id).json"
+    [IO.File]::WriteAllText($bodyFile, $body, (New-Object Text.UTF8Encoding($false)))
+    $status = Join-Path $dir 'claude-stand-status'
+    $curl = @('-s', '-m', '5', '-X', 'POST', '-H', '"Content-Type: application/json"')
+    if ($key) { $curl += @('-H', "`"X-Stand-Key: $key`"") }
+    $curl += @('--data-binary', "`"@$bodyFile`"", '-o', 'NUL', '-w', "`"%output{$status}%{http_code}`"", "`"$url`"")
+    Start-Process -FilePath (Join-Path $env:WINDIR 'System32\curl.exe') -WindowStyle Hidden -ArgumentList $curl
+  } catch {
+    Set-Content (Join-Path $dir 'claude-stand-status') $_.Exception.Message
+  }
 }
 
 $E = [char]27

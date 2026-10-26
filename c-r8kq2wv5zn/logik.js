@@ -101,36 +101,6 @@ function tage(f, now) {
   return { liste, luecken };
 }
 
-// Rise per project between von and bis, summed over the given windows. Sessions without a known project and
-// unmeasured rises keep their own rows.
-function projekte(fensterListe, sessions, von, bis) {
-  const nachId = new Map(sessions.map(s => [s.id, s]));
-  const zeilen = new Map();
-  const zeile = name => zeilen.get(name) || zeilen.set(name, { name, plus: 0, sitzungen: [], kosten: 0, plusZeilen: 0, minusZeilen: 0, zuletzt: 0, offen: name === null }).get(name);
-  for (const f of fensterListe) {
-    for (const p of f.punkte) {
-      if (p.at < von || p.at >= bis || !p.plus) continue;
-      const s = nachId.get(p.session);
-      zeile(p.luecke ? null : s ? s.project || 'Ohne Projekt' : 'Ohne Zuordnung').plus += p.plus;
-    }
-  }
-  for (const s of sessions) {
-    if (s.updated < von || s.started >= bis) continue;
-    const z = zeile(s.project || 'Ohne Projekt');
-    z.sitzungen.push(s);
-    z.kosten += s.cost || 0;
-    z.plusZeilen += s.added || 0;
-    z.minusZeilen += s.removed || 0;
-    z.zuletzt = Math.max(z.zuletzt, s.updated);
-  }
-  return [...zeilen.values()].sort((a, b) => (a.offen - b.offen) || b.plus - a.plus || b.zuletzt - a.zuletzt);
-}
-
-// Last week at the same point of its window as this week is now.
-function vergleich(vorher, f, now) {
-  return { damals: wertBei(vorher, vorher.start + Math.min(now, f.reset) - f.start), ende: vorher.peak };
-}
-
 // API value per 1 % of the weekly limit. Readings carry the reporting session's running cost (since the worker
 // stores it); the dollars Claude Code sessions spent since t0 are set against the measured week rises since t0.
 function wert(readings, fensterWoche, sessions, von) {
@@ -167,31 +137,8 @@ function apiWert(sessions, now) {
   return { dollar, tage, proTag: dollar / tage };
 }
 
-// Measured 5-hour rises by weekday (0 = Monday) and hour, with the days each cell saw use.
-function rhythmus(fensterFuenf, von) {
-  const zellen = Array.from({ length: 7 }, () => Array.from({ length: 24 }, () => ({ plus: 0, tage: new Set() })));
-  for (const f of fensterFuenf) {
-    for (const p of f.punkte) {
-      if (p.at < von || p.luecke || !p.plus) continue;
-      const d = new Date(p.at);
-      const z = zellen[(d.getDay() + 6) % 7][d.getHours()];
-      z.plus += p.plus;
-      z.tage.add(d.toDateString());
-    }
-  }
-  return zellen;
-}
-
-// Sessions active between von and bis, each with the times it reported a reading.
-function zeitleiste(sessions, readings, von, bis) {
-  return sessions
-    .filter(s => s.updated >= von && s.started <= bis)
-    .map(s => ({ s, von: Math.max(s.started, von), bis: Math.min(s.updated, bis), ticks: readings.filter(r => r.session === s.id && r.at >= von && r.at <= bis).map(r => r.at) }))
-    .sort((a, b) => a.von - b.von);
-}
-
 if (typeof module !== 'undefined') {
-  module.exports = { H, TAG, LUECKE, einmischen, fenster, wertBei, tempo, plan, tage, projekte, vergleich, wert, apiWert, rhythmus, zeitleiste };
+  module.exports = { H, TAG, LUECKE, einmischen, fenster, wertBei, tempo, plan, tage, wert, apiWert };
   if (require.main === module) {
     const assert = require('node:assert/strict');
     const t0 = Date.UTC(2026, 9, 25, 18, 0), R = t0 + 5 * H, W = t0 + 3 * TAG;
@@ -230,15 +177,9 @@ if (typeof module !== 'undefined') {
     assert.equal(liste.reduce((n, d) => n + d.gemessen + d.offen, 0), fw.peak, 'days add up to the window');
     assert.equal(luecken.length, 2);
 
-    const proj = projekte([fw], [{ id: 'a', project: 'Apps', updated: t0 + 70 * 60000, started: t0, cost: 2, added: 5, removed: 1 }, { id: 'b', project: 'Apps', updated: t0 + 9 * 60000, started: t0, cost: 1 }], 0, Infinity);
-    assert.deepEqual(proj.map(p => [p.name, p.plus, p.sitzungen.length, p.kosten]), [['Apps', 2, 2, 3], [null, 43, 0, 0]], 'sessions of one project fold into one row; unmeasured last');
-
     const m = einmischen({ readings: readings.slice(0, 2), sessions: [{ id: 'a', updated: t0 }] }, { now: t0 + H, keep: 35 * TAG, readings: readings.slice(1), sessions: [{ id: 'a', updated: t0 + 1 }] });
     assert.equal(m.readings.length, readings.length);
     assert.equal(m.sessions[0].updated, t0 + 1);
-    // Last week, same moment: its window, shifted by 7 days.
-    const alt = fenster(readings.map(x => ({ ...x, at: x.at - 7 * TAG, week_reset: W - 7 * TAG })), 'week')[0];
-    assert.deepEqual(vergleich(alt, fw, t0 + 9.5 * 60000), { damals: 41, ende: 45 }, 'last week at the same point: 41 %, ended at 45 %');
 
     // Worth: session a costs 1 $ at its first reading and 4 $ at the end, b 0.5 $ then 1.5 $; a older session c without cost.
     const mitKosten = [
@@ -262,14 +203,6 @@ if (typeof module !== 'undefined') {
     const ab = apiWert(sitz, t0 + 20 * 60000);
     assert.equal(ab.dollar, 14.5);
     assert.ok(Math.abs(ab.tage - (1 + 20 / 1440)) < 1e-9, 'a day and 20 minutes of data');
-
-    const rh = rhythmus([f5], 0);
-    const d0 = new Date(t0 + 5 * 60000);
-    assert.equal(rh[(d0.getDay() + 6) % 7][d0.getHours()].plus, 14, 'the measured 5-hour rises of that hour: 10 + 2 + 2');
-    assert.equal(rh.flat().reduce((n, z) => n + z.plus, 0), 14, 'the unmeasured 16 % are left out');
-
-    const zl = zeitleiste(sitz, mitKosten, t0, t0 + H);
-    assert.deepEqual(zl.map(z => [z.s.id, z.von, z.ticks.length]), [['b', t0, 2], ['a', t0 + 4 * 60000, 2]], 'sessions in the hour, clipped to it, with their readings');
     console.log('logik ok');
   }
 }

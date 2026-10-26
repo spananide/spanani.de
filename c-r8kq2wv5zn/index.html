@@ -2,19 +2,26 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
-  <title>CLAUDE // STAND — Telemetrie & Limit Monitor</title>
-  <meta name="theme-color" content="#07090d">
+  <title>Stand — Claude Messgerät</title>
+  
+  <!-- Mobile & PWA Configuration -->
+  <meta name="theme-color" content="#121417" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#e6e8e3" media="(prefers-color-scheme: light)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Claude Stand">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Stand">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- Self-hosted Fonts -->
   <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/atkinson-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+
   <style>
     @font-face {
       font-family: 'Archivo';
@@ -23,1125 +30,1038 @@
       font-stretch: 62% 125%;
       font-display: swap;
     }
-
-    :root {
-      --bg: #07090e;
-      --bg-surface: #0d1017;
-      --bg-surface-elevated: #131722;
-      --bg-surface-sunken: #05070a;
-      --border-subtle: rgba(255, 255, 255, 0.07);
-      --border-prominent: rgba(255, 255, 255, 0.14);
-      --border-focus: rgba(255, 255, 255, 0.28);
-
-      --txt-main: #f1f5f9;
-      --txt-muted: #8492a6;
-      --txt-dim: #475569;
-      --txt-bright: #ffffff;
-
-      --sig-mint: #10b981;
-      --sig-mint-glow: rgba(16, 185, 129, 0.18);
-      --sig-amber: #f59e0b;
-      --sig-amber-glow: rgba(245, 158, 11, 0.22);
-      --sig-crimson: #ef4444;
-      --sig-crimson-glow: rgba(239, 68, 68, 0.25);
-      --sig-cyan: #06b6d4;
-      --sig-cyan-glow: rgba(6, 182, 212, 0.2);
-
-      --font-tech: 'Archivo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Courier New", monospace;
-      
-      --r-sm: 4px;
-      --r-md: 8px;
-      --r-lg: 12px;
-      --r-full: 9999px;
+    @font-face {
+      font-family: 'Atkinson Mono';
+      src: url('fonts/atkinson-mono-var.woff2') format('woff2');
+      font-weight: 100 900;
+      font-display: swap;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      /* Teenage Engineering / Braun Industrial Hardware Palette */
+      --chassis: #121417;
+      --chassis-inner: #191c20;
+      --bezel: #0b0d0f;
+      --plate: #22262b;
+      --plate-hover: #2b3037;
+      --rim-highlight: rgba(255, 255, 255, 0.09);
+      --rim-shadow: rgba(0, 0, 0, 0.65);
 
-    html {
-      background-color: var(--bg);
-      color: var(--txt-main);
-      font-family: var(--font-tech);
-      font-size: 14px;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      min-height: 100vh;
+      --ink-primary: #f3f4ef;
+      --ink-secondary: #9aa1a8;
+      --ink-dim: #5a626a;
+      --ink-invert: #121417;
+
+      --vermilion: #e63946;
+      --vermilion-drum: #c82332;
+      --amber: #f4a261;
+      --amber-glow: rgba(244, 162, 97, 0.3);
+      --emerald: #2a9d8f;
+      --emerald-glow: rgba(42, 157, 143, 0.35);
+      --cyan: #48cae4;
+
+      --pro-gold: #e9c46a;
+      --pro-gold-glow: rgba(233, 196, 106, 0.25);
+
+      --drum-bg: #090a0c;
+      --drum-txt: #f8f9f5;
+      
+      --font-body: 'Archivo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-numbers: 'Atkinson Mono', ui-monospace, "SF Mono", monospace;
+
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
       color-scheme: dark;
     }
 
-    body {
-      background: 
-        radial-gradient(circle at 50% 0%, rgba(20, 30, 50, 0.45) 0%, transparent 65%),
-        linear-gradient(to bottom, #090c13 0%, #06080b 100%);
-      background-attachment: fixed;
+    @media (prefers-color-scheme: light) {
+      :root {
+        --chassis: #e3e6e0;
+        --chassis-inner: #ecefe9;
+        --bezel: #d0d4ca;
+        --plate: #f5f7f3;
+        --plate-hover: #ffffff;
+        --rim-highlight: rgba(255, 255, 255, 0.95);
+        --rim-shadow: rgba(0, 0, 0, 0.12);
+
+        --ink-primary: #15181b;
+        --ink-secondary: #565e66;
+        --ink-dim: #8b939c;
+        --ink-invert: #f5f7f3;
+
+        --vermilion: #d62828;
+        --vermilion-drum: #b71c1c;
+        --amber: #e76f51;
+        --emerald: #2a9d8f;
+        --cyan: #0077b6;
+        --pro-gold: #c29017;
+
+        --drum-bg: #111316;
+        --drum-txt: #fbfcf9;
+        color-scheme: light;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
       min-height: 100vh;
+      background: var(--chassis);
+      color: var(--ink-primary);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
       display: flex;
       flex-direction: column;
       position: relative;
-      overflow-x: hidden;
+      touch-action: manipulation;
     }
 
-    /* Subtle Technical Grid Background */
+    /* Subtle Physical Stipple Texture on Chassis */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      background-size: 32px 32px;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 12px 12px;
       pointer-events: none;
       z-index: 0;
     }
 
-    #app {
+    #app-container {
       position: relative;
       z-index: 1;
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 18px 24px 60px;
       width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: calc(var(--safe-top) + 12px) 16px calc(var(--safe-bottom) + 85px);
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
 
     /* ==========================================================================
-       HEADER & COCKPIT CONTROLS
+       HARDWARE TOP BAR (Physical Machine Header)
        ========================================================================== */
-    .cockpit-header {
+    .hardware-header {
+      background: var(--chassis-inner);
+      border: 1px solid var(--rim-highlight);
+      border-bottom: 2px solid var(--rim-shadow);
+      border-radius: 14px;
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-      padding: 12px 18px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-md);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
     }
 
-    .brand-block {
+    .machine-badge {
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    .pulse-beacon {
-      width: 10px;
-      height: 10px;
+    .jewel-lamp {
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
-      background: var(--sig-mint);
-      box-shadow: 0 0 10px var(--sig-mint);
+      background: var(--amber);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), 0 0 10px var(--amber-glow);
+      border: 1px solid rgba(0,0,0,0.4);
       position: relative;
+      flex-shrink: 0;
     }
 
-    .pulse-beacon.active::after {
+    .jewel-lamp.active {
+      background: var(--emerald);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.7), 0 0 12px var(--emerald-glow);
+    }
+
+    .jewel-lamp.active::after {
       content: "";
       position: absolute;
-      inset: -4px;
+      inset: -3.5px;
       border-radius: 50%;
-      border: 1.5px solid var(--sig-mint);
-      animation: beacon-pulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+      border: 1.5px solid var(--emerald);
+      animation: jewel-pulse 2s infinite ease-out;
     }
 
-    .pulse-beacon.idle {
-      background: var(--sig-amber);
-      box-shadow: 0 0 8px var(--sig-amber);
-    }
-    .pulse-beacon.idle::after { display: none; }
-
-    @keyframes beacon-pulse {
-      0% { transform: scale(0.8); opacity: 1; }
-      100% { transform: scale(2.4); opacity: 0; }
+    @keyframes jewel-pulse {
+      0% { transform: scale(0.85); opacity: 0.9; }
+      100% { transform: scale(2.3); opacity: 0; }
     }
 
-    .brand-title {
-      font-size: 15px;
+    .machine-identity {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .machine-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .machine-title {
+      font-size: 13px;
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--txt-bright);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      color: var(--ink-primary);
     }
 
-    .brand-title span.dim {
-      color: var(--txt-dim);
-      font-weight: 500;
-    }
-
-    .model-capsule {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-sm);
-      padding: 2px 8px;
-      font-size: 11px;
-      font-family: var(--font-mono);
-      color: var(--txt-muted);
-      text-transform: uppercase;
-    }
-
-    .model-capsule b {
-      color: var(--txt-main);
-      font-weight: 600;
-    }
-
-    .control-cluster {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .segmented-switch {
-      display: flex;
-      background: var(--bg-surface-sunken);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-sm);
-      padding: 2px;
-    }
-
-    .segmented-btn {
-      background: transparent;
-      border: none;
-      color: var(--txt-muted);
-      padding: 4px 10px;
-      font-size: 12px;
-      font-family: var(--font-tech);
-      font-weight: 600;
-      border-radius: 2px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .segmented-btn:hover {
-      color: var(--txt-main);
-    }
-
-    .segmented-btn.active {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--txt-bright);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    }
-
-    .btn-action {
-      background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-subtle);
-      color: var(--txt-main);
-      padding: 6px 12px;
-      border-radius: var(--r-sm);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
-
-    .btn-action:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: var(--border-prominent);
-      color: var(--txt-bright);
-    }
-
-    .btn-action:active {
-      transform: translateY(1px);
-    }
-
-    .btn-action svg {
-      width: 14px;
-      height: 14px;
-      stroke-width: 2;
-    }
-
-    /* ==========================================================================
-       PRIMARY TELEMETRY: DUAL CIRCULAR HUD GAUGES (THE VISUAL ANCHOR)
-       ========================================================================== */
-    .telemetry-master-deck {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    @media (max-width: 860px) {
-      .telemetry-master-deck { grid-template-columns: 1fr; }
-    }
-
-    .gauge-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-lg);
-      padding: 24px;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .gauge-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--border-prominent), transparent);
-    }
-
-    .gauge-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .gauge-label {
-      font-size: 13px;
+    .plan-pill {
+      background: rgba(233, 196, 106, 0.15);
+      border: 1px solid var(--pro-gold);
+      color: var(--pro-gold);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: var(--font-numbers);
       font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--txt-muted);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .gauge-badge {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 3px;
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--txt-muted);
-      border: 1px solid var(--border-subtle);
-    }
-
-    .gauge-display-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 0 20px;
-      position: relative;
-    }
-
-    .circular-hud {
-      position: relative;
-      width: 230px;
-      height: 230px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .circular-hud svg {
-      width: 100%;
-      height: 100%;
-      transform: rotate(-90deg);
-    }
-
-    .gauge-track {
-      stroke: rgba(255, 255, 255, 0.05);
-      stroke-width: 12;
-      fill: none;
-    }
-
-    .gauge-progress {
-      stroke-width: 12;
-      stroke-linecap: round;
-      fill: none;
-      transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease;
-    }
-
-    .gauge-progress.mint { stroke: var(--sig-mint); filter: drop-shadow(0 0 6px var(--sig-mint-glow)); }
-    .gauge-progress.amber { stroke: var(--sig-amber); filter: drop-shadow(0 0 8px var(--sig-amber-glow)); }
-    .gauge-progress.crimson { stroke: var(--sig-crimson); filter: drop-shadow(0 0 10px var(--sig-crimson-glow)); }
-
-    .gauge-target-tick {
-      stroke: var(--txt-dim);
-      stroke-width: 2.5;
-      stroke-dasharray: 2 12;
-    }
-
-    .gauge-center-content {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      pointer-events: none;
-    }
-
-    .gauge-pct-value {
-      font-size: 54px;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1;
-      color: var(--txt-bright);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .gauge-pct-value small {
-      font-size: 26px;
-      font-weight: 600;
-      color: var(--txt-muted);
-      margin-left: 2px;
-    }
-
-    .gauge-status-sub {
-      margin-top: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      color: var(--txt-muted);
-    }
-
-    .gauge-metrics-bar {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border-subtle);
-      margin-top: auto;
-    }
-
-    .gauge-metric-item {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .gauge-metric-item .lbl {
-      font-size: 11px;
-      color: var(--txt-dim);
-      text-transform: uppercase;
-      font-weight: 600;
       letter-spacing: 0.04em;
     }
 
-    .gauge-metric-item .val {
-      font-size: 14px;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      color: var(--txt-main);
+    .model-plate {
+      font-size: 11px;
+      font-family: var(--font-numbers);
+      color: var(--ink-secondary);
+      letter-spacing: 0.02em;
     }
 
-    .val-highlight-green { color: var(--sig-mint) !important; }
-    .val-highlight-amber { color: var(--sig-amber) !important; }
-    .val-highlight-crimson { color: var(--sig-crimson) !important; }
+    .header-knob-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hardware-btn {
+      background: var(--plate);
+      border: 1px solid var(--rim-highlight);
+      border-bottom: 2px solid var(--rim-shadow);
+      color: var(--ink-primary);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+    }
+
+    .hardware-btn:active {
+      transform: translateY(1.5px);
+      border-bottom-width: 1px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    .hardware-btn svg { width: 14px; height: 14px; stroke-width: 2.2; }
 
     /* ==========================================================================
-       SECONDARY TELEMETRY: ARBITRAGE & COST HUD STRIP
+       THE PHYSICAL METER APPARATUS (Das mechanische Messgerät)
        ========================================================================== */
-    .stats-quad-strip {
+    .chassis-box {
+      background: var(--chassis-inner);
+      border: 1px solid var(--rim-highlight);
+      border-bottom: 3px solid var(--rim-shadow);
+      border-radius: 16px;
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    /* Corner Screw Heads */
+    .chassis-box::before, .chassis-box::after {
+      content: "";
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3a3f45;
+      box-shadow: inset 0 1px 1px #111, 0 1px 1px rgba(255,255,255,0.1);
+    }
+    .chassis-box::before { top: 9px; left: 10px; }
+    .chassis-box::after { top: 9px; right: 10px; }
+
+    .meter-counters-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
 
-    @media (max-width: 960px) {
-      .stats-quad-strip { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 520px) {
-      .stats-quad-strip { grid-template-columns: 1fr; }
+    @media (max-width: 620px) {
+      .meter-counters-grid { grid-template-columns: 1fr; }
     }
 
-    .stat-brick {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-md);
-      padding: 16px;
+    .meter-gauge-panel {
+      background: var(--plate);
+      border: 1px solid var(--rim-highlight);
+      border-radius: 12px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      position: relative;
+      gap: 10px;
     }
 
-    .stat-brick-header {
+    .meter-gauge-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .meter-gauge-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-secondary);
+    }
+
+    .meter-countdown-stamp {
+      font-family: var(--font-numbers);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-primary);
+      background: rgba(0, 0, 0, 0.25);
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--rim-highlight);
+    }
+
+    /* 3D MECHANICAL CYLINDRICAL ODOMETER DRUMS */
+    .recessed-bezel {
+      background: var(--bezel);
+      border-radius: 8px;
+      padding: 8px 10px;
+      border: 1px solid rgba(0,0,0,0.8);
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.75), 0 1px 1px var(--rim-highlight);
       display: flex;
       align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .walzen-cluster {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .drum-wheel {
+      width: 38px;
+      height: 52px;
+      border-radius: 4px;
+      background: var(--drum-bg);
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .drum-wheel.vermilion {
+      background: var(--vermilion-drum);
+    }
+
+    /* 3D Cylindrical lighting overlay */
+    .drum-wheel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.75) 0%,
+        rgba(0, 0, 0, 0.2) 20%,
+        rgba(255, 255, 255, 0.16) 45%,
+        rgba(255, 255, 255, 0) 55%,
+        rgba(0, 0, 0, 0.3) 80%,
+        rgba(0, 0, 0, 0.85) 100%
+      );
+      pointer-events: none;
+    }
+
+    .drum-tape {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      transform: translateY(calc(var(--digit, 0) * -52px));
+      transition: transform 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    .drum-digit {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-numbers);
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--drum-txt);
+      user-select: none;
+    }
+
+    .drum-wheel.dim-lead .drum-digit {
+      opacity: 0.3;
+    }
+
+    .percent-stamp {
+      font-family: var(--font-numbers);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ink-secondary);
+      margin-left: 4px;
+      align-self: flex-end;
+      padding-bottom: 6px;
+    }
+
+    /* Pacing Fuel Gauge Bar */
+    .gauge-track-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .physical-bar-track {
+      height: 8px;
+      background: var(--bezel);
+      border-radius: 4px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .physical-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--emerald);
+      border-radius: 4px;
+      transition: width 0.6s ease, background-color 0.3s ease;
+      box-shadow: 0 0 6px rgba(42, 157, 143, 0.4);
+    }
+
+    .physical-bar-fill.warning { background: var(--amber); box-shadow: 0 0 6px var(--amber-glow); }
+    .physical-bar-fill.alarm { background: var(--vermilion); box-shadow: 0 0 8px rgba(230, 57, 70, 0.5); }
+
+    .meter-footer-row {
+      display: flex;
       justify-content: space-between;
-      color: var(--txt-dim);
+      align-items: center;
+      font-size: 11.5px;
+      font-family: var(--font-numbers);
+      color: var(--ink-secondary);
+    }
+
+    /* ==========================================================================
+       FERRARIS INDUCTION ROTOR DISC APERTURE (Drehscheibe)
+       ========================================================================== */
+    .ferraris-housing {
+      background: var(--plate);
+      border: 1px solid var(--rim-highlight);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ferraris-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      color: var(--ink-dim);
     }
 
-    .stat-brick-val {
-      font-size: 24px;
-      font-weight: 800;
-      font-family: var(--font-mono);
-      color: var(--txt-bright);
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-    }
-
-    .stat-brick-sub {
-      font-size: 12px;
-      color: var(--txt-muted);
+    .ferraris-slit-window {
+      height: 24px;
+      background: #08090a;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.8);
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.8), 0 1px 1px var(--rim-highlight);
+      position: relative;
+      overflow: hidden;
       display: flex;
       align-items: center;
-      gap: 6px;
     }
 
-    .badge-roi {
-      display: inline-flex;
+    /* Brushed Aluminum Rotor Track */
+    .rotor-disc-strip {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        #1c2024 0%,
+        #82888f 25%,
+        #d1d5db 50%,
+        #82888f 75%,
+        #1c2024 100%
+      );
+      opacity: 0.9;
+    }
+
+    /* Strobe Ticks */
+    .strobe-ticks-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 10px,
+        rgba(0, 0, 0, 0.45) 10px,
+        rgba(0, 0, 0, 0.45) 12px
+      );
+      will-change: transform;
+    }
+
+    /* Vermilion Reference Notch */
+    .vermilion-notch {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 14px;
+      background: var(--vermilion);
+      box-shadow: 0 0 8px rgba(230, 57, 70, 0.8);
+      will-change: transform;
+      transform: translateX(-30px);
+    }
+
+    /* Anti-reflective glass glaze */
+    .slit-glass-reflection {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.22) 0%,
+        rgba(255, 255, 255, 0.03) 40%,
+        transparent 50%,
+        rgba(0, 0, 0, 0.4) 100%
+      );
+      pointer-events: none;
+    }
+
+    .ferraris-meta-line {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      background: var(--sig-mint-glow);
-      color: var(--sig-mint);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 700;
-      font-size: 11px;
+      font-size: 12px;
+      font-family: var(--font-numbers);
+    }
+
+    .burn-rate-number {
+      font-weight: 800;
+      color: var(--ink-primary);
     }
 
     /* ==========================================================================
-       WORKSPACE INTERACTIVE TABS & DECKS
+       FINANCIAL STATS DOCK (Claude Pro Arbitrage & API-Wert)
        ========================================================================== */
-    .workspace-deck {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-lg);
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+    .stat-trio-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
 
-    .workspace-nav-bar {
+    @media (max-width: 650px) {
+      .stat-trio-row { grid-template-columns: 1fr; }
+    }
+
+    .tactile-card {
+      background: var(--chassis-inner);
+      border: 1px solid var(--rim-highlight);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .tactile-card-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-dim);
+    }
+
+    .tactile-card-val {
+      font-size: 22px;
+      font-weight: 800;
+      font-family: var(--font-numbers);
+      color: var(--ink-primary);
+    }
+
+    .tactile-card-sub {
+      font-size: 11.5px;
+      color: var(--ink-secondary);
+      font-family: var(--font-numbers);
+    }
+
+    /* ==========================================================================
+       TABBED WORKSPACE VIEWPORT (Desktop & Mobile Panel)
+       ========================================================================== */
+    .content-panel {
+      background: var(--chassis-inner);
+      border: 1px solid var(--rim-highlight);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .panel-header-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border-subtle);
-      background: var(--bg-surface-sunken);
-      padding: 0 16px;
-      overflow-x: auto;
+      border-bottom: 1px solid var(--rim-highlight);
+      padding-bottom: 12px;
     }
 
-    .tab-triggers {
-      display: flex;
-      gap: 2px;
-    }
-
-    .tab-trigger {
-      background: transparent;
-      border: none;
-      color: var(--txt-muted);
-      padding: 14px 18px;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
+    .panel-title {
+      font-size: 14px;
+      font-weight: 800;
       text-transform: uppercase;
-      cursor: pointer;
-      position: relative;
-      white-space: nowrap;
-      transition: color 0.15s ease;
+      letter-spacing: 0.06em;
+      color: var(--ink-primary);
     }
 
-    .tab-trigger:hover {
-      color: var(--txt-main);
-    }
-
-    .tab-trigger.active {
-      color: var(--txt-bright);
-    }
-
-    .tab-trigger.active::after {
-      content: "";
-      position: absolute;
-      bottom: -1px;
-      left: 14px;
-      right: 14px;
-      height: 2px;
-      background: var(--sig-mint);
-      box-shadow: 0 0 8px var(--sig-mint);
-    }
-
-    .workspace-content {
-      padding: 24px;
-      min-height: 380px;
-    }
-
-    .tab-pane {
-      display: none;
-    }
-    .tab-pane.active {
-      display: block;
-    }
-
-    /* ==========================================================================
-       TAB 1: HIGH-PRECISION RECORDER CHART
-       ========================================================================== */
-    .chart-viewport {
+    /* Millimeter Paper Chart Viewport */
+    .millimeter-chart-box {
       width: 100%;
-      height: 280px;
-      background: #05070a;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-md);
+      height: 260px;
+      background: #090b0e;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.8);
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.7);
       position: relative;
       cursor: crosshair;
       overflow: hidden;
     }
 
-    .chart-svg {
+    .chart-svg-element {
       width: 100%;
       height: 100%;
     }
 
-    .grid-line {
-      stroke: rgba(255, 255, 255, 0.04);
-      stroke-width: 1;
-    }
-
-    .curve-five {
-      stroke: var(--sig-amber);
-      stroke-width: 2.5;
-      fill: none;
-      filter: drop-shadow(0 0 5px var(--sig-amber-glow));
-    }
-
-    .curve-week {
-      stroke: var(--sig-cyan);
-      stroke-width: 2;
-      fill: none;
-    }
-
-    .chart-crosshair-line {
-      stroke: rgba(255, 255, 255, 0.35);
-      stroke-dasharray: 3 3;
-      pointer-events: none;
-    }
-
-    .chart-hud-box {
+    .chart-tooltip-hud {
       position: absolute;
-      top: 14px;
-      left: 14px;
-      background: rgba(13, 16, 23, 0.92);
-      border: 1px solid var(--border-prominent);
-      border-radius: var(--r-sm);
-      padding: 8px 12px;
-      font-size: 12px;
-      font-family: var(--font-mono);
+      top: 10px;
+      left: 10px;
+      background: rgba(18, 20, 23, 0.94);
+      border: 1px solid var(--rim-highlight);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-family: var(--font-numbers);
       pointer-events: none;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
-    .chart-legend-row {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      margin-top: 14px;
-      font-size: 12px;
-      color: var(--txt-muted);
-      flex-wrap: wrap;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .legend-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-    }
-
-    /* Daily volume stacked bars */
-    .daily-bars-container {
-      margin-top: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .daily-bar-row {
-      display: grid;
-      grid-template-columns: 80px 1fr 60px;
-      align-items: center;
-      gap: 12px;
-      font-size: 12px;
-      font-family: var(--font-mono);
-    }
-
-    .daily-bar-track {
-      height: 14px;
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 3px;
-      overflow: hidden;
-      display: flex;
-    }
-
-    .daily-bar-fill {
-      background: var(--sig-cyan);
-      height: 100%;
-      transition: width 0.4s ease;
-    }
-
-    .daily-bar-fill.offen {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    /* ==========================================================================
-       TAB 2: PROJECT RADAR & CODE DIFF
-       ========================================================================== */
-    .project-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-    }
-
-    .project-card {
-      background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-md);
-      padding: 16px;
+    /* Project Radar List */
+    .project-rows-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      transition: border-color 0.15s ease;
     }
 
-    .project-card:hover {
-      border-color: var(--border-prominent);
-    }
-
-    .project-card-header {
+    .project-row-item {
+      background: var(--plate);
+      border: 1px solid var(--rim-highlight);
+      border-radius: 8px;
+      padding: 12px 14px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 6px;
     }
 
-    .project-name {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--txt-bright);
-    }
-
-    .project-cost {
-      font-family: var(--font-mono);
-      font-weight: 700;
-      color: var(--sig-mint);
-    }
-
-    .project-bar-wrap {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .project-bar-fill {
-      height: 100%;
-      background: var(--sig-amber);
-      border-radius: 3px;
-    }
-
-    .project-diff-meta {
+    .project-row-top {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      font-size: 11px;
-      color: var(--txt-muted);
-      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 13px;
     }
 
-    .diff-added { color: var(--sig-mint); }
-    .diff-removed { color: var(--sig-crimson); }
+    .diff-badge-green { color: var(--emerald); }
+    .diff-badge-red { color: var(--vermilion); }
 
-    /* ==========================================================================
-       TAB 3: WOCHEN-RHYTHMUS (HEATMAP MATRIX)
-       ========================================================================== */
+    /* Heatmap Grid */
     .heatmap-board {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 5px;
       overflow-x: auto;
-      padding-bottom: 8px;
+      padding-bottom: 6px;
     }
 
     .heatmap-row {
       display: grid;
-      grid-template-columns: 48px repeat(24, 1fr);
-      gap: 4px;
+      grid-template-columns: 36px repeat(24, 1fr);
+      gap: 3px;
       align-items: center;
     }
 
-    .heatmap-day-label {
+    .heatmap-day {
       font-size: 11px;
       font-weight: 700;
-      color: var(--txt-dim);
-      text-transform: uppercase;
+      font-family: var(--font-numbers);
+      color: var(--ink-dim);
     }
 
-    .heatmap-cell {
-      height: 22px;
+    .heatmap-tile {
+      height: 20px;
       border-radius: 2px;
-      background: rgba(255, 255, 255, 0.03);
-      position: relative;
+      background: rgba(255, 255, 255, 0.04);
       cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-
-    .heatmap-cell:hover {
-      transform: scale(1.15);
-      z-index: 2;
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
-    }
-
-    .heatmap-hour-scale {
-      display: grid;
-      grid-template-columns: 48px repeat(24, 1fr);
-      gap: 4px;
-      font-size: 9px;
-      color: var(--txt-dim);
-      font-family: var(--font-mono);
-      text-align: center;
     }
 
     /* ==========================================================================
-       TAB 4: SITZUNGS-LOG & TELEMETRIE
+       MOBILE FLOATING THUMB DOCK (Native App Navigation)
        ========================================================================== */
-    .session-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-      font-family: var(--font-mono);
+    .mobile-thumb-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(18, 20, 23, 0.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--rim-highlight);
+      padding: 6px 12px calc(var(--safe-bottom) + 6px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
     }
 
-    .session-table th {
-      text-align: left;
-      padding: 10px 12px;
-      color: var(--txt-dim);
-      border-bottom: 1px solid var(--border-subtle);
+    .dock-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--ink-dim);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10.5px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-    }
-
-    .session-table td {
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-      color: var(--txt-main);
-    }
-
-    .session-table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    /* ==========================================================================
-       PUSH & PREFERENCES MODAL / FOOTER
-       ========================================================================== */
-    .cockpit-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding-top: 10px;
-      font-size: 12px;
-      color: var(--txt-dim);
-    }
-
-    .notification-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-full);
-      padding: 4px 12px;
       cursor: pointer;
-      color: var(--txt-muted);
+      padding: 6px 10px;
+      border-radius: 8px;
+      min-width: 58px;
       transition: all 0.15s ease;
     }
 
-    .notification-pill:hover {
-      color: var(--txt-main);
-      border-color: var(--border-prominent);
+    .dock-tab-btn:active {
+      transform: scale(0.92);
     }
 
-    .kbd-tag {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid var(--border-subtle);
-      border-radius: 3px;
-      padding: 1px 4px;
-      font-size: 10px;
-      font-family: var(--font-mono);
-      color: var(--txt-muted);
+    .dock-tab-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2.2;
     }
 
-    /* Utility tooltip */
-    [data-tooltip] {
-      position: relative;
+    .dock-tab-btn.active {
+      color: var(--vermilion);
+      background: rgba(230, 57, 70, 0.09);
+    }
+
+    /* Push Notification Modal / Card */
+    .push-banner {
+      background: var(--plate);
+      border: 1px dashed var(--rim-highlight);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .push-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Tab display control */
+    .view-deck { display: none; }
+    .view-deck.active { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Pull to refresh spinner */
+    .spin {
+      animation: rotary 0.8s linear infinite;
+    }
+    @keyframes rotary {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <div id="app">
-    <!-- COCKPIT HEADER BAR -->
-    <header class="cockpit-header">
-      <div class="brand-block">
-        <div id="status-beacon" class="pulse-beacon idle"></div>
-        <div class="brand-title">
-          CLAUDE // STAND <span class="dim">TELEMETRIE</span>
-        </div>
-        <div class="model-capsule">
-          MODEL: <b id="model-name">BEREIT</b>
+  <div id="app-container">
+    <!-- HARDWARE MACHINE HEADER -->
+    <header class="hardware-header">
+      <div class="machine-badge">
+        <div id="pilot-lamp" class="jewel-lamp active"></div>
+        <div class="machine-identity">
+          <div class="machine-title-row">
+            <span class="machine-title">STAND</span>
+            <span class="plan-pill">PRO ($20/MO)</span>
+          </div>
+          <div class="model-plate" id="header-model-stamp">CLAUDE 3.7 SONNET</div>
         </div>
       </div>
 
-      <div class="control-cluster">
-        <div class="model-capsule" id="burn-rate-pill">
-          FLUX: <b id="burn-rate-text">0.00 $/h</b>
-        </div>
-
-        <div class="segmented-switch" id="abo-switch">
-          <button class="segmented-btn active" data-abo="pro">Pro ($20)</button>
-          <button class="segmented-btn" data-abo="max">Max ($100)</button>
-          <button class="segmented-btn" data-abo="team">Team</button>
-        </div>
-
-        <button class="btn-action" id="btn-refresh" title="Neu laden (Taste: R)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <div class="header-knob-group">
+        <button class="hardware-btn" id="btn-sync" title="Messwerte synchronisieren">
+          <svg id="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
           </svg>
-          <span id="refresh-label">Sync</span>
+          <span id="sync-text">Sync</span>
         </button>
       </div>
     </header>
 
-    <!-- PRIMARY TELEMETRY: DUAL CIRCULAR HUD GAUGES -->
-    <section class="telemetry-master-deck">
-      <!-- 5-HOUR LIMIT HUD ORBITER -->
-      <article class="gauge-card" id="card-five">
-        <div class="gauge-card-header">
-          <div class="gauge-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-            5-Stunden-Fenster
-          </div>
-          <div class="gauge-badge" id="five-countdown">Wird berechnet …</div>
-        </div>
+    <!-- TAB 1: DAS PHYSIKALISCHE MESSGERÄT (Zähler & Instrument) -->
+    <div class="view-deck active" id="deck-meter">
+      <section class="chassis-box">
+        <div class="meter-counters-grid">
+          <!-- 5-HOUR LIMIT COUNTER -->
+          <div class="meter-gauge-panel">
+            <div class="meter-gauge-header">
+              <span class="meter-gauge-title">5-Stunden-Limit</span>
+              <span class="meter-countdown-stamp" id="reset-five-stamp">Wird berechnet …</span>
+            </div>
 
-        <div class="gauge-display-container">
-          <div class="circular-hud">
-            <svg viewBox="0 0 200 200">
-              <circle class="gauge-track" cx="100" cy="100" r="82"/>
-              <circle id="gauge-arc-five" class="gauge-progress mint" cx="100" cy="100" r="82" stroke-dasharray="515.2" stroke-dashoffset="515.2"/>
-            </svg>
-            <div class="gauge-center-content">
-              <div class="gauge-pct-value" id="five-pct">--<small>%</small></div>
-              <div class="gauge-status-sub" id="five-pace-text">Inaktiv</div>
+            <!-- 3D Odometer Drums for 5h -->
+            <div class="recessed-bezel" aria-label="5-Stunden-Stand">
+              <div class="walzen-cluster" id="cluster-five">
+                <div class="drum-wheel" id="d5-h"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
+                <div class="drum-wheel" id="d5-t"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
+                <div class="drum-wheel vermilion" id="d5-u"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
+              </div>
+              <span class="percent-stamp">%</span>
+            </div>
+
+            <div class="gauge-track-wrap">
+              <div class="physical-bar-track">
+                <div class="physical-bar-fill" id="bar-five"></div>
+              </div>
+            </div>
+
+            <div class="meter-footer-row">
+              <span id="rate-five-text">Tempo: 0.0 %/h</span>
+              <span id="forecast-five-text">Prognose: --</span>
+            </div>
+          </div>
+
+          <!-- WEEKLY LIMIT COUNTER -->
+          <div class="meter-gauge-panel">
+            <div class="meter-gauge-header">
+              <span class="meter-gauge-title">Wochen-Budget</span>
+              <span class="meter-countdown-stamp" id="reset-week-stamp">Wird berechnet …</span>
+            </div>
+
+            <!-- 3D Odometer Drums for Week -->
+            <div class="recessed-bezel" aria-label="Wochen-Stand">
+              <div class="walzen-cluster" id="cluster-week">
+                <div class="drum-wheel" id="dw-h"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
+                <div class="drum-wheel" id="dw-t"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
+                <div class="drum-wheel vermilion" id="dw-u"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
+              </div>
+              <span class="percent-stamp">%</span>
+            </div>
+
+            <div class="gauge-track-wrap">
+              <div class="physical-bar-track">
+                <div class="physical-bar-fill" id="bar-week"></div>
+              </div>
+            </div>
+
+            <div class="meter-footer-row">
+              <span id="pacing-week-text">Pacing: Im Plan</span>
+              <span id="daily-budget-text">Rest: -- %/Tag</span>
             </div>
           </div>
         </div>
 
-        <div class="gauge-metrics-bar">
-          <div class="gauge-metric-item">
-            <span class="lbl">Prognose bei Reset</span>
-            <span class="val" id="five-forecast">--</span>
-          </div>
-          <div class="gauge-metric-item">
-            <span class="lbl">Verbrauchstempo</span>
-            <span class="val" id="five-rate">0.0 %/h</span>
-          </div>
-        </div>
-      </article>
-
-      <!-- 7-DAY BUDGET HUD ORBITER -->
-      <article class="gauge-card" id="card-week">
-        <div class="gauge-card-header">
-          <div class="gauge-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-            7-Tage-Budget
-          </div>
-          <div class="gauge-badge" id="week-countdown">Wird berechnet …</div>
-        </div>
-
-        <div class="gauge-display-container">
-          <div class="circular-hud">
-            <svg viewBox="0 0 200 200">
-              <circle class="gauge-track" cx="100" cy="100" r="82"/>
-              <circle id="gauge-arc-week" class="gauge-progress mint" cx="100" cy="100" r="82" stroke-dasharray="515.2" stroke-dashoffset="515.2"/>
-            </svg>
-            <div class="gauge-center-content">
-              <div class="gauge-pct-value" id="week-pct">--<small>%</small></div>
-              <div class="gauge-status-sub" id="week-pacing-delta">Im Plan</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="gauge-metrics-bar">
-          <div class="gauge-metric-item">
-            <span class="lbl">Tagesbudget Rest</span>
-            <span class="val" id="week-daily-budget">-- % / Tag</span>
-          </div>
-          <div class="gauge-metric-item">
-            <span class="lbl">Vergleich Vorwoche</span>
-            <span class="val" id="week-prior-comp">--</span>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <!-- ARBITRAGE & COST HUD STRIP -->
-    <section class="stats-quad-strip">
-      <div class="stat-brick">
-        <div class="stat-brick-header">
-          <span>API-Wert Heute</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M15 9.5a3.5 3.5 0 1 0-7 0 3.5 3.5 0 0 0 7 0Z"/></svg>
-        </div>
-        <div class="stat-brick-val" id="stat-cost-today">0,00 $</div>
-        <div class="stat-brick-sub" id="stat-tokens-today">0 Tokens</div>
-      </div>
-
-      <div class="stat-brick">
-        <div class="stat-brick-header">
-          <span>API-Wert Woche</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-        </div>
-        <div class="stat-brick-val" id="stat-cost-week">0,00 $</div>
-        <div class="stat-brick-sub" id="stat-tokens-week">0 Tokens</div>
-      </div>
-
-      <div class="stat-brick">
-        <div class="stat-brick-header">
-          <span>30-Tage Arbitrage</span>
-          <span class="badge-roi" id="badge-roi">ROI Aktiv</span>
-        </div>
-        <div class="stat-brick-val" id="stat-cost-30d">0,00 $</div>
-        <div class="stat-brick-sub" id="stat-arbitrage-sub">vs. 20 $ Flatrate</div>
-      </div>
-
-      <div class="stat-brick">
-        <div class="stat-brick-header">
-          <span>Limit-Effizienz</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></svg>
-        </div>
-        <div class="stat-brick-val" id="stat-cost-per-pct">-- $/1%</div>
-        <div class="stat-brick-sub">Berechneter Nutzen</div>
-      </div>
-    </section>
-
-    <!-- INTERACTIVE WORKSPACE DECK -->
-    <main class="workspace-deck">
-      <nav class="workspace-nav-bar">
-        <div class="tab-triggers">
-          <button class="tab-trigger active" data-tab="tab-chart">1. Verlauf & Schreiber</button>
-          <button class="tab-trigger" data-tab="tab-projects">2. Projekt-Radar</button>
-          <button class="tab-trigger" data-tab="tab-heatmap">3. Wochen-Rhythmus</button>
-          <button class="tab-trigger" data-tab="tab-sessions">4. Sitzungs-Log</button>
-        </div>
-
-        <div class="segmented-switch" id="time-filter">
-          <button class="segmented-btn active" data-zeitraum="jetzt">Fenster</button>
-          <button class="segmented-btn" data-zeitraum="24h">24 h</button>
-          <button class="segmented-btn" data-zeitraum="7t">7 Tage</button>
-          <button class="segmented-btn" data-zeitraum="30t">30 Tage</button>
-        </div>
-      </nav>
-
-      <div class="workspace-content">
-        <!-- TAB 1: CHART VIEWPORT -->
-        <div class="tab-pane active" id="tab-chart">
-          <div class="chart-viewport" id="chart-container">
-            <svg class="chart-svg" id="chart-svg" preserveAspectRatio="none">
-              <!-- Dynamically populated by drawChart() -->
-            </svg>
-            <div class="chart-hud-box" id="chart-hud" style="display: none;">
-              <div id="hud-time">--:--</div>
-              <div id="hud-five" style="color: var(--sig-amber);">5h: --%</div>
-              <div id="hud-week" style="color: var(--sig-cyan);">Woche: --%</div>
-            </div>
+        <!-- FERRARIS INDUCTION ROTOR DISC (Schauglas & Stroboskop) -->
+        <div class="ferraris-housing">
+          <div class="ferraris-header">
+            <span>Ferraris-Induktionsscheibe</span>
+            <span id="ferraris-live-indicator">Läuft proportional zum Verbrauch</span>
           </div>
 
-          <div class="chart-legend-row">
-            <div class="legend-item">
-              <span class="legend-dot" style="background: var(--sig-amber);"></span>
-              <span>5-Stunden-Limit (%)</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-dot" style="background: var(--sig-cyan);"></span>
-              <span>7-Tage-Budget (%)</span>
-            </div>
-            <div class="legend-item" style="margin-left: auto;">
-              <span id="chart-bounds-text">--</span>
-            </div>
+          <div class="ferraris-slit-window" id="slit-window">
+            <div class="rotor-disc-strip"></div>
+            <div class="strobe-ticks-pattern" id="strobe-ticks"></div>
+            <div class="vermilion-notch" id="vermilion-notch"></div>
+            <div class="slit-glass-reflection"></div>
           </div>
 
-          <div class="daily-bars-container" id="daily-bars-box">
-            <!-- Dynamically populated -->
+          <div class="ferraris-meta-line">
+            <span style="color: var(--ink-dim);">1 Umdrehung / Std. = 1,00 $</span>
+            <span class="burn-rate-number" id="ferraris-burn-display">0,00 $ / h</span>
           </div>
         </div>
+      </section>
 
-        <!-- TAB 2: PROJECTS RADAR -->
-        <div class="tab-pane" id="tab-projects">
-          <div class="project-grid" id="project-cards-container">
-            <!-- Dynamically populated -->
-          </div>
+      <!-- FINANCIAL ARBITRAGE CARDS (CLAUDE PRO ARBITRAGE) -->
+      <section class="stat-trio-row">
+        <div class="tactile-card">
+          <span class="tactile-card-lbl">API-Wert Heute</span>
+          <span class="tactile-card-val" id="val-cost-today">0,00 $</span>
+          <span class="tactile-card-sub" id="val-tok-today">0 Tokens</span>
         </div>
 
-        <!-- TAB 3: WEEKLY HEATMAP -->
-        <div class="tab-pane" id="tab-heatmap">
-          <div class="heatmap-board" id="heatmap-board">
-            <!-- Dynamically populated 7x24 grid -->
-          </div>
+        <div class="tactile-card">
+          <span class="tactile-card-lbl">API-Wert Woche</span>
+          <span class="tactile-card-val" id="val-cost-week">0,00 $</span>
+          <span class="tactile-card-sub" id="val-tok-week">0 Tokens</span>
         </div>
 
-        <!-- TAB 4: SESSIONS LOG -->
-        <div class="tab-pane" id="tab-sessions">
-          <div style="overflow-x: auto;">
-            <table class="session-table">
-              <thead>
-                <tr>
-                  <th>Sitzungs-ID</th>
-                  <th>Projekt</th>
-                  <th>Tokens In/Out</th>
-                  <th>Kosten</th>
-                  <th>Code Diff</th>
-                  <th>Aktivität</th>
-                </tr>
-              </thead>
-              <tbody id="session-table-body">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
+        <div class="tactile-card">
+          <span class="tactile-card-lbl">30-Tage Pro-Arbitrage</span>
+          <span class="tactile-card-val" id="val-arbitrage">0,00 $</span>
+          <span class="tactile-card-sub" id="val-arbitrage-sub">vs. 20 $ Pro Flatrate</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: MILLIMETER-SCHREIBER (Chart & 24h Spur) -->
+    <div class="view-deck" id="deck-chart">
+      <section class="content-panel">
+        <div class="panel-header-row">
+          <span class="panel-title">Messkurven-Schreiber</span>
+          <span style="font-size: 11px; font-family: var(--font-numbers); color: var(--ink-dim);">5h & Woche</span>
+        </div>
+
+        <div class="millimeter-chart-box" id="chart-box">
+          <svg class="chart-svg-element" id="meter-svg"></svg>
+          <div class="chart-tooltip-hud" id="chart-tooltip" style="display: none;"></div>
+        </div>
+
+        <div style="display: flex; gap: 16px; font-size: 12px; font-family: var(--font-numbers); color: var(--ink-secondary);">
+          <span style="display: flex; align-items: center; gap: 5px;">
+            <span style="width: 10px; height: 3px; background: var(--amber); border-radius: 1px;"></span> 5-Stunden
+          </span>
+          <span style="display: flex; align-items: center; gap: 5px;">
+            <span style="width: 10px; height: 3px; background: var(--cyan); border-radius: 1px;"></span> Woche
+          </span>
+        </div>
+
+        <div style="margin-top: 10px;">
+          <span class="panel-title" style="font-size: 12px;">Tagesverbrauch der aktiven Woche</span>
+          <div id="daily-bars-target" style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 3: PROJEKT-RADAR -->
+    <div class="view-deck" id="deck-projects">
+      <section class="content-panel">
+        <div class="panel-header-row">
+          <span class="panel-title">Projekt-Radar</span>
+          <span id="projects-total-count" style="font-size: 12px; font-family: var(--font-numbers); color: var(--ink-secondary);">-- Projekte</span>
+        </div>
+
+        <div class="project-rows-list" id="projects-container">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 4: RHYTHMUS (Heatmap & Arbeitszeiten) -->
+    <div class="view-deck" id="deck-heatmap">
+      <section class="content-panel">
+        <div class="panel-header-row">
+          <span class="panel-title">Wochen-Rhythmus</span>
+          <span style="font-size: 11px; font-family: var(--font-numbers); color: var(--ink-dim);">24h Matrix</span>
+        </div>
+
+        <div class="heatmap-board" id="heatmap-target">
+          <!-- Dynamically populated 7x24 grid -->
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 5: ALARM & MITTEILUNGEN -->
+    <div class="view-deck" id="deck-alarm">
+      <section class="content-panel">
+        <div class="panel-header-row">
+          <span class="panel-title">Reset-Mitteilungen & Claude Pro</span>
+        </div>
+
+        <div class="push-banner">
+          <p style="font-size: 13px; color: var(--ink-secondary);" id="push-info-text">
+            Erhalte eine automatische Push-Mitteilung auf dein Smartphone, sobald dein 5-Stunden-Limit wieder freigegeben ist.
+          </p>
+          <div class="push-actions">
+            <button class="hardware-btn" id="btn-push-on">Mitteilungen einschalten</button>
+            <button class="hardware-btn" id="btn-push-test" style="display: none;">Test-Alarm senden</button>
+            <button class="hardware-btn" id="btn-push-off" style="display: none;">Ausschalten</button>
+          </div>
+          <span id="push-status-lbl" style="font-size: 11.5px; font-family: var(--font-numbers); color: var(--ink-dim);"></span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+          <span class="panel-title" style="font-size: 12px;">Tarif-Berechnung</span>
+          <div style="display: flex; gap: 8px;">
+            <button class="hardware-btn active" data-plan="pro" style="border-color: var(--pro-gold); color: var(--pro-gold);">Claude Pro ($20/Monat)</button>
+            <button class="hardware-btn" data-plan="max">Max ($100)</button>
+            <button class="hardware-btn" data-plan="team">Team</button>
           </div>
         </div>
-      </div>
-    </main>
+      </section>
+    </div>
 
-    <!-- FOOTER & SYSTEM STATUS -->
-    <footer class="cockpit-footer">
-      <div style="display: flex; align-items: center; gap: 14px;">
-        <span id="connection-meta">Verbunden mit Cloudflare Worker</span>
-        <span>·</span>
-        <span>Shortcuts: <span class="kbd-tag">R</span> Refresh · <span class="kbd-tag">1-4</span> Tabs</span>
-      </div>
+    <!-- MOBILE FLOATING THUMB DOCK (Native Handheld Ergonomics) -->
+    <nav class="mobile-thumb-dock">
+      <button class="dock-tab-btn active" data-deck="deck-meter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span>Zähler</span>
+      </button>
 
-      <div class="notification-pill" id="btn-notifications">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span id="notify-status-text">Mitteilungen bei Reset</span>
-      </div>
-    </footer>
+      <button class="dock-tab-btn" data-deck="deck-chart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Schreiber</span>
+      </button>
+
+      <button class="dock-tab-btn" data-deck="deck-projects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Projekte</span>
+      </button>
+
+      <button class="dock-tab-btn" data-deck="deck-heatmap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Rhythmus</span>
+      </button>
+
+      <button class="dock-tab-btn" data-deck="deck-alarm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span>Alarm</span>
+      </button>
+    </nav>
   </div>
 
   <!-- Pure Logic Calculations Engine -->
@@ -1150,34 +1070,32 @@
   <script>
     'use strict';
 
-    // API Routing
-    const API = location.search.includes('local') ? 'http://localhost:8787' : 'https://claude-stand.spanani.workers.dev';
-    const deDE = new Intl.NumberFormat('de-DE');
+    const API = ['localhost', '127.0.0.1'].includes(location.hostname) ? 'http://localhost:8787' : 'https://claude-stand.spanani.workers.dev';
     const geldDE = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
+    
     let rawData = null;
-    let abo = 'pro';
-    let zeitraum = 'jetzt';
-    let activeTab = 'tab-chart';
-    let lastFetched = 0;
-    const CIRCUMFERENCE = 2 * Math.PI * 82; // 515.22 px for r=82
+    let selectedPlan = 'pro'; // User has Claude Pro ($20/Monat)
+    let currentBurnRate = 0;
+    let discAnimationId = null;
+    let discOffset = 0;
+    let pushSub = null;
+    let swReg = null;
 
     function $(id) { return document.getElementById(id); }
 
-    // Fallback data if offline or file:/// CORS blocks
+    // Haptic feedback trigger for mobile
+    function haptic() {
+      if ('vibrate' in navigator) navigator.vibrate(8);
+    }
+
+    // Fallback sample data if offline
     function createSampleData() {
       const now = Date.now();
       const H = 3600000, TAG = 24 * H;
       const R5 = now + 1.8 * H;
       const RW = now + 4.2 * TAG;
       const r = (min, five, week, cost, s) => ({
-        at: now - min * 60000,
-        session: s,
-        cost,
-        five,
-        five_reset: R5,
-        week,
-        week_reset: RW
+        at: now - min * 60000, session: s, cost, five, five_reset: R5, week, week_reset: RW
       });
 
       const readings = [
@@ -1198,7 +1116,6 @@
       return { now, readings, sessions, keep: 35 * TAG };
     }
 
-    // Formatters
     function formatGeld(val) {
       if (val == null || isNaN(val)) return '0,00 $';
       return geldDE.format(val) + ' $';
@@ -1217,122 +1134,105 @@
       const h = Math.floor(sec / 3600);
       const m = Math.floor((sec % 3600) / 60);
       const s = Math.floor(sec % 60);
-      if (h > 24) {
-        const d = Math.floor(h / 24);
-        return `Reset in ${d}d ${h % 24}h`;
-      }
+      if (h > 24) return `Reset in ${Math.floor(h / 24)}d ${h % 24}h`;
       if (h > 0) return `Reset in ${h}h ${m}m`;
       return `Reset in ${m}m ${s}s`;
     }
 
-    // Render Gauges
-    function updateGauge(arcId, pctId, pct, targetStrokeClass) {
-      const clamped = Math.max(0, Math.min(100, pct || 0));
-      const offset = CIRCUMFERENCE - (clamped / 100) * CIRCUMFERENCE;
-      const arc = $(arcId);
-      arc.style.strokeDashoffset = offset;
-      
-      arc.classList.remove('mint', 'amber', 'crimson');
-      arc.classList.add(targetStrokeClass);
+    // Set 3D Mechanical Odometer Drum Wheels
+    function setOdometer(prefix, val) {
+      const clamped = Math.max(0, Math.min(100, Math.round(val || 0)));
+      const str = String(clamped).padStart(3, '0');
+      const h = $(prefix + '-h'), t = $(prefix + '-t'), u = $(prefix + '-u');
 
-      $(pctId).innerHTML = `${Math.round(clamped)}<small>%</small>`;
+      h.querySelector('.drum-tape').style.setProperty('--digit', str[0]);
+      t.querySelector('.drum-tape').style.setProperty('--digit', str[1]);
+      u.querySelector('.drum-tape').style.setProperty('--digit', str[2]);
+
+      h.classList.toggle('dim-lead', clamped < 100);
+      t.classList.toggle('dim-lead', clamped < 10);
     }
 
-    // Master Render Routine
-    function renderTelemetry() {
-      if (!rawData) return;
+    // Ferraris Strobe Wheel Animation Loop
+    function startFerrarisDisc() {
+      let lastTime = performance.now();
+      const notch = $('vermilion-notch');
+      const strobe = $('strobe-ticks');
+      const slitW = $('slit-window').clientWidth || 300;
 
+      function step(now) {
+        const dt = (now - lastTime) / 1000;
+        lastTime = now;
+
+        const speed = Math.min(8.0, Math.max(0.0, currentBurnRate > 0 ? Math.sqrt(currentBurnRate) : 0));
+        if (speed > 0) {
+          discOffset = (discOffset + dt * speed * (slitW / 12)) % slitW;
+          notch.style.transform = `translateX(${discOffset}px)`;
+          strobe.style.transform = `translateX(${(discOffset % 12)}px)`;
+        }
+
+        discAnimationId = requestAnimationFrame(step);
+      }
+      if (discAnimationId) cancelAnimationFrame(discAnimationId);
+      discAnimationId = requestAnimationFrame(step);
+    }
+
+    // Main Telemetry Render Routine
+    function renderApp() {
+      if (!rawData) return;
       const now = Date.now();
       const f5List = fenster(rawData.readings, 'five');
       const fwList = fenster(rawData.readings, 'week');
       const f5 = f5List[f5List.length - 1];
       const fw = fwList[fwList.length - 1];
 
-      // Active status & Beacon
+      // Live Pilot Lamp & Active Model
       const lastSession = rawData.sessions[0];
       const isLive = lastSession && (now - lastSession.updated) < 180000;
-      const beacon = $('status-beacon');
-      beacon.className = isLive ? 'pulse-beacon active' : 'pulse-beacon idle';
-      $('model-name').textContent = lastSession ? (lastSession.model || 'CLAUDE') : 'BEREIT';
+      $('pilot-lamp').className = isLive ? 'jewel-lamp active' : 'jewel-lamp';
+      $('header-model-stamp').textContent = lastSession ? (lastSession.model || 'CLAUDE') : 'BEREIT';
 
-      // 5-Hour Limit Orbiter
+      // 5-Hour Odometer & Bar
       if (f5) {
+        setOdometer('d5', f5.peak);
+        const bar5 = $('bar-five');
+        bar5.style.width = `${f5.peak}%`;
+        bar5.className = f5.peak >= 90 ? 'physical-bar-fill alarm' : f5.peak >= 75 ? 'physical-bar-fill warning' : 'physical-bar-fill';
+
         const t5 = tempo(f5, now, 3600000);
         const restSec = Math.max(0, (f5.reset - now) / 1000);
-        $('five-countdown').textContent = formatCountdown(restSec);
-        
-        let strokeClass = 'mint';
-        if (f5.peak >= 90) strokeClass = 'crimson';
-        else if (f5.peak >= 75) strokeClass = 'amber';
-
-        updateGauge('gauge-arc-five', 'five-pct', f5.peak, strokeClass);
-
-        if (t5.proStunde > 0) {
-          $('five-rate').textContent = `${t5.proStunde.toFixed(1)} %/h`;
-          $('five-pace-text').textContent = t5.aktiv ? 'Aktivität gemessen' : 'Zuletzt aktiv';
-        } else {
-          $('five-rate').textContent = '0.0 %/h';
-          $('five-pace-text').textContent = 'Keine Steigerung';
-        }
-
-        if (t5.voll && t5.voll < f5.reset) {
-          const vollIn = Math.max(1, Math.round((t5.voll - now) / 60000));
-          $('five-forecast').textContent = `Voll in ${vollIn} min!`;
-          $('five-forecast').className = 'val val-highlight-crimson';
-        } else {
-          $('five-forecast').textContent = `ca. ${Math.round(t5.amEnde)} % bei Reset`;
-          $('five-forecast').className = 'val';
-        }
+        $('reset-five-stamp').textContent = formatCountdown(restSec);
+        $('rate-five-text').textContent = t5.proStunde > 0 ? `Tempo: ${t5.proStunde.toFixed(1)} %/h` : 'Keine Steigerung';
+        $('forecast-five-text').textContent = t5.voll && t5.voll < f5.reset ? `Voll in ${Math.round((t5.voll - now)/60000)}m!` : `ca. ${Math.round(t5.amEnde)} % bei Reset`;
       }
 
-      // 7-Day Budget Orbiter
+      // Weekly Odometer & Bar
       if (fw) {
+        setOdometer('dw', fw.peak);
+        const barW = $('bar-week');
+        barW.style.width = `${fw.peak}%`;
+        barW.className = fw.peak >= 90 ? 'physical-bar-fill alarm' : fw.peak >= 75 ? 'physical-bar-fill warning' : 'physical-bar-fill';
+
         const pl = plan(fw, now);
         const restSec = Math.max(0, (fw.reset - now) / 1000);
-        $('week-countdown').textContent = formatCountdown(restSec);
-
-        let strokeClass = 'mint';
-        if (fw.peak >= 90) strokeClass = 'crimson';
-        else if (fw.peak >= 75) strokeClass = 'amber';
-
-        updateGauge('gauge-arc-week', 'week-pct', fw.peak, strokeClass);
-
-        if (pl.proTag != null) {
-          $('week-daily-budget').textContent = `${pl.proTag.toFixed(1)} % / Tag`;
-        }
-
+        $('reset-week-stamp').textContent = formatCountdown(restSec);
+        $('daily-budget-text').textContent = pl.proTag != null ? `Rest: ${pl.proTag.toFixed(1)} %/Tag` : 'Rest: --';
+        
         const delta = Math.round(pl.abstand);
-        if (delta > 3) {
-          $('week-pacing-delta').textContent = `+${delta}% Über Soll`;
-          $('week-pacing-delta').style.color = 'var(--sig-amber)';
-        } else if (delta < -3) {
-          $('week-pacing-delta').textContent = `${delta}% Puffer`;
-          $('week-pacing-delta').style.color = 'var(--sig-mint)';
-        } else {
-          $('week-pacing-delta').textContent = 'Exakt im Plan';
-          $('week-pacing-delta').style.color = 'var(--txt-muted)';
-        }
-
-        if (fwList.length >= 2) {
-          const comp = vergleich(fwList[fwList.length - 2], fw, now);
-          $('week-prior-comp').textContent = `${Math.round(comp.damals)}% damals`;
-        } else {
-          $('week-prior-comp').textContent = 'Erste Messwoche';
-        }
+        $('pacing-week-text').textContent = delta > 3 ? `+${delta}% Über Soll` : delta < -3 ? `${delta}% Puffer` : 'Exakt im Plan';
       }
 
-      // Burn rate speed
-      let burnRate = 0;
+      // Burn Rate Calculation
+      currentBurnRate = 0;
       if (rawData.readings.length >= 2) {
         const recent = rawData.readings.slice(-6);
         const dt = (recent[recent.length - 1].at - recent[0].at) / 3600000;
         const dc = (recent[recent.length - 1].cost || 0) - (recent[0].cost || 0);
-        if (dt > 0.05 && dc >= 0) burnRate = dc / dt;
+        if (dt > 0.05 && dc >= 0) currentBurnRate = dc / dt;
       }
-      $('burn-rate-text').textContent = `${burnRate.toFixed(2)} $/h`;
+      $('ferraris-burn-display').textContent = `${currentBurnRate.toFixed(2)} $ / h`;
 
-      // Financial Arbitrage Strips
-      const today = new Date().toISOString().slice(0, 10);
+      // Financial Arbitrage Stats (for user's Claude Pro Plan)
       let costToday = 0, tokToday = 0;
       let costWeek = 0, tokWeek = 0;
       const weekStart = now - 7 * 86400000;
@@ -1348,128 +1248,103 @@
         }
       }
 
-      $('stat-cost-today').textContent = formatGeld(costToday);
-      $('stat-tokens-today').textContent = formatTokens(tokToday);
-      $('stat-cost-week').textContent = formatGeld(costWeek);
-      $('stat-tokens-week').textContent = formatTokens(tokWeek);
+      $('val-cost-today').textContent = formatGeld(costToday);
+      $('val-tok-today').textContent = formatTokens(tokToday);
+      $('val-cost-week').textContent = formatGeld(costWeek);
+      $('val-tok-week').textContent = formatTokens(tokWeek);
 
-      // 30-Day Arbitrage
       const ap = apiWert(rawData.sessions, now);
       if (ap) {
-        $('stat-cost-30d').textContent = formatGeld(ap.dollar);
-        const flatCost = abo === 'max' ? 100 : 20;
-        const roiRatio = ap.dollar > 0 ? (ap.dollar / flatCost).toFixed(1) : '1.0';
-        $('badge-roi').textContent = `${roiRatio}x Ersparnis`;
-        $('stat-arbitrage-sub').textContent = `vs. ${flatCost} $ Flatrate`;
+        $('val-arbitrage').textContent = formatGeld(ap.dollar);
+        const flatCost = selectedPlan === 'max' ? 100 : 20; // 20$ for Pro
+        const roi = ap.dollar > 0 ? (ap.dollar / flatCost).toFixed(1) : '1.0';
+        $('val-arbitrage-sub').textContent = `${roi}x Ersparnis (vs. ${flatCost} $ Pro)`;
       }
 
-      // Efficiency
-      const eff = wert(rawData.readings, fwList, rawData.sessions, now - 7 * 86400000);
-      if (eff && eff.proProzent != null) {
-        $('stat-cost-per-pct').textContent = `${eff.proProzent.toFixed(2)} $/1%`;
-      } else {
-        $('stat-cost-per-pct').textContent = '-- $/1%';
-      }
-
-      // Render Active Tab Content
-      if (activeTab === 'tab-chart') renderChartTab(f5, fw);
-      else if (activeTab === 'tab-projects') renderProjectsTab(fwList);
-      else if (activeTab === 'tab-heatmap') renderHeatmapTab(f5List);
-      else if (activeTab === 'tab-sessions') renderSessionsTab();
+      // Render Sub-views
+      renderMillimeterChart(f5, fw);
+      renderProjectsList(fwList);
+      renderHeatmapMatrix(f5List);
     }
 
-    // Tab 1: Chart Renderer
-    function renderChartTab(f5, fw) {
-      const svg = $('chart-svg');
-      const box = $('chart-container');
-      const W = box.clientWidth || 800;
-      const H = box.clientHeight || 280;
+    // Render Millimeter Chart
+    function renderMillimeterChart(f5, fw) {
+      const svg = $('meter-svg');
+      const box = $('chart-box');
+      const W = box.clientWidth || 600, H = box.clientHeight || 260;
 
-      let svgHtml = '';
-      // Grid lines
+      let html = '';
       for (let y = 0; y <= 100; y += 25) {
-        const yPos = H - (y / 100) * (H - 30) - 15;
-        svgHtml += `<line class="grid-line" x1="0" y1="${yPos}" x2="${W}" y2="${yPos}" />`;
-        svgHtml += `<text x="8" y="${yPos - 4}" fill="rgba(255,255,255,0.2)" font-size="10" font-family="monospace">${y}%</text>`;
+        const yPos = H - (y / 100) * (H - 24) - 12;
+        html += `<line x1="0" y1="${yPos}" x2="${W}" y2="${yPos}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+        html += `<text x="8" y="${yPos - 3}" fill="rgba(255,255,255,0.25)" font-size="9" font-family="monospace">${y}%</text>`;
       }
 
       if (f5 && f5.punkte && f5.punkte.length >= 2) {
         const pts = f5.punkte;
-        const tMin = pts[0].at;
-        const tMax = pts[pts.length - 1].at;
-        const dt = Math.max(1, tMax - tMin);
-
-        let d5 = '';
+        const t0 = pts[0].at, dt = Math.max(1, pts[pts.length - 1].at - t0);
+        let path = '';
         pts.forEach((p, i) => {
-          const x = ((p.at - tMin) / dt) * (W - 40) + 20;
-          const y = H - (p.v / 100) * (H - 40) - 20;
-          d5 += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)} `;
+          const x = ((p.at - t0) / dt) * (W - 30) + 15;
+          const y = H - (p.v / 100) * (H - 30) - 15;
+          path += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)} `;
         });
-        svgHtml += `<path class="curve-five" d="${d5}" />`;
+        html += `<path d="${path}" fill="none" stroke="var(--amber)" stroke-width="2.5"/>`;
       }
 
       if (fw && fw.punkte && fw.punkte.length >= 2) {
         const pts = fw.punkte;
-        const tMin = pts[0].at;
-        const tMax = pts[pts.length - 1].at;
-        const dt = Math.max(1, tMax - tMin);
-
-        let dw = '';
+        const t0 = pts[0].at, dt = Math.max(1, pts[pts.length - 1].at - t0);
+        let path = '';
         pts.forEach((p, i) => {
-          const x = ((p.at - tMin) / dt) * (W - 40) + 20;
-          const y = H - (p.v / 100) * (H - 40) - 20;
-          dw += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)} `;
+          const x = ((p.at - t0) / dt) * (W - 30) + 15;
+          const y = H - (p.v / 100) * (H - 30) - 15;
+          path += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)} `;
         });
-        svgHtml += `<path class="curve-week" d="${dw}" />`;
+        html += `<path d="${path}" fill="none" stroke="var(--cyan)" stroke-width="2"/>`;
       }
 
-      svg.innerHTML = svgHtml;
+      svg.innerHTML = html;
 
       // Daily bars
       if (fw) {
         const tg = tage(fw, Date.now());
         const maxVal = Math.max(1, ...tg.liste.map(d => d.gemessen + d.offen));
-        let barsHtml = '';
+        let bHtml = '';
         tg.liste.slice(-7).forEach(d => {
           const dateStr = new Date(d.von).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
           const wGem = ((d.gemessen / maxVal) * 100).toFixed(1);
-          const wOff = ((d.offen / maxVal) * 100).toFixed(1);
-          barsHtml += `
-            <div class="daily-bar-row">
-              <span style="color: var(--txt-muted);">${dateStr}</span>
-              <div class="daily-bar-track">
-                <div class="daily-bar-fill" style="width: ${wGem}%;"></div>
-                <div class="daily-bar-fill offen" style="width: ${wOff}%;"></div>
+          bHtml += `
+            <div style="display:grid;grid-template-columns:70px 1fr 50px;align-items:center;gap:10px;font-size:11px;font-family:var(--font-numbers);">
+              <span style="color:var(--ink-secondary);">${dateStr}</span>
+              <div style="height:10px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;">
+                <div style="height:100%;width:${wGem}%;background:var(--cyan);"></div>
               </div>
-              <span style="text-align: right; font-weight: 700;">${Math.round(d.gemessen + d.offen)}%</span>
+              <span style="text-align:right;font-weight:700;">${Math.round(d.gemessen + d.offen)}%</span>
             </div>
           `;
         });
-        $('daily-bars-box').innerHTML = barsHtml;
+        $('daily-bars-target').innerHTML = bHtml;
       }
     }
 
-    // Tab 2: Projects Tab
-    function renderProjectsTab(fwList) {
-      const container = $('project-cards-container');
+    // Render Projects List
+    function renderProjectsList(fwList) {
+      const container = $('projects-container');
       const prjs = projekte(fwList, rawData.sessions, 0, Infinity);
-      const totalCost = prjs.reduce((s, p) => s + p.kosten, 0) || 1;
+      $('projects-total-count').textContent = `${prjs.length} Projekte erfasst`;
 
       let html = '';
       prjs.forEach(p => {
-        const pct = Math.min(100, (p.kosten / totalCost) * 100).toFixed(1);
         html += `
-          <div class="project-card">
-            <div class="project-card-header">
-              <span class="project-name">${p.name || 'Ohne Projekt'}</span>
-              <span class="project-cost">${formatGeld(p.kosten)}</span>
+          <div class="project-row-item">
+            <div class="project-row-top">
+              <span>${p.name || 'Ohne Projekt'}</span>
+              <span style="color: var(--emerald); font-family: var(--font-numbers);">${formatGeld(p.kosten)}</span>
             </div>
-            <div class="project-bar-wrap">
-              <div class="project-bar-fill" style="width: ${pct}%;"></div>
-            </div>
-            <div class="project-diff-meta">
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;font-family:var(--font-numbers);color:var(--ink-secondary);">
               <span>${p.sitzungen.length} Sitzungen · +${p.plus}% Limit</span>
-              <span><span class="diff-added">+${p.plusZeilen}</span> / <span class="diff-removed">-${p.minusZeilen}</span></span>
+              <span><span class="diff-badge-green">+${p.plusZeilen}</span> / <span class="diff-badge-red">-${p.minusZeilen}</span></span>
             </div>
           </div>
         `;
@@ -1477,129 +1352,175 @@
       container.innerHTML = html;
     }
 
-    // Tab 3: Weekly Heatmap Tab
-    function renderHeatmapTab(f5List) {
-      const container = $('heatmap-board');
+    // Render Heatmap Matrix
+    function renderHeatmapMatrix(f5List) {
+      const target = $('heatmap-target');
       const matrix = rhythmus(f5List, Date.now() - 30 * 86400000);
       const days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
       const maxVal = Math.max(1, ...matrix.flat().map(c => c.plus));
 
-      let html = '<div class="heatmap-hour-scale"><span></span>';
-      for (let h = 0; h < 24; h += 2) html += `<span style="grid-column: span 2;">${h}h</span>`;
+      let html = '<div class="heatmap-row"><span></span>';
+      for (let h = 0; h < 24; h += 2) html += `<span style="grid-column: span 2; font-size: 9px; font-family: var(--font-numbers); color: var(--ink-dim); text-align: center;">${h}</span>`;
       html += '</div>';
 
       matrix.forEach((row, dayIdx) => {
-        html += `<div class="heatmap-row"><span class="heatmap-day-label">${days[dayIdx]}</span>`;
+        html += `<div class="heatmap-row"><span class="heatmap-day">${days[dayIdx]}</span>`;
         row.forEach((cell, h) => {
-          const intensity = cell.plus > 0 ? Math.min(1, Math.max(0.15, cell.plus / maxVal)) : 0;
-          const bg = intensity > 0 ? `rgba(245, 158, 11, ${intensity})` : 'rgba(255, 255, 255, 0.03)';
-          html += `<div class="heatmap-cell" style="background: ${bg};" title="${days[dayIdx]} ${h}:00 Uhr: +${Math.round(cell.plus)}% Limit"></div>`;
+          const intensity = cell.plus > 0 ? Math.min(1, Math.max(0.2, cell.plus / maxVal)) : 0;
+          const bg = intensity > 0 ? `rgba(244, 162, 97, ${intensity})` : 'rgba(255, 255, 255, 0.04)';
+          html += `<div class="heatmap-tile" style="background:${bg};" title="${days[dayIdx]} ${h}:00 Uhr: +${Math.round(cell.plus)}% Limit"></div>`;
         });
         html += '</div>';
       });
 
-      container.innerHTML = html;
+      target.innerHTML = html;
     }
 
-    // Tab 4: Sessions Tab
-    function renderSessionsTab() {
-      const tbody = $('session-table-body');
-      let html = '';
-      rawData.sessions.slice(0, 20).forEach(s => {
-        const timeStr = new Date(s.updated).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-        html += `
-          <tr>
-            <td style="color: var(--txt-muted);">${s.id.slice(0, 8)}…</td>
-            <td style="font-weight: 600; color: var(--txt-bright);">${s.project || 'Apps'}</td>
-            <td>${formatTokens(s.input_tokens || 0)} / ${formatTokens(s.output_tokens || 0)}</td>
-            <td style="color: var(--sig-mint);">${formatGeld(s.cost || 0)}</td>
-            <td><span class="diff-added">+${s.added || 0}</span> / <span class="diff-removed">-${s.removed || 0}</span></td>
-            <td>${timeStr}</td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
-
-    // Data Fetcher
-    async function fetchState() {
-      $('btn-refresh').classList.add('loading');
-      $('refresh-label').textContent = 'Sync …';
+    // Data Sync
+    async function syncData() {
+      haptic();
+      $('sync-icon').classList.add('spin');
+      $('sync-text').textContent = 'Sync …';
 
       try {
         const res = await fetch(`${API}/state`, { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         rawData = rawData ? einmischen(rawData, json) : json;
-        lastFetched = Date.now();
-        $('connection-meta').textContent = `Live verbunden (${new Date().toLocaleTimeString('de-DE')})`;
       } catch (err) {
         console.warn('API Sync fallback:', err);
         if (!rawData) rawData = createSampleData();
-        $('connection-meta').textContent = 'Lokal / Offline-Vorschau aktiv';
       } finally {
-        $('btn-refresh').classList.remove('loading');
-        $('refresh-label').textContent = 'Sync';
-        renderTelemetry();
+        $('sync-icon').classList.remove('spin');
+        $('sync-text').textContent = 'Sync';
+        renderApp();
       }
     }
 
-    // Tab Navigation
-    document.querySelectorAll('.tab-trigger').forEach(btn => {
+    // Mobile Dock Navigation
+    document.querySelectorAll('.dock-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-trigger').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        haptic();
+        document.querySelectorAll('.dock-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.view-deck').forEach(d => d.classList.remove('active'));
+
         btn.classList.add('active');
-        activeTab = btn.dataset.tab;
-        $(activeTab).classList.add('active');
-        renderTelemetry();
+        const deckId = btn.dataset.deck;
+        $(deckId).classList.add('active');
+
+        if (deckId === 'deck-chart') {
+          setTimeout(() => {
+            if (rawData) {
+              const f5 = fenster(rawData.readings, 'five');
+              const fw = fenster(rawData.readings, 'week');
+              renderMillimeterChart(f5[f5.length - 1], fw[fw.length - 1]);
+            }
+          }, 50);
+        }
       });
     });
 
     // Plan Switching
-    document.querySelectorAll('#abo-switch .segmented-btn').forEach(btn => {
+    document.querySelectorAll('[data-plan]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('#abo-switch .segmented-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        abo = btn.dataset.abo;
-        renderTelemetry();
+        haptic();
+        selectedPlan = btn.dataset.plan;
+        document.querySelectorAll('[data-plan]').forEach(b => {
+          b.classList.toggle('active', b === btn);
+          if (b === btn && b.dataset.plan === 'pro') {
+            b.style.borderColor = 'var(--pro-gold)';
+            b.style.color = 'var(--pro-gold)';
+          } else {
+            b.style.borderColor = '';
+            b.style.color = '';
+          }
+        });
+        renderApp();
       });
     });
 
-    // Keyboard Shortcuts
-    window.addEventListener('keydown', e => {
-      if (e.key === 'r' || e.key === 'R') fetchState();
-      if (['1', '2', '3', '4'].includes(e.key)) {
-        const triggers = document.querySelectorAll('.tab-trigger');
-        const idx = parseInt(e.key, 10) - 1;
-        if (triggers[idx]) triggers[idx].click();
+    $('btn-sync').addEventListener('click', syncData);
+
+    // Web Push API Integration
+    const b64ToUint8 = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0));
+
+    async function updatePushUI() {
+      if (!swReg) return;
+      try {
+        pushSub = await swReg.pushManager.getSubscription();
+        $('btn-push-on').style.display = pushSub ? 'none' : 'inline-flex';
+        $('btn-push-test').style.display = pushSub ? 'inline-flex' : 'none';
+        $('btn-push-off').style.display = pushSub ? 'inline-flex' : 'none';
+        $('push-status-lbl').textContent = pushSub ? 'Push-Mitteilungen sind aktiv' : 'Mitteilungen sind aus';
+      } catch (err) {
+        $('push-status-lbl').textContent = 'Push in diesem Browser nicht verfügbar';
+      }
+    }
+
+    $('btn-push-on').addEventListener('click', async () => {
+      haptic();
+      try {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') throw new Error('Erlaubnis verweigert');
+        const rKey = await fetch(`${API}/key`);
+        const { key } = await rKey.json();
+        pushSub = await swReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToUint8(key) });
+        await fetch(`${API}/sub`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sub: pushSub.toJSON(), reset: true }) });
+        $('push-status-lbl').textContent = 'Erfolgreich aktiviert!';
+        updatePushUI();
+      } catch (e) {
+        $('push-status-lbl').textContent = e.message || 'Aktivierung fehlgeschlagen';
       }
     });
 
-    $('btn-refresh').addEventListener('click', fetchState);
+    $('btn-push-test').addEventListener('click', async () => {
+      haptic();
+      try {
+        if (!pushSub) return;
+        await fetch(`${API}/test`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: pushSub.endpoint }) });
+        $('push-status-lbl').textContent = 'Test-Mitteilung gesendet!';
+      } catch (e) {
+        $('push-status-lbl').textContent = 'Fehler beim Senden';
+      }
+    });
 
-    // Dynamic Countdown loop
+    $('btn-push-off').addEventListener('click', async () => {
+      haptic();
+      try {
+        if (!pushSub) return;
+        await fetch(`${API}/sub`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: pushSub.endpoint }) });
+        await pushSub.unsubscribe();
+        pushSub = null;
+        updatePushUI();
+      } catch (e) {
+        $('push-status-lbl').textContent = 'Deaktivierung fehlgeschlagen';
+      }
+    });
+
+    // Countdowns tick loop
     setInterval(() => {
       if (!rawData) return;
       const now = Date.now();
       const f5List = fenster(rawData.readings, 'five');
       const fwList = fenster(rawData.readings, 'week');
-      if (f5List.length) $('five-countdown').textContent = formatCountdown(Math.max(0, (f5List[f5List.length - 1].reset - now) / 1000));
-      if (fwList.length) $('week-countdown').textContent = formatCountdown(Math.max(0, (fwList[fwList.length - 1].reset - now) / 1000));
+      if (f5List.length) $('reset-five-stamp').textContent = formatCountdown(Math.max(0, (f5List[f5List.length - 1].reset - now) / 1000));
+      if (fwList.length) $('reset-week-stamp').textContent = formatCountdown(Math.max(0, (fwList[fwList.length - 1].reset - now) / 1000));
     }, 1000);
 
     // Auto-sync every 30s
     setInterval(() => {
-      if (document.visibilityState === 'visible') fetchState();
+      if (document.visibilityState === 'visible') syncData();
     }, 30000);
 
-    // Register Service Worker
+    // Service Worker Init
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => {});
+      navigator.serviceWorker.register('sw.js', { scope: './' })
+        .then(reg => { swReg = reg; updatePushUI(); })
+        .catch(() => {});
     }
 
-    // Initial load
-    fetchState();
+    startFerrarisDisc();
+    syncData();
   </script>
 </body>
 </html>

@@ -176,6 +176,8 @@ Add-Type -AssemblyName PresentationFramework, System.Windows.Forms, System.Drawi
 Add-Type -Namespace Stand -Name Native -MemberDefinition @'
 [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
 [DllImport("user32.dll")] public static extern bool DestroyIcon(IntPtr handle);
+[DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetClassName(IntPtr hwnd, System.Text.StringBuilder name, int max);
 '@
 $null = [Stand.Native]::SetProcessDPIAware()
 Get-ChildItem -LiteralPath $store -Filter *.json -ErrorAction SilentlyContinue | Where-Object LastWriteTime -lt (Get-Date).AddDays(-35) | Remove-Item
@@ -379,7 +381,7 @@ function Set-Zaehler($z, $limit, [long]$now) {
 
 # The meter disc: its red mark passes the slot once per turn, and it turns faster the more $ per hour go through
 # (with the square root, so 4 $ turn it twice as fast as 1 $; at most 10 times, before the ticks start to flicker).
-$st = @{ cache = @{}; samples = New-Object Collections.ArrayList; r = $null; icon = $null; iconText = $null; hiddenAt = [DateTime]::MinValue; disc = $null }
+$st = @{ cache = @{}; samples = New-Object Collections.ArrayList; r = $null; icon = $null; iconText = $null; toggled = [DateTime]::MinValue; left = [DateTime]::MinValue; disc = $null }
 function Start-Scheibe {
   $w = $ui.Schlitz.ActualWidth - 8
   $T = 24.0  # seconds per turn at 1 $ per hour
@@ -478,7 +480,18 @@ function Show-Stand {
   Update-View  # the disc needs the laid-out slot width
 }
 
-$win.Add_Deactivated({ $st.hiddenAt = [DateTime]::UtcNow; $win.Hide() })
+# Losing the focus closes the meter, except to the taskbar: that press may be a click on the icon, which closes it
+# itself. If no such click comes within 0.7 s, the press was somewhere else on the taskbar and the meter closes too.
+$zu = New-Object Windows.Threading.DispatcherTimer -Property @{ Interval = [TimeSpan]::FromMilliseconds(60) }
+$zu.Add_Tick({
+    $zu.Stop()
+    if (-not $win.IsVisible -or $win.IsActive) { return }
+    if (([DateTime]::UtcNow - $st.toggled).TotalMilliseconds -lt 1000) { $null = $win.Activate(); return }  # just opened by a (double) click
+    $name = New-Object Text.StringBuilder 64
+    $null = [Stand.Native]::GetClassName([Stand.Native]::GetForegroundWindow(), $name, 64)
+    if ("$name" -like 'Shell_*TrayWnd' -and ([DateTime]::UtcNow - $st.left).TotalMilliseconds -lt 700) { $zu.Start() } else { $win.Hide() }
+  })
+$win.Add_Deactivated({ $st.left = [DateTime]::UtcNow; $zu.Start() })
 $win.Add_KeyDown({ param($s, $e) if ($e.Key -eq 'Escape') { $win.Hide() } })
 $ui.Oeffnen.Add_Click({ Start-Process $stand; $win.Hide() })
 
@@ -486,8 +499,10 @@ $tray = New-Object Windows.Forms.NotifyIcon
 $tray.Add_MouseClick({
     param($s, $e)
     if ($e.Button -ne 'Left') { return }
-    # A click on the icon first takes the focus from the open meter, which hides it: that click only closes.
-    if ($win.IsVisible) { $win.Hide() } elseif (([DateTime]::UtcNow - $st.hiddenAt).TotalMilliseconds -gt 400) { Show-Stand }
+    # The second click of a double click keeps the meter open instead of closing it again.
+    if (([DateTime]::UtcNow - $st.toggled).TotalMilliseconds -lt [Windows.Forms.SystemInformation]::DoubleClickTime) { if ($win.IsVisible) { $null = $win.Activate() }; return }
+    $st.toggled = [DateTime]::UtcNow
+    if ($win.IsVisible) { $win.Hide() } else { Show-Stand }
   })
 $menu = New-Object Windows.Forms.ContextMenuStrip
 $null = $menu.Items.Add('Stand im Browser öffnen', $null, { Start-Process $stand })
@@ -497,6 +512,7 @@ $auto.Add_Click({ if (Test-Path $autostart) { Remove-Item $autostart } else { Ne
 $null = $menu.Items.Add($auto)
 $null = $menu.Items.Add('-')
 $null = $menu.Items.Add('Beenden', $null, { $tray.Visible = $false; $tray.Dispose(); $app.Shutdown() })
+$tray.Add_MouseDoubleClick({ param($s, $e) if ($e.Button -eq 'Left') { $st.toggled = [DateTime]::UtcNow; if ($win.IsVisible) { $null = $win.Activate() } else { Show-Stand } } })
 $tray.ContextMenuStrip = $menu
 Update-Stand
 $tray.Visible = $true

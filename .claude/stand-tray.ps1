@@ -204,284 +204,177 @@ $app.ShutdownMode = 'OnExplicitShutdown'
 $win = [Windows.Markup.XamlReader]::Parse(@'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Claude Stand" Width="396" SizeToContent="Height" WindowStyle="None" AllowsTransparency="True"
+        Title="Usage Monitor for Claude" Width="340" SizeToContent="Height" WindowStyle="None" AllowsTransparency="True"
         Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" Left="-3000" Top="0"
-        FontFamily="Bahnschrift" FontSize="13" Foreground="{DynamicResource Schild}" UseLayoutRounding="True">
-  <Window.Resources>
-    <LinearGradientBrush x:Key="Scheibe" StartPoint="0,0" EndPoint="1,0">
-      <GradientStop Color="#363b3e" Offset="0"/>
-      <GradientStop Color="#9ba09d" Offset="0.3"/>
-      <GradientStop Color="#d5dbd5" Offset="0.5"/>
-      <GradientStop Color="#9ba09d" Offset="0.7"/>
-      <GradientStop Color="#363b3e" Offset="1"/>
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="Rand" StartPoint="0,0" EndPoint="1,0">
-      <GradientStop Color="#FF090B0D" Offset="0"/>
-      <GradientStop Color="#00090B0D" Offset="0.18"/>
-      <GradientStop Color="#00090B0D" Offset="0.82"/>
-      <GradientStop Color="#FF090B0D" Offset="1"/>
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="Glas" StartPoint="0,0" EndPoint="0,1">
-      <GradientStop Color="#25FFFFFF" Offset="0"/>
-      <GradientStop Color="#04FFFFFF" Offset="0.4"/>
-      <GradientStop Color="#00000000" Offset="0.5"/>
-      <GradientStop Color="#30000000" Offset="1"/>
-    </LinearGradientBrush>
-    <Style x:Key="Leise" TargetType="Button">
-      <Setter Property="Foreground" Value="{DynamicResource Schild}"/>
-      <Setter Property="BorderBrush" Value="{DynamicResource Linie}"/>
-      <Setter Property="Background" Value="{DynamicResource Deckel}"/>
-      <Setter Property="Cursor" Value="Hand"/>
-      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-      <Setter Property="Template">
-        <Setter.Value>
-          <ControlTemplate TargetType="Button">
-            <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12,5">
-              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Border>
-            <ControlTemplate.Triggers>
-              <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource Beschriftung}"/>
-                <Setter TargetName="B" Property="Background" Value="{DynamicResource DeckelRaised}"/>
-              </Trigger>
-              <Trigger Property="IsKeyboardFocused" Value="True">
-                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource Schild}"/>
-              </Trigger>
-              <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="B" Property="Background" Value="{DynamicResource Linie}"/>
-              </Trigger>
-            </ControlTemplate.Triggers>
-          </ControlTemplate>
-        </Setter.Value>
-      </Setter>
-    </Style>
-  </Window.Resources>
-  <Grid Margin="18">
-    <Grid.RenderTransform><TranslateTransform x:Name="Schub"/></Grid.RenderTransform>
-    <Border Background="{DynamicResource Gehaeuse}" CornerRadius="12">
-      <Border.Effect><DropShadowEffect BlurRadius="30" ShadowDepth="7" Direction="270" Opacity="0.6" Color="Black"/></Border.Effect>
-    </Border>
-    <Border BorderBrush="{DynamicResource Linie}" BorderThickness="1" CornerRadius="12" Padding="12">
-      <StackPanel>
-        <!-- Header row -->
-        <DockPanel Margin="4,2,4,10">
-          <Border DockPanel.Dock="Right" BorderBrush="{DynamicResource LinieSubtle}" BorderThickness="1" Background="{DynamicResource Deckel}" CornerRadius="4" Padding="6,2">
-            <TextBlock x:Name="Modell" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Schild}"/>
-          </Border>
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <Ellipse Width="7" Height="7" Fill="{DynamicResource Gruen}" Margin="0,0,7,0"/>
-            <TextBlock Text="CLAUDE STAND" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Schild}"/>
-            <TextBlock Text=" // TELEMETRIE" FontSize="11" FontWeight="Normal" Foreground="{DynamicResource Beschriftung}"/>
-          </StackPanel>
-        </DockPanel>
+        FontFamily="Segoe UI, -apple-system, sans-serif" FontSize="13" Foreground="#f8fafc" UseLayoutRounding="True">
+  <Border Margin="14" Background="#14171f" BorderBrush="#252a36" BorderThickness="1" CornerRadius="10" Padding="16,14">
+    <Border.Effect><DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="270" Opacity="0.6" Color="Black"/></Border.Effect>
+    <StackPanel>
+      <!-- Title & Close -->
+      <DockPanel Margin="0,0,0,12">
+        <Button x:Name="Schliessen" DockPanel.Dock="Right" Background="Transparent" BorderThickness="0" Foreground="#64748b" FontSize="13" FontWeight="Bold" Cursor="Hand" Content="✕"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Ellipse x:Name="Pilot" Width="8" Height="8" Fill="#10b981" Margin="0,0,8,0"/>
+          <TextBlock Text="Usage Monitor for Claude" FontWeight="Bold" FontSize="13" Foreground="#f8fafc"/>
+        </StackPanel>
+      </DockPanel>
 
-        <!-- Main meter housing plate -->
-        <Border Background="{DynamicResource Deckel}" BorderBrush="{DynamicResource LinieSubtle}" BorderThickness="1" CornerRadius="8" Padding="14,12,14,14">
-          <StackPanel>
-            <Grid>
-              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/></Grid.ColumnDefinitions>
-              <StackPanel x:Name="Fuenf" Grid.Column="0"/>
-              <StackPanel x:Name="Woche" Grid.Column="2"/>
-            </Grid>
+      <!-- ACCOUNT -->
+      <TextBlock Text="ACCOUNT" FontSize="10" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,5"/>
+      <DockPanel Margin="0,0,0,4">
+        <TextBlock Text="Plan" Foreground="#94a3b8" FontSize="12.5"/>
+        <TextBlock Text="Claude Pro" Foreground="#facc15" FontWeight="SemiBold" FontSize="12.5" HorizontalAlignment="Right"/>
+      </DockPanel>
+      <DockPanel Margin="0,0,0,12">
+        <TextBlock Text="Model" Foreground="#94a3b8" FontSize="12.5"/>
+        <TextBlock x:Name="Modell" Text="Claude" Foreground="#f8fafc" FontSize="12.5" HorizontalAlignment="Right"/>
+      </DockPanel>
 
-            <!-- Ferraris meter disc aperture -->
-            <Grid x:Name="Schlitz" Margin="0,16,0,0" Height="18" ClipToBounds="True">
-              <Border Background="{DynamicResource Zaehlwerk}" CornerRadius="3" BorderBrush="{DynamicResource LinieSubtle}" BorderThickness="1"/>
-              <Rectangle Height="6" Margin="4,0" Fill="{StaticResource Scheibe}"/>
-              <Rectangle Height="6" Margin="4,0">
-                <Rectangle.Fill>
-                  <DrawingBrush TileMode="Tile" Viewport="0,0,12,6" ViewportUnits="Absolute" Stretch="None">
-                    <DrawingBrush.Transform><TranslateTransform x:Name="Riffel"/></DrawingBrush.Transform>
-                    <DrawingBrush.Drawing>
-                      <DrawingGroup>
-                        <GeometryDrawing Brush="Transparent"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,12,6"/></GeometryDrawing.Geometry></GeometryDrawing>
-                        <GeometryDrawing Brush="#80090B0D"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,1,6"/></GeometryDrawing.Geometry></GeometryDrawing>
-                      </DrawingGroup>
-                    </DrawingBrush.Drawing>
-                  </DrawingBrush>
-                </Rectangle.Fill>
-              </Rectangle>
-              <Canvas Margin="4,0">
-                <Rectangle Width="9" Height="6" Canvas.Top="6" Fill="{DynamicResource Rot}">
-                  <Rectangle.RenderTransform><TranslateTransform x:Name="Marke" X="-16"/></Rectangle.RenderTransform>
-                </Rectangle>
-              </Canvas>
-              <Rectangle Height="6" Margin="4,0" Fill="{StaticResource Rand}"/>
-              <Rectangle Margin="1,1" Fill="{StaticResource Glas}" IsHitTestVisible="False"/>
-            </Grid>
-            <TextBlock x:Name="Tempo" Margin="0,8,0,0" FontSize="11.5" Foreground="{DynamicResource Beschriftung}"/>
-          </StackPanel>
-        </Border>
+      <!-- USAGE -->
+      <TextBlock Text="USAGE" FontSize="10" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,6"/>
+      
+      <!-- Session (5hr) -->
+      <DockPanel Margin="0,0,0,4">
+        <TextBlock Text="Session (5hr)" Foreground="#f8fafc" FontSize="12.5" FontWeight="SemiBold"/>
+        <TextBlock x:Name="FivePct" Text="0%" Foreground="#f8fafc" FontSize="12.5" FontWeight="Bold" HorizontalAlignment="Right"/>
+      </DockPanel>
+      <Grid Height="8" Margin="0,0,0,4">
+        <Border Background="#1f2430" CornerRadius="4"/>
+        <Grid x:Name="FiveFillGrid">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="0*"/><ColumnDefinition Width="100*"/></Grid.ColumnDefinitions>
+          <Border x:Name="FiveFill" Background="#3b82f6" CornerRadius="4"/>
+        </Grid>
+        <Grid x:Name="FiveTickGrid">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="0*"/><ColumnDefinition Width="100*"/></Grid.ColumnDefinitions>
+          <Rectangle Width="2" Height="8" Fill="#ffffff" HorizontalAlignment="Right"/>
+        </Grid>
+      </Grid>
+      <DockPanel Margin="0,0,0,10">
+        <TextBlock x:Name="FiveReset" Text="Reset in 0h 0m" Foreground="#64748b" FontSize="11"/>
+        <TextBlock x:Name="FiveRate" Text="" Foreground="#64748b" FontSize="11" HorizontalAlignment="Right"/>
+      </DockPanel>
 
-        <!-- Telemetry Stats Grid (Heute / Diese Woche) -->
-        <Border Margin="0,10,0,0" Background="{DynamicResource Deckel}" BorderBrush="{DynamicResource LinieSubtle}" BorderThickness="1" CornerRadius="8" Padding="12,10">
-          <Grid>
-            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto" MinWidth="110"/></Grid.ColumnDefinitions>
-            <Grid.RowDefinitions><RowDefinition/><RowDefinition Height="6"/><RowDefinition/></Grid.RowDefinitions>
-            <TextBlock Text="Heute" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
-            <TextBlock x:Name="HeuteGeld" Grid.Column="1" FontSize="13" FontWeight="Bold" TextAlignment="Right" VerticalAlignment="Center"/>
-            <TextBlock x:Name="HeuteTokens" Grid.Column="2" FontSize="12.5" TextAlignment="Right" Foreground="{DynamicResource Beschriftung}" VerticalAlignment="Center"/>
-            <TextBlock Grid.Row="2" Text="Diese Woche" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
-            <TextBlock x:Name="WocheGeld" Grid.Row="2" Grid.Column="1" FontSize="13" FontWeight="Bold" TextAlignment="Right" VerticalAlignment="Center"/>
-            <TextBlock x:Name="WocheTokens" Grid.Row="2" Grid.Column="2" FontSize="12.5" TextAlignment="Right" Foreground="{DynamicResource Beschriftung}" VerticalAlignment="Center"/>
-          </Grid>
-        </Border>
+      <!-- Weekly (7 day) -->
+      <DockPanel Margin="0,0,0,4">
+        <TextBlock Text="Weekly (7 day)" Foreground="#f8fafc" FontSize="12.5" FontWeight="SemiBold"/>
+        <TextBlock x:Name="WeekPct" Text="0%" Foreground="#f8fafc" FontSize="12.5" FontWeight="Bold" HorizontalAlignment="Right"/>
+      </DockPanel>
+      <Grid Height="8" Margin="0,0,0,4">
+        <Border Background="#1f2430" CornerRadius="4"/>
+        <Grid x:Name="WeekFillGrid">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="0*"/><ColumnDefinition Width="100*"/></Grid.ColumnDefinitions>
+          <Border x:Name="WeekFill" Background="#f43f5e" CornerRadius="4"/>
+        </Grid>
+        <UniformGrid Columns="7">
+          <Border BorderBrush="#14171f" BorderThickness="0,0,1,0"/>
+          <Border BorderBrush="#14171f" BorderThickness="0,0,1,0"/>
+          <Border BorderBrush="#14171f" BorderThickness="0,0,1,0"/>
+          <Border BorderBrush="#14171f" BorderThickness="0,0,1,0"/>
+          <Border BorderBrush="#14171f" BorderThickness="0,0,1,0"/>
+          <Border BorderBrush="#14171f" BorderThickness="0,0,1,0"/>
+          <Border/>
+        </UniformGrid>
+        <Grid x:Name="WeekTickGrid">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="0*"/><ColumnDefinition Width="100*"/></Grid.ColumnDefinitions>
+          <Rectangle Width="2" Height="8" Fill="#ffffff" HorizontalAlignment="Right"/>
+        </Grid>
+      </Grid>
+      <DockPanel Margin="0,0,0,12">
+        <TextBlock x:Name="WeekReset" Text="Reset am ..." Foreground="#64748b" FontSize="11"/>
+        <TextBlock x:Name="WeekBudget" Text="" Foreground="#64748b" FontSize="11" HorizontalAlignment="Right"/>
+      </DockPanel>
 
-        <!-- Bottom bar -->
-        <DockPanel Margin="4,12,4,2">
-          <Button x:Name="Oeffnen" DockPanel.Dock="Right" Style="{StaticResource Leise}" FontSize="12" Content="Stand öffnen"/>
-          <TextBlock x:Name="Zuletzt" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="11.5" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Beschriftung}"/>
-        </DockPanel>
-      </StackPanel>
-    </Border>
-  </Grid>
+      <!-- EXTRA USAGE / VALUE -->
+      <TextBlock Text="API-GEGENWERT (PRO ARBITRAGE)" FontSize="10" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,5"/>
+      <DockPanel Margin="0,0,0,4">
+        <TextBlock Text="Heute" Foreground="#94a3b8" FontSize="12"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <TextBlock x:Name="HeuteGeld" Text="0,00 $" FontWeight="Bold" Foreground="#f8fafc" FontSize="12" Margin="0,0,6,0"/>
+          <TextBlock x:Name="HeuteTokens" Text="0 Tokens" Foreground="#64748b" FontSize="11.5"/>
+        </StackPanel>
+      </DockPanel>
+      <DockPanel Margin="0,0,0,12">
+        <TextBlock Text="Diese Woche" Foreground="#94a3b8" FontSize="12"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <TextBlock x:Name="WocheGeld" Text="0,00 $" FontWeight="Bold" Foreground="#f8fafc" FontSize="12" Margin="0,0,6,0"/>
+          <TextBlock x:Name="WocheTokens" Text="0 Tokens" Foreground="#64748b" FontSize="11.5"/>
+        </StackPanel>
+      </DockPanel>
+
+      <!-- FOOTER -->
+      <DockPanel Margin="0,4,0,0">
+        <Button x:Name="Oeffnen" DockPanel.Dock="Right" Background="#202530" BorderBrush="#2e3544" BorderThickness="1" Foreground="#f8fafc" Padding="9,4" FontSize="11.5" Cursor="Hand" Content="Web App öffnen"/>
+        <TextBlock x:Name="Zuletzt" VerticalAlignment="Center" FontSize="11" Foreground="#64748b" Text="Aktualisiert gerade eben"/>
+      </DockPanel>
+    </StackPanel>
+  </Border>
 </Window>
 '@)
 $ui = @{}
-foreach ($n in 'Schub', 'Modell', 'Fuenf', 'Woche', 'Schlitz', 'Riffel', 'Marke', 'Tempo', 'HeuteGeld', 'HeuteTokens', 'WocheGeld', 'WocheTokens', 'Oeffnen', 'Zuletzt') { $ui[$n] = $win.FindName($n) }
-
-function Set-Theme {
-  $hell = (Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -ErrorAction SilentlyContinue).SystemUsesLightTheme -eq 1
-  $script:farbe = $farben[$(if ($hell) { 'hell' } else { 'dunkel' })]
-  foreach ($k in $farbe.Keys) { $win.Resources[$k] = $pinsel.ConvertFromString($farbe[$k]) }
+foreach ($n in 'Schliessen', 'Pilot', 'Modell', 'FivePct', 'FiveFillGrid', 'FiveFill', 'FiveTickGrid', 'FiveReset', 'FiveRate', 'WeekPct', 'WeekFillGrid', 'WeekFill', 'WeekTickGrid', 'WeekReset', 'WeekBudget', 'HeuteGeld', 'HeuteTokens', 'WocheGeld', 'WocheTokens', 'Oeffnen', 'Zuletzt') {
+  $ui[$n] = $win.FindName($n)
 }
-Set-Theme
+$ui.Schliessen.Add_Click({ $win.Hide() })
 
-# Counter wheels like the Stand page: 0.72em wide, 1.1em high, the ones wheel red, leading zeros dimmed.
-$H = 42
-function New-Zaehler($panel, $label, $window) {
-  $panel.Children.Add((New-Object Windows.Controls.TextBlock -Property @{ Text = $label.ToUpper(); FontSize = 11; FontWeight = 'Bold'; Foreground = (New-Object Windows.Media.SolidColorBrush -ArgumentList ([Windows.Media.Color]::FromArgb(180, 140, 150, 156))) })) | Out-Null
-  
-  $drumFrame = New-Object Windows.Controls.Border -Property @{ CornerRadius = 6; Background = $pinsel.ConvertFromString($script:farbe.Zaehlwerk); BorderBrush = $pinsel.ConvertFromString($script:farbe.LinieSubtle); BorderThickness = (New-Object Windows.Thickness(1)); Padding = (New-Object Windows.Thickness(5, 4, 5, 4)); Margin = (New-Object Windows.Thickness(0, 6, 0, 0)) }
-  
-  $row = New-Object Windows.Controls.StackPanel -Property @{ Orientation = 'Horizontal' }
-  $walzen = foreach ($i in 0..2) {
-    $b = New-Object Windows.Controls.Border -Property @{ Width = 28; Height = $H; CornerRadius = 3; ClipToBounds = $true; Margin = '0,0,2,0' }
-    $b.SetResourceReference([Windows.Controls.Border]::BackgroundProperty, $(if ($i -eq 2) { 'RotDrum' } else { 'Zaehlwerk' }))
-    $sp = New-Object Windows.Controls.StackPanel -Property @{ Width = 28 }
-    $sp.RenderTransform = New-Object Windows.Media.TranslateTransform
-    foreach ($z in 0..9) {
-      $t = New-Object Windows.Controls.TextBlock -Property @{ Text = "$z"; Height = $H; FontSize = 36; FontWeight = 'Bold'; FontStretch = 'Condensed'; TextAlignment = 'Center'; Padding = '0,2,0,0' }
-      $t.SetResourceReference([Windows.Controls.TextBlock]::ForegroundProperty, 'Ziffer')
-      $sp.Children.Add($t) | Out-Null
-    }
-    # Cylinder curvature overlay
-    $curv = New-Object Windows.Shapes.Rectangle -Property @{ Width = 28; Height = $H; IsHitTestVisible = $false }
-    $curvBrush = New-Object Windows.Media.LinearGradientBrush
-    $curvBrush.StartPoint = New-Object Windows.Point(0, 0)
-    $curvBrush.EndPoint = New-Object Windows.Point(0, 1)
-    $curvBrush.GradientStops.Add((New-Object Windows.Media.GradientStop([Windows.Media.Color]::FromArgb(110, 0, 0, 0), 0.0)))
-    $curvBrush.GradientStops.Add((New-Object Windows.Media.GradientStop([Windows.Media.Color]::FromArgb(25, 255, 255, 255), 0.45)))
-    $curvBrush.GradientStops.Add((New-Object Windows.Media.GradientStop([Windows.Media.Color]::FromArgb(0, 255, 255, 255), 0.55)))
-    $curvBrush.GradientStops.Add((New-Object Windows.Media.GradientStop([Windows.Media.Color]::FromArgb(130, 0, 0, 0), 1.0)))
-    $curv.Fill = $curvBrush
-
-    $grid = New-Object Windows.Controls.Grid
-    $roll = New-Object Windows.Controls.Canvas
-    $roll.Children.Add($sp) | Out-Null
-    $grid.Children.Add($roll) | Out-Null
-    $grid.Children.Add($curv) | Out-Null
-    $b.Child = $grid
-    $row.Children.Add($b) | Out-Null
-    @{ panel = $sp; d = 0 }
-  }
-  $pct = New-Object Windows.Controls.TextBlock -Property @{ Text = '%'; FontSize = 16; FontWeight = 'Bold'; VerticalAlignment = 'Bottom'; Margin = '2,0,0,4' }
-  $pct.SetResourceReference([Windows.Controls.TextBlock]::ForegroundProperty, 'Beschriftung')
-  $row.Children.Add($pct) | Out-Null
-  $drumFrame.Child = $row
-  $panel.Children.Add($drumFrame) | Out-Null
-
-  # Bar: filled up to the use, the thin tick marks where an even pace would be by now.
-  $bar = New-Object Windows.Controls.Grid -Property @{ Height = 9; Margin = '0,10,0,0' }
-  $track = New-Object Windows.Controls.Border -Property @{ Height = 3.5; CornerRadius = 1.75 }
-  $track.SetResourceReference([Windows.Controls.Border]::BackgroundProperty, 'Linie')
-  $fillGrid = New-Object Windows.Controls.Grid
-  $tickGrid = New-Object Windows.Controls.Grid
-  foreach ($g in $fillGrid, $tickGrid) { 1..2 | ForEach-Object { $g.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) } }
-  $fill = New-Object Windows.Controls.Border -Property @{ Height = 3.5; CornerRadius = 1.75 }
-  $fillGrid.Children.Add($fill) | Out-Null
-  $tick = New-Object Windows.Shapes.Rectangle -Property @{ Width = 1.5; Height = 9; HorizontalAlignment = 'Left' }
-  $tick.SetResourceReference([Windows.Shapes.Shape]::FillProperty, 'Beschriftung')
-  [Windows.Controls.Grid]::SetColumn($tick, 1)
-  $tickGrid.Children.Add($tick) | Out-Null
-  foreach ($e in $track, $fillGrid, $tickGrid) { $bar.Children.Add($e) | Out-Null }
-  $panel.Children.Add($bar) | Out-Null
-
-  $reset = New-Object Windows.Controls.TextBlock -Property @{ FontSize = 11.5; Margin = '0,6,0,0' }
-  $reset.SetResourceReference([Windows.Controls.TextBlock]::ForegroundProperty, 'Beschriftung')
-  $panel.Children.Add($reset) | Out-Null
-  @{ walzen = @($walzen); fill = $fill; fillGrid = $fillGrid; tick = $tick; tickGrid = $tickGrid; reset = $reset; window = $window }
-}
-$zaehler = @{ five = New-Zaehler $ui.Fuenf '5 Stunden' 18000; week = New-Zaehler $ui.Woche 'Woche' 604800 }
-
-function Set-Zaehler($z, $limit, [long]$now) {
-  $n = if ($null -eq $limit.pct) { 0 } else { [math]::Min(100, [math]::Max(0, $limit.pct)) }
-  $txt = $n.ToString('000')
-  for ($i = 0; $i -lt 3; $i++) {
-    $w = $z.walzen[$i]
-    $d = [int]"$($txt[$i])"
-    $w.panel.Opacity = if ($null -eq $limit.pct -or ($i -lt 2 -and $n -lt [math]::Pow(10, 2 - $i))) { 0.45 } else { 1 }
-    if ($w.d -eq $d) { continue }
-    $w.d = $d
-    $roll = New-Object Windows.Media.Animation.DoubleAnimation((-$d * $H), [TimeSpan]::FromMilliseconds($(if ($motion) { 900 } else { 0 })))
-    $roll.EasingFunction = New-Object Windows.Media.Animation.QuarticEase -Property @{ EasingMode = 'EaseOut' }
-    $w.panel.RenderTransform.BeginAnimation([Windows.Media.TranslateTransform]::YProperty, $roll)
-  }
-  $z.fillGrid.ColumnDefinitions[0].Width = New-Object Windows.GridLength($n, 'Star')
-  $z.fillGrid.ColumnDefinitions[1].Width = New-Object Windows.GridLength((100 - $n), 'Star')
-  $z.fill.SetResourceReference([Windows.Controls.Border]::BackgroundProperty, $(if ($n -ge 90) { 'Rot' } else { 'Schild' }))
-  $z.tick.Visibility = if ($limit.reset) { 'Visible' } else { 'Hidden' }
-  if ($limit.reset) {
-    $f = [math]::Min(1.0, [math]::Max(0.0, 1 - ($limit.reset - $now) / $z.window))
-    $z.tickGrid.ColumnDefinitions[0].Width = New-Object Windows.GridLength($f, 'Star')
-    $z.tickGrid.ColumnDefinitions[1].Width = New-Object Windows.GridLength((1 - $f), 'Star')
-  }
-  $z.reset.Text = Format-Reset $limit $now
-}
-
-# The meter disc: its red mark passes the slot once per turn, and it turns faster the more $ per hour go through
-# (with the square root, so 4 $ turn it twice as fast as 1 $; at most 10 times, before the ticks start to flicker).
-$st = @{ cache = @{}; samples = New-Object Collections.ArrayList; r = $null; icon = $null; iconText = $null; toggled = [DateTime]::MinValue; left = [DateTime]::MinValue; disc = $null }
-function Start-Scheibe {
-  $w = $ui.Schlitz.ActualWidth - 8
-  $T = 24.0  # seconds per turn at 1 $ per hour
-  $mark = New-Object Windows.Media.Animation.DoubleAnimationUsingKeyFrames -Property @{ Duration = [TimeSpan]::FromSeconds($T); RepeatBehavior = [Windows.Media.Animation.RepeatBehavior]::Forever }
-  $mark.KeyFrames.Add((New-Object Windows.Media.Animation.DiscreteDoubleKeyFrame(-16, [TimeSpan]::Zero))) | Out-Null
-  $mark.KeyFrames.Add((New-Object Windows.Media.Animation.EasingDoubleKeyFrame(($w + 6), [TimeSpan]::FromSeconds($T / 2), (New-Object Windows.Media.Animation.SineEase -Property @{ EasingMode = 'EaseInOut' })))) | Out-Null
-  $rim = New-Object Windows.Media.Animation.DoubleAnimation(0, 12, [TimeSpan]::FromSeconds(12 * $T / ([math]::PI * $w)))
-  $rim.RepeatBehavior = [Windows.Media.Animation.RepeatBehavior]::Forever
-  $clocks = @($mark.CreateClock(), $rim.CreateClock())
-  $ui.Marke.ApplyAnimationClock([Windows.Media.TranslateTransform]::XProperty, $clocks[0])
-  $ui.Riffel.ApplyAnimationClock([Windows.Media.TranslateTransform]::XProperty, $clocks[1])
-  foreach ($c in $clocks) { $c.Controller.Pause() }
-  $st.disc = $clocks
-}
-function Set-Scheibe($speed) {
-  if (-not $ui.Schlitz.ActualWidth) { return }  # not laid out yet
-  if (-not $motion) { $ui.Marke.X = ($ui.Schlitz.ActualWidth - 8) * 0.4; return }
-  if (-not $st.disc) { Start-Scheibe }
-  foreach ($c in $st.disc) {
-    if ($speed -gt 0) { $c.Controller.SpeedRatio = $speed; $c.Controller.Resume() } else { $c.Controller.Pause() }
-  }
-}
+$st = @{ cache = @{}; samples = New-Object Collections.ArrayList; r = $null; icon = $null; iconText = $null; toggled = [DateTime]::MinValue; left = [DateTime]::MinValue }
 
 function Update-View {
   $r = $st.r
   $now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-  Set-Zaehler $zaehler.five $r.five $now
-  Set-Zaehler $zaehler.week $r.week $now
-  $ui.Modell.Text = "$($r.last.model)"
+  
+  # Model & Pilot LED
+  $active = $r.last -and ($now - $r.last.updated) -lt 180
+  $ui.Pilot.Fill = $pinsel.ConvertFromString($(if ($active) { '#10b981' } else { '#f59e0b' }))
+  $ui.Modell.Text = if ($r.last -and $r.last.model) { "$($r.last.model)" } else { 'Claude 3.7 Sonnet' }
+
+  # Session (5hr)
+  $n5 = if ($null -eq $r.five.pct) { 0 } else { [math]::Min(100, [math]::Max(0, $r.five.pct)) }
+  $ui.FivePct.Text = "$n5%"
+  $ui.FiveFillGrid.ColumnDefinitions[0].Width = New-Object Windows.GridLength($n5, 'Star')
+  $ui.FiveFillGrid.ColumnDefinitions[1].Width = New-Object Windows.GridLength((100 - $n5), 'Star')
+  $ui.FiveFill.Background = $pinsel.ConvertFromString($(if ($n5 -ge 90) { '#f43f5e' } elseif ($n5 -ge 75) { '#f59e0b' } else { '#3b82f6' }))
+  
+  # 5h pacing tick: time elapsed
+  if ($r.five.reset) {
+    $wSec = 18000
+    $elSec = [math]::Max(0, [math]::Min($wSec, $wSec - ($r.five.reset - $now)))
+    $elPct = [math]::Round(($elSec / $wSec) * 100)
+    $ui.FiveTickGrid.ColumnDefinitions[0].Width = New-Object Windows.GridLength($elPct, 'Star')
+    $ui.FiveTickGrid.ColumnDefinitions[1].Width = New-Object Windows.GridLength((100 - $elPct), 'Star')
+    $ui.FiveTickGrid.Visibility = 'Visible'
+  } else {
+    $ui.FiveTickGrid.Visibility = 'Hidden'
+  }
+  $ui.FiveReset.Text = Format-Reset $r.five $now
+  $rate = Get-Rate $st.samples
+  $ui.FiveRate.Text = if ($rate -gt 0) { "+$([math]::Round($rate, 1)) %/h" } else { "" }
+
+  # Weekly (7 day)
+  $nw = if ($null -eq $r.week.pct) { 0 } else { [math]::Min(100, [math]::Max(0, $r.week.pct)) }
+  $ui.WeekPct.Text = "$nw%"
+  $ui.WeekFillGrid.ColumnDefinitions[0].Width = New-Object Windows.GridLength($nw, 'Star')
+  $ui.WeekFillGrid.ColumnDefinitions[1].Width = New-Object Windows.GridLength((100 - $nw), 'Star')
+  $ui.WeekFill.Background = $pinsel.ConvertFromString($(if ($nw -ge 90) { '#f43f5e' } elseif ($nw -ge 75) { '#f59e0b' } else { '#3b82f6' }))
+
+  # Weekly pacing tick: week elapsed
+  if ($r.week.reset) {
+    $wSecW = 604800
+    $elSecW = [math]::Max(0, [math]::Min($wSecW, $wSecW - ($r.week.reset - $now)))
+    $elPctW = [math]::Round(($elSecW / $wSecW) * 100)
+    $ui.WeekTickGrid.ColumnDefinitions[0].Width = New-Object Windows.GridLength($elPctW, 'Star')
+    $ui.WeekTickGrid.ColumnDefinitions[1].Width = New-Object Windows.GridLength((100 - $elPctW), 'Star')
+    $ui.WeekTickGrid.Visibility = 'Visible'
+  } else {
+    $ui.WeekTickGrid.Visibility = 'Hidden'
+  }
+  $ui.WeekReset.Text = Format-Reset $r.week $now
+
+  # Value
   $ui.HeuteGeld.Text = Format-Geld $r.todayCost
   $ui.WocheGeld.Text = Format-Geld $r.weekCost
   $ui.HeuteTokens.Text = "$(Format-Tokens $r.todayTokens) Tokens"
   $ui.WocheTokens.Text = "$(Format-Tokens $r.weekTokens) Tokens"
-  $ui.Zuletzt.Text = if ($r.last) { "Zuletzt $($r.last.project), $(Format-Vor ($now - $r.last.updated))" } else { 'Startet mit der nächsten Antwort in Claude Code' }
-
-  $active = $r.last -and ($now - $r.last.updated) -lt 120
-  $rate = Get-Rate $st.samples
-  if (-not $active -or $rate -eq 0) { Set-Scheibe 0; $ui.Tempo.Text = 'Gerade kein Verbrauch' }
-  elseif ($null -eq $rate) { Set-Scheibe 1; $ui.Tempo.Text = 'Läuft gerade' }
-  else { Set-Scheibe ([math]::Min(10.0, [math]::Max(0.3, [math]::Sqrt($rate)))); $ui.Tempo.Text = "Gerade $(Format-Geld $rate) pro Stunde" }
+  $ui.Zuletzt.Text = if ($r.last) { "Zuletzt $($r.last.project), $(Format-Vor ($now - $r.last.updated))" } else { 'Aktualisiert' }
 }
 
 function Set-TrayIcon($text, $alarm) {
@@ -493,7 +386,7 @@ function Set-TrayIcon($text, $alarm) {
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
     $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::ClearTypeGridFit
 
-    $bgHex = if ($alarm) { $script:farbe.Rot } else { $script:farbe.Zaehlwerk }
+    $bgHex = if ($alarm) { '#ef4444' } else { '#151821' }
     $bgCol = [System.Drawing.ColorTranslator]::FromHtml($bgHex)
     $brush = New-Object System.Drawing.SolidBrush($bgCol)
 
@@ -516,7 +409,7 @@ function Set-TrayIcon($text, $alarm) {
     $sf = New-Object System.Drawing.StringFormat
     $sf.Alignment = [System.Drawing.StringAlignment]::Center
     $sf.LineAlignment = [System.Drawing.StringAlignment]::Center
-    $txtHex = $script:farbe.Ziffer
+    $txtHex = '#f8fafc'
     $txtCol = [System.Drawing.ColorTranslator]::FromHtml($txtHex)
     $textBrush = New-Object System.Drawing.SolidBrush($txtCol)
     $g.DrawString($text, $font, $textBrush, (New-Object System.Drawing.RectangleF(0, 0, $px, $px)), $sf)
@@ -551,23 +444,19 @@ function Update-Stand {
 }
 
 function Show-Stand {
-  Set-Theme
   Update-View
-  $win.BeginAnimation([Windows.Window]::OpacityProperty, $null)
   $win.Opacity = 0
   $win.Show()
   $win.UpdateLayout()
   $wa = [Windows.SystemParameters]::WorkArea
-  $win.Left = $wa.Right - $win.ActualWidth + 4
-  $win.Top = $wa.Bottom - $win.ActualHeight + 4
+  $win.Left = $wa.Right - $win.ActualWidth - 6
+  $win.Top = $wa.Bottom - $win.ActualHeight - 6
   $null = $win.Activate()
   if ($motion) {
-    $win.BeginAnimation([Windows.Window]::OpacityProperty, (New-Object Windows.Media.Animation.DoubleAnimation(0, 1, [TimeSpan]::FromMilliseconds(140))))
-    $slide = New-Object Windows.Media.Animation.DoubleAnimation(14, 0, [TimeSpan]::FromMilliseconds(240))
-    $slide.EasingFunction = New-Object Windows.Media.Animation.CubicEase -Property @{ EasingMode = 'EaseOut' }
-    $ui.Schub.BeginAnimation([Windows.Media.TranslateTransform]::YProperty, $slide)
-  } else { $win.Opacity = 1 }
-  Update-View  # the disc needs the laid-out slot width
+    $win.BeginAnimation([Windows.Window]::OpacityProperty, (New-Object Windows.Media.Animation.DoubleAnimation(0, 1, [TimeSpan]::FromMilliseconds(120))))
+  } else {
+    $win.Opacity = 1
+  }
 }
 
 # Losing the focus closes the meter, except to the taskbar: that press may be a click on the icon, which closes it

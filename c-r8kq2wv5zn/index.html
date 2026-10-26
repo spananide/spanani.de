@@ -5,69 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
-  <title>Stand — Claude Messgerät</title>
-  
-  <!-- Mobile & PWA Configuration -->
-  <meta name="theme-color" content="#121417" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#e6e8e3" media="(prefers-color-scheme: light)">
+  <title>Usage Monitor for Claude</title>
+
+  <!-- PWA & Mobile Web App Meta -->
+  <meta name="theme-color" content="#0d0e12" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Stand">
+  <meta name="apple-mobile-web-app-title" content="Claude Usage">
   <meta name="mobile-web-app-capable" content="yes">
 
-  <!-- Self-hosted Fonts -->
-  <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="fonts/atkinson-mono-var.woff2" as="font" type="font/woff2" crossorigin>
-
   <style>
-    @font-face {
-      font-family: 'Archivo';
-      src: url('fonts/archivo.woff2') format('woff2');
-      font-weight: 100 900;
-      font-stretch: 62% 125%;
-      font-display: swap;
-    }
-    @font-face {
-      font-family: 'Atkinson Mono';
-      src: url('fonts/atkinson-mono-var.woff2') format('woff2');
-      font-weight: 100 900;
-      font-display: swap;
-    }
-
     :root {
-      /* Teenage Engineering / Braun Industrial Hardware Palette */
-      --chassis: #121417;
-      --chassis-inner: #191c20;
-      --bezel: #0b0d0f;
-      --plate: #22262b;
-      --plate-hover: #2b3037;
-      --rim-highlight: rgba(255, 255, 255, 0.09);
-      --rim-shadow: rgba(0, 0, 0, 0.65);
+      /* Modern Developer Tool Palette (Raycast / Linear / Supabase style) */
+      --bg: #0d0f14;
+      --card-bg: #151821;
+      --card-bg-elevated: #1b202c;
+      --card-bg-subtle: #11141b;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.16);
 
-      --ink-primary: #f3f4ef;
-      --ink-secondary: #9aa1a8;
-      --ink-dim: #5a626a;
-      --ink-invert: #121417;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --text-dim: #475569;
 
-      --vermilion: #e63946;
-      --vermilion-drum: #c82332;
-      --amber: #f4a261;
-      --amber-glow: rgba(244, 162, 97, 0.3);
-      --emerald: #2a9d8f;
-      --emerald-glow: rgba(42, 157, 143, 0.35);
-      --cyan: #48cae4;
+      --blue: #3b82f6;
+      --blue-subtle: rgba(59, 130, 246, 0.15);
+      --coral: #f43f5e;
+      --coral-subtle: rgba(244, 63, 94, 0.15);
+      --amber: #f59e0b;
+      --amber-subtle: rgba(245, 158, 11, 0.15);
+      --emerald: #10b981;
+      --emerald-subtle: rgba(16, 185, 129, 0.15);
 
-      --pro-gold: #e9c46a;
-      --pro-gold-glow: rgba(233, 196, 106, 0.25);
+      --pro-gold: #facc15;
+      --pro-gold-subtle: rgba(250, 204, 21, 0.12);
 
-      --drum-bg: #090a0c;
-      --drum-txt: #f8f9f5;
-      
-      --font-body: 'Archivo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-numbers: 'Atkinson Mono', ui-monospace, "SF Mono", monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
 
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -76,995 +55,709 @@
 
     @media (prefers-color-scheme: light) {
       :root {
-        --chassis: #e3e6e0;
-        --chassis-inner: #ecefe9;
-        --bezel: #d0d4ca;
-        --plate: #f5f7f3;
-        --plate-hover: #ffffff;
-        --rim-highlight: rgba(255, 255, 255, 0.95);
-        --rim-shadow: rgba(0, 0, 0, 0.12);
+        --bg: #f8fafc;
+        --card-bg: #ffffff;
+        --card-bg-elevated: #f1f5f9;
+        --card-bg-subtle: #f8fafc;
+        --border: #e2e8f0;
+        --border-hover: #cbd5e1;
 
-        --ink-primary: #15181b;
-        --ink-secondary: #565e66;
-        --ink-dim: #8b939c;
-        --ink-invert: #f5f7f3;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --text-dim: #94a3b8;
 
-        --vermilion: #d62828;
-        --vermilion-drum: #b71c1c;
-        --amber: #e76f51;
-        --emerald: #2a9d8f;
-        --cyan: #0077b6;
-        --pro-gold: #c29017;
-
-        --drum-bg: #111316;
-        --drum-txt: #fbfcf9;
+        --blue: #2563eb;
+        --blue-subtle: rgba(37, 99, 235, 0.1);
+        --coral: #e11d48;
+        --coral-subtle: rgba(225, 29, 72, 0.1);
+        --amber: #d97706;
+        --amber-subtle: rgba(217, 119, 6, 0.1);
+        --emerald: #059669;
+        --emerald-subtle: rgba(5, 150, 105, 0.1);
+        --pro-gold: #ca8a04;
+        --pro-gold-subtle: rgba(202, 138, 4, 0.12);
         color-scheme: light;
       }
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-    html, body {
-      min-height: 100vh;
-      background: var(--chassis);
-      color: var(--ink-primary);
-      font-family: var(--font-body);
-      font-size: 15px;
-      line-height: 1.45;
-      -webkit-font-smoothing: antialiased;
-    }
-
     body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
       display: flex;
       flex-direction: column;
-      position: relative;
       touch-action: manipulation;
     }
 
-    /* Subtle Physical Stipple Texture on Chassis */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-      background-size: 12px 12px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    #app-container {
-      position: relative;
-      z-index: 1;
+    #app {
       width: 100%;
-      max-width: 980px;
+      max-width: 680px;
       margin: 0 auto;
-      padding: calc(var(--safe-top) + 12px) 16px calc(var(--safe-bottom) + 85px);
+      padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bottom) + 84px);
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
 
     /* ==========================================================================
-       HARDWARE TOP BAR (Physical Machine Header)
+       TOP APP HEADER
        ========================================================================== */
-    .hardware-header {
-      background: var(--chassis-inner);
-      border: 1px solid var(--rim-highlight);
-      border-bottom: 2px solid var(--rim-shadow);
-      border-radius: 14px;
-      padding: 10px 16px;
+    .top-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+      padding: 12px 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
-    .machine-badge {
+    .header-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .jewel-lamp {
-      width: 11px;
-      height: 11px;
+    .status-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: var(--amber);
-      box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), 0 0 10px var(--amber-glow);
-      border: 1px solid rgba(0,0,0,0.4);
-      position: relative;
-      flex-shrink: 0;
-    }
-
-    .jewel-lamp.active {
       background: var(--emerald);
-      box-shadow: inset 0 1px 2px rgba(255,255,255,0.7), 0 0 12px var(--emerald-glow);
+      box-shadow: 0 0 8px var(--emerald);
+      position: relative;
     }
 
-    .jewel-lamp.active::after {
+    .status-dot.active::after {
       content: "";
       position: absolute;
-      inset: -3.5px;
+      inset: -3px;
       border-radius: 50%;
-      border: 1.5px solid var(--emerald);
-      animation: jewel-pulse 2s infinite ease-out;
+      border: 1px solid var(--emerald);
+      animation: pulse 2s infinite ease-out;
     }
 
-    @keyframes jewel-pulse {
-      0% { transform: scale(0.85); opacity: 0.9; }
-      100% { transform: scale(2.3); opacity: 0; }
+    @keyframes pulse {
+      0% { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(2.4); opacity: 0; }
     }
 
-    .machine-identity {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .machine-title-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .machine-title {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--ink-primary);
-    }
-
-    .plan-pill {
-      background: rgba(233, 196, 106, 0.15);
-      border: 1px solid var(--pro-gold);
-      color: var(--pro-gold);
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-family: var(--font-numbers);
+    .app-title {
+      font-size: 14px;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
     }
 
-    .model-plate {
+    .plan-badge {
+      display: inline-flex;
+      align-items: center;
+      background: var(--pro-gold-subtle);
+      color: var(--pro-gold);
+      border: 1px solid rgba(250, 204, 21, 0.3);
+      padding: 2px 7px;
+      border-radius: 5px;
       font-size: 11px;
-      font-family: var(--font-numbers);
-      color: var(--ink-secondary);
+      font-weight: 700;
       letter-spacing: 0.02em;
     }
 
-    .header-knob-group {
+    .header-actions {
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .hardware-btn {
-      background: var(--plate);
-      border: 1px solid var(--rim-highlight);
-      border-bottom: 2px solid var(--rim-shadow);
-      color: var(--ink-primary);
-      font-family: var(--font-body);
+    .btn-icon {
+      background: var(--card-bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      padding: 6px 10px;
       font-size: 12px;
-      font-weight: 700;
-      padding: 7px 12px;
-      border-radius: 6px;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.1s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+      transition: all 0.15s ease;
     }
 
-    .hardware-btn:active {
-      transform: translateY(1.5px);
-      border-bottom-width: 1px;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+    .btn-icon:hover {
+      color: var(--text-primary);
+      border-color: var(--border-hover);
     }
 
-    .hardware-btn svg { width: 14px; height: 14px; stroke-width: 2.2; }
+    .btn-icon:active {
+      transform: scale(0.96);
+    }
+
+    .btn-icon svg {
+      width: 13px;
+      height: 13px;
+      stroke-width: 2.2;
+    }
+
+    .spin { animation: spin 0.75s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
     /* ==========================================================================
-       THE PHYSICAL METER APPARATUS (Das mechanische Messgerät)
+       SECTION CONTAINERS & CARDS
        ========================================================================== */
-    .chassis-box {
-      background: var(--chassis-inner);
-      border: 1px solid var(--rim-highlight);
-      border-bottom: 3px solid var(--rim-shadow);
-      border-radius: 16px;
-      padding: 20px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      position: relative;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-    }
-
-    /* Corner Screw Heads */
-    .chassis-box::before, .chassis-box::after {
-      content: "";
-      position: absolute;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #3a3f45;
-      box-shadow: inset 0 1px 1px #111, 0 1px 1px rgba(255,255,255,0.1);
-    }
-    .chassis-box::before { top: 9px; left: 10px; }
-    .chassis-box::after { top: 9px; right: 10px; }
-
-    .meter-counters-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    @media (max-width: 620px) {
-      .meter-counters-grid { grid-template-columns: 1fr; }
-    }
-
-    .meter-gauge-panel {
-      background: var(--plate);
-      border: 1px solid var(--rim-highlight);
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 14px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
-    .meter-gauge-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-
-    .meter-gauge-title {
-      font-size: 12px;
-      font-weight: 800;
+    .section-header {
+      font-size: 11px;
+      font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--ink-secondary);
-    }
-
-    .meter-countdown-stamp {
-      font-family: var(--font-numbers);
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--ink-primary);
-      background: rgba(0, 0, 0, 0.25);
-      padding: 2px 7px;
-      border-radius: 4px;
-      border: 1px solid var(--rim-highlight);
-    }
-
-    /* 3D MECHANICAL CYLINDRICAL ODOMETER DRUMS */
-    .recessed-bezel {
-      background: var(--bezel);
-      border-radius: 8px;
-      padding: 8px 10px;
-      border: 1px solid rgba(0,0,0,0.8);
-      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.75), 0 1px 1px var(--rim-highlight);
+      color: var(--text-muted);
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 4px;
+      justify-content: space-between;
     }
 
-    .walzen-cluster {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
+    /* ==========================================================================
+       USAGE METERS & PROGRESS BARS (WITH PACING TICKS)
+       ========================================================================== */
+    .usage-item {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
     }
 
-    .drum-wheel {
-      width: 38px;
-      height: 52px;
-      border-radius: 4px;
-      background: var(--drum-bg);
+    .usage-top-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .usage-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .usage-pct {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* The Sleek Track with Pacing Tick */
+    .progress-track-wrapper {
       position: relative;
+      height: 10px;
+      background: var(--card-bg-elevated);
+      border-radius: 5px;
       overflow: hidden;
-      box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255, 255, 255, 0.03);
     }
 
-    .drum-wheel.vermilion {
-      background: var(--vermilion-drum);
+    .progress-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.5s ease, background-color 0.2s ease;
     }
 
-    /* 3D Cylindrical lighting overlay */
-    .drum-wheel::after {
-      content: "";
+    .fill-blue { background: var(--blue); }
+    .fill-amber { background: var(--amber); }
+    .fill-coral { background: var(--coral); }
+
+    /* Segment Dividers (e.g. 7 days of the week) */
+    .progress-segments-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.75) 0%,
-        rgba(0, 0, 0, 0.2) 20%,
-        rgba(255, 255, 255, 0.16) 45%,
-        rgba(255, 255, 255, 0) 55%,
-        rgba(0, 0, 0, 0.3) 80%,
-        rgba(0, 0, 0, 0.85) 100%
-      );
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
       pointer-events: none;
     }
 
-    .drum-tape {
-      display: flex;
-      flex-direction: column;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      transform: translateY(calc(var(--digit, 0) * -52px));
-      transition: transform 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-    }
-
-    .drum-digit {
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-numbers);
-      font-size: 38px;
-      font-weight: 800;
-      color: var(--drum-txt);
-      user-select: none;
-    }
-
-    .drum-wheel.dim-lead .drum-digit {
-      opacity: 0.3;
-    }
-
-    .percent-stamp {
-      font-family: var(--font-numbers);
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--ink-secondary);
-      margin-left: 4px;
-      align-self: flex-end;
-      padding-bottom: 6px;
-    }
-
-    /* Pacing Fuel Gauge Bar */
-    .gauge-track-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .physical-bar-track {
-      height: 8px;
-      background: var(--bezel);
-      border-radius: 4px;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .physical-bar-fill {
+    .segment-line {
+      border-right: 1px solid rgba(0, 0, 0, 0.45);
       height: 100%;
-      width: 0%;
-      background: var(--emerald);
-      border-radius: 4px;
-      transition: width 0.6s ease, background-color 0.3s ease;
-      box-shadow: 0 0 6px rgba(42, 157, 143, 0.4);
     }
 
-    .physical-bar-fill.warning { background: var(--amber); box-shadow: 0 0 6px var(--amber-glow); }
-    .physical-bar-fill.alarm { background: var(--vermilion); box-shadow: 0 0 8px rgba(230, 57, 70, 0.5); }
-
-    .meter-footer-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11.5px;
-      font-family: var(--font-numbers);
-      color: var(--ink-secondary);
-    }
-
-    /* ==========================================================================
-       FERRARIS INDUCTION ROTOR DISC APERTURE (Drehscheibe)
-       ========================================================================== */
-    .ferraris-housing {
-      background: var(--plate);
-      border: 1px solid var(--rim-highlight);
-      border-radius: 10px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .ferraris-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--ink-dim);
-    }
-
-    .ferraris-slit-window {
-      height: 24px;
-      background: #08090a;
-      border-radius: 4px;
-      border: 1px solid rgba(0,0,0,0.8);
-      box-shadow: inset 0 3px 6px rgba(0,0,0,0.8), 0 1px 1px var(--rim-highlight);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-    }
-
-    /* Brushed Aluminum Rotor Track */
-    .rotor-disc-strip {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        90deg,
-        #1c2024 0%,
-        #82888f 25%,
-        #d1d5db 50%,
-        #82888f 75%,
-        #1c2024 100%
-      );
-      opacity: 0.9;
-    }
-
-    /* Strobe Ticks */
-    .strobe-ticks-pattern {
-      position: absolute;
-      inset: 0;
-      background-image: repeating-linear-gradient(
-        90deg,
-        transparent 0px,
-        transparent 10px,
-        rgba(0, 0, 0, 0.45) 10px,
-        rgba(0, 0, 0, 0.45) 12px
-      );
-      will-change: transform;
-    }
-
-    /* Vermilion Reference Notch */
-    .vermilion-notch {
+    /* The White Vertical Pacing Tick (Time Elapsed Indicator) */
+    .pacing-tick {
       position: absolute;
       top: 0;
       bottom: 0;
-      width: 14px;
-      background: var(--vermilion);
-      box-shadow: 0 0 8px rgba(230, 57, 70, 0.8);
-      will-change: transform;
-      transform: translateX(-30px);
-    }
-
-    /* Anti-reflective glass glaze */
-    .slit-glass-reflection {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.22) 0%,
-        rgba(255, 255, 255, 0.03) 40%,
-        transparent 50%,
-        rgba(0, 0, 0, 0.4) 100%
-      );
+      width: 2px;
+      background: #ffffff;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.8), 0 0 3px rgba(255, 255, 255, 0.8);
+      z-index: 2;
       pointer-events: none;
+      transition: left 0.5s ease;
     }
 
-    .ferraris-meta-line {
+    .usage-meta-row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       font-size: 12px;
-      font-family: var(--font-numbers);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
     }
 
-    .burn-rate-number {
-      font-weight: 800;
-      color: var(--ink-primary);
+    .meta-highlight {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      font-size: 11.5px;
     }
 
     /* ==========================================================================
-       FINANCIAL STATS DOCK (Claude Pro Arbitrage & API-Wert)
+       CLAUDE PRO VALUE & ARBITRAGE (STAT STRIP)
        ========================================================================== */
-    .stat-trio-row {
+    .stats-grid-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: 10px;
     }
 
-    @media (max-width: 650px) {
-      .stat-trio-row { grid-template-columns: 1fr; }
+    @media (max-width: 520px) {
+      .stats-grid-row { grid-template-columns: 1fr; }
     }
 
-    .tactile-card {
-      background: var(--chassis-inner);
-      border: 1px solid var(--rim-highlight);
-      border-radius: 12px;
-      padding: 14px 16px;
+    .stat-box {
+      background: var(--card-bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      gap: 3px;
     }
 
-    .tactile-card-lbl {
+    .stat-label {
       font-size: 11px;
       font-weight: 700;
-      text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--ink-dim);
+      text-transform: uppercase;
+      color: var(--text-muted);
     }
 
-    .tactile-card-val {
-      font-size: 22px;
-      font-weight: 800;
-      font-family: var(--font-numbers);
-      color: var(--ink-primary);
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
     }
 
-    .tactile-card-sub {
+    .stat-sub {
       font-size: 11.5px;
-      color: var(--ink-secondary);
-      font-family: var(--font-numbers);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
     }
 
     /* ==========================================================================
-       TABBED WORKSPACE VIEWPORT (Desktop & Mobile Panel)
+       PROJECTS BREAKDOWN LIST
        ========================================================================== */
-    .content-panel {
-      background: var(--chassis-inner);
-      border: 1px solid var(--rim-highlight);
-      border-radius: 16px;
-      padding: 20px;
+    .project-item {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      gap: 6px;
+      padding: 10px 12px;
+      background: var(--card-bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 8px;
     }
 
-    .panel-header-row {
+    .project-main-line {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--rim-highlight);
-      padding-bottom: 12px;
     }
 
-    .panel-title {
-      font-size: 14px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--ink-primary);
+    .project-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
     }
 
-    /* Millimeter Paper Chart Viewport */
-    .millimeter-chart-box {
+    .project-amount {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--emerald);
+      font-size: 13px;
+    }
+
+    .project-sub-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+    }
+
+    .diff-green { color: var(--emerald); }
+    .diff-red { color: var(--coral); }
+
+    /* ==========================================================================
+       MILLIMETER CHART & TIMELINE
+       ========================================================================== */
+    .chart-panel {
+      height: 220px;
       width: 100%;
-      height: 260px;
-      background: #090b0e;
+      background: #090a0e;
+      border: 1px solid var(--border);
       border-radius: 8px;
-      border: 1px solid rgba(0,0,0,0.8);
-      box-shadow: inset 0 3px 6px rgba(0,0,0,0.7);
       position: relative;
       cursor: crosshair;
       overflow: hidden;
     }
 
-    .chart-svg-element {
+    .chart-svg {
       width: 100%;
       height: 100%;
     }
 
-    .chart-tooltip-hud {
+    .chart-hud {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(18, 20, 23, 0.94);
-      border: 1px solid var(--rim-highlight);
+      top: 8px;
+      left: 8px;
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 6px 10px;
+      padding: 5px 8px;
       font-size: 11px;
-      font-family: var(--font-numbers);
+      font-family: var(--font-mono);
       pointer-events: none;
       backdrop-filter: blur(6px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
-
-    /* Project Radar List */
-    .project-rows-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .project-row-item {
-      background: var(--plate);
-      border: 1px solid var(--rim-highlight);
-      border-radius: 8px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .project-row-top {
-      display: flex;
-      justify-content: space-between;
-      font-weight: 700;
-      font-size: 13px;
-    }
-
-    .diff-badge-green { color: var(--emerald); }
-    .diff-badge-red { color: var(--vermilion); }
 
     /* Heatmap Grid */
     .heatmap-board {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       overflow-x: auto;
-      padding-bottom: 6px;
+      padding-bottom: 4px;
     }
 
     .heatmap-row {
       display: grid;
-      grid-template-columns: 36px repeat(24, 1fr);
+      grid-template-columns: 28px repeat(24, 1fr);
       gap: 3px;
       align-items: center;
     }
 
     .heatmap-day {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      font-family: var(--font-numbers);
-      color: var(--ink-dim);
+      font-family: var(--font-mono);
+      color: var(--text-muted);
     }
 
     .heatmap-tile {
-      height: 20px;
+      height: 18px;
       border-radius: 2px;
       background: rgba(255, 255, 255, 0.04);
       cursor: pointer;
     }
 
     /* ==========================================================================
-       MOBILE FLOATING THUMB DOCK (Native App Navigation)
+       MOBILE THUMB NAVIGATION DOCK (Thumb Ergonomics)
        ========================================================================== */
-    .mobile-thumb-dock {
+    .mobile-nav-dock {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(18, 20, 23, 0.96);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-top: 1px solid var(--rim-highlight);
-      padding: 6px 12px calc(var(--safe-bottom) + 6px);
+      background: rgba(13, 15, 20, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      padding: 8px 16px calc(var(--safe-bottom) + 8px);
       display: flex;
       justify-content: space-around;
       align-items: center;
       z-index: 100;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
     }
 
-    .dock-tab-btn {
+    .dock-tab {
       background: transparent;
       border: none;
-      color: var(--ink-dim);
+      color: var(--text-muted);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 3px;
       font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      font-weight: 600;
       cursor: pointer;
-      padding: 6px 10px;
+      padding: 6px 12px;
       border-radius: 8px;
-      min-width: 58px;
       transition: all 0.15s ease;
     }
 
-    .dock-tab-btn:active {
-      transform: scale(0.92);
+    .dock-tab:active {
+      transform: scale(0.94);
     }
 
-    .dock-tab-btn svg {
-      width: 20px;
-      height: 20px;
+    .dock-tab svg {
+      width: 18px;
+      height: 18px;
       stroke-width: 2.2;
     }
 
-    .dock-tab-btn.active {
-      color: var(--vermilion);
-      background: rgba(230, 57, 70, 0.09);
+    .dock-tab.active {
+      color: var(--blue);
+      background: var(--blue-subtle);
     }
 
-    /* Push Notification Modal / Card */
-    .push-banner {
-      background: var(--plate);
-      border: 1px dashed var(--rim-highlight);
-      border-radius: 10px;
-      padding: 14px;
+    .view-tab { display: none; }
+    .view-tab.active { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Account / Push Settings */
+    .account-meta-row {
       display: flex;
-      flex-direction: column;
-      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
     }
-
-    .push-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    /* Tab display control */
-    .view-deck { display: none; }
-    .view-deck.active { display: flex; flex-direction: column; gap: 16px; }
-
-    /* Pull to refresh spinner */
-    .spin {
-      animation: rotary 0.8s linear infinite;
-    }
-    @keyframes rotary {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+    .account-meta-row:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
-  <div id="app-container">
-    <!-- HARDWARE MACHINE HEADER -->
-    <header class="hardware-header">
-      <div class="machine-badge">
-        <div id="pilot-lamp" class="jewel-lamp active"></div>
-        <div class="machine-identity">
-          <div class="machine-title-row">
-            <span class="machine-title">STAND</span>
-            <span class="plan-pill">PRO ($20/MO)</span>
-          </div>
-          <div class="model-plate" id="header-model-stamp">CLAUDE 3.7 SONNET</div>
-        </div>
+  <div id="app">
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <div class="header-left">
+        <div id="status-beacon" class="status-dot active"></div>
+        <span class="app-title">Usage Monitor for Claude</span>
+        <span class="plan-badge">Claude Pro</span>
       </div>
 
-      <div class="header-knob-group">
-        <button class="hardware-btn" id="btn-sync" title="Messwerte synchronisieren">
+      <div class="header-actions">
+        <button class="btn-icon" id="btn-sync" title="Jetzt synchronisieren">
           <svg id="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
           </svg>
-          <span id="sync-text">Sync</span>
+          <span id="sync-label">Sync</span>
         </button>
       </div>
     </header>
 
-    <!-- TAB 1: DAS PHYSIKALISCHE MESSGERÄT (Zähler & Instrument) -->
-    <div class="view-deck active" id="deck-meter">
-      <section class="chassis-box">
-        <div class="meter-counters-grid">
-          <!-- 5-HOUR LIMIT COUNTER -->
-          <div class="meter-gauge-panel">
-            <div class="meter-gauge-header">
-              <span class="meter-gauge-title">5-Stunden-Limit</span>
-              <span class="meter-countdown-stamp" id="reset-five-stamp">Wird berechnet …</span>
-            </div>
+    <!-- TAB 1: STATUS & USAGE LIMITS (MAIN DASHBOARD) -->
+    <div class="view-tab active" id="tab-status">
+      <!-- ACCOUNT CARD -->
+      <section class="section-card">
+        <div class="section-header">Account</div>
+        <div class="account-meta-row">
+          <span style="color: var(--text-secondary);">Plan</span>
+          <span style="font-weight: 600; color: var(--pro-gold);">Claude Pro ($20/Monat Flatrate)</span>
+        </div>
+        <div class="account-meta-row">
+          <span style="color: var(--text-secondary);">Aktives Modell</span>
+          <span id="active-model-name" style="font-family: var(--font-mono); font-weight: 600;">Claude 3.7 Sonnet</span>
+        </div>
+        <div class="account-meta-row">
+          <span style="color: var(--text-secondary);">Aktuelle Burn-Rate</span>
+          <span id="current-burn-rate" style="font-family: var(--font-mono); font-weight: 700; color: var(--text-primary);">0,00 $ / h</span>
+        </div>
+      </section>
 
-            <!-- 3D Odometer Drums for 5h -->
-            <div class="recessed-bezel" aria-label="5-Stunden-Stand">
-              <div class="walzen-cluster" id="cluster-five">
-                <div class="drum-wheel" id="d5-h"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
-                <div class="drum-wheel" id="d5-t"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
-                <div class="drum-wheel vermilion" id="d5-u"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
-              </div>
-              <span class="percent-stamp">%</span>
-            </div>
+      <!-- USAGE SECTION (With Pacing Ticks) -->
+      <section class="section-card">
+        <div class="section-header">
+          <span>Usage</span>
+          <span id="last-updated-label" style="font-size: 10px; font-weight: 500; text-transform: none; color: var(--text-dim);">Aktualisiert gerade eben</span>
+        </div>
 
-            <div class="gauge-track-wrap">
-              <div class="physical-bar-track">
-                <div class="physical-bar-fill" id="bar-five"></div>
-              </div>
-            </div>
-
-            <div class="meter-footer-row">
-              <span id="rate-five-text">Tempo: 0.0 %/h</span>
-              <span id="forecast-five-text">Prognose: --</span>
-            </div>
+        <!-- 5-HOUR LIMIT -->
+        <div class="usage-item">
+          <div class="usage-top-row">
+            <span class="usage-title">Session (5hr)</span>
+            <span class="usage-pct" id="five-pct-txt">0%</span>
           </div>
 
-          <!-- WEEKLY LIMIT COUNTER -->
-          <div class="meter-gauge-panel">
-            <div class="meter-gauge-header">
-              <span class="meter-gauge-title">Wochen-Budget</span>
-              <span class="meter-countdown-stamp" id="reset-week-stamp">Wird berechnet …</span>
-            </div>
+          <div class="progress-track-wrapper">
+            <div class="progress-fill fill-blue" id="five-bar" style="width: 0%;"></div>
+            <div class="pacing-tick" id="five-pace-tick" style="left: 0%;" title="Vergangene Zeit im Fenster"></div>
+          </div>
 
-            <!-- 3D Odometer Drums for Week -->
-            <div class="recessed-bezel" aria-label="Wochen-Stand">
-              <div class="walzen-cluster" id="cluster-week">
-                <div class="drum-wheel" id="dw-h"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
-                <div class="drum-wheel" id="dw-t"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
-                <div class="drum-wheel vermilion" id="dw-u"><div class="drum-tape" style="--digit: 0;"><div class="drum-digit">0</div><div class="drum-digit">1</div><div class="drum-digit">2</div><div class="drum-digit">3</div><div class="drum-digit">4</div><div class="drum-digit">5</div><div class="drum-digit">6</div><div class="drum-digit">7</div><div class="drum-digit">8</div><div class="drum-digit">9</div></div></div>
-              </div>
-              <span class="percent-stamp">%</span>
-            </div>
-
-            <div class="gauge-track-wrap">
-              <div class="physical-bar-track">
-                <div class="physical-bar-fill" id="bar-week"></div>
-              </div>
-            </div>
-
-            <div class="meter-footer-row">
-              <span id="pacing-week-text">Pacing: Im Plan</span>
-              <span id="daily-budget-text">Rest: -- %/Tag</span>
-            </div>
+          <div class="usage-meta-row">
+            <span id="five-reset-sub">Reset in 0h 0m</span>
+            <span class="meta-highlight" id="five-pace-sub">0.0 %/h</span>
           </div>
         </div>
 
-        <!-- FERRARIS INDUCTION ROTOR DISC (Schauglas & Stroboskop) -->
-        <div class="ferraris-housing">
-          <div class="ferraris-header">
-            <span>Ferraris-Induktionsscheibe</span>
-            <span id="ferraris-live-indicator">Läuft proportional zum Verbrauch</span>
+        <!-- WEEKLY 7-DAY LIMIT -->
+        <div class="usage-item" style="margin-top: 8px;">
+          <div class="usage-top-row">
+            <span class="usage-title">Weekly (7 day)</span>
+            <span class="usage-pct" id="week-pct-txt">0%</span>
           </div>
 
-          <div class="ferraris-slit-window" id="slit-window">
-            <div class="rotor-disc-strip"></div>
-            <div class="strobe-ticks-pattern" id="strobe-ticks"></div>
-            <div class="vermilion-notch" id="vermilion-notch"></div>
-            <div class="slit-glass-reflection"></div>
+          <div class="progress-track-wrapper">
+            <div class="progress-fill fill-coral" id="week-bar" style="width: 0%;"></div>
+            <div class="progress-segments-overlay">
+              <div class="segment-line"></div>
+              <div class="segment-line"></div>
+              <div class="segment-line"></div>
+              <div class="segment-line"></div>
+              <div class="segment-line"></div>
+              <div class="segment-line"></div>
+              <div></div>
+            </div>
+            <div class="pacing-tick" id="week-pace-tick" style="left: 0%;" title="Vergangene Zeit der Woche"></div>
           </div>
 
-          <div class="ferraris-meta-line">
-            <span style="color: var(--ink-dim);">1 Umdrehung / Std. = 1,00 $</span>
-            <span class="burn-rate-number" id="ferraris-burn-display">0,00 $ / h</span>
+          <div class="usage-meta-row">
+            <span id="week-reset-sub">Reset am Fr., 10:00</span>
+            <span class="meta-highlight" id="week-budget-sub">Rest: -- % / Tag</span>
           </div>
         </div>
       </section>
 
-      <!-- FINANCIAL ARBITRAGE CARDS (CLAUDE PRO ARBITRAGE) -->
-      <section class="stat-trio-row">
-        <div class="tactile-card">
-          <span class="tactile-card-lbl">API-Wert Heute</span>
-          <span class="tactile-card-val" id="val-cost-today">0,00 $</span>
-          <span class="tactile-card-sub" id="val-tok-today">0 Tokens</span>
-        </div>
-
-        <div class="tactile-card">
-          <span class="tactile-card-lbl">API-Wert Woche</span>
-          <span class="tactile-card-val" id="val-cost-week">0,00 $</span>
-          <span class="tactile-card-sub" id="val-tok-week">0 Tokens</span>
-        </div>
-
-        <div class="tactile-card">
-          <span class="tactile-card-lbl">30-Tage Pro-Arbitrage</span>
-          <span class="tactile-card-val" id="val-arbitrage">0,00 $</span>
-          <span class="tactile-card-sub" id="val-arbitrage-sub">vs. 20 $ Pro Flatrate</span>
+      <!-- EXTRA USAGE / PRO ARBITRAGE -->
+      <section class="section-card">
+        <div class="section-header">API-Gegenwert & Pro-Ersparnis</div>
+        <div class="stats-grid-row">
+          <div class="stat-box">
+            <span class="stat-label">Heute</span>
+            <span class="stat-value" id="val-cost-today">0,00 $</span>
+            <span class="stat-sub" id="val-tok-today">0 Tokens</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Diese Woche</span>
+            <span class="stat-value" id="val-cost-week">0,00 $</span>
+            <span class="stat-sub" id="val-tok-week">0 Tokens</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">30-Tage Arbitrage</span>
+            <span class="stat-value" id="val-cost-30d">0,00 $</span>
+            <span class="stat-sub" id="val-roi-sub" style="color: var(--emerald);">vs. 20 $ Pro Flat</span>
+          </div>
         </div>
       </section>
     </div>
 
-    <!-- TAB 2: MILLIMETER-SCHREIBER (Chart & 24h Spur) -->
-    <div class="view-deck" id="deck-chart">
-      <section class="content-panel">
-        <div class="panel-header-row">
-          <span class="panel-title">Messkurven-Schreiber</span>
-          <span style="font-size: 11px; font-family: var(--font-numbers); color: var(--ink-dim);">5h & Woche</span>
+    <!-- TAB 2: VERLAUF & CHARTS -->
+    <div class="view-tab" id="tab-charts">
+      <section class="section-card">
+        <div class="section-header">Messkurven & Limit-Verlauf</div>
+        <div class="chart-panel" id="chart-viewport">
+          <svg class="chart-svg" id="chart-svg"></svg>
+          <div class="chart-hud" id="chart-hud" style="display: none;"></div>
         </div>
 
-        <div class="millimeter-chart-box" id="chart-box">
-          <svg class="chart-svg-element" id="meter-svg"></svg>
-          <div class="chart-tooltip-hud" id="chart-tooltip" style="display: none;"></div>
-        </div>
-
-        <div style="display: flex; gap: 16px; font-size: 12px; font-family: var(--font-numbers); color: var(--ink-secondary);">
+        <div style="display: flex; gap: 16px; font-size: 11.5px; font-family: var(--font-mono); color: var(--text-secondary);">
           <span style="display: flex; align-items: center; gap: 5px;">
-            <span style="width: 10px; height: 3px; background: var(--amber); border-radius: 1px;"></span> 5-Stunden
+            <span style="width: 8px; height: 8px; border-radius: 2px; background: var(--blue);"></span> 5-Stunden
           </span>
           <span style="display: flex; align-items: center; gap: 5px;">
-            <span style="width: 10px; height: 3px; background: var(--cyan); border-radius: 1px;"></span> Woche
+            <span style="width: 8px; height: 8px; border-radius: 2px; background: var(--coral);"></span> 7-Tage Woche
           </span>
         </div>
 
-        <div style="margin-top: 10px;">
-          <span class="panel-title" style="font-size: 12px;">Tagesverbrauch der aktiven Woche</span>
-          <div id="daily-bars-target" style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;"></div>
+        <div style="margin-top: 6px;">
+          <div class="section-header" style="margin-bottom: 8px;">Tagesverbrauch der aktiven Woche</div>
+          <div id="daily-bars-container" style="display: flex; flex-direction: column; gap: 6px;"></div>
         </div>
       </section>
     </div>
 
-    <!-- TAB 3: PROJEKT-RADAR -->
-    <div class="view-deck" id="deck-projects">
-      <section class="content-panel">
-        <div class="panel-header-row">
-          <span class="panel-title">Projekt-Radar</span>
-          <span id="projects-total-count" style="font-size: 12px; font-family: var(--font-numbers); color: var(--ink-secondary);">-- Projekte</span>
+    <!-- TAB 3: PROJEKTE & CODE DIFFS -->
+    <div class="view-tab" id="tab-projects">
+      <section class="section-card">
+        <div class="section-header">
+          <span>Projekte</span>
+          <span id="projects-count" style="text-transform: none; font-size: 11px;">-- erfasst</span>
         </div>
+        <div id="projects-list-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      </section>
+    </div>
 
-        <div class="project-rows-list" id="projects-container">
-          <!-- Dynamically populated -->
+    <!-- TAB 4: WOCHEN-RHYTHMUS (HEATMAP) -->
+    <div class="view-tab" id="tab-heatmap">
+      <section class="section-card">
+        <div class="section-header">Aktivitäts-Heatmap (24h × 7 Tage)</div>
+        <div class="heatmap-board" id="heatmap-container"></div>
+      </section>
+    </div>
+
+    <!-- TAB 5: PUSH ALARMS & SETTINGS -->
+    <div class="view-tab" id="tab-settings">
+      <section class="section-card">
+        <div class="section-header">Reset-Benachrichtigungen</div>
+        <p style="font-size: 13px; color: var(--text-secondary);">
+          Erhalte eine direkte Push-Mitteilung auf dein Smartphone, sobald dein 5-Stunden-Limit wieder freigegeben ist.
+        </p>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
+          <button class="btn-icon" id="btn-push-on" style="background: var(--blue); color: #fff; border: none;">Mitteilungen einschalten</button>
+          <button class="btn-icon" id="btn-push-test" style="display: none;">Test-Alarm senden</button>
+          <button class="btn-icon" id="btn-push-off" style="display: none;">Ausschalten</button>
+        </div>
+        <span id="push-status-text" style="font-size: 11.5px; font-family: var(--font-mono); color: var(--text-dim);"></span>
+      </section>
+
+      <section class="section-card">
+        <div class="section-header">Tarif & System</div>
+        <div class="account-meta-row">
+          <span>Ausgewählter Tarif</span>
+          <span style="font-weight: 600; color: var(--pro-gold);">Claude Pro ($20/Monat)</span>
+        </div>
+        <div class="account-meta-row">
+          <span>Worker Endpoint</span>
+          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">claude-stand.spanani.workers.dev</span>
         </div>
       </section>
     </div>
 
-    <!-- TAB 4: RHYTHMUS (Heatmap & Arbeitszeiten) -->
-    <div class="view-deck" id="deck-heatmap">
-      <section class="content-panel">
-        <div class="panel-header-row">
-          <span class="panel-title">Wochen-Rhythmus</span>
-          <span style="font-size: 11px; font-family: var(--font-numbers); color: var(--ink-dim);">24h Matrix</span>
-        </div>
-
-        <div class="heatmap-board" id="heatmap-target">
-          <!-- Dynamically populated 7x24 grid -->
-        </div>
-      </section>
-    </div>
-
-    <!-- TAB 5: ALARM & MITTEILUNGEN -->
-    <div class="view-deck" id="deck-alarm">
-      <section class="content-panel">
-        <div class="panel-header-row">
-          <span class="panel-title">Reset-Mitteilungen & Claude Pro</span>
-        </div>
-
-        <div class="push-banner">
-          <p style="font-size: 13px; color: var(--ink-secondary);" id="push-info-text">
-            Erhalte eine automatische Push-Mitteilung auf dein Smartphone, sobald dein 5-Stunden-Limit wieder freigegeben ist.
-          </p>
-          <div class="push-actions">
-            <button class="hardware-btn" id="btn-push-on">Mitteilungen einschalten</button>
-            <button class="hardware-btn" id="btn-push-test" style="display: none;">Test-Alarm senden</button>
-            <button class="hardware-btn" id="btn-push-off" style="display: none;">Ausschalten</button>
-          </div>
-          <span id="push-status-lbl" style="font-size: 11.5px; font-family: var(--font-numbers); color: var(--ink-dim);"></span>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
-          <span class="panel-title" style="font-size: 12px;">Tarif-Berechnung</span>
-          <div style="display: flex; gap: 8px;">
-            <button class="hardware-btn active" data-plan="pro" style="border-color: var(--pro-gold); color: var(--pro-gold);">Claude Pro ($20/Monat)</button>
-            <button class="hardware-btn" data-plan="max">Max ($100)</button>
-            <button class="hardware-btn" data-plan="team">Team</button>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- MOBILE FLOATING THUMB DOCK (Native Handheld Ergonomics) -->
-    <nav class="mobile-thumb-dock">
-      <button class="dock-tab-btn active" data-deck="deck-meter">
+    <!-- MOBILE THUMB NAVIGATION DOCK -->
+    <nav class="mobile-nav-dock">
+      <button class="dock-tab active" data-tab="tab-status">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        <span>Zähler</span>
+        <span>Usage</span>
       </button>
 
-      <button class="dock-tab-btn" data-deck="deck-chart">
+      <button class="dock-tab" data-tab="tab-charts">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        <span>Schreiber</span>
+        <span>Verlauf</span>
       </button>
 
-      <button class="dock-tab-btn" data-deck="deck-projects">
+      <button class="dock-tab" data-tab="tab-projects">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         <span>Projekte</span>
       </button>
 
-      <button class="dock-tab-btn" data-deck="deck-heatmap">
+      <button class="dock-tab" data-tab="tab-heatmap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <span>Rhythmus</span>
       </button>
 
-      <button class="dock-tab-btn" data-deck="deck-alarm">
+      <button class="dock-tab" data-tab="tab-settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span>Alarm</span>
+        <span>Alerts</span>
       </button>
     </nav>
   </div>
 
-  <!-- Pure Logic Calculations Engine -->
+  <!-- Pure Calculations Engine -->
   <script src="logik.js"></script>
 
   <script>
@@ -1074,16 +767,11 @@
     const geldDE = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     
     let rawData = null;
-    let selectedPlan = 'pro'; // User has Claude Pro ($20/Monat)
-    let currentBurnRate = 0;
-    let discAnimationId = null;
-    let discOffset = 0;
     let pushSub = null;
     let swReg = null;
 
     function $(id) { return document.getElementById(id); }
 
-    // Haptic feedback trigger for mobile
     function haptic() {
       if ('vibrate' in navigator) navigator.vibrate(8);
     }
@@ -1129,55 +817,19 @@
       return n + ' Tokens';
     }
 
-    function formatCountdown(sec) {
+    function formatCountdown(sec, resetTs) {
       if (sec <= 0) return 'Reset fällig';
       const h = Math.floor(sec / 3600);
       const m = Math.floor((sec % 3600) / 60);
-      const s = Math.floor(sec % 60);
-      if (h > 24) return `Reset in ${Math.floor(h / 24)}d ${h % 24}h`;
-      if (h > 0) return `Reset in ${h}h ${m}m`;
-      return `Reset in ${m}m ${s}s`;
-    }
-
-    // Set 3D Mechanical Odometer Drum Wheels
-    function setOdometer(prefix, val) {
-      const clamped = Math.max(0, Math.min(100, Math.round(val || 0)));
-      const str = String(clamped).padStart(3, '0');
-      const h = $(prefix + '-h'), t = $(prefix + '-t'), u = $(prefix + '-u');
-
-      h.querySelector('.drum-tape').style.setProperty('--digit', str[0]);
-      t.querySelector('.drum-tape').style.setProperty('--digit', str[1]);
-      u.querySelector('.drum-tape').style.setProperty('--digit', str[2]);
-
-      h.classList.toggle('dim-lead', clamped < 100);
-      t.classList.toggle('dim-lead', clamped < 10);
-    }
-
-    // Ferraris Strobe Wheel Animation Loop
-    function startFerrarisDisc() {
-      let lastTime = performance.now();
-      const notch = $('vermilion-notch');
-      const strobe = $('strobe-ticks');
-      const slitW = $('slit-window').clientWidth || 300;
-
-      function step(now) {
-        const dt = (now - lastTime) / 1000;
-        lastTime = now;
-
-        const speed = Math.min(8.0, Math.max(0.0, currentBurnRate > 0 ? Math.sqrt(currentBurnRate) : 0));
-        if (speed > 0) {
-          discOffset = (discOffset + dt * speed * (slitW / 12)) % slitW;
-          notch.style.transform = `translateX(${discOffset}px)`;
-          strobe.style.transform = `translateX(${(discOffset % 12)}px)`;
-        }
-
-        discAnimationId = requestAnimationFrame(step);
+      const timeStr = resetTs ? ` (${new Date(resetTs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })})` : '';
+      if (h > 24) {
+        const d = Math.floor(h / 24);
+        return `Resets in ${d}d ${h % 24}h${timeStr}`;
       }
-      if (discAnimationId) cancelAnimationFrame(discAnimationId);
-      discAnimationId = requestAnimationFrame(step);
+      return `Resets in ${h}h ${m}m${timeStr}`;
     }
 
-    // Main Telemetry Render Routine
+    // Master Render Routine
     function renderApp() {
       if (!rawData) return;
       const now = Date.now();
@@ -1186,53 +838,67 @@
       const f5 = f5List[f5List.length - 1];
       const fw = fwList[fwList.length - 1];
 
-      // Live Pilot Lamp & Active Model
+      // Live Beacon & Active Model
       const lastSession = rawData.sessions[0];
       const isLive = lastSession && (now - lastSession.updated) < 180000;
-      $('pilot-lamp').className = isLive ? 'jewel-lamp active' : 'jewel-lamp';
-      $('header-model-stamp').textContent = lastSession ? (lastSession.model || 'CLAUDE') : 'BEREIT';
+      $('status-beacon').className = isLive ? 'status-dot active' : 'status-dot';
+      $('active-model-name').textContent = lastSession ? (lastSession.model || 'Claude 3.7 Sonnet') : 'Bereit';
 
-      // 5-Hour Odometer & Bar
+      // 5-Hour Session Progress Bar & Pacing Tick
       if (f5) {
-        setOdometer('d5', f5.peak);
-        const bar5 = $('bar-five');
-        bar5.style.width = `${f5.peak}%`;
-        bar5.className = f5.peak >= 90 ? 'physical-bar-fill alarm' : f5.peak >= 75 ? 'physical-bar-fill warning' : 'physical-bar-fill';
+        $('five-pct-txt').textContent = `${Math.round(f5.peak)}%`;
+        const bar5 = $('five-bar');
+        bar5.style.width = `${Math.min(100, Math.max(0, f5.peak))}%`;
+        bar5.className = f5.peak >= 90 ? 'progress-fill fill-coral' : f5.peak >= 75 ? 'progress-fill fill-amber' : 'progress-fill fill-blue';
+
+        // Pacing Tick: % of time elapsed in the 5h window
+        const windowDuration = 5 * 3600000;
+        const timeElapsed = Math.min(windowDuration, Math.max(0, windowDuration - (f5.reset - now)));
+        const timeElapsedPct = (timeElapsed / windowDuration) * 100;
+        $('five-pace-tick').style.left = `${Math.min(100, Math.max(0, timeElapsedPct))}%`;
+
+        const restSec = Math.max(0, (f5.reset - now) / 1000);
+        $('five-reset-sub').textContent = formatCountdown(restSec, f5.reset);
 
         const t5 = tempo(f5, now, 3600000);
-        const restSec = Math.max(0, (f5.reset - now) / 1000);
-        $('reset-five-stamp').textContent = formatCountdown(restSec);
-        $('rate-five-text').textContent = t5.proStunde > 0 ? `Tempo: ${t5.proStunde.toFixed(1)} %/h` : 'Keine Steigerung';
-        $('forecast-five-text').textContent = t5.voll && t5.voll < f5.reset ? `Voll in ${Math.round((t5.voll - now)/60000)}m!` : `ca. ${Math.round(t5.amEnde)} % bei Reset`;
+        $('five-pace-sub').textContent = t5.proStunde > 0 ? `+${t5.proStunde.toFixed(1)} %/h` : 'Inaktiv';
       }
 
-      // Weekly Odometer & Bar
+      // Weekly (7 Day) Quota Progress Bar & Daily Segmented Ticks
       if (fw) {
-        setOdometer('dw', fw.peak);
-        const barW = $('bar-week');
-        barW.style.width = `${fw.peak}%`;
-        barW.className = fw.peak >= 90 ? 'physical-bar-fill alarm' : fw.peak >= 75 ? 'physical-bar-fill warning' : 'physical-bar-fill';
+        $('week-pct-txt').textContent = `${Math.round(fw.peak)}%`;
+        const barW = $('week-bar');
+        barW.style.width = `${Math.min(100, Math.max(0, fw.peak))}%`;
+        barW.className = fw.peak >= 90 ? 'progress-fill fill-coral' : fw.peak >= 75 ? 'progress-fill fill-amber' : 'progress-fill fill-blue';
+
+        // Weekly pacing tick: % of 7-day week elapsed
+        const weekDuration = 7 * 86400000;
+        const weekElapsed = Math.min(weekDuration, Math.max(0, weekDuration - (fw.reset - now)));
+        const weekElapsedPct = (weekElapsed / weekDuration) * 100;
+        $('week-pace-tick').style.left = `${Math.min(100, Math.max(0, weekElapsedPct))}%`;
+
+        const resetDate = new Date(fw.reset);
+        const dayName = resetDate.toLocaleDateString('de-DE', { weekday: 'short' });
+        const timeStr = resetDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        $('week-reset-sub').textContent = `Resets on ${dayName}, ${timeStr}`;
 
         const pl = plan(fw, now);
-        const restSec = Math.max(0, (fw.reset - now) / 1000);
-        $('reset-week-stamp').textContent = formatCountdown(restSec);
-        $('daily-budget-text').textContent = pl.proTag != null ? `Rest: ${pl.proTag.toFixed(1)} %/Tag` : 'Rest: --';
-        
-        const delta = Math.round(pl.abstand);
-        $('pacing-week-text').textContent = delta > 3 ? `+${delta}% Über Soll` : delta < -3 ? `${delta}% Puffer` : 'Exakt im Plan';
+        if (pl.proTag != null) {
+          $('week-budget-sub').textContent = `Rest: ${pl.proTag.toFixed(1)} % / Tag`;
+        }
       }
 
-      // Burn Rate Calculation
-      currentBurnRate = 0;
+      // Current Burn Rate ($/h)
+      let burnRate = 0;
       if (rawData.readings.length >= 2) {
         const recent = rawData.readings.slice(-6);
         const dt = (recent[recent.length - 1].at - recent[0].at) / 3600000;
         const dc = (recent[recent.length - 1].cost || 0) - (recent[0].cost || 0);
-        if (dt > 0.05 && dc >= 0) currentBurnRate = dc / dt;
+        if (dt > 0.05 && dc >= 0) burnRate = dc / dt;
       }
-      $('ferraris-burn-display').textContent = `${currentBurnRate.toFixed(2)} $ / h`;
+      $('current-burn-rate').textContent = `${burnRate.toFixed(2)} $ / h`;
 
-      // Financial Arbitrage Stats (for user's Claude Pro Plan)
+      // Claude Pro Arbitrage Stats
       let costToday = 0, tokToday = 0;
       let costWeek = 0, tokWeek = 0;
       const weekStart = now - 7 * 86400000;
@@ -1255,23 +921,23 @@
 
       const ap = apiWert(rawData.sessions, now);
       if (ap) {
-        $('val-arbitrage').textContent = formatGeld(ap.dollar);
-        const flatCost = selectedPlan === 'max' ? 100 : 20; // 20$ for Pro
-        const roi = ap.dollar > 0 ? (ap.dollar / flatCost).toFixed(1) : '1.0';
-        $('val-arbitrage-sub').textContent = `${roi}x Ersparnis (vs. ${flatCost} $ Pro)`;
+        $('val-cost-30d').textContent = formatGeld(ap.dollar);
+        const proFlat = 20; // Claude Pro flatrate
+        const roi = ap.dollar > 0 ? (ap.dollar / proFlat).toFixed(1) : '1.0';
+        $('val-roi-sub').textContent = `${roi}x Ersparnis (vs. 20 $ Pro)`;
       }
 
-      // Render Sub-views
-      renderMillimeterChart(f5, fw);
-      renderProjectsList(fwList);
-      renderHeatmapMatrix(f5List);
+      // Sub-views
+      renderCharts(f5, fw);
+      renderProjects(fwList);
+      renderHeatmap(f5List);
     }
 
-    // Render Millimeter Chart
-    function renderMillimeterChart(f5, fw) {
-      const svg = $('meter-svg');
-      const box = $('chart-box');
-      const W = box.clientWidth || 600, H = box.clientHeight || 260;
+    // Render Clean Charts
+    function renderCharts(f5, fw) {
+      const svg = $('chart-svg');
+      const box = $('chart-viewport');
+      const W = box.clientWidth || 600, H = box.clientHeight || 220;
 
       let html = '';
       for (let y = 0; y <= 100; y += 25) {
@@ -1285,11 +951,11 @@
         const t0 = pts[0].at, dt = Math.max(1, pts[pts.length - 1].at - t0);
         let path = '';
         pts.forEach((p, i) => {
-          const x = ((p.at - t0) / dt) * (W - 30) + 15;
-          const y = H - (p.v / 100) * (H - 30) - 15;
+          const x = ((p.at - t0) / dt) * (W - 24) + 12;
+          const y = H - (p.v / 100) * (H - 24) - 12;
           path += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)} `;
         });
-        html += `<path d="${path}" fill="none" stroke="var(--amber)" stroke-width="2.5"/>`;
+        html += `<path d="${path}" fill="none" stroke="var(--blue)" stroke-width="2.5"/>`;
       }
 
       if (fw && fw.punkte && fw.punkte.length >= 2) {
@@ -1297,11 +963,11 @@
         const t0 = pts[0].at, dt = Math.max(1, pts[pts.length - 1].at - t0);
         let path = '';
         pts.forEach((p, i) => {
-          const x = ((p.at - t0) / dt) * (W - 30) + 15;
-          const y = H - (p.v / 100) * (H - 30) - 15;
+          const x = ((p.at - t0) / dt) * (W - 24) + 12;
+          const y = H - (p.v / 100) * (H - 24) - 12;
           path += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)} `;
         });
-        html += `<path d="${path}" fill="none" stroke="var(--cyan)" stroke-width="2"/>`;
+        html += `<path d="${path}" fill="none" stroke="var(--coral)" stroke-width="2"/>`;
       }
 
       svg.innerHTML = html;
@@ -1315,36 +981,36 @@
           const dateStr = new Date(d.von).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
           const wGem = ((d.gemessen / maxVal) * 100).toFixed(1);
           bHtml += `
-            <div style="display:grid;grid-template-columns:70px 1fr 50px;align-items:center;gap:10px;font-size:11px;font-family:var(--font-numbers);">
-              <span style="color:var(--ink-secondary);">${dateStr}</span>
-              <div style="height:10px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;">
-                <div style="height:100%;width:${wGem}%;background:var(--cyan);"></div>
+            <div style="display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:8px;font-size:11.5px;font-family:var(--font-mono);">
+              <span style="color:var(--text-secondary);">${dateStr}</span>
+              <div style="height:8px;background:var(--card-bg-elevated);border-radius:4px;overflow:hidden;">
+                <div style="height:100%;width:${wGem}%;background:var(--blue);border-radius:4px;"></div>
               </div>
-              <span style="text-align:right;font-weight:700;">${Math.round(d.gemessen + d.offen)}%</span>
+              <span style="text-align:right;font-weight:600;">${Math.round(d.gemessen + d.offen)}%</span>
             </div>
           `;
         });
-        $('daily-bars-target').innerHTML = bHtml;
+        $('daily-bars-container').innerHTML = bHtml;
       }
     }
 
     // Render Projects List
-    function renderProjectsList(fwList) {
-      const container = $('projects-container');
+    function renderProjects(fwList) {
+      const container = $('projects-list-container');
       const prjs = projekte(fwList, rawData.sessions, 0, Infinity);
-      $('projects-total-count').textContent = `${prjs.length} Projekte erfasst`;
+      $('projects-count').textContent = `${prjs.length} erfasst`;
 
       let html = '';
       prjs.forEach(p => {
         html += `
-          <div class="project-row-item">
-            <div class="project-row-top">
-              <span>${p.name || 'Ohne Projekt'}</span>
-              <span style="color: var(--emerald); font-family: var(--font-numbers);">${formatGeld(p.kosten)}</span>
+          <div class="project-item">
+            <div class="project-main-line">
+              <span class="project-title">${p.name || 'Ohne Projekt'}</span>
+              <span class="project-amount">${formatGeld(p.kosten)}</span>
             </div>
-            <div style="display:flex;justify-content:space-between;font-size:11.5px;font-family:var(--font-numbers);color:var(--ink-secondary);">
-              <span>${p.sitzungen.length} Sitzungen · +${p.plus}% Limit</span>
-              <span><span class="diff-badge-green">+${p.plusZeilen}</span> / <span class="diff-badge-red">-${p.minusZeilen}</span></span>
+            <div class="project-sub-line">
+              <span>${p.sitzungen.length} Sitzungen · +${p.plus}% Anteil</span>
+              <span><span class="diff-green">+${p.plusZeilen}</span> / <span class="diff-red">-${p.minusZeilen}</span> Zeilen</span>
             </div>
           </div>
         `;
@@ -1352,90 +1018,73 @@
       container.innerHTML = html;
     }
 
-    // Render Heatmap Matrix
-    function renderHeatmapMatrix(f5List) {
-      const target = $('heatmap-target');
+    // Render Heatmap
+    function renderHeatmap(f5List) {
+      const container = $('heatmap-container');
       const matrix = rhythmus(f5List, Date.now() - 30 * 86400000);
       const days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
       const maxVal = Math.max(1, ...matrix.flat().map(c => c.plus));
 
       let html = '<div class="heatmap-row"><span></span>';
-      for (let h = 0; h < 24; h += 2) html += `<span style="grid-column: span 2; font-size: 9px; font-family: var(--font-numbers); color: var(--ink-dim); text-align: center;">${h}</span>`;
+      for (let h = 0; h < 24; h += 2) html += `<span style="grid-column: span 2; font-size: 9px; font-family: var(--font-mono); color: var(--text-dim); text-align: center;">${h}</span>`;
       html += '</div>';
 
       matrix.forEach((row, dayIdx) => {
         html += `<div class="heatmap-row"><span class="heatmap-day">${days[dayIdx]}</span>`;
         row.forEach((cell, h) => {
           const intensity = cell.plus > 0 ? Math.min(1, Math.max(0.2, cell.plus / maxVal)) : 0;
-          const bg = intensity > 0 ? `rgba(244, 162, 97, ${intensity})` : 'rgba(255, 255, 255, 0.04)';
-          html += `<div class="heatmap-tile" style="background:${bg};" title="${days[dayIdx]} ${h}:00 Uhr: +${Math.round(cell.plus)}% Limit"></div>`;
+          const bg = intensity > 0 ? `rgba(59, 130, 246, ${intensity})` : 'rgba(255, 255, 255, 0.04)';
+          html += `<div class="heatmap-tile" style="background:${bg};" title="${days[dayIdx]} ${h}:00: +${Math.round(cell.plus)}%"></div>`;
         });
         html += '</div>';
       });
 
-      target.innerHTML = html;
+      container.innerHTML = html;
     }
 
     // Data Sync
     async function syncData() {
       haptic();
       $('sync-icon').classList.add('spin');
-      $('sync-text').textContent = 'Sync …';
+      $('sync-label').textContent = 'Sync …';
 
       try {
         const res = await fetch(`${API}/state`, { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         rawData = rawData ? einmischen(rawData, json) : json;
+        $('last-updated-label').textContent = `Aktualisiert um ${new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
       } catch (err) {
-        console.warn('API Sync fallback:', err);
+        console.warn('API fallback:', err);
         if (!rawData) rawData = createSampleData();
+        $('last-updated-label').textContent = 'Lokal / Offline-Vorschau';
       } finally {
         $('sync-icon').classList.remove('spin');
-        $('sync-text').textContent = 'Sync';
+        $('sync-label').textContent = 'Sync';
         renderApp();
       }
     }
 
-    // Mobile Dock Navigation
-    document.querySelectorAll('.dock-tab-btn').forEach(btn => {
+    // Dock Navigation
+    document.querySelectorAll('.dock-tab').forEach(btn => {
       btn.addEventListener('click', () => {
         haptic();
-        document.querySelectorAll('.dock-tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.view-deck').forEach(d => d.classList.remove('active'));
+        document.querySelectorAll('.dock-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
 
         btn.classList.add('active');
-        const deckId = btn.dataset.deck;
-        $(deckId).classList.add('active');
+        const tabId = btn.dataset.tab;
+        $(tabId).classList.add('active');
 
-        if (deckId === 'deck-chart') {
+        if (tabId === 'tab-charts') {
           setTimeout(() => {
             if (rawData) {
               const f5 = fenster(rawData.readings, 'five');
               const fw = fenster(rawData.readings, 'week');
-              renderMillimeterChart(f5[f5.length - 1], fw[fw.length - 1]);
+              renderCharts(f5[f5.length - 1], fw[fw.length - 1]);
             }
-          }, 50);
+          }, 40);
         }
-      });
-    });
-
-    // Plan Switching
-    document.querySelectorAll('[data-plan]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        haptic();
-        selectedPlan = btn.dataset.plan;
-        document.querySelectorAll('[data-plan]').forEach(b => {
-          b.classList.toggle('active', b === btn);
-          if (b === btn && b.dataset.plan === 'pro') {
-            b.style.borderColor = 'var(--pro-gold)';
-            b.style.color = 'var(--pro-gold)';
-          } else {
-            b.style.borderColor = '';
-            b.style.color = '';
-          }
-        });
-        renderApp();
       });
     });
 
@@ -1451,9 +1100,9 @@
         $('btn-push-on').style.display = pushSub ? 'none' : 'inline-flex';
         $('btn-push-test').style.display = pushSub ? 'inline-flex' : 'none';
         $('btn-push-off').style.display = pushSub ? 'inline-flex' : 'none';
-        $('push-status-lbl').textContent = pushSub ? 'Push-Mitteilungen sind aktiv' : 'Mitteilungen sind aus';
+        $('push-status-text').textContent = pushSub ? 'Push-Mitteilungen sind aktiv' : 'Mitteilungen sind aus';
       } catch (err) {
-        $('push-status-lbl').textContent = 'Push in diesem Browser nicht verfügbar';
+        $('push-status-text').textContent = 'Push in diesem Browser nicht verfügbar';
       }
     }
 
@@ -1466,10 +1115,10 @@
         const { key } = await rKey.json();
         pushSub = await swReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToUint8(key) });
         await fetch(`${API}/sub`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sub: pushSub.toJSON(), reset: true }) });
-        $('push-status-lbl').textContent = 'Erfolgreich aktiviert!';
+        $('push-status-text').textContent = 'Erfolgreich aktiviert!';
         updatePushUI();
       } catch (e) {
-        $('push-status-lbl').textContent = e.message || 'Aktivierung fehlgeschlagen';
+        $('push-status-text').textContent = e.message || 'Aktivierung fehlgeschlagen';
       }
     });
 
@@ -1478,9 +1127,9 @@
       try {
         if (!pushSub) return;
         await fetch(`${API}/test`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: pushSub.endpoint }) });
-        $('push-status-lbl').textContent = 'Test-Mitteilung gesendet!';
+        $('push-status-text').textContent = 'Test-Mitteilung gesendet!';
       } catch (e) {
-        $('push-status-lbl').textContent = 'Fehler beim Senden';
+        $('push-status-text').textContent = 'Fehler beim Senden';
       }
     });
 
@@ -1493,18 +1142,24 @@
         pushSub = null;
         updatePushUI();
       } catch (e) {
-        $('push-status-lbl').textContent = 'Deaktivierung fehlgeschlagen';
+        $('push-status-text').textContent = 'Deaktivierung fehlgeschlagen';
       }
     });
 
-    // Countdowns tick loop
+    // Countdowns Tick Loop
     setInterval(() => {
       if (!rawData) return;
       const now = Date.now();
       const f5List = fenster(rawData.readings, 'five');
       const fwList = fenster(rawData.readings, 'week');
-      if (f5List.length) $('reset-five-stamp').textContent = formatCountdown(Math.max(0, (f5List[f5List.length - 1].reset - now) / 1000));
-      if (fwList.length) $('reset-week-stamp').textContent = formatCountdown(Math.max(0, (fwList[fwList.length - 1].reset - now) / 1000));
+      if (f5List.length) $('five-reset-sub').textContent = formatCountdown(Math.max(0, (f5List[f5List.length - 1].reset - now) / 1000), f5List[f5List.length - 1].reset);
+      if (fwList.length) {
+        const fw = fwList[fwList.length - 1];
+        const resetDate = new Date(fw.reset);
+        const dayName = resetDate.toLocaleDateString('de-DE', { weekday: 'short' });
+        const timeStr = resetDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        $('week-reset-sub').textContent = `Resets on ${dayName}, ${timeStr}`;
+      }
     }, 1000);
 
     // Auto-sync every 30s
@@ -1519,7 +1174,6 @@
         .catch(() => {});
     }
 
-    startFerrarisDisc();
     syncData();
   </script>
 </body>

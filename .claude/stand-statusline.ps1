@@ -172,7 +172,12 @@ if ($d.cost.total_duration_ms) {
   $l1 += if ($t.TotalHours -ge 1) { "$([math]::Floor($t.TotalHours))h$($t.Minutes.ToString('00'))m" } else { "$($t.Minutes)m$($t.Seconds.ToString('00'))s" }
 }
 if ($d.cost.total_lines_added -or $d.cost.total_lines_removed) { $l1 += "$E[32m+$($d.cost.total_lines_added)$E[0m $E[31m$([char]0x2212)$($d.cost.total_lines_removed)$E[0m" }
-if ($null -ne $d.prompt_cache.hit_ratio) { $l1 += "Cache $([math]::Round($d.prompt_cache.hit_ratio * 100))%" }
+$pc = $d.prompt_cache
+if ($null -ne $pc.hit_ratio) {
+  # Claude Code re-runs the status line when a warm cache reaches expires_at, so "kalt" shows up on time.
+  $state = if ($pc.warm -and [long]$pc.expires_at -gt $now) { "$E[33mwarm$E[0m $E[2m$(bis $pc.expires_at)$E[0m" } else { "$E[36mkalt$E[0m" }
+  $l1 += "Cache $([math]::Round($pc.hit_ratio * 100))% $state"
+}
 
 $l2 = @()
 foreach ($x in @(@('5h', $d.rate_limits.five_hour), @('Woche', $d.rate_limits.seven_day))) {

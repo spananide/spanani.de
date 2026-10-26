@@ -130,12 +130,12 @@ export function knapp(rows, now, reset) {
 const uhr = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
 const tagUhr = new Intl.DateTimeFormat('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
 
-// badge: the 5-hour % for the app icon (0 clears it); the service worker applies it.
+// badge: the 5-hour % left for the app icon (0 clears it); the service worker applies it.
 export function nachricht(a) {
   const name = a.kind === 'five' ? '5-Stunden-Limit' : 'Wochenlimit';
   const wann = t => (a.kind === 'five' ? `um ${uhr.format(t)}` : `am ${tagUhr.format(t)}`);
   if (a.art === 'reset') return { title: 'Claude ist wieder frei', body: `Das ${name} ist seit ${uhr.format(a.reset)} zurückgesetzt (vorher ${Math.round(a.peak)} %).`, tag: `stand-${a.kind}`, ...(a.kind === 'five' && { badge: 0 }) };
-  if (a.art === 'warn') return { title: `${name} bei ${Math.round(a.peak)} %`, body: `Wieder frei ${wann(a.reset)}.`, tag: `stand-${a.kind}`, ...(a.kind === 'five' && { badge: Math.round(a.peak) }) };
+  if (a.art === 'warn') return { title: `${name} bei ${Math.round(a.peak)} %`, body: `Wieder frei ${wann(a.reset)}.`, tag: `stand-${a.kind}`, ...(a.kind === 'five' && { badge: Math.round(100 - a.peak) }) };
   return { title: 'Die Woche wird knapp', body: `${Math.round(a.jetzt)} % verbraucht. Im Tempo der letzten 24 Stunden ist das Wochenlimit am ${tagUhr.format(a.voll)} voll, der Reset kommt erst am ${tagUhr.format(a.reset)}.`, tag: 'stand-week-knapp' };
 }
 

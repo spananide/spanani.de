@@ -6,8 +6,8 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
   <title>Stand</title>
-  <meta name="theme-color" content="#dcdedb" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#2a2f32" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f4f2ed" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#16191d" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-180.png">
@@ -15,45 +15,29 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Stand">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
   <style>
-    @font-face {
-      font-family: 'Archivo';
-      src: url('fonts/archivo.woff2') format('woff2');
-      font-weight: 100 900;
-      font-stretch: 62% 125%;
-      font-display: optional;
-    }
-
     :root {
-      --gehaeuse: #dcdedb;
-      --deckel: #e9eae7;
-      --schild: #1f2326;
-      --beschriftung: #4e5458;
-      --linie: #b9bcb8;
-      --zaehlwerk: #151718;
-      --ziffer: #f2f2ee;
-      --rot: #c40d1e;
-      --zone: color-mix(in srgb, var(--rot) 12%, transparent);
-
-      --r-geraet: 10px;
-      --r-walze: 3px;
-      --r-knopf: 6px;
-      --grund: var(--gehaeuse);
-      color-scheme: light;
+      --grund: #16191d;
+      --text: #ece8df;
+      --leise: #9aa0a6;
+      --linie: #2e333a;
+      --spur: #2a2f35;
+      --tank: #ece6d6;
+      --gelb: #f0a020;
+      --rot: #e5484d;
+      color-scheme: dark;
     }
-    @media (prefers-color-scheme: dark) {
+    @media (prefers-color-scheme: light) {
       :root {
-        --gehaeuse: #2a2f32;
-        --deckel: #33393c;
-        --schild: #e4e5e1;
-        --beschriftung: #a3a8a6;
-        --linie: #4a5054;
-        --zaehlwerk: #151718;
-        --ziffer: #f2f2ee;
-        --rot: #e0343f;
-        --zone: color-mix(in srgb, var(--rot) 18%, transparent);
-        color-scheme: dark;
+        --grund: #f4f2ed;
+        --text: #1d2125;
+        --leise: #5d636a;
+        --linie: #dcd8cf;
+        --spur: #e3dfd6;
+        --tank: #23272c;
+        --gelb: #a85f00;
+        --rot: #c8333a;
+        color-scheme: light;
       }
     }
 
@@ -62,20 +46,25 @@
     html { -webkit-text-size-adjust: 100%; }
     body {
       margin: 0;
-      background: var(--gehaeuse);
-      color: var(--schild);
-      font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--grund);
+      color: var(--text);
+      font-family: system-ui, "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 16px;
       line-height: 1.45;
+      font-variant-numeric: tabular-nums;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
-    button { font: inherit; color: inherit; }
-    :focus-visible { outline: 2px solid var(--schild); outline-offset: 2px; }
+    button, input { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
     h1, h2, p, ul { margin: 0; }
     ul { padding: 0; list-style: none; }
     .zahl { font-variant-numeric: tabular-nums; }
 
-    .seite { max-width: 600px; margin: 0 auto; padding: 0 20px 48px; }
+    .seite {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 20px 48px;
+    }
 
     .kopf {
       display: flex;
@@ -84,96 +73,135 @@
       padding: 18px 0 14px;
       border-bottom: 1px solid var(--linie);
     }
-    .kopf h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
-    .kopf p { flex: 1; min-width: 0; color: var(--beschriftung); font-size: 14px; }
+    .kopf h1 { font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
+    .kopf p { flex: 1; min-width: 0; color: var(--leise); font-size: 14px; }
 
-    .knopf-leise, .knopf {
-      border: 1px solid var(--linie);
-      background: transparent;
-      border-radius: var(--r-knopf);
+    .knopf, .knopf-leise {
+      border-radius: 8px;
       padding: 6px 12px;
       font-size: 14px;
       cursor: pointer;
       min-height: 36px;
     }
-    .knopf-leise:hover { border-color: var(--beschriftung); }
+    .knopf {
+      background: var(--text);
+      color: var(--grund);
+      border: 1px solid var(--text);
+      font-weight: 600;
+    }
+    .knopf:hover { opacity: 0.9; }
+    .knopf:disabled {
+      background: var(--linie);
+      border-color: var(--linie);
+      color: var(--leise);
+      cursor: default;
+    }
+    .knopf-leise {
+      border: 1px solid var(--linie);
+      background: transparent;
+      color: var(--text);
+    }
+    .knopf-leise:hover { border-color: var(--leise); }
     .knopf-leise:active { background: var(--linie); }
-    .knopf-leise[aria-busy="true"], button:disabled { color: var(--beschriftung); cursor: default; }
-    .knopf { background: var(--schild); border-color: var(--schild); color: var(--gehaeuse); font-weight: 600; }
-    .knopf:disabled { background: var(--linie); border-color: var(--linie); }
+    .knopf-leise:disabled, .knopf-leise[aria-busy="true"] {
+      color: var(--leise);
+      border-color: var(--linie);
+      cursor: default;
+    }
 
     /* One column, centered */
     main {
       display: flex;
       flex-direction: column;
-      gap: 32px;
+      gap: 40px;
       max-width: 560px;
       margin: 24px auto 0;
     }
 
-    h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.005em; }
-    .untertitel { font-size: 14px; color: var(--beschriftung); margin-top: 4px; }
+    h2 { font-size: 20px; font-weight: 650; letter-spacing: -0.005em; }
+    .untertitel { font-size: 14px; color: var(--leise); margin-top: 4px; }
 
-    /* The meter */
-    .geraet {
-      --grund: var(--deckel);
-      background: var(--deckel);
-      border: 1px solid var(--linie);
-      border-radius: var(--r-geraet);
-      padding: 20px;
+    /* Tanks */
+    #tanks {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
     }
-    .schild-zeile {
+    .tank-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tank-kopf {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       gap: 12px;
-      font-size: 12px;
-      color: var(--beschriftung);
     }
-    .schild-titel { font-weight: 600; }
-    .zaehlwerke { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
-    .zaehlwerk-kasten { min-width: 0; }
-    .kasten-label { font-size: 14px; font-weight: 600; }
-    .walzen {
+    .tank-label {
+      font-size: 17px;
+      font-weight: 600;
+    }
+    .tank-wert {
       display: flex;
       align-items: baseline;
-      gap: 3px;
-      font-size: clamp(46px, 12.5vw, 72px);
-      font-weight: 700;
-      font-stretch: 62%;
+      gap: 6px;
+    }
+    .tank-zahl {
+      font-size: 48px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1;
       font-variant-numeric: tabular-nums;
-      margin-top: 6px;
     }
-    .walze {
-      height: 1.1em;
-      width: 0.72em;
+    @media (min-width: 600px) {
+      .tank-zahl { font-size: 56px; }
+    }
+    .tank-uebrig {
+      font-size: 15px;
+      color: var(--leise);
+    }
+    .tank-spur {
+      height: 12px;
+      border-radius: 6px;
+      background: var(--spur);
       overflow: hidden;
-      contain: paint;
-      background: var(--zaehlwerk);
-      color: var(--ziffer);
-      border-radius: var(--r-walze);
-      text-align: center;
-      line-height: 1.1em;
-      flex-shrink: 0;
     }
-    .walze.einer { background: var(--rot); }
-    .walze-ziffern {
-      transform: translateY(calc(var(--d, 0) * -1.1em));
-      transition: transform 900ms cubic-bezier(.2, .7, .2, 1);
+    .tank-fuell {
+      height: 100%;
+      border-radius: 6px;
+      background: var(--tank);
+      width: 0%;
     }
-    body.erst .walze-ziffern { transition-delay: calc(var(--i, 0) * 80ms); }
-    .walze-ziffern > div { height: 1.1em; }
-    .walze.vorn .walze-ziffern { opacity: 0.45; }
-    .prozent-zeichen { font-size: 0.45em; font-weight: 600; margin-left: 2px; }
-    .reset-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
+    .tank-fuell.gelb { background: var(--gelb); }
+    .tank-fuell.rot { background: var(--rot); }
+    body.erst .tank-fuell {
+      transition: width 600ms ease-out;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body.erst .tank-fuell {
+        transition: none !important;
+      }
+    }
+    .reichweite {
+      font-size: 14px;
+      color: var(--leise);
+      margin: 0;
+      line-height: 1.45;
+    }
+    .reicht {
+      color: var(--gelb);
+      font-weight: 600;
+    }
 
-    .prognose { font-size: 20px; font-weight: 600; margin-top: 10px; line-height: 1.35; }
+    .kernsatz { font-size: 20px; font-weight: 600; line-height: 1.35; margin-top: 8px; }
     .warn::before {
       content: '';
       display: inline-block;
       width: 8px;
       height: 8px;
-      background: var(--rot);
+      border-radius: 50%;
+      background: var(--gelb);
       margin-right: 8px;
       vertical-align: 2px;
     }
@@ -181,52 +209,51 @@
     /* Chart recorder */
     .schreiber {
       position: relative;
-      margin-top: 16px;
       touch-action: pan-y;
       -webkit-user-select: none;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
     .schreiber svg { display: block; overflow: visible; }
-    .schreiber text { font-size: 12px; fill: var(--beschriftung); font-variant-numeric: tabular-nums; }
+    .schreiber text { font-size: 12px; fill: var(--leise); font-variant-numeric: tabular-nums; }
     .schreiber .y { text-anchor: end; }
     .schreiber .x { text-anchor: middle; }
-    .schreiber .heute { fill: var(--schild); font-weight: 600; }
+    .schreiber .heute { fill: var(--text); font-weight: 600; }
     .schreiber .ende { text-anchor: end; }
     .gitter { stroke: var(--linie); stroke-width: 1; }
-    .achse { stroke: var(--beschriftung); stroke-width: 1; }
-    .zone { fill: var(--zone); }
-    .fest { fill: none; stroke: var(--schild); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-    .offen { fill: none; stroke: var(--schild); stroke-width: 1.5; stroke-dasharray: 2 4; stroke-linecap: round; }
-    .prognose-linie { fill: none; stroke: var(--beschriftung); stroke-width: 1.5; stroke-dasharray: 6 4; }
-    .plan { stroke: var(--beschriftung); stroke-width: 1; stroke-dasharray: 1 4; stroke-linecap: round; }
-    .jetzt-linie { stroke: var(--beschriftung); stroke-width: 1; }
-    .punkt { fill: var(--schild); stroke: var(--grund); stroke-width: 2; }
+    .achse { stroke: var(--linie); stroke-width: 1; }
+    .zone { fill: var(--rot); opacity: 0.15; }
+    .fest { fill: none; stroke: var(--text); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .offen { fill: none; stroke: var(--text); stroke-width: 1.5; stroke-dasharray: 2 4; stroke-linecap: round; }
+    .prognose-linie { fill: none; stroke: var(--leise); stroke-width: 1.5; stroke-dasharray: 6 4; }
+    .plan { stroke: var(--leise); stroke-width: 1; stroke-dasharray: 1 4; stroke-linecap: round; }
+    .jetzt-linie { stroke: var(--leise); stroke-width: 1; }
+    .punkt { fill: var(--text); stroke: var(--grund); stroke-width: 2; }
     .voll-marke { fill: var(--rot); stroke: var(--grund); stroke-width: 2; }
-    .balken { fill: var(--schild); }
+    .balken { fill: var(--tank); }
     .balken.voll { fill: var(--rot); }
     .band { fill: var(--linie); opacity: 0.35; }
-    .kreuz line { stroke: var(--schild); stroke-width: 1; }
-    .kreuz circle { fill: var(--schild); stroke: var(--grund); stroke-width: 2; }
+    .kreuz line { stroke: var(--text); stroke-width: 1; }
+    .kreuz circle { fill: var(--text); stroke: var(--grund); stroke-width: 2; }
     .tip {
       position: absolute;
       top: -6px;
       z-index: 2;
       transform: translate(-50%, -100%);
       pointer-events: none;
-      background: var(--zaehlwerk);
-      color: var(--ziffer);
+      background: var(--grund);
+      border: 1px solid var(--linie);
+      color: var(--text);
       font-size: 13px;
       line-height: 1.35;
       padding: 6px 9px;
-      border-radius: var(--r-walze);
+      border-radius: 6px;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
     .tip strong { font-size: 15px; }
 
     /* Week */
-    .kernsatz { font-size: 20px; font-weight: 600; line-height: 1.35; margin-top: 8px; }
     .tagesbalken { margin-top: 4px; }
 
     /* Unterhaltungen */
@@ -236,16 +263,16 @@
     .zeile-kopf strong { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; min-width: 0; }
     .zeile-kopf span { font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .zeile-kopf .laeuft { font-weight: 600; }
-    .details { font-size: 14px; color: var(--beschriftung); line-height: 1.45; }
+    .details { font-size: 14px; color: var(--leise); line-height: 1.45; }
     .details + .details { margin-top: 2px; }
 
     /* History & Details */
     summary { cursor: pointer; user-select: none; }
-    #verlauf-details > summary { font-size: 20px; font-weight: 700; letter-spacing: -0.005em; }
+    #verlauf-details > summary { font-size: 20px; font-weight: 650; letter-spacing: -0.005em; }
     #verlauf-details[open] > summary { margin-bottom: 4px; }
     #unterhaltungen-mehr { margin-top: 14px; }
-    #unterhaltungen-mehr > summary { font-size: 14px; color: var(--beschriftung); }
-    #unterhaltungen-mehr > summary:hover { color: var(--schild); }
+    #unterhaltungen-mehr > summary { font-size: 14px; color: var(--leise); }
+    #unterhaltungen-mehr > summary:hover { color: var(--text); }
     .wochen-liste { margin-top: 10px; }
     .wochen-liste li {
       display: flex;
@@ -262,42 +289,38 @@
     .wahl { border: 0; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 10px; }
     .wahl legend { font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px; }
     .wahl label { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; cursor: pointer; }
-    .wahl input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--schild); flex-shrink: 0; }
-    .hinweis { font-size: 14px; margin-top: 10px; }
+    .wahl input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--text); flex-shrink: 0; }
+    .hinweis { font-size: 14px; margin-top: 10px; color: var(--leise); }
     .knoepfe { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    .status { font-size: 14px; color: var(--beschriftung); margin-top: 8px; min-height: 1.45em; }
-    .status.fehler { color: var(--schild); font-weight: 600; }
+    .status { font-size: 14px; color: var(--leise); margin-top: 8px; min-height: 1.45em; }
+    .status.fehler { color: var(--text); font-weight: 600; }
 
     /* Spend limit */
-    .spur { height: 6px; background: var(--linie); border-radius: var(--r-walze); overflow: hidden; margin: 8px 0; }
-    .fuell { height: 100%; background: var(--schild); border-radius: var(--r-walze); }
+    .spur { height: 6px; background: var(--spur); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+    .fuell { height: 100%; background: var(--tank); border-radius: 3px; }
     .fuell.voll { background: var(--rot); }
-    .ausgaben-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
+    .ausgaben-zeile { font-size: 14px; color: var(--leise); margin-top: 6px; }
 
     .leer { padding: 8px 0 24px; border-bottom: 1px solid var(--linie); }
 
     /* Footer & Key control */
-    .fuss { font-size: 14px; color: var(--beschriftung); }
+    .fuss { font-size: 14px; color: var(--leise); }
     .schluessel { margin-top: 16px; }
-    .schluessel summary { color: var(--beschriftung); }
-    .schluessel summary:hover { color: var(--schild); }
+    .schluessel summary { color: var(--leise); }
+    .schluessel summary:hover { color: var(--text); }
     .schluessel-form { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
-    .schluessel-form label { font-size: 14px; font-weight: 600; color: var(--schild); }
+    .schluessel-form label { font-size: 14px; font-weight: 600; color: var(--text); }
     .schluessel-form input {
       padding: 6px 10px;
       border: 1px solid var(--linie);
-      border-radius: var(--r-knopf);
+      border-radius: 8px;
       background: transparent;
-      color: var(--schild);
+      color: var(--text);
       font: inherit;
       font-size: 14px;
       max-width: 320px;
     }
     .schluessel-knoepfe { display: flex; gap: 8px; align-items: center; }
-
-    @media (prefers-reduced-motion: reduce) {
-      .walze-ziffern { transition: none !important; }
-    }
   </style>
 </head>
 <body class="erst">
@@ -308,25 +331,24 @@
     </header>
 
     <main>
-      <section class="geraet" id="geraet" hidden>
-        <div class="schild-zeile">
-          <span class="schild-titel">Claude-Verbrauchszähler</span>
-          <span id="modell"></span>
+      <section id="tanks" hidden>
+        <div class="tank-block">
+          <div class="tank-kopf">
+            <span class="tank-label">5 Stunden</span>
+            <span class="tank-wert"><strong class="tank-zahl" id="tank-zahl-five">–</strong><span class="tank-uebrig">% übrig</span></span>
+          </div>
+          <div class="tank-spur"><div class="tank-fuell" id="tank-fuell-five"></div></div>
+          <p class="reichweite" id="reichweite-five"></p>
         </div>
-        <div class="zaehlwerke">
-          <div class="zaehlwerk-kasten">
-            <div class="kasten-label">5 Stunden</div>
-            <div class="walzen" id="walzen-five" role="img"></div>
-            <p class="reset-zeile" id="reset-five"></p>
+        <div class="tank-block">
+          <div class="tank-kopf">
+            <span class="tank-label">Woche</span>
+            <span class="tank-wert"><strong class="tank-zahl" id="tank-zahl-week">–</strong><span class="tank-uebrig">% übrig</span></span>
           </div>
-          <div class="zaehlwerk-kasten">
-            <div class="kasten-label">Woche</div>
-            <div class="walzen" id="walzen-week" role="img"></div>
-            <p class="reset-zeile" id="reset-week"></p>
-          </div>
+          <div class="tank-spur"><div class="tank-fuell" id="tank-fuell-week"></div></div>
+          <p class="reichweite" id="reichweite-week"></p>
         </div>
         <div class="schreiber" id="chart-five"></div>
-        <p class="prognose" id="prognose-five"></p>
       </section>
 
       <section class="leer" id="leer" hidden>
@@ -413,7 +435,7 @@
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
     let geladen = 0;
-    let daten = null, versatz = 0, laeuft = false, gezeichnet = false;
+    let daten = null, versatz = 0, laeuft = false, gezeichnet = false, erstGezeichnet = false;
     const jetzt = () => Date.now() + versatz;
 
     const uhr = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' });
@@ -456,30 +478,16 @@
     const bis = t => `<span data-bis="${t}">${countdown(t - jetzt())}</span>`;
     const vor = t => jetzt() - t < 60000 ? 'gerade eben' : `vor ${dauer(jetzt() - t)}`;
 
-    // Rolling counters
-    function walzenBauen(el, start) {
-      el.innerHTML = [0, 1, 2].map(i => `<div class="walze${i === 2 ? ' einer' : ''}" aria-hidden="true"><div class="walze-ziffern" style="--i:${start + i};--d:0">${'0123456789'.split('').map(d => `<div>${d}</div>`).join('')}</div></div>`).join('') + '<span class="prozent-zeichen" aria-hidden="true">%</span>';
-    }
-    walzenBauen($('walzen-five'), 0);
-    walzenBauen($('walzen-week'), 3);
-
-    function walzenSetzen(el, wert, label) {
-      el.setAttribute('aria-label', label);
-      const ziffern = String(wert).padStart(3, '0');
-      el.querySelectorAll('.walze').forEach((w, i) => {
-        w.querySelector('.walze-ziffern').style.setProperty('--d', ziffern[i]);
-        w.classList.toggle('vorn', (i === 0 && wert < 100) || (i === 1 && wert < 10));
-      });
-    }
-
-    // Line chart of one limit window: measured steps solid, unmeasured stretches dashed, forecast dashed and grey.
+    // Line chart of one limit window: values as left (100 to 0).
+    // Measured steps solid, unmeasured stretches dashed, forecast dashed.
     function pfade(f, x, y, ende) {
       let fest = '', offen = '';
-      let a = { at: f.start, v: 0 };
+      let a = { at: f.start, v: 100 };
       f.punkte.forEach((p, i) => {
-        if (p.luecke || i === 0) offen += `M${x(a.at)},${y(a.v)}L${x(p.at)},${y(p.v)}`;
-        else fest += `M${x(a.at)},${y(a.v)}H${x(p.at)}V${y(p.v)}`;
-        a = p;
+        const v = Math.max(0, 100 - p.v);
+        if (p.luecke || i === 0) offen += `M${x(a.at)},${y(a.v)}L${x(p.at)},${y(v)}`;
+        else fest += `M${x(a.at)},${y(a.v)}H${x(p.at)}V${y(v)}`;
+        a = { at: p.at, v };
       });
       if (ende > a.at) fest += `M${x(a.at)},${y(a.v)}H${x(ende)}`;
       return { fest, offen };
@@ -492,24 +500,26 @@
       const x = t => +(p.l + (t - f.start) / (f.reset - f.start) * w).toFixed(1);
       const y = v => +(p.t + (1 - v / 100) * h).toFixed(1);
       const now = jetzt(), ende = Math.min(now, f.reset);
-      let s = `<rect class="zone" x="${p.l}" y="${y(100)}" width="${w}" height="${y(90) - y(100)}"/>`;
+      const leftEnde = Math.max(0, 100 - f.peak);
+      let s = `<rect class="zone" x="${p.l}" y="${y(10)}" width="${w}" height="${+(y(0) - y(10)).toFixed(1)}"/>`;
       for (const v of [25, 50, 75, 100]) s += `<line class="gitter" x1="${p.l}" x2="${p.l + w}" y1="${y(v)}" y2="${y(v)}"/>`;
       for (const v of [0, 50, 100]) s += `<text class="y" x="${p.l - 6}" y="${y(v) + 4}">${v === 100 ? '100 %' : v}</text>`;
       s += o.raster(x, p, h);
       s += `<line class="achse" x1="${p.l}" x2="${p.l + w}" y1="${y(0)}" y2="${y(0)}"/>`;
-      if (o.plan) s += `<line class="plan" x1="${x(f.start)}" y1="${y(0)}" x2="${x(f.reset)}" y2="${y(100)}"/>`;
+      if (o.plan) s += `<line class="plan" x1="${x(f.start)}" y1="${y(100)}" x2="${x(f.reset)}" y2="${y(0)}"/>`;
       const t = o.tempo;
       if (f.reset > now) {
         if (t && t.proStunde > 0 && (t.aktiv || o.plan)) {
-          const zielT = t.voll && t.voll > now ? t.voll : f.reset, zielV = t.voll && t.voll > now ? 100 : t.amEnde;
-          s += `<path class="prognose-linie" d="M${x(now)},${y(f.peak)}L${x(zielT)},${y(zielV)}"/>`;
-          if (t.voll && t.voll > now) s += `<circle class="voll-marke" cx="${x(t.voll)}" cy="${y(100)}" r="5"/>`;
+          const zielT = t.voll && t.voll > now ? t.voll : f.reset;
+          const zielV = t.voll && t.voll > now ? 0 : Math.max(0, 100 - t.amEnde);
+          s += `<path class="prognose-linie" d="M${x(now)},${y(leftEnde)}L${x(zielT)},${y(zielV)}"/>`;
+          if (t.voll && t.voll > now) s += `<circle class="voll-marke" cx="${x(t.voll)}" cy="${y(0)}" r="5"/>`;
         }
         s += `<line class="jetzt-linie" x1="${x(now)}" x2="${x(now)}" y1="${p.t}" y2="${y(0)}"/>`;
       }
       const { fest, offen } = pfade(f, x, y, ende);
       s += `<path class="offen" d="${offen}"/><path class="fest" d="${fest}"/>`;
-      s += `<circle class="punkt" cx="${x(ende)}" cy="${y(f.peak)}" r="4.5"/>`;
+      s += `<circle class="punkt" cx="${x(ende)}" cy="${y(leftEnde)}" r="4.5"/>`;
       s += `<g class="kreuz" hidden><line y1="${p.t}" y2="${y(0)}"/><circle r="4.5"/></g>`;
       el.innerHTML = `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}" role="img" aria-label="${esc(o.label)}">${s}</svg><div class="tip" hidden></div>`;
 
@@ -518,12 +528,13 @@
         const tt = f.start + (px - p.l) / w * (f.reset - f.start);
         if (tt < f.start || tt > ende) return null;
         const v = wertBei(f, tt);
+        const left = Math.max(0, 100 - v);
         let i = f.punkte.length - 1;
         while (i >= 0 && f.punkte[i].at > tt) i--;
         const naechster = f.punkte[i + 1];
         const s = i < 0 ? null : nachId.get(f.punkte[i].session);
         const wer = i < 0 || (naechster && naechster.luecke) ? 'nicht gemessen' : (s ? s.name || '' : '');
-        return { x: x(tt), y: y(v), html: `<strong>${pz(v)}</strong><br>${esc(o.tipZeit(tt))}${wer ? `<br>${esc(wer)}` : ''}` };
+        return { x: x(tt), y: y(left), html: `<strong>noch ${pz(left)}</strong><br>${esc(o.tipZeit(tt))}${wer ? `<br>${esc(wer)}` : ''}` };
       };
       return { x, p, w };
     }
@@ -660,50 +671,79 @@
       for (const el of document.querySelectorAll('.schreiber')) if (!el.contains(e.target)) versteckeTip(el);
     });
 
-    function zeichneMeter(f5, fw, s0) {
+    function zeichneTanks(f5, fw) {
       const now = jetzt();
       const a5 = f5[f5.length - 1], aw = fw[fw.length - 1];
-      $('geraet').hidden = false;
-      const aktiv = s0 && now - s0.updated <= 15 * 60000;
-      $('modell').textContent = aktiv && s0.model ? s0.model : '';
+      $('tanks').hidden = false;
 
       const offen5 = a5 && a5.reset > now;
-      const v5 = offen5 ? Math.round(Math.min(100, a5.peak)) : 0;
-      walzenSetzen($('walzen-five'), v5, `${v5} Prozent des 5-Stunden-Limits verbraucht`);
-      abzeichen(v5);
-      $('reset-five').innerHTML = !a5 ? 'Noch nicht gemessen.' : offen5 ? `Reset ${esc(zeit(a5.reset))}<br>in ${bis(a5.reset)}` : `Frei seit ${esc(zeit(a5.reset))}.`;
+      const left5 = !a5 ? null : (offen5 ? Math.max(0, Math.min(100, Math.round(100 - a5.peak))) : 100);
+      $('tank-zahl-five').textContent = left5 != null ? left5 : '–';
+      const fuell5 = $('tank-fuell-five');
+      fuell5.className = 'tank-fuell' + (left5 != null ? (left5 <= 10 ? ' rot' : left5 <= 25 ? ' gelb' : '') : '');
 
       const offenW = aw && aw.reset > now;
-      const vw = offenW ? Math.round(Math.min(100, aw.peak)) : 0;
-      walzenSetzen($('walzen-week'), vw, `${vw} Prozent des Wochenlimits verbraucht`);
-      $('reset-week').innerHTML = !aw ? 'Noch nicht gemessen.' : offenW ? `Reset ${esc(zeit(aw.reset))}<br>in ${bis(aw.reset)}` : `Frei seit ${esc(zeit(aw.reset))}.`;
+      const leftW = !aw ? null : (offenW ? Math.max(0, Math.min(100, Math.round(100 - aw.peak))) : 100);
+      $('tank-zahl-week').textContent = leftW != null ? leftW : '–';
+      const fuellW = $('tank-fuell-week');
+      fuellW.className = 'tank-fuell' + (leftW != null ? (leftW <= 10 ? ' rot' : leftW <= 25 ? ' gelb' : '') : '');
+
+      if (!erstGezeichnet) {
+        fuell5.style.width = '0%';
+        fuellW.style.width = '0%';
+        void fuell5.offsetWidth;
+        void fuellW.offsetWidth;
+        requestAnimationFrame(() => {
+          fuell5.style.width = `${left5 ?? 0}%`;
+          fuellW.style.width = `${leftW ?? 0}%`;
+        });
+        erstGezeichnet = true;
+        setTimeout(() => document.body.classList.remove('erst'), 650);
+      } else {
+        fuell5.style.width = `${left5 ?? 0}%`;
+        fuellW.style.width = `${leftW ?? 0}%`;
+      }
+
+      abzeichen(left5);
+
+      const t5 = a5 ? tempo(a5, now, H) : null;
+      let r5 = '';
+      if (!a5) {
+        r5 = 'Noch nicht gemessen.';
+      } else if (!offen5) {
+        r5 = 'Voll. Die nächste Nachricht startet ein neues Fenster.';
+      } else if (a5.peak >= 100) {
+        r5 = `<span class="reicht">Leer</span> · wieder voll ${esc(zeit(a5.reset))}`;
+      } else if (t5 && t5.voll) {
+        r5 = `<span class="reicht">Reicht bis ${uhr.format(t5.voll)}</span> · wieder voll ${esc(zeit(a5.reset))}`;
+      } else {
+        r5 = `Wieder voll ${esc(zeit(a5.reset))} · in ${bis(a5.reset)}`;
+      }
+      $('reichweite-five').innerHTML = r5;
+
+      const tw = aw ? tempo(aw, now, 24 * H) : null;
+      let rw = '';
+      if (!aw) {
+        rw = 'Noch nicht gemessen.';
+      } else if (!offenW) {
+        rw = 'Voll. Die nächste Nachricht startet ein neues Fenster.';
+      } else if (aw.peak >= 100) {
+        rw = `<span class="reicht">Leer</span> · wieder voll ${esc(zeit(aw.reset))}`;
+      } else if (tw && tw.voll) {
+        rw = `<span class="reicht">Reicht bis ${tagUhr.format(tw.voll)}</span> · wieder voll ${esc(zeit(aw.reset))}`;
+      } else {
+        rw = `Wieder voll ${esc(zeit(aw.reset))} · in ${bis(aw.reset)}`;
+      }
+      $('reichweite-week').innerHTML = rw;
 
       const chart = $('chart-five');
       chart.hidden = !a5;
-      if (!a5) {
-        $('prognose-five').textContent = '';
-        return;
+      if (a5) {
+        fensterChart(chart, a5, {
+          hoehe: 150, tempo: t5, raster: stundenRaster(a5), tipZeit: tt => `${uhr.format(tt)} Uhr`,
+          label: `5-Stunden-Fenster von ${uhr.format(a5.start)} bis ${uhr.format(a5.reset)}, noch ${pz(left5 ?? 0)}`,
+        });
       }
-      const t = tempo(a5, now, H);
-      fensterChart(chart, a5, {
-        hoehe: 150, tempo: t, raster: stundenRaster(a5), tipZeit: tt => `${uhr.format(tt)} Uhr`,
-        label: `5-Stunden-Fenster von ${uhr.format(a5.start)} bis ${uhr.format(a5.reset)}, jetzt ${pz(a5.peak)}`,
-      });
-
-      let satz = '', warn = false;
-      if (!offen5) {
-        satz = 'Frei. Die nächste Nachricht startet ein neues 5-Stunden-Fenster.';
-      } else if (a5.peak >= 100) {
-        satz = `Limit erreicht. Weiter geht es ${zeit(a5.reset)}.`;
-        warn = true;
-      } else if (t.aktiv && t.proStunde > 0.5) {
-        if (t.voll) { satz = `Bei diesem Tempo voll um ${uhr.format(t.voll)}, Reset erst ${zeit(a5.reset)}.`; warn = true; }
-        else satz = `Bei diesem Tempo reicht es bis zum Reset, dann etwa ${pz(t.amEnde)}.`;
-      } else {
-        satz = `Gerade kein Verbrauch. Noch ${pz(100 - a5.peak)} frei bis ${zeit(a5.reset)}.`;
-      }
-      $('prognose-five').textContent = satz;
-      $('prognose-five').className = `prognose${warn ? ' warn' : ''}`;
     }
 
     function zeichneAusgaben(readings) {
@@ -734,7 +774,7 @@
 
       const skala = fensterChart($('chart-week'), aw, {
         hoehe: 190, tempo: t, plan: true, raster: tageRaster(aw), tipZeit: tt => tagUhr.format(tt),
-        label: `Woche bis ${tagUhr.format(aw.reset)}: ${pz(aw.peak)} verbraucht, gleichmäßig wären ${pz(pl.soll)}`,
+        label: `Woche bis ${tagUhr.format(aw.reset)}: noch ${pz(Math.max(0, 100 - aw.peak))}, gleichmäßig wären noch ${pz(Math.max(0, 100 - pl.soll))}`,
       });
       const { liste } = tage(aw, now);
       tageChart($('chart-tage'), aw, skala, liste);
@@ -747,7 +787,6 @@
       const aw = fw[fw.length - 1];
       const w = aw ? wert(daten.readings, fw, daten.sessions, aw.start) : null;
       const a = apiWert(daten.sessions, now);
-
       let satz = '';
       if (aw) {
         const ws = daten.sessions.filter(s => s.updated >= aw.start);
@@ -772,10 +811,10 @@
       $('wert-unter').hidden = !unter;
     }
 
-    // The 5-hour % on the app icon, where the platform supports it.
+    // The 5-hour % left on the app icon, where the platform supports it. Clear when 100.
     function abzeichen(v) {
       if (!('setAppBadge' in navigator)) return;
-      (v > 0 ? navigator.setAppBadge(v) : navigator.clearAppBadge()).catch(() => {});
+      (typeof v === 'number' && v < 100 && v > 0 ? navigator.setAppBadge(v) : navigator.clearAppBadge()).catch(() => {});
     }
 
     function zeileBauen(s, now, fw) {
@@ -848,12 +887,11 @@
     function zeichnen() {
       if (!daten) return;
       const f5 = fenster(daten.readings, 'five'), fw = fenster(daten.readings, 'week');
-      const s0 = daten.sessions[0];
       frischeAktualisieren();
       const leer = !f5.length && !fw.length;
       $('leer').hidden = !leer;
-      if (leer) $('geraet').hidden = true;
-      else zeichneMeter(f5, fw, s0);
+      if (leer) $('tanks').hidden = true;
+      else zeichneTanks(f5, fw);
       zeichneAusgaben(daten.readings);
       zeichneWoche(fw[fw.length - 1]);
       zeichneWert(fw);
@@ -921,7 +959,6 @@
           zeichnen();
         }
         try { localStorage.setItem('stand-daten', JSON.stringify({ daten, versatz })); } catch {}
-        setTimeout(() => document.body.classList.remove('erst'), 1400);
       } catch (e) {
         $('frische').textContent = navigator.onLine ? `Nicht erreichbar: ${e.message}` : 'Offline';
       } finally {

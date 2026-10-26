@@ -1,5 +1,5 @@
-const CACHE = 'stand-v7';
-const SHELL = ['./', 'logik.js', 'manifest.webmanifest', 'icon-192.png', 'fonts/archivo.woff2'];
+const CACHE = 'stand-v8';
+const SHELL = ['./', 'logik.js', 'manifest.webmanifest', 'icon-192.png'];
 
 self.addEventListener('install', e => {
   self.skipWaiting();

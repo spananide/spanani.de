@@ -26,7 +26,7 @@ assert.equal(knapp([{ at: now - H, week: 100 }], now, W), null, 'already full: t
 
 assert.deepEqual(nachricht(reset97).badge, 0, 'a 5-hour reset clears the app badge');
 assert.equal(nachricht({ kind: 'week', art: 'reset', reset, peak: 95 }).badge, undefined, 'a week reset leaves it');
-assert.equal(nachricht({ kind: 'five', art: 'warn', reset, peak: 92.4 }).badge, 92);
+assert.equal(nachricht({ kind: 'five', art: 'warn', reset, peak: 92.4 }).badge, 8);
 assert.match(nachricht({ kind: 'week', art: 'knapp', reset: W, voll: now + 36 * H, jetzt: 64 }).body, /^64 % verbraucht\. /);
 
 assert.deepEqual(await pruefen('zu-kurz', null), { ok: false, store: null }, 'short key fails');

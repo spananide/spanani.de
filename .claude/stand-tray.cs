@@ -33,6 +33,8 @@ using Path = System.IO.Path;
 using Brush = System.Windows.Media.Brush;
 using FontFamily = System.Windows.Media.FontFamily;
 using Point = System.Windows.Point;
+using Run = System.Windows.Documents.Run;
+using TextElement = System.Windows.Documents.TextElement;
 
 [assembly: AssemblyTitle("Claude Stand")]
 [assembly: AssemblyProduct("Claude Stand")]
@@ -94,17 +96,6 @@ namespace ClaudeStand {
         }
     }
 
-    class Walze {
-        public StackPanel Panel;
-        public int Digit;
-    }
-
-    class Zaehler {
-        public Walze[] Walzen;
-        public TextBlock Reset;
-        public long Window;
-    }
-
     static class Program {
         [DllImport("user32.dll")]
         public static extern bool SetProcessDPIAware();
@@ -125,26 +116,33 @@ namespace ClaudeStand {
         static IntPtr oldIconHandle = IntPtr.Zero;
 
         static TranslateTransform uiSchub;
-        static StackPanel uiFuenf;
-        static StackPanel uiWoche;
-        static Grid uiSchlitz;
-        static TranslateTransform uiRiffel;
-        static TranslateTransform uiMarke;
-        static TextBlock uiTempo;
-        static TextBlock uiChatName;
+        static Run uiFuenfZahl;
+        static Run uiFuenfUebrig;
+        static ColumnDefinition uiFuenfFillCol;
+        static ColumnDefinition uiFuenfRestCol;
+        static Border uiFuenfFill;
+        static Run uiFuenfReicht;
+        static Run uiFuenfVoll;
+
+        static Run uiWocheZahl;
+        static Run uiWocheUebrig;
+        static ColumnDefinition uiWocheFillCol;
+        static ColumnDefinition uiWocheRestCol;
+        static Border uiWocheFill;
+        static TextBlock uiWocheBereich;
+
+        static TextBlock uiAktivZeile;
         static TextBlock uiHeuteGeld;
         static TextBlock uiHeuteTokens;
         static TextBlock uiWocheGeld;
         static TextBlock uiWocheTokens;
+        static System.Windows.Controls.Button uiSchluessel;
         static System.Windows.Controls.Button uiOeffnen;
-
-        static Zaehler zaehlerFive;
-        static Zaehler zaehlerWeek;
-        static AnimationClock[] discClocks;
-        static double currentSpeed = 0.0;
 
         static Dictionary<string, CacheEntry> cache = new Dictionary<string, CacheEntry>();
         static List<Sample> samples = new List<Sample>();
+        static List<KeyValuePair<DateTime, double>> fiveSamples = new List<KeyValuePair<DateTime, double>>();
+        static long? lastFiveReset;
         static StandResult currentStand;
         static string iconText = null;
         static DateTime toggled = DateTime.MinValue;
@@ -157,61 +155,58 @@ namespace ClaudeStand {
         static Dictionary<string, string> currentFarben;
 
         static readonly Dictionary<string, string> FarbenDunkel = new Dictionary<string, string> {
-            { "Gehaeuse", "#2a2f32" },
-            { "Deckel", "#33393c" },
-            { "Schild", "#e4e5e1" },
-            { "Beschriftung", "#a3a8a6" },
-            { "Linie", "#4a5054" },
-            { "Zaehlwerk", "#151718" },
-            { "Ziffer", "#f2f2ee" },
-            { "Rot", "#e0343f" }
+            { "Grund", "#16191d" },
+            { "Text", "#ece8df" },
+            { "Leise", "#9aa0a6" },
+            { "Linie", "#2e333a" },
+            { "Spur", "#2a2f35" },
+            { "Tank", "#ece6d6" },
+            { "Gelb", "#f0a020" },
+            { "Rot", "#e5484d" }
         };
 
         static readonly Dictionary<string, string> FarbenHell = new Dictionary<string, string> {
-            { "Gehaeuse", "#dcdedb" },
-            { "Deckel", "#e9eae7" },
-            { "Schild", "#1f2326" },
-            { "Beschriftung", "#4e5458" },
-            { "Linie", "#b9bcb8" },
-            { "Zaehlwerk", "#151718" },
-            { "Ziffer", "#f2f2ee" },
-            { "Rot", "#c40d1e" }
+            { "Grund", "#f4f2ed" },
+            { "Text", "#1d2125" },
+            { "Leise", "#5d636a" },
+            { "Linie", "#dcd8cf" },
+            { "Spur", "#e3dfd6" },
+            { "Tank", "#23272c" },
+            { "Gelb", "#a85f00" },
+            { "Rot", "#c8333a" }
         };
 
         const string WindowXaml = @"<Window xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
         xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
-        Title=""Claude Stand"" Width=""380"" SizeToContent=""Height"" WindowStyle=""None"" AllowsTransparency=""True""
+        Title=""Claude Stand"" Width=""340"" SizeToContent=""Height"" WindowStyle=""None"" AllowsTransparency=""True""
         Background=""Transparent"" ResizeMode=""NoResize"" ShowInTaskbar=""False"" Topmost=""True"" Left=""-3000"" Top=""0""
-        FontFamily=""Bahnschrift"" FontSize=""13"" Foreground=""{DynamicResource Schild}"" UseLayoutRounding=""True"">
+        FontFamily=""Segoe UI Variable Text, Segoe UI"" FontSize=""13"" Foreground=""{DynamicResource Text}""
+        Typography.NumeralAlignment=""Tabular"" UseLayoutRounding=""True"">
   <Window.Resources>
-    <LinearGradientBrush x:Key=""Scheibe"" StartPoint=""0,0"" EndPoint=""1,0"">
-      <GradientStop Color=""#3b4043"" Offset=""0""/>
-      <GradientStop Color=""#a7aba8"" Offset=""0.3""/>
-      <GradientStop Color=""#dcdeda"" Offset=""0.5""/>
-      <GradientStop Color=""#a7aba8"" Offset=""0.7""/>
-      <GradientStop Color=""#3b4043"" Offset=""1""/>
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key=""Rand"" StartPoint=""0,0"" EndPoint=""1,0"">
-      <GradientStop Color=""#FF151718"" Offset=""0""/>
-      <GradientStop Color=""#00151718"" Offset=""0.2""/>
-      <GradientStop Color=""#00151718"" Offset=""0.8""/>
-      <GradientStop Color=""#FF151718"" Offset=""1""/>
-    </LinearGradientBrush>
-    <Style x:Key=""Leise"" TargetType=""Button"">
-      <Setter Property=""Foreground"" Value=""{DynamicResource Schild}""/>
-      <Setter Property=""BorderBrush"" Value=""{DynamicResource Linie}""/>
+    <Style x:Key=""TextLink"" TargetType=""Button"">
+      <Setter Property=""Foreground"" Value=""{DynamicResource Leise}""/>
+      <Setter Property=""Background"" Value=""Transparent""/>
+      <Setter Property=""BorderThickness"" Value=""1""/>
+      <Setter Property=""BorderBrush"" Value=""Transparent""/>
       <Setter Property=""Cursor"" Value=""Hand""/>
+      <Setter Property=""FontSize"" Value=""13""/>
       <Setter Property=""FocusVisualStyle"" Value=""{x:Null}""/>
+      <Setter Property=""Padding"" Value=""2,1""/>
       <Setter Property=""Template"">
         <Setter.Value>
           <ControlTemplate TargetType=""Button"">
-            <Border x:Name=""B"" Background=""Transparent"" BorderBrush=""{TemplateBinding BorderBrush}"" BorderThickness=""1"" CornerRadius=""6"" Padding=""10,5"">
-              <ContentPresenter HorizontalAlignment=""Center"" VerticalAlignment=""Center""/>
+            <Border x:Name=""B"" Background=""{TemplateBinding Background}"" BorderBrush=""{TemplateBinding BorderBrush}"" BorderThickness=""{TemplateBinding BorderThickness}"" CornerRadius=""3"" Padding=""{TemplateBinding Padding}"">
+              <TextBlock x:Name=""T"" Text=""{TemplateBinding Content}"" Foreground=""{TemplateBinding Foreground}""/>
             </Border>
             <ControlTemplate.Triggers>
-              <Trigger Property=""IsMouseOver"" Value=""True""><Setter TargetName=""B"" Property=""BorderBrush"" Value=""{DynamicResource Beschriftung}""/></Trigger>
-              <Trigger Property=""IsKeyboardFocused"" Value=""True""><Setter TargetName=""B"" Property=""BorderBrush"" Value=""{DynamicResource Schild}""/></Trigger>
-              <Trigger Property=""IsPressed"" Value=""True""><Setter TargetName=""B"" Property=""Background"" Value=""{DynamicResource Linie}""/></Trigger>
+              <Trigger Property=""IsMouseOver"" Value=""True"">
+                <Setter TargetName=""T"" Property=""TextDecorations"" Value=""Underline""/>
+                <Setter Property=""Foreground"" Value=""{DynamicResource Text}""/>
+              </Trigger>
+              <Trigger Property=""IsKeyboardFocused"" Value=""True"">
+                <Setter TargetName=""B"" Property=""BorderBrush"" Value=""{DynamicResource Linie}""/>
+                <Setter Property=""Foreground"" Value=""{DynamicResource Text}""/>
+              </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
@@ -220,57 +215,75 @@ namespace ClaudeStand {
   </Window.Resources>
   <Grid Margin=""16"">
     <Grid.RenderTransform><TranslateTransform x:Name=""Schub""/></Grid.RenderTransform>
-    <Border Background=""{DynamicResource Gehaeuse}"" CornerRadius=""10"">
+    <Border Background=""{DynamicResource Grund}"" CornerRadius=""12"">
       <Border.Effect><DropShadowEffect BlurRadius=""24"" ShadowDepth=""5"" Direction=""270"" Opacity=""0.45"" Color=""Black""/></Border.Effect>
     </Border>
-    <Border BorderBrush=""{DynamicResource Linie}"" BorderThickness=""1"" CornerRadius=""10"" Padding=""12"">
+    <Border BorderBrush=""{DynamicResource Linie}"" BorderThickness=""1"" CornerRadius=""12"" Padding=""20"">
       <StackPanel>
-        <Border Background=""{DynamicResource Deckel}"" BorderBrush=""{DynamicResource Linie}"" BorderThickness=""1"" CornerRadius=""7"" Padding=""14,12,14,14"">
-          <StackPanel>
-            <Grid>
-              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width=""18""/><ColumnDefinition/></Grid.ColumnDefinitions>
-              <StackPanel x:Name=""Fuenf"" Grid.Column=""0""/>
-              <StackPanel x:Name=""Woche"" Grid.Column=""2""/>
-            </Grid>
-            <Grid x:Name=""Schlitz"" Margin=""0,18,0,0"" Height=""18"" ClipToBounds=""True"">
-              <Border Background=""{DynamicResource Zaehlwerk}"" CornerRadius=""3""/>
-              <Rectangle Height=""6"" Margin=""4,0"" Fill=""{StaticResource Scheibe}""/>
-              <Rectangle Height=""6"" Margin=""4,0"">
-                <Rectangle.Fill>
-                  <DrawingBrush TileMode=""Tile"" Viewport=""0,0,12,6"" ViewportUnits=""Absolute"" Stretch=""None"">
-                    <DrawingBrush.Transform><TranslateTransform x:Name=""Riffel""/></DrawingBrush.Transform>
-                    <DrawingBrush.Drawing>
-                      <DrawingGroup>
-                        <GeometryDrawing Brush=""Transparent""><GeometryDrawing.Geometry><RectangleGeometry Rect=""0,0,12,6""/></GeometryDrawing.Geometry></GeometryDrawing>
-                        <GeometryDrawing Brush=""#70151718""><GeometryDrawing.Geometry><RectangleGeometry Rect=""0,0,1,6""/></GeometryDrawing.Geometry></GeometryDrawing>
-                      </DrawingGroup>
-                    </DrawingBrush.Drawing>
-                  </DrawingBrush>
-                </Rectangle.Fill>
-              </Rectangle>
-              <Canvas Margin=""4,0"">
-                <Rectangle Width=""10"" Height=""6"" Canvas.Top=""6"" Fill=""{DynamicResource Rot}"">
-                  <Rectangle.RenderTransform><TranslateTransform x:Name=""Marke"" X=""-16""/></Rectangle.RenderTransform>
-                </Rectangle>
-              </Canvas>
-              <Rectangle Height=""6"" Margin=""4,0"" Fill=""{StaticResource Rand}""/>
-            </Grid>
-            <TextBlock x:Name=""Tempo"" Margin=""0,8,0,0"" FontSize=""12"" Foreground=""{DynamicResource Beschriftung}""/>
-            <TextBlock x:Name=""ChatName"" Margin=""0,3,0,0"" FontSize=""12"" Foreground=""{DynamicResource Beschriftung}"" TextTrimming=""CharacterEllipsis"" Visibility=""Collapsed""/>
-          </StackPanel>
-        </Border>
-        <Grid Margin=""4,14,4,0"">
-          <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width=""Auto""/><ColumnDefinition Width=""Auto"" MinWidth=""128""/></Grid.ColumnDefinitions>
-          <Grid.RowDefinitions><RowDefinition/><RowDefinition Height=""6""/><RowDefinition/></Grid.RowDefinitions>
-          <TextBlock Text=""Heute"" FontSize=""14""/>
-          <TextBlock x:Name=""HeuteGeld"" Grid.Column=""1"" FontSize=""14"" FontWeight=""SemiBold"" TextAlignment=""Right""/>
-          <TextBlock x:Name=""HeuteTokens"" Grid.Column=""2"" FontSize=""14"" TextAlignment=""Right"" Foreground=""{DynamicResource Beschriftung}""/>
-          <TextBlock Grid.Row=""2"" Text=""Diese Woche"" FontSize=""14""/>
-          <TextBlock x:Name=""WocheGeld"" Grid.Row=""2"" Grid.Column=""1"" FontSize=""14"" FontWeight=""SemiBold"" TextAlignment=""Right""/>
-          <TextBlock x:Name=""WocheTokens"" Grid.Row=""2"" Grid.Column=""2"" FontSize=""14"" TextAlignment=""Right"" Foreground=""{DynamicResource Beschriftung}""/>
+        <DockPanel LastChildFill=""False"">
+          <TextBlock DockPanel.Dock=""Left"" Text=""5 Stunden"" FontSize=""15"" FontWeight=""SemiBold"" Foreground=""{DynamicResource Text}"" VerticalAlignment=""Center""/>
+          <TextBlock DockPanel.Dock=""Right"" HorizontalAlignment=""Right"" VerticalAlignment=""Center"">
+            <Run x:Name=""FuenfZahl"" FontFamily=""Segoe UI Variable Display, Segoe UI"" FontSize=""40"" FontWeight=""SemiBold"" Foreground=""{DynamicResource Text}"" Text=""–""/><Run x:Name=""FuenfUebrig"" FontSize=""13"" Foreground=""{DynamicResource Leise}"" Text=""""/>
+          </TextBlock>
+        </DockPanel>
+        <Grid Height=""10"" Margin=""0,8,0,0"">
+          <Border Background=""{DynamicResource Spur}"" CornerRadius=""5""/>
+          <Grid x:Name=""FuenfFillGrid"">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition x:Name=""FuenfFillCol"" Width=""0*""/>
+              <ColumnDefinition x:Name=""FuenfRestCol"" Width=""100*""/>
+            </Grid.ColumnDefinitions>
+            <Border x:Name=""FuenfFill"" Background=""{DynamicResource Tank}"" CornerRadius=""5""/>
+          </Grid>
         </Grid>
-        <DockPanel Margin=""4,12,4,0"" LastChildFill=""False"">
-          <Button x:Name=""Oeffnen"" DockPanel.Dock=""Right"" Style=""{StaticResource Leise}"" FontSize=""12"" Content=""Stand öffnen""/>
+        <TextBlock x:Name=""FuenfBereich"" Margin=""0,7,0,0"" FontSize=""13"">
+          <Run x:Name=""FuenfReicht"" FontWeight=""SemiBold""/><Run x:Name=""FuenfVoll"" Foreground=""{DynamicResource Leise}""/>
+        </TextBlock>
+
+        <DockPanel Margin=""0,18,0,0"" LastChildFill=""False"">
+          <TextBlock DockPanel.Dock=""Left"" Text=""Woche"" FontSize=""15"" FontWeight=""SemiBold"" Foreground=""{DynamicResource Text}"" VerticalAlignment=""Center""/>
+          <TextBlock DockPanel.Dock=""Right"" HorizontalAlignment=""Right"" VerticalAlignment=""Center"">
+            <Run x:Name=""WocheZahl"" FontFamily=""Segoe UI Variable Display, Segoe UI"" FontSize=""40"" FontWeight=""SemiBold"" Foreground=""{DynamicResource Text}"" Text=""–""/><Run x:Name=""WocheUebrig"" FontSize=""13"" Foreground=""{DynamicResource Leise}"" Text=""""/>
+          </TextBlock>
+        </DockPanel>
+        <Grid Height=""10"" Margin=""0,8,0,0"">
+          <Border Background=""{DynamicResource Spur}"" CornerRadius=""5""/>
+          <Grid x:Name=""WocheFillGrid"">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition x:Name=""WocheFillCol"" Width=""0*""/>
+              <ColumnDefinition x:Name=""WocheRestCol"" Width=""100*""/>
+            </Grid.ColumnDefinitions>
+            <Border x:Name=""WocheFill"" Background=""{DynamicResource Tank}"" CornerRadius=""5""/>
+          </Grid>
+        </Grid>
+        <TextBlock x:Name=""WocheBereich"" Margin=""0,7,0,0"" FontSize=""13"" Foreground=""{DynamicResource Leise}""/>
+
+        <TextBlock x:Name=""AktivZeile"" Margin=""0,16,0,0"" FontSize=""13"" Foreground=""{DynamicResource Leise}"" TextTrimming=""CharacterEllipsis"" TextWrapping=""NoWrap"" Visibility=""Collapsed""/>
+
+        <Rectangle Height=""1"" Fill=""{DynamicResource Linie}"" Margin=""0,14""/>
+
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width=""*""/>
+            <ColumnDefinition Width=""Auto""/>
+            <ColumnDefinition Width=""Auto"" MinWidth=""110""/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height=""6""/>
+            <RowDefinition/>
+          </Grid.RowDefinitions>
+          <TextBlock Text=""Heute"" FontSize=""14"" Foreground=""{DynamicResource Text}""/>
+          <TextBlock x:Name=""HeuteGeld"" Grid.Column=""1"" FontSize=""14"" FontWeight=""SemiBold"" Foreground=""{DynamicResource Text}"" TextAlignment=""Right""/>
+          <TextBlock x:Name=""HeuteTokens"" Grid.Column=""2"" Margin=""12,0,0,0"" FontSize=""14"" Foreground=""{DynamicResource Leise}"" TextAlignment=""Right""/>
+          <TextBlock Grid.Row=""2"" Text=""Diese Woche"" FontSize=""14"" Foreground=""{DynamicResource Text}""/>
+          <TextBlock x:Name=""WocheGeld"" Grid.Row=""2"" Grid.Column=""1"" FontSize=""14"" FontWeight=""SemiBold"" Foreground=""{DynamicResource Text}"" TextAlignment=""Right""/>
+          <TextBlock x:Name=""WocheTokens"" Grid.Row=""2"" Grid.Column=""2"" Margin=""12,0,0,0"" FontSize=""14"" Foreground=""{DynamicResource Leise}"" TextAlignment=""Right""/>
+        </Grid>
+
+        <DockPanel Margin=""0,14,0,0"" LastChildFill=""False"">
+          <Button x:Name=""Schluessel"" DockPanel.Dock=""Left"" Style=""{StaticResource TextLink}"" Content=""Schlüssel kopieren""/>
+          <Button x:Name=""Oeffnen"" DockPanel.Dock=""Right"" Style=""{StaticResource TextLink}"" Content=""Stand öffnen""/>
         </DockPanel>
       </StackPanel>
     </Border>
@@ -429,13 +442,15 @@ namespace ClaudeStand {
         static LimitResult GetLimit(IEnumerable<Session> sessions, string pctKey, string resetKey, long now) {
             LimitResult res = new LimitResult();
             List<Session> withReset = new List<Session>();
-            long top = long.MinValue;
+            long top = long.MinValue, newest = long.MinValue;
 
             foreach (Session s in sessions) {
                 long? r = (resetKey == "fiveReset") ? s.FiveReset : s.WeekReset;
                 if (r.HasValue && r.Value > 0) {
                     withReset.Add(s);
-                    if (r.Value > top) {
+                    // The window of the newest reading wins, like on the page; a stray report of another window is ignored.
+                    if (s.Updated > newest) {
+                        newest = s.Updated;
                         top = r.Value;
                     }
                 }
@@ -456,7 +471,7 @@ namespace ClaudeStand {
             double maxPct = double.MinValue;
             foreach (Session s in withReset) {
                 long? r = (resetKey == "fiveReset") ? s.FiveReset : s.WeekReset;
-                if (r.HasValue && r.Value >= top - 60) {
+                if (r.HasValue && Math.Abs(r.Value - top) <= 60) {
                     int? p = (pctKey == "five") ? s.Five : s.Week;
                     if (p.HasValue) {
                         if (p.Value > maxPct) {
@@ -562,24 +577,6 @@ namespace ClaudeStand {
             return n.ToString("0", de);
         }
 
-        static string FormatReset(LimitResult limit, long now) {
-            if (limit == null || !limit.Pct.HasValue) {
-                return "Noch keine Messung";
-            }
-            if (!limit.Reset.HasValue || limit.Reset.Value == 0) {
-                return "Wieder frei";
-            }
-            TimeSpan t = TimeSpan.FromSeconds(limit.Reset.Value - now);
-            if (t.TotalHours >= 24) {
-                DateTimeOffset dto = DateTimeOffset.FromUnixTimeSeconds(limit.Reset.Value);
-                return "Reset " + dto.LocalDateTime.ToString("ddd HH:mm", de);
-            }
-            if (t.Hours != 0) {
-                return string.Format("Reset in {0} h {1} min", t.Hours, t.Minutes);
-            }
-            return string.Format("Reset in {0} min", Math.Max(1, t.Minutes));
-        }
-
         static bool IsSystemLightTheme() {
             try {
                 using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")) {
@@ -604,128 +601,52 @@ namespace ClaudeStand {
             }
         }
 
-        static Zaehler NewZaehler(StackPanel panel, string label, long window) {
-            TextBlock lbl = new TextBlock();
-            lbl.Text = label;
-            lbl.FontWeight = FontWeights.SemiBold;
-            panel.Children.Add(lbl);
+        static DateTime? Reicht(List<KeyValuePair<DateTime, double>> samples, DateTime now, DateTime reset) {
+            if (samples == null || samples.Count < 2) return null;
+            DateTime firstTime = samples[0].Key;
+            DateTime lastTime = samples[samples.Count - 1].Key;
+            TimeSpan span = lastTime - firstTime;
+            if (span.TotalMinutes < 5.0) return null;
+            double spanHours = span.TotalHours;
+            if (spanHours <= 0) return null;
+            double firstVal = samples[0].Value;
+            double lastVal = samples[samples.Count - 1].Value;
+            double slope = (lastVal - firstVal) / spanHours;
+            if (slope <= 0.5) return null;
+            double hoursNeeded = (100.0 - lastVal) / slope;
+            DateTime reaches = now.AddHours(hoursNeeded);
+            if (reaches < reset) return reaches;
+            return null;
+        }
 
-            StackPanel row = new StackPanel();
-            row.Orientation = Orientation.Horizontal;
-            row.Margin = new Thickness(0, 7, 0, 0);
+        static void AnimiereBalken(Border fill, double targetWidth) {
+            if (targetWidth <= 0) return;
+            fill.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+            DoubleAnimation anim = new DoubleAnimation(0, targetWidth, TimeSpan.FromMilliseconds(350));
+            anim.EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut };
+            anim.Completed += delegate {
+                fill.BeginAnimation(FrameworkElement.WidthProperty, null);
+                fill.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+                fill.Width = double.NaN;
+            };
+            fill.BeginAnimation(FrameworkElement.WidthProperty, anim);
+        }
 
-            const double H = 40.0;
-            Walze[] walzen = new Walze[3];
-            for (int i = 0; i < 3; i++) {
-                Border b = new Border();
-                b.Width = 28;
-                b.Height = H;
-                b.CornerRadius = new CornerRadius(3);
-                b.ClipToBounds = true;
-                b.Margin = new Thickness(0, 0, 3, 0);
-                b.SetResourceReference(Border.BackgroundProperty, (i == 2) ? "Rot" : "Zaehlwerk");
-
-                StackPanel sp = new StackPanel();
-                sp.Width = 28;
-                sp.RenderTransform = new TranslateTransform();
-
-                for (int z = 0; z <= 9; z++) {
-                    TextBlock t = new TextBlock();
-                    t.Text = z.ToString();
-                    t.Height = H;
-                    t.FontSize = 36;
-                    t.FontWeight = FontWeights.Bold;
-                    t.FontStretch = FontStretches.Condensed;
-                    t.TextAlignment = TextAlignment.Center;
-                    t.Padding = new Thickness(0, 1, 0, 0);
-                    t.SetResourceReference(TextBlock.ForegroundProperty, "Ziffer");
-                    sp.Children.Add(t);
+        static void CopyKey() {
+            string keyFile = Path.Combine(store, "key");
+            if (File.Exists(keyFile)) {
+                string keyText = "";
+                try { keyText = File.ReadAllText(keyFile).Trim(); } catch {}
+                if (!string.IsNullOrEmpty(keyText)) {
+                    try {
+                        Clipboard.SetText(keyText);
+                    } catch {}
+                    trayIcon.ShowBalloonTip(3000, "Claude Stand", "Schlüssel kopiert. Auf dem Handy unter Chat-Namen anzeigen einfügen.", ToolTipIcon.Info);
+                } else {
+                    trayIcon.ShowBalloonTip(3000, "Claude Stand", "Noch kein Schlüssel. Er entsteht mit der nächsten Antwort in Claude Code.", ToolTipIcon.Info);
                 }
-
-                Canvas roll = new Canvas();
-                roll.Children.Add(sp);
-                b.Child = roll;
-                row.Children.Add(b);
-
-                walzen[i] = new Walze { Panel = sp, Digit = 0 };
-            }
-
-            TextBlock pctBlock = new TextBlock();
-            pctBlock.Text = "%";
-            pctBlock.FontSize = 17;
-            pctBlock.FontWeight = FontWeights.SemiBold;
-            pctBlock.VerticalAlignment = VerticalAlignment.Bottom;
-            pctBlock.Margin = new Thickness(2, 0, 0, 2);
-            row.Children.Add(pctBlock);
-
-            panel.Children.Add(row);
-
-            TextBlock reset = new TextBlock();
-            reset.FontSize = 12;
-            reset.Margin = new Thickness(0, 7, 0, 0);
-            reset.SetResourceReference(TextBlock.ForegroundProperty, "Beschriftung");
-            panel.Children.Add(reset);
-
-            return new Zaehler { Walzen = walzen, Reset = reset, Window = window };
-        }
-
-        static void SetZaehler(Zaehler z, LimitResult limit, long now, bool motion) {
-            int n = (limit == null || !limit.Pct.HasValue) ? 0 : Math.Min(100, Math.Max(0, limit.Pct.Value));
-            string txt = n.ToString("000");
-            const double H = 40.0;
-            for (int i = 0; i < 3; i++) {
-                Walze w = z.Walzen[i];
-                int d = txt[i] - '0';
-                w.Panel.Opacity = (limit == null || !limit.Pct.HasValue || (i < 2 && n < Math.Pow(10, 2 - i))) ? 0.45 : 1.0;
-                if (w.Digit == d) continue;
-                w.Digit = d;
-                DoubleAnimation roll = new DoubleAnimation(-d * H, TimeSpan.FromMilliseconds(motion ? 900 : 0));
-                roll.EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseOut };
-                w.Panel.RenderTransform.BeginAnimation(TranslateTransform.YProperty, roll);
-            }
-            z.Reset.Text = FormatReset(limit, now);
-        }
-
-        static void StartScheibe() {
-            double w = uiSchlitz.ActualWidth - 8;
-            if (w <= 0) return;
-            double T = 24.0;
-            DoubleAnimationUsingKeyFrames mark = new DoubleAnimationUsingKeyFrames();
-            mark.Duration = TimeSpan.FromSeconds(T);
-            mark.RepeatBehavior = RepeatBehavior.Forever;
-            mark.KeyFrames.Add(new DiscreteDoubleKeyFrame(-16, TimeSpan.Zero));
-            mark.KeyFrames.Add(new EasingDoubleKeyFrame(w + 6, TimeSpan.FromSeconds(T / 2), new SineEase { EasingMode = EasingMode.EaseInOut }));
-
-            DoubleAnimation rim = new DoubleAnimation(0, 12, TimeSpan.FromSeconds(12 * T / (Math.PI * w)));
-            rim.RepeatBehavior = RepeatBehavior.Forever;
-
-            discClocks = new AnimationClock[] { mark.CreateClock(), rim.CreateClock() };
-            uiMarke.ApplyAnimationClock(TranslateTransform.XProperty, discClocks[0]);
-            uiRiffel.ApplyAnimationClock(TranslateTransform.XProperty, discClocks[1]);
-            foreach (AnimationClock c in discClocks) {
-                c.Controller.Pause();
-            }
-        }
-
-        static void SetScheibe(double speed) {
-            currentSpeed = speed;
-            if (uiSchlitz.ActualWidth <= 0) return;
-            if (!SystemParameters.ClientAreaAnimation) {
-                uiMarke.X = (uiSchlitz.ActualWidth - 8) * 0.4;
-                return;
-            }
-            if (discClocks == null) {
-                StartScheibe();
-            }
-            if (discClocks != null) {
-                foreach (AnimationClock c in discClocks) {
-                    if (speed > 0 && win.IsVisible) {
-                        c.Controller.SpeedRatio = speed;
-                        c.Controller.Resume();
-                    } else {
-                        c.Controller.Pause();
-                    }
-                }
+            } else {
+                trayIcon.ShowBalloonTip(3000, "Claude Stand", "Noch kein Schlüssel. Er entsteht mit der nächsten Antwort in Claude Code.", ToolTipIcon.Info);
             }
         }
 
@@ -733,51 +654,150 @@ namespace ClaudeStand {
             if (currentStand == null) return;
             StandResult r = currentStand;
             long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            bool motion = SystemParameters.ClientAreaAnimation;
+            DateTime nowDt = DateTime.Now;
 
-            SetZaehler(zaehlerFive, r.Five, now, motion);
-            SetZaehler(zaehlerWeek, r.Week, now, motion);
+            // 1. Tank 5 Stunden
+            if (r.Five != null && r.Five.Pct.HasValue) {
+                int used = Math.Min(100, Math.Max(0, r.Five.Pct.Value));
+                int left = 100 - used;
+                uiFuenfZahl.Text = left.ToString();
+                uiFuenfUebrig.Text = " % übrig";
+                uiFuenfFillCol.Width = new GridLength(left, GridUnitType.Star);
+                uiFuenfRestCol.Width = new GridLength(100 - left, GridUnitType.Star);
 
+                string farbe = (left <= 10) ? "Rot" : (left <= 25) ? "Gelb" : "Tank";
+                uiFuenfFill.SetResourceReference(Border.BackgroundProperty, farbe);
+
+                if (!r.Five.Reset.HasValue || r.Five.Reset.Value <= now) {
+                    uiFuenfReicht.Text = "";
+                    uiFuenfVoll.Text = "Voll";
+                    uiFuenfVoll.SetResourceReference(TextElement.ForegroundProperty, "Leise");
+                    uiFuenfVoll.FontWeight = FontWeights.Normal;
+                } else {
+                    DateTime resetDt = DateTimeOffset.FromUnixTimeSeconds(r.Five.Reset.Value).LocalDateTime;
+                    string wiederVoll = " · wieder voll " + resetDt.ToString("HH:mm");
+
+                    if (left <= 0) {
+                        uiFuenfReicht.Text = "Leer";
+                        uiFuenfReicht.SetResourceReference(TextElement.ForegroundProperty, "Gelb");
+                        uiFuenfReicht.FontWeight = FontWeights.SemiBold;
+                        uiFuenfVoll.Text = wiederVoll;
+                        uiFuenfVoll.SetResourceReference(TextElement.ForegroundProperty, "Leise");
+                        uiFuenfVoll.FontWeight = FontWeights.Normal;
+                    } else {
+                        DateTime? reichtBis = Reicht(fiveSamples, nowDt, resetDt);
+                        if (reichtBis.HasValue) {
+                            uiFuenfReicht.Text = "Reicht bis " + reichtBis.Value.ToString("HH:mm");
+                            uiFuenfReicht.SetResourceReference(TextElement.ForegroundProperty, "Gelb");
+                            uiFuenfReicht.FontWeight = FontWeights.SemiBold;
+                            uiFuenfVoll.Text = wiederVoll;
+                            uiFuenfVoll.SetResourceReference(TextElement.ForegroundProperty, "Leise");
+                            uiFuenfVoll.FontWeight = FontWeights.Normal;
+                        } else {
+                            TimeSpan t = TimeSpan.FromSeconds(r.Five.Reset.Value - now);
+                            string inZeit = (t.Hours > 0)
+                                ? string.Format("in {0} h {1} min", t.Hours, t.Minutes)
+                                : string.Format("in {0} min", Math.Max(1, t.Minutes));
+                            uiFuenfReicht.Text = "";
+                            uiFuenfVoll.Text = string.Format("Wieder voll {0} · {1}", resetDt.ToString("HH:mm"), inZeit);
+                            uiFuenfVoll.SetResourceReference(TextElement.ForegroundProperty, "Leise");
+                            uiFuenfVoll.FontWeight = FontWeights.Normal;
+                        }
+                    }
+                }
+            } else {
+                uiFuenfZahl.Text = "–";
+                uiFuenfUebrig.Text = "";
+                uiFuenfFillCol.Width = new GridLength(0, GridUnitType.Star);
+                uiFuenfRestCol.Width = new GridLength(100, GridUnitType.Star);
+                uiFuenfFill.SetResourceReference(Border.BackgroundProperty, "Tank");
+                uiFuenfReicht.Text = "";
+                uiFuenfVoll.Text = "–";
+                uiFuenfVoll.SetResourceReference(TextElement.ForegroundProperty, "Leise");
+                uiFuenfVoll.FontWeight = FontWeights.Normal;
+            }
+
+            // 2. Tank Woche
+            if (r.Week != null && r.Week.Pct.HasValue) {
+                int used = Math.Min(100, Math.Max(0, r.Week.Pct.Value));
+                int left = 100 - used;
+                uiWocheZahl.Text = left.ToString();
+                uiWocheUebrig.Text = " % übrig";
+                uiWocheFillCol.Width = new GridLength(left, GridUnitType.Star);
+                uiWocheRestCol.Width = new GridLength(100 - left, GridUnitType.Star);
+
+                string farbe = (left <= 10) ? "Rot" : (left <= 25) ? "Gelb" : "Tank";
+                uiWocheFill.SetResourceReference(Border.BackgroundProperty, farbe);
+
+                if (!r.Week.Reset.HasValue || r.Week.Reset.Value <= now) {
+                    uiWocheBereich.Text = "Voll";
+                } else {
+                    DateTime resetDt = DateTimeOffset.FromUnixTimeSeconds(r.Week.Reset.Value).LocalDateTime;
+                    uiWocheBereich.Text = "Wieder voll " + resetDt.ToString("ddd HH:mm", de);
+                }
+            } else {
+                uiWocheZahl.Text = "–";
+                uiWocheUebrig.Text = "";
+                uiWocheFillCol.Width = new GridLength(0, GridUnitType.Star);
+                uiWocheRestCol.Width = new GridLength(100, GridUnitType.Star);
+                uiWocheFill.SetResourceReference(Border.BackgroundProperty, "Tank");
+                uiWocheBereich.Text = "–";
+            }
+
+            // 3. AktivZeile
+            bool active = r.Last != null && (now - r.Last.Updated) < 120;
+            if (active) {
+                uiAktivZeile.Visibility = Visibility.Visible;
+                string chatName = (!string.IsNullOrEmpty(r.Last.Name)) ? r.Last.Name.Trim() : null;
+                double? rate = GetRate(samples);
+                string rateStr = (rate.HasValue) ? string.Format(de, "{0:0.00} $/h", rate.Value) : null;
+
+                if (chatName != null && rateStr != null) {
+                    uiAktivZeile.Text = string.Format("Läuft: {0} · {1}", chatName, rateStr);
+                } else if (chatName != null) {
+                    uiAktivZeile.Text = string.Format("Läuft: {0}", chatName);
+                } else if (rateStr != null) {
+                    uiAktivZeile.Text = string.Format("Läuft: {0}", rateStr);
+                } else {
+                    uiAktivZeile.Text = "Läuft gerade";
+                }
+            } else {
+                uiAktivZeile.Visibility = Visibility.Collapsed;
+                uiAktivZeile.Text = "";
+            }
+
+            // 5. Totals
             uiHeuteGeld.Text = FormatGeld(r.TodayCost);
             uiWocheGeld.Text = FormatGeld(r.WeekCost);
             uiHeuteTokens.Text = FormatTokens(r.TodayTokens) + " Tokens";
             uiWocheTokens.Text = FormatTokens(r.WeekTokens) + " Tokens";
-
-            bool active = r.Last != null && (now - r.Last.Updated) < 120;
-            if (active && !string.IsNullOrEmpty(r.Last.Name)) {
-                uiChatName.Text = r.Last.Name;
-                uiChatName.Visibility = Visibility.Visible;
-            } else {
-                uiChatName.Text = "";
-                uiChatName.Visibility = Visibility.Collapsed;
-            }
-
-            double? rate = GetRate(samples);
-            if (!active || (rate.HasValue && rate.Value == 0)) {
-                SetScheibe(0);
-                uiTempo.Text = "Gerade kein Verbrauch";
-            } else if (!rate.HasValue) {
-                SetScheibe(1.0);
-                uiTempo.Text = "Läuft gerade";
-            } else {
-                double speed = Math.Min(10.0, Math.Max(0.3, Math.Sqrt(rate.Value)));
-                SetScheibe(speed);
-                uiTempo.Text = string.Format("Gerade {0} pro Stunde", FormatGeld(rate.Value));
-            }
         }
 
-        static void SetTrayIcon(string text, bool alarm) {
+        static void SetTrayIcon(string text, int? leftFive) {
             int px = SystemInformation.SmallIconSize.Width;
             DrawingVisual dv = new DrawingVisual();
             using (DrawingContext dc = dv.RenderOpen()) {
                 BrushConverter conv = new BrushConverter();
-                Dictionary<string, string> theme = currentFarben ?? (IsSystemLightTheme() ? FarbenHell : FarbenDunkel);
-                Brush bg = (Brush)conv.ConvertFromString(alarm ? theme["Rot"] : theme["Zaehlwerk"]);
+                string bgHex;
+                string fgHex;
+
+                if (leftFive.HasValue && leftFive.Value <= 10) {
+                    bgHex = "#e5484d";
+                    fgHex = "#ffffff";
+                } else if (leftFive.HasValue && leftFive.Value <= 25) {
+                    bgHex = "#f0a020";
+                    fgHex = "#16191d";
+                } else {
+                    bgHex = "#ece8df";
+                    fgHex = "#16191d";
+                }
+
+                Brush bg = (Brush)conv.ConvertFromString(bgHex);
+                Brush fg = (Brush)conv.ConvertFromString(fgHex);
                 dc.DrawRoundedRectangle(bg, null, new Rect(0, 0, px, px), px * 0.2, px * 0.2);
 
-                Typeface face = new Typeface(new FontFamily("Bahnschrift"), FontStyles.Normal, FontWeights.Bold, FontStretches.Condensed);
-                double size = px * (text.Length >= 3 ? 0.72 : 0.95);
-                Brush fg = (Brush)conv.ConvertFromString(theme["Ziffer"]);
+                Typeface face = new Typeface(new FontFamily("Segoe UI Variable Display, Segoe UI"), FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
+                double size = px * (text.Length >= 3 ? 0.65 : (text.Length == 2 ? 0.85 : 0.95));
                 FormattedText ft = new FormattedText(text, de, FlowDirection.LeftToRight, face, size, fg, 1.0);
                 dc.DrawText(ft, new Point((px - ft.Width) / 2.0, (px + face.CapsHeight * size) / 2.0 - ft.Baseline));
             }
@@ -812,15 +832,43 @@ namespace ClaudeStand {
                 samples.RemoveAt(0);
             }
 
-            string text = (!r.Five.Pct.HasValue) ? "–" : r.Five.Pct.Value.ToString();
-            if (text != iconText) {
-                SetTrayIcon(text, r.Five.Pct.HasValue && r.Five.Pct.Value >= 90);
-                iconText = text;
+            long? currentReset = (r.Five != null) ? r.Five.Reset : null;
+            if (currentReset != lastFiveReset) {
+                fiveSamples.Clear();
+                lastFiveReset = currentReset;
+            }
+            if (r.Five != null && r.Five.Pct.HasValue) {
+                DateTime nowDt = DateTime.Now;
+                fiveSamples.Add(new KeyValuePair<DateTime, double>(nowDt, r.Five.Pct.Value));
+                DateTime cutoff = nowDt.AddMinutes(-60);
+                while (fiveSamples.Count > 0 && fiveSamples[0].Key < cutoff) {
+                    fiveSamples.RemoveAt(0);
+                }
             }
 
-            trayIcon.Text = (!r.Five.Pct.HasValue)
-                ? "Claude Stand: noch keine Messung"
-                : string.Format("Claude: 5 Stunden {0} %, Woche {1} %", r.Five.Pct.Value, r.Week.Pct.HasValue ? r.Week.Pct.Value : 0);
+            int? leftFive = null;
+            if (r.Five != null && r.Five.Pct.HasValue) {
+                leftFive = Math.Min(100, Math.Max(0, 100 - r.Five.Pct.Value));
+            }
+            int? leftWeek = null;
+            if (r.Week != null && r.Week.Pct.HasValue) {
+                leftWeek = Math.Min(100, Math.Max(0, 100 - r.Week.Pct.Value));
+            }
+
+            string text = (!leftFive.HasValue) ? "–" : leftFive.Value.ToString();
+            string iconState = text + ":" + (leftFive.HasValue ? leftFive.Value.ToString() : "-");
+            if (iconState != iconText) {
+                SetTrayIcon(text, leftFive);
+                iconText = iconState;
+            }
+
+            if (!leftFive.HasValue) {
+                trayIcon.Text = "Claude Stand: noch keine Messung";
+            } else {
+                trayIcon.Text = string.Format("Claude: 5 Stunden {0} % übrig, Woche {1} % übrig",
+                    leftFive.Value,
+                    leftWeek.HasValue ? leftWeek.Value : 0);
+            }
 
             if (win.IsVisible) {
                 UpdateView();
@@ -830,6 +878,14 @@ namespace ClaudeStand {
         static void ShowStand() {
             SetTheme();
             UpdateView();
+
+            uiFuenfFill.BeginAnimation(FrameworkElement.WidthProperty, null);
+            uiFuenfFill.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+            uiFuenfFill.Width = double.NaN;
+            uiWocheFill.BeginAnimation(FrameworkElement.WidthProperty, null);
+            uiWocheFill.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+            uiWocheFill.Width = double.NaN;
+
             win.BeginAnimation(UIElement.OpacityProperty, null);
             win.Opacity = 0;
             win.Show();
@@ -847,18 +903,15 @@ namespace ClaudeStand {
                 DoubleAnimation slide = new DoubleAnimation(14, 0, TimeSpan.FromMilliseconds(240));
                 slide.EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut };
                 uiSchub.BeginAnimation(TranslateTransform.YProperty, slide);
+
+                AnimiereBalken(uiFuenfFill, uiFuenfFillCol.ActualWidth);
+                AnimiereBalken(uiWocheFill, uiWocheFillCol.ActualWidth);
             } else {
                 win.Opacity = 1;
             }
-            UpdateView();
         }
 
         static void HideStand() {
-            if (discClocks != null) {
-                foreach (AnimationClock c in discClocks) {
-                    c.Controller.Pause();
-                }
-            }
             win.Hide();
         }
 
@@ -947,11 +1000,32 @@ namespace ClaudeStand {
             check(FormatTokens(14234567) == "14,2 Mio." && FormatGeld(1234.5) == "1.234,50 $",
                 "Zahlenformat");
 
-            LimitResult limitTest = new LimitResult();
-            limitTest.Pct = 5;
-            limitTest.Reset = now + 2 * 3600 + 14 * 60 + 30;
-            check(FormatReset(limitTest, now) == "Reset in 2 h 14 min",
-                "Reset-Text");
+            DateTime testNow = new DateTime(2026, 1, 1, 12, 0, 0);
+            List<KeyValuePair<DateTime, double>> rSamples = new List<KeyValuePair<DateTime, double>>();
+            rSamples.Add(new KeyValuePair<DateTime, double>(testNow.AddMinutes(-60), 10.0));
+            rSamples.Add(new KeyValuePair<DateTime, double>(testNow, 30.0));
+
+            DateTime? reicht4h = Reicht(rSamples, testNow, testNow.AddHours(4));
+            check(reicht4h.HasValue && Math.Abs((reicht4h.Value - testNow.AddHours(3.5)).TotalSeconds) < 1.0,
+                "Reicht: 10->30% ueber 60 min, Reset in 4 h -> ca. now + 3.5 h");
+
+            DateTime? reicht2h = Reicht(rSamples, testNow, testNow.AddHours(2));
+            check(!reicht2h.HasValue,
+                "Reicht: Reset in 2 h -> null");
+
+            List<KeyValuePair<DateTime, double>> shortSamples = new List<KeyValuePair<DateTime, double>>();
+            shortSamples.Add(new KeyValuePair<DateTime, double>(testNow.AddMinutes(-4), 10.0));
+            shortSamples.Add(new KeyValuePair<DateTime, double>(testNow, 30.0));
+            DateTime? reichtShort = Reicht(shortSamples, testNow, testNow.AddHours(4));
+            check(!reichtShort.HasValue,
+                "Reicht: unter 5 min -> null");
+
+            List<KeyValuePair<DateTime, double>> flatSamples = new List<KeyValuePair<DateTime, double>>();
+            flatSamples.Add(new KeyValuePair<DateTime, double>(testNow.AddMinutes(-60), 20.0));
+            flatSamples.Add(new KeyValuePair<DateTime, double>(testNow, 20.0));
+            DateTime? reichtFlat = Reicht(flatSamples, testNow, testNow.AddHours(4));
+            check(!reichtFlat.HasValue,
+                "Reicht: flach -> null");
 
             if (failCount == 0) {
                 lines.Add("Alles in Ordnung");
@@ -1032,23 +1106,30 @@ namespace ClaudeStand {
 
             win = (Window)XamlReader.Parse(WindowXaml);
             uiSchub = (TranslateTransform)win.FindName("Schub");
-            uiFuenf = (StackPanel)win.FindName("Fuenf");
-            uiWoche = (StackPanel)win.FindName("Woche");
-            uiSchlitz = (Grid)win.FindName("Schlitz");
-            uiRiffel = (TranslateTransform)win.FindName("Riffel");
-            uiMarke = (TranslateTransform)win.FindName("Marke");
-            uiTempo = (TextBlock)win.FindName("Tempo");
-            uiChatName = (TextBlock)win.FindName("ChatName");
+            uiFuenfZahl = (Run)win.FindName("FuenfZahl");
+            uiFuenfUebrig = (Run)win.FindName("FuenfUebrig");
+            uiFuenfFillCol = (ColumnDefinition)win.FindName("FuenfFillCol");
+            uiFuenfRestCol = (ColumnDefinition)win.FindName("FuenfRestCol");
+            uiFuenfFill = (Border)win.FindName("FuenfFill");
+            uiFuenfReicht = (Run)win.FindName("FuenfReicht");
+            uiFuenfVoll = (Run)win.FindName("FuenfVoll");
+
+            uiWocheZahl = (Run)win.FindName("WocheZahl");
+            uiWocheUebrig = (Run)win.FindName("WocheUebrig");
+            uiWocheFillCol = (ColumnDefinition)win.FindName("WocheFillCol");
+            uiWocheRestCol = (ColumnDefinition)win.FindName("WocheRestCol");
+            uiWocheFill = (Border)win.FindName("WocheFill");
+            uiWocheBereich = (TextBlock)win.FindName("WocheBereich");
+
+            uiAktivZeile = (TextBlock)win.FindName("AktivZeile");
             uiHeuteGeld = (TextBlock)win.FindName("HeuteGeld");
             uiHeuteTokens = (TextBlock)win.FindName("HeuteTokens");
             uiWocheGeld = (TextBlock)win.FindName("WocheGeld");
             uiWocheTokens = (TextBlock)win.FindName("WocheTokens");
+            uiSchluessel = (System.Windows.Controls.Button)win.FindName("Schluessel");
             uiOeffnen = (System.Windows.Controls.Button)win.FindName("Oeffnen");
 
             SetTheme();
-
-            zaehlerFive = NewZaehler(uiFuenf, "5 Stunden", 18000);
-            zaehlerWeek = NewZaehler(uiWoche, "Woche", 604800);
 
             zuTimer = new DispatcherTimer();
             zuTimer.Interval = TimeSpan.FromMilliseconds(60);
@@ -1085,6 +1166,10 @@ namespace ClaudeStand {
                 HideStand();
             };
 
+            uiSchluessel.Click += delegate {
+                CopyKey();
+            };
+
             uiOeffnen.Click += delegate {
                 Process.Start(standUrl);
                 HideStand();
@@ -1119,21 +1204,7 @@ namespace ClaudeStand {
             });
 
             menu.Items.Add("Schlüssel fürs Handy kopieren", null, delegate {
-                string keyFile = Path.Combine(store, "key");
-                if (File.Exists(keyFile)) {
-                    string keyText = "";
-                    try { keyText = File.ReadAllText(keyFile).Trim(); } catch {}
-                    if (!string.IsNullOrEmpty(keyText)) {
-                        try {
-                            Clipboard.SetText(keyText);
-                        } catch {}
-                        trayIcon.ShowBalloonTip(3000, "Claude Stand", "Schlüssel kopiert. Auf dem Handy unter Chat-Namen anzeigen einfügen.", ToolTipIcon.Info);
-                    } else {
-                        trayIcon.ShowBalloonTip(3000, "Claude Stand", "Noch kein Schlüssel. Er entsteht mit der nächsten Antwort in Claude Code.", ToolTipIcon.Info);
-                    }
-                } else {
-                    trayIcon.ShowBalloonTip(3000, "Claude Stand", "Noch kein Schlüssel. Er entsteht mit der nächsten Antwort in Claude Code.", ToolTipIcon.Info);
-                }
+                CopyKey();
             });
 
             ToolStripMenuItem autoItem = new ToolStripMenuItem("Mit Windows starten");

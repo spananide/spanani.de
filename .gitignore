@@ -1,3 +1,4 @@
 .worktrees/
 .wrangler/
 node_modules/
+.claude/stand-tray.exe

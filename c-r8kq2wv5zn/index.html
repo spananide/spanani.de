@@ -7,9 +7,8 @@
   <meta name="referrer" content="no-referrer">
   <title>Usage Monitor for Claude</title>
 
-  <!-- PWA & Mobile Web App Meta -->
-  <meta name="theme-color" content="#0d0e12" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0e12" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f4f8" media="(prefers-color-scheme: light)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-180.png">
@@ -19,34 +18,49 @@
   <meta name="mobile-web-app-capable" content="yes">
 
   <style>
+    @font-face {
+      font-family: 'Archivo';
+      src: url('fonts/archivo.woff2') format('woff2');
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'Atkinson Mono';
+      src: url('fonts/atkinson-mono-var.woff2') format('woff2');
+      font-weight: 200 800;
+      font-style: normal;
+      font-display: swap;
+    }
+
     :root {
-      /* Modern Developer Tool Palette (Raycast / Linear / Supabase style) */
-      --bg: #0d0f14;
-      --card-bg: #151821;
-      --card-bg-elevated: #1b202c;
-      --card-bg-subtle: #11141b;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-hover: rgba(255, 255, 255, 0.16);
+      --bg: #0c0e12;
+      --panel: #13171f;
+      --panel-elevated: #1a202c;
+      --panel-inset: #090b0e;
+      --border: #222836;
+      --border-muted: #181d27;
+      --border-focus: #3b82f6;
 
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --text-dim: #475569;
+      --ink: #e8ecf4;
+      --ink-secondary: #8e99aa;
+      --ink-muted: #576275;
+      --ink-dim: #3d4654;
 
-      --blue: #3b82f6;
-      --blue-subtle: rgba(59, 130, 246, 0.15);
-      --coral: #f43f5e;
-      --coral-subtle: rgba(244, 63, 94, 0.15);
-      --amber: #f59e0b;
-      --amber-subtle: rgba(245, 158, 11, 0.15);
-      --emerald: #10b981;
-      --emerald-subtle: rgba(16, 185, 129, 0.15);
+      --cadence-blue: #3b82f6;
+      --thermal-coral: #e2553b;
+      --warning-amber: #e59e19;
+      --stable-green: #10b981;
+      --pro-amber: #eab308;
+      --aux-gemini: #60a5fa;
 
-      --pro-gold: #facc15;
-      --pro-gold-subtle: rgba(250, 204, 21, 0.12);
+      --font-sans: 'Archivo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'Atkinson Mono', ui-monospace, "Cascadia Code", monospace;
 
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-      --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+      --r-panel: 8px;
+      --r-inner: 4px;
+      --r-track: 2px;
 
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -55,234 +69,362 @@
 
     @media (prefers-color-scheme: light) {
       :root {
-        --bg: #f8fafc;
-        --card-bg: #ffffff;
-        --card-bg-elevated: #f1f5f9;
-        --card-bg-subtle: #f8fafc;
-        --border: #e2e8f0;
-        --border-hover: #cbd5e1;
+        --bg: #f2f4f8;
+        --panel: #ffffff;
+        --panel-elevated: #f8fafc;
+        --panel-inset: #e9eef5;
+        --border: #d4dbe5;
+        --border-muted: #e4e9f0;
+        --border-focus: #2563eb;
 
-        --text-primary: #0f172a;
-        --text-secondary: #475569;
-        --text-muted: #64748b;
-        --text-dim: #94a3b8;
+        --ink: #0f141d;
+        --ink-secondary: #475467;
+        --ink-muted: #667085;
+        --ink-dim: #98a2b3;
 
-        --blue: #2563eb;
-        --blue-subtle: rgba(37, 99, 235, 0.1);
-        --coral: #e11d48;
-        --coral-subtle: rgba(225, 29, 72, 0.1);
-        --amber: #d97706;
-        --amber-subtle: rgba(217, 119, 6, 0.1);
-        --emerald: #059669;
-        --emerald-subtle: rgba(5, 150, 105, 0.1);
-        --pro-gold: #ca8a04;
-        --pro-gold-subtle: rgba(202, 138, 4, 0.12);
+        --cadence-blue: #2563eb;
+        --thermal-coral: #dc2626;
+        --warning-amber: #d97706;
+        --stable-green: #059669;
+        --pro-amber: #b45309;
+        --aux-gemini: #2563eb;
         color-scheme: light;
       }
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
       min-height: 100vh;
       background: var(--bg);
-      color: var(--text-primary);
+      color: var(--ink);
       font-family: var(--font-sans);
-      font-size: 14px;
-      line-height: 1.5;
+      font-size: 13.5px;
+      line-height: 1.45;
       -webkit-font-smoothing: antialiased;
-      display: flex;
-      flex-direction: column;
-      touch-action: manipulation;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     #app {
       width: 100%;
-      max-width: 680px;
+      max-width: 620px;
       margin: 0 auto;
-      padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bottom) + 84px);
+      padding: calc(var(--safe-top) + 12px) 12px calc(var(--safe-bottom) + 74px);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
-    /* ==========================================================================
-       TOP APP HEADER
-       ========================================================================== */
-    .top-header {
+    @media (min-width: 768px) {
+      #app {
+        margin: 28px auto 48px;
+        padding: 0 16px;
+      }
+    }
+
+    .telemetry-deck {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--r-panel);
+      overflow: hidden;
+    }
+
+    .deck-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel-elevated);
     }
 
-    .header-left {
+    .deck-identity {
       display: flex;
       align-items: center;
-      gap: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
     }
 
-    .status-dot {
+    .indicator-node {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--emerald);
-      box-shadow: 0 0 8px var(--emerald);
-      position: relative;
+      background: var(--ink-dim);
+      flex-shrink: 0;
+      transition: background 0.2s ease;
     }
 
-    .status-dot.active::after {
-      content: "";
-      position: absolute;
-      inset: -3px;
-      border-radius: 50%;
-      border: 1px solid var(--emerald);
-      animation: pulse 2s infinite ease-out;
+    .indicator-node.live {
+      background: var(--stable-green);
     }
 
-    @keyframes pulse {
-      0% { transform: scale(0.8); opacity: 1; }
-      100% { transform: scale(2.4); opacity: 0; }
-    }
-
-    .app-title {
-      font-size: 14px;
+    .title-line {
+      font-size: 13.5px;
       font-weight: 700;
       letter-spacing: -0.01em;
-      color: var(--text-primary);
+      color: var(--ink);
     }
 
-    .plan-badge {
-      display: inline-flex;
-      align-items: center;
-      background: var(--pro-gold-subtle);
-      color: var(--pro-gold);
-      border: 1px solid rgba(250, 204, 21, 0.3);
-      padding: 2px 7px;
-      border-radius: 5px;
+    .plan-tag {
+      font-family: var(--font-mono);
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      font-weight: 600;
+      color: var(--pro-amber);
+      background: var(--panel-inset);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: var(--r-inner);
     }
 
-    .header-actions {
+    .deck-controls {
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .btn-icon {
-      background: var(--card-bg-elevated);
+    .btn-action {
+      background: var(--panel-inset);
       border: 1px solid var(--border);
-      color: var(--text-secondary);
-      border-radius: 8px;
-      padding: 6px 10px;
+      color: var(--ink-secondary);
+      font-family: var(--font-sans);
       font-size: 12px;
       font-weight: 600;
+      padding: 5px 10px;
+      border-radius: var(--r-inner);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.15s ease;
+      transition: color 0.15s ease, border-color 0.15s ease;
     }
 
-    .btn-icon:hover {
-      color: var(--text-primary);
-      border-color: var(--border-hover);
+    .btn-action:hover {
+      color: var(--ink);
+      border-color: var(--border-focus);
     }
 
-    .btn-icon:active {
-      transform: scale(0.96);
+    .btn-action:focus-visible {
+      outline: 2px solid var(--border-focus);
+      outline-offset: 1px;
     }
 
-    .btn-icon svg {
-      width: 13px;
-      height: 13px;
-      stroke-width: 2.2;
+    .btn-action svg {
+      width: 12px;
+      height: 12px;
     }
 
-    .spin { animation: spin 0.75s linear infinite; }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .spinning {
+      animation: spin 0.8s linear infinite;
+    }
 
-    /* ==========================================================================
-       SECTION CONTAINERS & CARDS
-       ========================================================================== */
-    .section-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .nav-strip {
+      display: flex;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media (max-width: 767px) {
+      .nav-strip {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 99;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        border-top: 1px solid var(--border);
+        border-bottom: none;
+        padding-bottom: calc(var(--safe-bottom) + 4px);
+        background: var(--panel);
+      }
+    }
+
+    .nav-item {
+      min-width: 0;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--ink-muted);
+      font-family: var(--font-sans);
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 7px 2px;
+      cursor: pointer;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .section-header {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: color 0.15s ease, border-color 0.15s ease;
     }
 
-    /* ==========================================================================
-       USAGE METERS & PROGRESS BARS (WITH PACING TICKS)
-       ========================================================================== */
-    .usage-item {
+    .nav-item span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .nav-item {
+        flex: 1;
+        flex-direction: row;
+        justify-content: center;
+        gap: 6px;
+        padding: 9px 12px;
+        font-size: 12.5px;
+      }
+    }
+
+    .nav-item:hover {
+      color: var(--ink-secondary);
+    }
+
+    .nav-item.active {
+      color: var(--ink);
+      border-bottom-color: var(--cadence-blue);
+      background: var(--panel-elevated);
+    }
+
+    .nav-item svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .view-stage {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .view-stage.active {
+      display: flex;
+    }
+
+    .instrument-unit {
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 10px;
+      padding: 12px;
+      background: var(--panel-inset);
+      border: 1px solid var(--border-muted);
+      border-radius: var(--r-inner);
     }
 
-    .usage-top-row {
+    .instrument-unit.hero {
+      padding: 14px;
+      border-color: var(--border);
+    }
+
+    .unit-meta-bar {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 4px;
     }
 
-    .usage-title {
-      font-size: 13.5px;
+    .unit-title {
+      font-size: 12.5px;
       font-weight: 600;
-      color: var(--text-primary);
+      color: var(--ink-secondary);
     }
 
-    .usage-pct {
+    .hero-readout-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .hero-metric-figure {
       font-family: var(--font-mono);
-      font-size: 14px;
+      font-size: 32px;
       font-weight: 700;
-      color: var(--text-primary);
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
     }
 
-    /* The Sleek Track with Pacing Tick */
-    .progress-track-wrapper {
+    .hero-detail-col {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hero-detail-primary {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--ink-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hero-detail-secondary {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--ink-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .gauge-track-chassis {
       position: relative;
       height: 10px;
-      background: var(--card-bg-elevated);
-      border-radius: 5px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-track);
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.03);
     }
 
-    .progress-fill {
+    .gauge-fill {
       height: 100%;
-      border-radius: 5px;
-      transition: width 0.5s ease, background-color 0.2s ease;
+      border-radius: var(--r-track);
+      background: var(--cadence-blue);
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
     }
 
-    .fill-blue { background: var(--blue); }
-    .fill-amber { background: var(--amber); }
-    .fill-coral { background: var(--coral); }
+    .gauge-fill.thermal {
+      background: var(--thermal-coral);
+    }
 
-    /* Segment Dividers (e.g. 7 days of the week) */
-    .progress-segments-overlay {
+    .gauge-fill.warning {
+      background: var(--warning-amber);
+    }
+
+    .vernier-cursor {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #ffffff;
+      pointer-events: none;
+      z-index: 2;
+      transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .division-matrix {
       position: absolute;
       inset: 0;
       display: grid;
@@ -290,474 +432,566 @@
       pointer-events: none;
     }
 
-    .segment-line {
-      border-right: 1px solid rgba(0, 0, 0, 0.45);
+    .matrix-line {
+      border-right: 1px solid var(--border);
       height: 100%;
     }
 
-    /* The White Vertical Pacing Tick (Time Elapsed Indicator) */
-    .pacing-tick {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: #ffffff;
-      box-shadow: 0 0 4px rgba(0, 0, 0, 0.8), 0 0 3px rgba(255, 255, 255, 0.8);
-      z-index: 2;
-      pointer-events: none;
-      transition: left 0.5s ease;
-    }
-
-    .usage-meta-row {
+    .pacing-delta-strip {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 12px;
-      color: var(--text-secondary);
-      font-family: var(--font-sans);
-    }
-
-    .meta-highlight {
-      font-family: var(--font-mono);
-      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 4px;
       font-size: 11.5px;
+      font-family: var(--font-mono);
     }
 
-    /* ==========================================================================
-       CLAUDE PRO VALUE & ARBITRAGE (STAT STRIP)
-       ========================================================================== */
-    .stats-grid-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+    .delta-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
     }
 
-    @media (max-width: 520px) {
-      .stats-grid-row { grid-template-columns: 1fr; }
+    .delta-status.ahead {
+      color: var(--stable-green);
     }
 
-    .stat-box {
-      background: var(--card-bg-subtle);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
+    .delta-status.behind {
+      color: var(--thermal-coral);
+    }
+
+    .delta-status.neutral {
+      color: var(--ink-muted);
+    }
+
+    .aux-engine-compartment {
+      margin-top: 4px;
+      padding: 8px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border-muted);
+      border-radius: var(--r-inner);
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 5px;
     }
 
-    .stat-label {
+    .aux-header-line {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 10.5px;
+      color: var(--ink-muted);
+    }
+
+    .aux-title {
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--ink-muted);
+    }
+
+    .aux-telemetry {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--ink-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .aux-track-line {
+      height: 3px;
+      background: var(--panel-elevated);
+      border-radius: 1.5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .aux-fill-line {
+      height: 100%;
+      background: var(--aux-gemini);
+      opacity: 0.55;
+      border-radius: 1.5px;
+      transition: width 0.3s ease;
+    }
+
+    .arbitrage-bench {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .arbitrage-bench {
+        grid-template-columns: 1fr;
+      }
+      .deck-header {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .title-line {
+        font-size: 13px;
+      }
+      .plan-tag {
+        font-size: 10px;
+        padding: 1px 5px;
+      }
+      .hero-metric-figure {
+        font-size: 28px;
+      }
+    }
+
+    .bench-cell {
+      background: var(--panel-inset);
+      border: 1px solid var(--border-muted);
+      border-radius: var(--r-inner);
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .cell-label {
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--text-muted);
+      font-weight: 600;
+      color: var(--ink-muted);
     }
 
-    .stat-value {
+    .cell-value {
       font-family: var(--font-mono);
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
-      color: var(--text-primary);
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
     }
 
-    .stat-sub {
-      font-size: 11.5px;
-      color: var(--text-secondary);
+    .cell-subtext {
       font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-secondary);
+      font-variant-numeric: tabular-nums;
     }
 
-    /* ==========================================================================
-       PROJECTS BREAKDOWN LIST
-       ========================================================================== */
-    .project-item {
+    .account-strip {
       display: flex;
       flex-direction: column;
       gap: 6px;
       padding: 10px 12px;
-      background: var(--card-bg-subtle);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      background: var(--panel-inset);
+      border: 1px solid var(--border-muted);
+      border-radius: var(--r-inner);
+      font-size: 12px;
     }
 
-    .project-main-line {
+    .account-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .project-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-primary);
+    .account-label {
+      color: var(--ink-secondary);
     }
 
-    .project-amount {
+    .account-val {
       font-family: var(--font-mono);
-      font-weight: 700;
-      color: var(--emerald);
-      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
     }
 
-    .project-sub-line {
+    .chart-chassis {
+      height: 200px;
+      width: 100%;
+      background: var(--panel-inset);
+      border: 1px solid var(--border-muted);
+      border-radius: var(--r-inner);
+      position: relative;
+    }
+
+    .chart-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .chart-legend {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      gap: 14px;
       font-size: 11.5px;
       font-family: var(--font-mono);
-      color: var(--text-secondary);
+      color: var(--ink-secondary);
     }
 
-    .diff-green { color: var(--emerald); }
-    .diff-red { color: var(--coral); }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
 
-    /* ==========================================================================
-       MILLIMETER CHART & TIMELINE
-       ========================================================================== */
-    .chart-panel {
-      height: 220px;
-      width: 100%;
-      background: #090a0e;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      position: relative;
-      cursor: crosshair;
+    .legend-pip {
+      width: 8px;
+      height: 8px;
+      border-radius: 1px;
+    }
+
+    .daily-flow-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 6px;
+    }
+
+    .daily-row {
+      display: grid;
+      grid-template-columns: 58px 1fr 40px;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      font-family: var(--font-mono);
+    }
+
+    .daily-track {
+      height: 6px;
+      background: var(--panel-inset);
+      border: 1px solid var(--border-muted);
+      border-radius: 1px;
       overflow: hidden;
     }
 
-    .chart-svg {
-      width: 100%;
+    .daily-fill {
       height: 100%;
+      background: var(--cadence-blue);
     }
 
-    .chart-hud {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      background: rgba(15, 23, 42, 0.94);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 5px 8px;
-      font-size: 11px;
+    .project-log-unit {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 9px 11px;
+      background: var(--panel-inset);
+      border: 1px solid var(--border-muted);
+      border-radius: var(--r-inner);
+    }
+
+    .project-header-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .project-cost-stat {
       font-family: var(--font-mono);
-      pointer-events: none;
-      backdrop-filter: blur(6px);
+      color: var(--stable-green);
     }
 
-    /* Heatmap Grid */
+    .project-meta-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-muted);
+    }
+
+    .diff-pos { color: var(--stable-green); }
+    .diff-neg { color: var(--thermal-coral); }
+
     .heatmap-board {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
       overflow-x: auto;
       padding-bottom: 4px;
     }
 
-    .heatmap-row {
+    .heatmap-lane {
       display: grid;
-      grid-template-columns: 28px repeat(24, 1fr);
-      gap: 3px;
+      grid-template-columns: 26px repeat(24, 1fr);
+      gap: 2px;
       align-items: center;
     }
 
-    .heatmap-day {
-      font-size: 10px;
-      font-weight: 700;
+    .heatmap-day-label {
       font-family: var(--font-mono);
-      color: var(--text-muted);
-    }
-
-    .heatmap-tile {
-      height: 18px;
-      border-radius: 2px;
-      background: rgba(255, 255, 255, 0.04);
-      cursor: pointer;
-    }
-
-    /* ==========================================================================
-       MOBILE THUMB NAVIGATION DOCK (Thumb Ergonomics)
-       ========================================================================== */
-    .mobile-nav-dock {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(13, 15, 20, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-top: 1px solid var(--border);
-      padding: 8px 16px calc(var(--safe-bottom) + 8px);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 100;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    .dock-tab {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 600;
-      cursor: pointer;
-      padding: 6px 12px;
-      border-radius: 8px;
-      transition: all 0.15s ease;
+      color: var(--ink-muted);
     }
 
-    .dock-tab:active {
-      transform: scale(0.94);
+    .heatmap-cell {
+      height: 16px;
+      border-radius: 1px;
+      background: var(--panel-elevated);
     }
 
-    .dock-tab svg {
-      width: 18px;
-      height: 18px;
-      stroke-width: 2.2;
-    }
-
-    .dock-tab.active {
-      color: var(--blue);
-      background: var(--blue-subtle);
-    }
-
-    .view-tab { display: none; }
-    .view-tab.active { display: flex; flex-direction: column; gap: 16px; }
-
-    /* Account / Push Settings */
-    .account-meta-row {
+    .footer-stamp {
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--panel-elevated);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 13px;
-      padding: 6px 0;
-      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--ink-muted);
     }
-    .account-meta-row:last-child { border-bottom: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .gauge-fill,
+      .vernier-cursor,
+      .aux-fill-line {
+        transition: none !important;
+      }
+      .spinning {
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 <body>
   <div id="app">
-    <!-- TOP HEADER -->
-    <header class="top-header">
-      <div class="header-left">
-        <div id="status-beacon" class="status-dot active"></div>
-        <span class="app-title">Usage Monitor for Claude</span>
-        <span class="plan-badge">Claude Pro</span>
-      </div>
+    <div class="telemetry-deck">
+      <header class="deck-header">
+        <div class="deck-identity">
+          <div id="status-beacon" class="indicator-node live"></div>
+          <span class="title-line">Usage Monitor</span>
+          <span class="plan-tag">Claude Pro</span>
+        </div>
 
-      <div class="header-actions">
-        <button class="btn-icon" id="btn-sync" title="Jetzt synchronisieren">
-          <svg id="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-          </svg>
-          <span id="sync-label">Sync</span>
+        <div class="deck-controls">
+          <button class="btn-action" id="btn-sync" title="Daten aktualisieren">
+            <svg id="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            <span id="sync-label">Sync</span>
+          </button>
+        </div>
+      </header>
+
+      <nav class="nav-strip">
+        <button class="nav-item active" data-tab="tab-status">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span>Limits</span>
         </button>
-      </div>
-    </header>
 
-    <!-- TAB 1: STATUS & USAGE LIMITS (MAIN DASHBOARD) -->
-    <div class="view-tab active" id="tab-status">
-      <!-- ACCOUNT CARD -->
-      <section class="section-card">
-        <div class="section-header">Account</div>
-        <div class="account-meta-row">
-          <span style="color: var(--text-secondary);">Plan</span>
-          <span style="font-weight: 600; color: var(--pro-gold);">Claude Pro ($20/Monat Flatrate)</span>
-        </div>
-        <div class="account-meta-row">
-          <span style="color: var(--text-secondary);">Aktives Modell</span>
-          <span id="active-model-name" style="font-family: var(--font-mono); font-weight: 600;">Claude 3.7 Sonnet</span>
-        </div>
-        <div class="account-meta-row">
-          <span style="color: var(--text-secondary);">Aktuelle Burn-Rate</span>
-          <span id="current-burn-rate" style="font-family: var(--font-mono); font-weight: 700; color: var(--text-primary);">0,00 $ / h</span>
-        </div>
-      </section>
+        <button class="nav-item" data-tab="tab-charts">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span>Verlauf</span>
+        </button>
 
-      <!-- USAGE SECTION (With Pacing Ticks) -->
-      <section class="section-card">
-        <div class="section-header">
-          <span>Usage</span>
-          <span id="last-updated-label" style="font-size: 10px; font-weight: 500; text-transform: none; color: var(--text-dim);">Aktualisiert gerade eben</span>
-        </div>
-
-        <!-- 5-HOUR LIMIT -->
-        <div class="usage-item">
-          <div class="usage-top-row">
-            <span class="usage-title">Session (5hr)</span>
-            <span class="usage-pct" id="five-pct-txt">0%</span>
-          </div>
-
-          <div class="progress-track-wrapper">
-            <div class="progress-fill fill-blue" id="five-bar" style="width: 0%;"></div>
-            <div class="pacing-tick" id="five-pace-tick" style="left: 0%;" title="Vergangene Zeit im Fenster"></div>
-          </div>
-
-          <div class="usage-meta-row">
-            <span id="five-reset-sub">Reset in 0h 0m</span>
-            <span class="meta-highlight" id="five-pace-sub">0.0 %/h</span>
-          </div>
-        </div>
-
-        <!-- WEEKLY 7-DAY LIMIT -->
-        <div class="usage-item" style="margin-top: 8px;">
-          <div class="usage-top-row">
-            <span class="usage-title">Weekly (7 day)</span>
-            <span class="usage-pct" id="week-pct-txt">0%</span>
-          </div>
-
-          <div class="progress-track-wrapper">
-            <div class="progress-fill fill-coral" id="week-bar" style="width: 0%;"></div>
-            <div class="progress-segments-overlay">
-              <div class="segment-line"></div>
-              <div class="segment-line"></div>
-              <div class="segment-line"></div>
-              <div class="segment-line"></div>
-              <div class="segment-line"></div>
-              <div class="segment-line"></div>
-              <div></div>
-            </div>
-            <div class="pacing-tick" id="week-pace-tick" style="left: 0%;" title="Vergangene Zeit der Woche"></div>
-          </div>
-
-          <div class="usage-meta-row">
-            <span id="week-reset-sub">Reset am Fr., 10:00</span>
-            <span class="meta-highlight" id="week-budget-sub">Rest: -- % / Tag</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- EXTRA USAGE / PRO ARBITRAGE -->
-      <section class="section-card">
-        <div class="section-header">API-Gegenwert & Pro-Ersparnis</div>
-        <div class="stats-grid-row">
-          <div class="stat-box">
-            <span class="stat-label">Heute</span>
-            <span class="stat-value" id="val-cost-today">0,00 $</span>
-            <span class="stat-sub" id="val-tok-today">0 Tokens</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-label">Diese Woche</span>
-            <span class="stat-value" id="val-cost-week">0,00 $</span>
-            <span class="stat-sub" id="val-tok-week">0 Tokens</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-label">30-Tage Arbitrage</span>
-            <span class="stat-value" id="val-cost-30d">0,00 $</span>
-            <span class="stat-sub" id="val-roi-sub" style="color: var(--emerald);">vs. 20 $ Pro Flat</span>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- TAB 2: VERLAUF & CHARTS -->
-    <div class="view-tab" id="tab-charts">
-      <section class="section-card">
-        <div class="section-header">Messkurven & Limit-Verlauf</div>
-        <div class="chart-panel" id="chart-viewport">
-          <svg class="chart-svg" id="chart-svg"></svg>
-          <div class="chart-hud" id="chart-hud" style="display: none;"></div>
-        </div>
-
-        <div style="display: flex; gap: 16px; font-size: 11.5px; font-family: var(--font-mono); color: var(--text-secondary);">
-          <span style="display: flex; align-items: center; gap: 5px;">
-            <span style="width: 8px; height: 8px; border-radius: 2px; background: var(--blue);"></span> 5-Stunden
-          </span>
-          <span style="display: flex; align-items: center; gap: 5px;">
-            <span style="width: 8px; height: 8px; border-radius: 2px; background: var(--coral);"></span> 7-Tage Woche
-          </span>
-        </div>
-
-        <div style="margin-top: 6px;">
-          <div class="section-header" style="margin-bottom: 8px;">Tagesverbrauch der aktiven Woche</div>
-          <div id="daily-bars-container" style="display: flex; flex-direction: column; gap: 6px;"></div>
-        </div>
-      </section>
-    </div>
-
-    <!-- TAB 3: PROJEKTE & CODE DIFFS -->
-    <div class="view-tab" id="tab-projects">
-      <section class="section-card">
-        <div class="section-header">
+        <button class="nav-item" data-tab="tab-projects">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           <span>Projekte</span>
-          <span id="projects-count" style="text-transform: none; font-size: 11px;">-- erfasst</span>
+        </button>
+
+        <button class="nav-item" data-tab="tab-heatmap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Rhythmus</span>
+        </button>
+
+        <button class="nav-item" data-tab="tab-settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span>Alerts</span>
+        </button>
+      </nav>
+
+      <main class="deck-body">
+        <div class="view-stage active" id="tab-status">
+          <section class="instrument-unit hero">
+            <div class="unit-meta-bar">
+              <span class="unit-title">5-Stunden-Limit</span>
+              <span id="five-reset-clock" style="font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-secondary);">Reset in --</span>
+            </div>
+
+            <div class="hero-readout-row">
+              <div class="hero-metric-figure" id="five-pct-txt">0%</div>
+              <div class="hero-detail-col">
+                <span class="hero-detail-primary" id="five-burn-rate">0,00 $ / h</span>
+                <span class="hero-detail-secondary" id="five-pace-sub">-- %/h Tempo</span>
+              </div>
+            </div>
+
+            <div class="gauge-track-chassis">
+              <div class="gauge-fill" id="five-bar" style="width: 0%;"></div>
+              <div class="vernier-cursor" id="five-pace-tick" style="left: 0%;" title="Vergangene Zeit im 5h-Fenster"></div>
+            </div>
+
+            <div class="pacing-delta-strip">
+              <div class="delta-status neutral" id="five-delta-badge">
+                <span id="five-delta-txt">Berechne Pacing …</span>
+              </div>
+              <span style="color: var(--ink-muted);" id="five-elapsed-sub">Fensterzeit: 0%</span>
+            </div>
+          </section>
+
+          <section class="instrument-unit">
+            <div class="unit-meta-bar">
+              <span class="unit-title">Wochen-Kontingent (7 Tage)</span>
+              <span id="week-reset-clock" style="font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-secondary);">Reset am --</span>
+            </div>
+
+            <div class="hero-readout-row">
+              <div class="hero-metric-figure" id="week-pct-txt" style="font-size: 26px;">0%</div>
+              <div class="hero-detail-col">
+                <span class="hero-detail-primary" id="week-budget-sub">Rest: -- % / Tag</span>
+                <span class="hero-detail-secondary" id="week-active-model">Claude 3.7 Sonnet</span>
+              </div>
+            </div>
+
+            <div class="gauge-track-chassis">
+              <div class="gauge-fill" id="week-bar" style="width: 0%;"></div>
+              <div class="division-matrix">
+                <div class="matrix-line"></div>
+                <div class="matrix-line"></div>
+                <div class="matrix-line"></div>
+                <div class="matrix-line"></div>
+                <div class="matrix-line"></div>
+                <div class="matrix-line"></div>
+                <div></div>
+              </div>
+              <div class="vernier-cursor" id="week-pace-tick" style="left: 0%;" title="Vergangene Zeit der Woche"></div>
+            </div>
+
+            <div class="pacing-delta-strip">
+              <div class="delta-status neutral" id="week-delta-badge">
+                <span id="week-delta-txt">Wochen-Pacing stabil</span>
+              </div>
+              <span style="color: var(--ink-muted);" id="week-elapsed-sub">Woche: 0% verstrichen</span>
+            </div>
+
+            <div class="aux-engine-compartment">
+              <div class="aux-header-line">
+                <span class="aux-title">Antigravity · Gemini Puffer</span>
+                <span class="aux-telemetry" id="aux-gemini-stats">0% · 0 Tok · 0,00 $</span>
+              </div>
+              <div class="aux-track-line">
+                <div class="aux-fill-line" id="aux-gemini-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="instrument-unit">
+            <div class="unit-meta-bar">
+              <span class="unit-title">API-Gegenwert (20 $ Flat)</span>
+            </div>
+            <div class="arbitrage-bench">
+              <div class="bench-cell">
+                <span class="cell-label">Heute</span>
+                <span class="cell-value" id="val-cost-today">0,00 $</span>
+                <span class="cell-subtext" id="val-tok-today">0 Tokens</span>
+              </div>
+              <div class="bench-cell">
+                <span class="cell-label">Diese Woche</span>
+                <span class="cell-value" id="val-cost-week">0,00 $</span>
+                <span class="cell-subtext" id="val-tok-week">0 Tokens</span>
+              </div>
+              <div class="bench-cell">
+                <span class="cell-label">30-Tage Arbitrage</span>
+                <span class="cell-value" id="val-cost-30d">0,00 $</span>
+                <span class="cell-subtext" id="val-roi-sub" style="color: var(--stable-green);">1,0x Pro-Wert</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="account-strip">
+            <div class="account-row">
+              <span class="account-label">Aktives Modell</span>
+              <span class="account-val" id="meta-model-name">Claude 3.7 Sonnet</span>
+            </div>
+            <div class="account-row">
+              <span class="account-label">Sitzung & Projekt</span>
+              <span class="account-val" id="meta-session-info">Bereit</span>
+            </div>
+          </section>
         </div>
-        <div id="projects-list-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
-      </section>
+
+        <div class="view-stage" id="tab-charts">
+          <section class="instrument-unit">
+            <div class="unit-meta-bar">
+              <span class="unit-title">Verlauf & Limit-Entwicklung</span>
+            </div>
+            <div class="chart-chassis" id="chart-viewport">
+              <svg class="chart-canvas" id="chart-svg"></svg>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <div class="legend-pip" style="background: var(--cadence-blue);"></div>
+                <span>5-Stunden-Limit</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-pip" style="background: var(--thermal-coral);"></div>
+                <span>Wochen-Limit</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 10px;">
+              <span class="unit-title" style="display: block; margin-bottom: 6px;">Tagesanteil der laufenden Woche</span>
+              <div class="daily-flow-grid" id="daily-bars-container"></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="view-stage" id="tab-projects">
+          <section class="instrument-unit">
+            <div class="unit-meta-bar">
+              <span class="unit-title">Erfasste Codebase-Projekte</span>
+              <span id="projects-count" style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">0 erfasst</span>
+            </div>
+            <div id="projects-list-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+          </section>
+        </div>
+
+        <div class="view-stage" id="tab-heatmap">
+          <section class="instrument-unit">
+            <div class="unit-meta-bar">
+              <span class="unit-title">Wochen-Aktivität (24h × 7 Tage)</span>
+            </div>
+            <div class="heatmap-board" id="heatmap-container"></div>
+          </section>
+        </div>
+
+        <div class="view-stage" id="tab-settings">
+          <section class="instrument-unit">
+            <div class="unit-meta-bar">
+              <span class="unit-title">Reset-Mitteilungen</span>
+            </div>
+            <p style="font-size: 12.5px; color: var(--ink-secondary);">
+              Sendet eine geräteübergreifende Push-Mitteilung an dieses Smartphone, sobald das 5-Stunden-Limit nach einer Sperre wieder freigegeben ist.
+            </p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
+              <button class="btn-action" id="btn-push-on" style="background: var(--cadence-blue); color: #fff; border: none;">Push-Mitteilungen aktivieren</button>
+              <button class="btn-action" id="btn-push-test" style="display: none;">Test-Alarm senden</button>
+              <button class="btn-action" id="btn-push-off" style="display: none;">Deaktivieren</button>
+            </div>
+            <span id="push-status-text" style="font-size: 11px; font-family: var(--font-mono); color: var(--ink-muted);"></span>
+          </section>
+
+          <section class="account-strip">
+            <div class="account-row">
+              <span class="account-label">Tarif</span>
+              <span class="account-val" style="color: var(--pro-amber);">Claude Pro Flatrate (20 $/Mo)</span>
+            </div>
+            <div class="account-row">
+              <span class="account-label">Ausweich-Puffer</span>
+              <span class="account-val">Antigravity CLI (Gemini)</span>
+            </div>
+            <div class="account-row">
+              <span class="account-label">Worker Endpoint</span>
+              <span class="account-val">claude-stand.spanani.workers.dev</span>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer class="footer-stamp">
+        <span id="last-updated-label">Aktualisiere Telemetrie …</span>
+        <span style="font-family: var(--font-mono);">v2.4 Telemetry</span>
+      </footer>
     </div>
-
-    <!-- TAB 4: WOCHEN-RHYTHMUS (HEATMAP) -->
-    <div class="view-tab" id="tab-heatmap">
-      <section class="section-card">
-        <div class="section-header">Aktivitäts-Heatmap (24h × 7 Tage)</div>
-        <div class="heatmap-board" id="heatmap-container"></div>
-      </section>
-    </div>
-
-    <!-- TAB 5: PUSH ALARMS & SETTINGS -->
-    <div class="view-tab" id="tab-settings">
-      <section class="section-card">
-        <div class="section-header">Reset-Benachrichtigungen</div>
-        <p style="font-size: 13px; color: var(--text-secondary);">
-          Erhalte eine direkte Push-Mitteilung auf dein Smartphone, sobald dein 5-Stunden-Limit wieder freigegeben ist.
-        </p>
-
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
-          <button class="btn-icon" id="btn-push-on" style="background: var(--blue); color: #fff; border: none;">Mitteilungen einschalten</button>
-          <button class="btn-icon" id="btn-push-test" style="display: none;">Test-Alarm senden</button>
-          <button class="btn-icon" id="btn-push-off" style="display: none;">Ausschalten</button>
-        </div>
-        <span id="push-status-text" style="font-size: 11.5px; font-family: var(--font-mono); color: var(--text-dim);"></span>
-      </section>
-
-      <section class="section-card">
-        <div class="section-header">Tarif & System</div>
-        <div class="account-meta-row">
-          <span>Ausgewählter Tarif</span>
-          <span style="font-weight: 600; color: var(--pro-gold);">Claude Pro ($20/Monat)</span>
-        </div>
-        <div class="account-meta-row">
-          <span>Worker Endpoint</span>
-          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">claude-stand.spanani.workers.dev</span>
-        </div>
-      </section>
-    </div>
-
-    <!-- MOBILE THUMB NAVIGATION DOCK -->
-    <nav class="mobile-nav-dock">
-      <button class="dock-tab active" data-tab="tab-status">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        <span>Usage</span>
-      </button>
-
-      <button class="dock-tab" data-tab="tab-charts">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        <span>Verlauf</span>
-      </button>
-
-      <button class="dock-tab" data-tab="tab-projects">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span>Projekte</span>
-      </button>
-
-      <button class="dock-tab" data-tab="tab-heatmap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span>Rhythmus</span>
-      </button>
-
-      <button class="dock-tab" data-tab="tab-settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span>Alerts</span>
-      </button>
-    </nav>
   </div>
 
-  <!-- Pure Calculations Engine -->
   <script src="logik.js"></script>
 
   <script>
@@ -776,29 +1010,28 @@
       if ('vibrate' in navigator) navigator.vibrate(8);
     }
 
-    // Fallback sample data if offline
     function createSampleData() {
       const now = Date.now();
       const H = 3600000, TAG = 24 * H;
-      const R5 = now + 1.8 * H;
-      const RW = now + 4.2 * TAG;
+      const R5 = now + 2.1 * H;
+      const RW = now + 4.5 * TAG;
       const r = (min, five, week, cost, s) => ({
         at: now - min * 60000, session: s, cost, five, five_reset: R5, week, week_reset: RW
       });
 
       const readings = [
-        r(180, 20, 48, 1.2, 's1'),
-        r(140, 35, 52, 2.5, 's1'),
-        r(90, 48, 56, 4.1, 's2'),
-        r(45, 62, 60, 6.2, 's2'),
-        r(15, 71, 63, 7.8, 's3'),
-        r(2, 74, 65, 8.4, 's3')
+        r(180, 15, 38, 1.2, 's1'),
+        r(120, 24, 42, 2.5, 's1'),
+        r(60, 36, 47, 4.4, 's2'),
+        r(25, 45, 52, 6.1, 's2'),
+        r(5, 51, 54, 7.8, 's3')
       ];
 
       const sessions = [
-        { id: 's3', project: 'spanani.de', model: 'Claude 3.7 Sonnet', cost: 8.4, started: now - 30 * 60000, updated: now - 2 * 60000, added: 420, removed: 110, input_tokens: 380000, output_tokens: 14200 },
-        { id: 's2', project: 'antigravity-cli', model: 'Claude 3.7 Sonnet', cost: 6.2, started: now - 120 * 60000, updated: now - 45 * 60000, added: 180, removed: 45, input_tokens: 290000, output_tokens: 9800 },
-        { id: 's1', project: 'Apps', model: 'Claude 3.5 Opus', cost: 2.5, started: now - 240 * 60000, updated: now - 140 * 60000, added: 90, removed: 12, input_tokens: 140000, output_tokens: 6400 }
+        { id: 's3', project: 'spanani.de', model: 'Claude 3.7 Sonnet', cost: 7.8, started: now - 35 * 60000, updated: now - 3 * 60000, added: 420, removed: 110, tokens_in: 340000, tokens_out: 12400 },
+        { id: 's2', project: 'antigravity-cli', model: 'Claude 3.7 Sonnet', cost: 6.1, started: now - 110 * 60000, updated: now - 25 * 60000, added: 160, removed: 35, tokens_in: 280000, tokens_out: 9200 },
+        { id: 's1', project: 'Apps', model: 'Claude 3.5 Opus', cost: 2.5, started: now - 220 * 60000, updated: now - 120 * 60000, added: 70, removed: 10, tokens_in: 110000, tokens_out: 4800 },
+        { id: 'gem-1', project: 'antigravity-cli', model: 'gemini-2.5-flash', cost: 0.08, started: now - 80 * 60000, updated: now - 15 * 60000, added: 45, removed: 8, tokens_in: 64000, tokens_out: 3200 }
       ];
 
       return { now, readings, sessions, keep: 35 * TAG };
@@ -824,12 +1057,11 @@
       const timeStr = resetTs ? ` (${new Date(resetTs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })})` : '';
       if (h > 24) {
         const d = Math.floor(h / 24);
-        return `Resets in ${d}d ${h % 24}h${timeStr}`;
+        return `Reset in ${d}d ${h % 24}h${timeStr}`;
       }
-      return `Resets in ${h}h ${m}m${timeStr}`;
+      return `Reset in ${h}h ${m}m${timeStr}`;
     }
 
-    // Master Render Routine
     function renderApp() {
       if (!rawData) return;
       const now = Date.now();
@@ -838,49 +1070,80 @@
       const f5 = f5List[f5List.length - 1];
       const fw = fwList[fwList.length - 1];
 
-      // Live Beacon & Active Model
-      const lastSession = rawData.sessions[0];
+      const lastSession = rawData.sessions.find(s => !s.model || !s.model.toLowerCase().includes('gemini')) || rawData.sessions[0];
       const isLive = lastSession && (now - lastSession.updated) < 180000;
-      $('status-beacon').className = isLive ? 'status-dot active' : 'status-dot';
-      $('active-model-name').textContent = lastSession ? (lastSession.model || 'Claude 3.7 Sonnet') : 'Bereit';
+      $('status-beacon').className = isLive ? 'indicator-node live' : 'indicator-node';
+      
+      const activeModelStr = lastSession ? (lastSession.model || 'Claude 3.7 Sonnet') : 'Bereit';
+      $('meta-model-name').textContent = activeModelStr;
+      $('week-active-model').textContent = activeModelStr;
+      $('meta-session-info').textContent = lastSession ? `${lastSession.project || 'spanani.de'} (${lastSession.id.slice(0, 8)})` : 'Bereit';
 
-      // 5-Hour Session Progress Bar & Pacing Tick
       if (f5) {
-        $('five-pct-txt').textContent = `${Math.round(f5.peak)}%`;
+        const peak5 = Math.round(f5.peak);
+        $('five-pct-txt').textContent = `${peak5}%`;
         const bar5 = $('five-bar');
         bar5.style.width = `${Math.min(100, Math.max(0, f5.peak))}%`;
-        bar5.className = f5.peak >= 90 ? 'progress-fill fill-coral' : f5.peak >= 75 ? 'progress-fill fill-amber' : 'progress-fill fill-blue';
+        bar5.className = f5.peak >= 90 ? 'gauge-fill thermal' : f5.peak >= 75 ? 'gauge-fill warning' : 'gauge-fill';
 
-        // Pacing Tick: % of time elapsed in the 5h window
         const windowDuration = 5 * 3600000;
         const timeElapsed = Math.min(windowDuration, Math.max(0, windowDuration - (f5.reset - now)));
-        const timeElapsedPct = (timeElapsed / windowDuration) * 100;
-        $('five-pace-tick').style.left = `${Math.min(100, Math.max(0, timeElapsedPct))}%`;
+        const elapsedPct = (timeElapsed / windowDuration) * 100;
+        $('five-pace-tick').style.left = `${Math.min(100, Math.max(0, elapsedPct))}%`;
+        $('five-elapsed-sub').textContent = `Fensterzeit: ${Math.round(elapsedPct)}%`;
+
+        const delta = Math.round(elapsedPct - f5.peak);
+        const badge = $('five-delta-badge');
+        const badgeTxt = $('five-delta-txt');
+        if (delta >= 3) {
+          badge.className = 'delta-status ahead';
+          badgeTxt.textContent = `+${delta}% Vorlauf (Puffer verfügbar)`;
+        } else if (delta <= -3) {
+          badge.className = 'delta-status behind';
+          badgeTxt.textContent = `${delta}% Über Tempo (Verbrauch drosseln)`;
+        } else {
+          badge.className = 'delta-status neutral';
+          badgeTxt.textContent = 'Exakt im Soll-Tempo';
+        }
 
         const restSec = Math.max(0, (f5.reset - now) / 1000);
-        $('five-reset-sub').textContent = formatCountdown(restSec, f5.reset);
+        $('five-reset-clock').textContent = formatCountdown(restSec, f5.reset);
 
         const t5 = tempo(f5, now, 3600000);
-        $('five-pace-sub').textContent = t5.proStunde > 0 ? `+${t5.proStunde.toFixed(1)} %/h` : 'Inaktiv';
+        $('five-pace-sub').textContent = t5.proStunde > 0 ? `+${t5.proStunde.toFixed(1)} %/h Tempo` : 'Inaktiv';
       }
 
-      // Weekly (7 Day) Quota Progress Bar & Daily Segmented Ticks
       if (fw) {
-        $('week-pct-txt').textContent = `${Math.round(fw.peak)}%`;
+        const peakW = Math.round(fw.peak);
+        $('week-pct-txt').textContent = `${peakW}%`;
         const barW = $('week-bar');
         barW.style.width = `${Math.min(100, Math.max(0, fw.peak))}%`;
-        barW.className = fw.peak >= 90 ? 'progress-fill fill-coral' : fw.peak >= 75 ? 'progress-fill fill-amber' : 'progress-fill fill-blue';
+        barW.className = fw.peak >= 90 ? 'gauge-fill thermal' : fw.peak >= 75 ? 'gauge-fill warning' : 'gauge-fill';
 
-        // Weekly pacing tick: % of 7-day week elapsed
         const weekDuration = 7 * 86400000;
         const weekElapsed = Math.min(weekDuration, Math.max(0, weekDuration - (fw.reset - now)));
         const weekElapsedPct = (weekElapsed / weekDuration) * 100;
         $('week-pace-tick').style.left = `${Math.min(100, Math.max(0, weekElapsedPct))}%`;
+        $('week-elapsed-sub').textContent = `Woche: ${Math.round(weekElapsedPct)}% verstrichen`;
+
+        const wDelta = Math.round(weekElapsedPct - fw.peak);
+        const wBadge = $('week-delta-badge');
+        const wBadgeTxt = $('week-delta-txt');
+        if (wDelta >= 4) {
+          wBadge.className = 'delta-status ahead';
+          wBadgeTxt.textContent = `+${wDelta}% Wochen-Puffer`;
+        } else if (wDelta <= -4) {
+          wBadge.className = 'delta-status behind';
+          wBadgeTxt.textContent = `${wDelta}% Über Wochen-Soll`;
+        } else {
+          wBadge.className = 'delta-status neutral';
+          wBadgeTxt.textContent = 'Wochen-Pacing stabil';
+        }
 
         const resetDate = new Date(fw.reset);
         const dayName = resetDate.toLocaleDateString('de-DE', { weekday: 'short' });
         const timeStr = resetDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-        $('week-reset-sub').textContent = `Resets on ${dayName}, ${timeStr}`;
+        $('week-reset-clock').textContent = `Reset am ${dayName}, ${timeStr}`;
 
         const pl = plan(fw, now);
         if (pl.proTag != null) {
@@ -888,7 +1151,6 @@
         }
       }
 
-      // Current Burn Rate ($/h)
       let burnRate = 0;
       if (rawData.readings.length >= 2) {
         const recent = rawData.readings.slice(-6);
@@ -896,21 +1158,42 @@
         const dc = (recent[recent.length - 1].cost || 0) - (recent[0].cost || 0);
         if (dt > 0.05 && dc >= 0) burnRate = dc / dt;
       }
-      $('current-burn-rate').textContent = `${burnRate.toFixed(2)} $ / h`;
+      $('five-burn-rate').textContent = `${burnRate.toFixed(2)} $ / h`;
 
-      // Claude Pro Arbitrage Stats
+      let gemCost = 0, gemTokens = 0, gemCount = 0;
+      for (const s of rawData.sessions) {
+        const m = (s.model || '').toLowerCase();
+        if (m.includes('gemini') || m.includes('antigravity')) {
+          gemCost += (s.cost || 0);
+          gemTokens += ((s.tokens_in || s.input_tokens || 0) + (s.tokens_out || s.output_tokens || 0));
+          gemCount++;
+        }
+      }
+      const gemBar = $('aux-gemini-bar');
+      const gemStats = $('aux-gemini-stats');
+      if (gemCount > 0) {
+        const estGemPct = Math.min(100, Math.round((gemTokens / 1000000) * 100));
+        gemBar.style.width = `${Math.max(5, estGemPct)}%`;
+        gemStats.textContent = `${estGemPct}% · ${formatTokens(gemTokens)} · ${formatGeld(gemCost)}`;
+      } else {
+        gemBar.style.width = '0%';
+        gemStats.textContent = '0% · 0 Tokens · 0,00 $ (Bereit)';
+      }
+
       let costToday = 0, tokToday = 0;
       let costWeek = 0, tokWeek = 0;
       const weekStart = now - 7 * 86400000;
 
       for (const s of rawData.sessions) {
+        const isClaude = !(s.model || '').toLowerCase().includes('gemini');
+        if (!isClaude) continue;
         if (s.updated >= now - 86400000) {
           costToday += (s.cost || 0);
-          tokToday += ((s.input_tokens || 0) + (s.output_tokens || 0));
+          tokToday += ((s.tokens_in || s.input_tokens || 0) + (s.tokens_out || s.output_tokens || 0));
         }
         if (s.updated >= weekStart) {
           costWeek += (s.cost || 0);
-          tokWeek += ((s.input_tokens || 0) + (s.output_tokens || 0));
+          tokWeek += ((s.tokens_in || s.input_tokens || 0) + (s.tokens_out || s.output_tokens || 0));
         }
       }
 
@@ -919,31 +1202,30 @@
       $('val-cost-week').textContent = formatGeld(costWeek);
       $('val-tok-week').textContent = formatTokens(tokWeek);
 
-      const ap = apiWert(rawData.sessions, now);
+      const claudeSessions = rawData.sessions.filter(s => !(s.model || '').toLowerCase().includes('gemini'));
+      const ap = apiWert(claudeSessions, now);
       if (ap) {
         $('val-cost-30d').textContent = formatGeld(ap.dollar);
-        const proFlat = 20; // Claude Pro flatrate
+        const proFlat = 20;
         const roi = ap.dollar > 0 ? (ap.dollar / proFlat).toFixed(1) : '1.0';
-        $('val-roi-sub').textContent = `${roi}x Ersparnis (vs. 20 $ Pro)`;
+        $('val-roi-sub').textContent = `${roi}x Pro-Wert`;
       }
 
-      // Sub-views
       renderCharts(f5, fw);
       renderProjects(fwList);
       renderHeatmap(f5List);
     }
 
-    // Render Clean Charts
     function renderCharts(f5, fw) {
       const svg = $('chart-svg');
       const box = $('chart-viewport');
-      const W = box.clientWidth || 600, H = box.clientHeight || 220;
+      const W = box.clientWidth || 590, H = box.clientHeight || 200;
 
       let html = '';
       for (let y = 0; y <= 100; y += 25) {
         const yPos = H - (y / 100) * (H - 24) - 12;
-        html += `<line x1="0" y1="${yPos}" x2="${W}" y2="${yPos}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
-        html += `<text x="8" y="${yPos - 3}" fill="rgba(255,255,255,0.25)" font-size="9" font-family="monospace">${y}%</text>`;
+        html += `<line x1="0" y1="${yPos}" x2="${W}" y2="${yPos}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+        html += `<text x="6" y="${yPos - 3}" fill="rgba(255,255,255,0.3)" font-size="9" font-family="monospace">${y}%</text>`;
       }
 
       if (f5 && f5.punkte && f5.punkte.length >= 2) {
@@ -955,7 +1237,7 @@
           const y = H - (p.v / 100) * (H - 24) - 12;
           path += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)} `;
         });
-        html += `<path d="${path}" fill="none" stroke="var(--blue)" stroke-width="2.5"/>`;
+        html += `<path d="${path}" fill="none" stroke="var(--cadence-blue)" stroke-width="2"/>`;
       }
 
       if (fw && fw.punkte && fw.punkte.length >= 2) {
@@ -967,12 +1249,11 @@
           const y = H - (p.v / 100) * (H - 24) - 12;
           path += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)} `;
         });
-        html += `<path d="${path}" fill="none" stroke="var(--coral)" stroke-width="2"/>`;
+        html += `<path d="${path}" fill="none" stroke="var(--thermal-coral)" stroke-width="1.8"/>`;
       }
 
       svg.innerHTML = html;
 
-      // Daily bars
       if (fw) {
         const tg = tage(fw, Date.now());
         const maxVal = Math.max(1, ...tg.liste.map(d => d.gemessen + d.offen));
@@ -981,12 +1262,12 @@
           const dateStr = new Date(d.von).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
           const wGem = ((d.gemessen / maxVal) * 100).toFixed(1);
           bHtml += `
-            <div style="display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:8px;font-size:11.5px;font-family:var(--font-mono);">
-              <span style="color:var(--text-secondary);">${dateStr}</span>
-              <div style="height:8px;background:var(--card-bg-elevated);border-radius:4px;overflow:hidden;">
-                <div style="height:100%;width:${wGem}%;background:var(--blue);border-radius:4px;"></div>
+            <div class="daily-row">
+              <span style="color: var(--ink-secondary);">${dateStr}</span>
+              <div class="daily-track">
+                <div class="daily-fill" style="width: ${wGem}%;"></div>
               </div>
-              <span style="text-align:right;font-weight:600;">${Math.round(d.gemessen + d.offen)}%</span>
+              <span style="text-align: right; color: var(--ink); font-weight: 600;">${Math.round(d.gemessen + d.offen)}%</span>
             </div>
           `;
         });
@@ -994,7 +1275,6 @@
       }
     }
 
-    // Render Projects List
     function renderProjects(fwList) {
       const container = $('projects-list-container');
       const prjs = projekte(fwList, rawData.sessions, 0, Infinity);
@@ -1003,14 +1283,14 @@
       let html = '';
       prjs.forEach(p => {
         html += `
-          <div class="project-item">
-            <div class="project-main-line">
-              <span class="project-title">${p.name || 'Ohne Projekt'}</span>
-              <span class="project-amount">${formatGeld(p.kosten)}</span>
+          <div class="project-log-unit">
+            <div class="project-header-line">
+              <span style="color: var(--ink);">${p.name || 'Ohne Projekt'}</span>
+              <span class="project-cost-stat">${formatGeld(p.kosten)}</span>
             </div>
-            <div class="project-sub-line">
+            <div class="project-meta-line">
               <span>${p.sitzungen.length} Sitzungen · +${p.plus}% Anteil</span>
-              <span><span class="diff-green">+${p.plusZeilen}</span> / <span class="diff-red">-${p.minusZeilen}</span> Zeilen</span>
+              <span><span class="diff-pos">+${p.plusZeilen}</span> / <span class="diff-neg">-${p.minusZeilen}</span> Zeilen</span>
             </div>
           </div>
         `;
@@ -1018,23 +1298,22 @@
       container.innerHTML = html;
     }
 
-    // Render Heatmap
     function renderHeatmap(f5List) {
       const container = $('heatmap-container');
       const matrix = rhythmus(f5List, Date.now() - 30 * 86400000);
       const days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
       const maxVal = Math.max(1, ...matrix.flat().map(c => c.plus));
 
-      let html = '<div class="heatmap-row"><span></span>';
-      for (let h = 0; h < 24; h += 2) html += `<span style="grid-column: span 2; font-size: 9px; font-family: var(--font-mono); color: var(--text-dim); text-align: center;">${h}</span>`;
+      let html = '<div class="heatmap-lane"><span></span>';
+      for (let h = 0; h < 24; h += 2) html += `<span style="grid-column: span 2; font-size: 9px; font-family: var(--font-mono); color: var(--ink-dim); text-align: center;">${h}</span>`;
       html += '</div>';
 
       matrix.forEach((row, dayIdx) => {
-        html += `<div class="heatmap-row"><span class="heatmap-day">${days[dayIdx]}</span>`;
+        html += `<div class="heatmap-lane"><span class="heatmap-day-label">${days[dayIdx]}</span>`;
         row.forEach((cell, h) => {
-          const intensity = cell.plus > 0 ? Math.min(1, Math.max(0.2, cell.plus / maxVal)) : 0;
-          const bg = intensity > 0 ? `rgba(59, 130, 246, ${intensity})` : 'rgba(255, 255, 255, 0.04)';
-          html += `<div class="heatmap-tile" style="background:${bg};" title="${days[dayIdx]} ${h}:00: +${Math.round(cell.plus)}%"></div>`;
+          const intensity = cell.plus > 0 ? Math.min(1, Math.max(0.18, cell.plus / maxVal)) : 0;
+          const bg = intensity > 0 ? `rgba(59, 130, 246, ${intensity})` : 'var(--panel-elevated)';
+          html += `<div class="heatmap-cell" style="background:${bg};" title="${days[dayIdx]} ${h}:00: +${Math.round(cell.plus)}%"></div>`;
         });
         html += '</div>';
       });
@@ -1042,10 +1321,9 @@
       container.innerHTML = html;
     }
 
-    // Data Sync
     async function syncData() {
       haptic();
-      $('sync-icon').classList.add('spin');
+      $('sync-icon').classList.add('spinning');
       $('sync-label').textContent = 'Sync …';
 
       try {
@@ -1055,22 +1333,20 @@
         rawData = rawData ? einmischen(rawData, json) : json;
         $('last-updated-label').textContent = `Aktualisiert um ${new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
       } catch (err) {
-        console.warn('API fallback:', err);
         if (!rawData) rawData = createSampleData();
-        $('last-updated-label').textContent = 'Lokal / Offline-Vorschau';
+        $('last-updated-label').textContent = 'Lokale Telemetrie aktiv';
       } finally {
-        $('sync-icon').classList.remove('spin');
+        $('sync-icon').classList.remove('spinning');
         $('sync-label').textContent = 'Sync';
         renderApp();
       }
     }
 
-    // Dock Navigation
-    document.querySelectorAll('.dock-tab').forEach(btn => {
+    document.querySelectorAll('.nav-item').forEach(btn => {
       btn.addEventListener('click', () => {
         haptic();
-        document.querySelectorAll('.dock-tab').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.view-stage').forEach(t => t.classList.remove('active'));
 
         btn.classList.add('active');
         const tabId = btn.dataset.tab;
@@ -1083,14 +1359,13 @@
               const fw = fenster(rawData.readings, 'week');
               renderCharts(f5[f5.length - 1], fw[fw.length - 1]);
             }
-          }, 40);
+          }, 30);
         }
       });
     });
 
     $('btn-sync').addEventListener('click', syncData);
 
-    // Web Push API Integration
     const b64ToUint8 = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0));
 
     async function updatePushUI() {
@@ -1100,7 +1375,7 @@
         $('btn-push-on').style.display = pushSub ? 'none' : 'inline-flex';
         $('btn-push-test').style.display = pushSub ? 'inline-flex' : 'none';
         $('btn-push-off').style.display = pushSub ? 'inline-flex' : 'none';
-        $('push-status-text').textContent = pushSub ? 'Push-Mitteilungen sind aktiv' : 'Mitteilungen sind aus';
+        $('push-status-text').textContent = pushSub ? 'Push-Mitteilungen aktiv' : 'Mitteilungen sind inaktiv';
       } catch (err) {
         $('push-status-text').textContent = 'Push in diesem Browser nicht verfügbar';
       }
@@ -1115,7 +1390,7 @@
         const { key } = await rKey.json();
         pushSub = await swReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToUint8(key) });
         await fetch(`${API}/sub`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sub: pushSub.toJSON(), reset: true }) });
-        $('push-status-text').textContent = 'Erfolgreich aktiviert!';
+        $('push-status-text').textContent = 'Erfolgreich aktiviert';
         updatePushUI();
       } catch (e) {
         $('push-status-text').textContent = e.message || 'Aktivierung fehlgeschlagen';
@@ -1127,7 +1402,7 @@
       try {
         if (!pushSub) return;
         await fetch(`${API}/test`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: pushSub.endpoint }) });
-        $('push-status-text').textContent = 'Test-Mitteilung gesendet!';
+        $('push-status-text').textContent = 'Test-Mitteilung gesendet';
       } catch (e) {
         $('push-status-text').textContent = 'Fehler beim Senden';
       }
@@ -1146,34 +1421,33 @@
       }
     });
 
-    // Countdowns Tick Loop
     setInterval(() => {
       if (!rawData) return;
       const now = Date.now();
       const f5List = fenster(rawData.readings, 'five');
       const fwList = fenster(rawData.readings, 'week');
-      if (f5List.length) $('five-reset-sub').textContent = formatCountdown(Math.max(0, (f5List[f5List.length - 1].reset - now) / 1000), f5List[f5List.length - 1].reset);
+      if (f5List.length) $('five-reset-clock').textContent = formatCountdown(Math.max(0, (f5List[f5List.length - 1].reset - now) / 1000), f5List[f5List.length - 1].reset);
       if (fwList.length) {
         const fw = fwList[fwList.length - 1];
         const resetDate = new Date(fw.reset);
         const dayName = resetDate.toLocaleDateString('de-DE', { weekday: 'short' });
         const timeStr = resetDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-        $('week-reset-sub').textContent = `Resets on ${dayName}, ${timeStr}`;
+        $('week-reset-clock').textContent = `Reset am ${dayName}, ${timeStr}`;
       }
     }, 1000);
 
-    // Auto-sync every 30s
     setInterval(() => {
       if (document.visibilityState === 'visible') syncData();
     }, 30000);
 
-    // Service Worker Init
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js', { scope: './' })
         .then(reg => { swReg = reg; updatePushUI(); })
         .catch(() => {});
     }
 
+    rawData = createSampleData();
+    renderApp();
     syncData();
   </script>
 </body>

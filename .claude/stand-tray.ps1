@@ -34,10 +34,14 @@ function Get-Stand($sessions, [long]$now) {
   $today = $local.ToString('yyyy-MM-dd')
   $from = if ($week.reset) { [DateTimeOffset]::FromUnixTimeSeconds($week.reset - 604800).LocalDateTime } else { $local.AddDays(-7) }
   $from = $from.ToString('yyyy-MM-ddTHH')
-  $r = [ordered]@{ five = $five; week = $week; todayCost = 0.0; todayTokens = [long]0; weekCost = 0.0; weekTokens = [long]0; costs = @{}; last = $null }
+  $r = [ordered]@{ five = $five; week = $week; todayCost = 0.0; todayTokens = [long]0; weekCost = 0.0; weekTokens = [long]0; geminiCost = 0.0; geminiTokens = [long]0; costs = @{}; last = $null }
   foreach ($s in $sessions) {
     $r.costs[$s.id] = [double]$s.cost
     if (-not $r.last -or $s.updated -gt $r.last.updated) { $r.last = $s }
+    if ($s.model -and ($s.model.ToLower().Contains('gemini') -or $s.model.ToLower().Contains('antigravity'))) {
+      $r.geminiCost += [double]$s.cost
+      if ($s.tokens_in -or $s.tokens_out) { $r.geminiTokens += [long]($s.tokens_in + $s.tokens_out) }
+    }
     foreach ($p in $s.hours.PSObject.Properties) {
       $v = @($p.Value)
       if ($p.Name.StartsWith($today)) { $r.todayCost += $v[2]; $r.todayTokens += $v[0] + $v[1] }
@@ -284,6 +288,12 @@ $win = [Windows.Markup.XamlReader]::Parse(@'
         <TextBlock x:Name="WeekBudget" Text="" Foreground="#64748b" FontSize="11" HorizontalAlignment="Right"/>
       </DockPanel>
 
+      <!-- Gemini Auxiliary (Antigravity CLI) -->
+      <DockPanel x:Name="GeminiRow" Margin="0,0,0,10" Visibility="Collapsed">
+        <TextBlock Text="Antigravity (Gemini)" Foreground="#576275" FontSize="10.5"/>
+        <TextBlock x:Name="GeminiStats" Text="" Foreground="#576275" FontSize="10.5" HorizontalAlignment="Right"/>
+      </DockPanel>
+
       <!-- EXTRA USAGE / VALUE -->
       <TextBlock Text="API-GEGENWERT (PRO ARBITRAGE)" FontSize="10" FontWeight="Bold" Foreground="#64748b" Margin="0,0,0,5"/>
       <DockPanel Margin="0,0,0,4">
@@ -311,7 +321,7 @@ $win = [Windows.Markup.XamlReader]::Parse(@'
 </Window>
 '@)
 $ui = @{}
-foreach ($n in 'Schliessen', 'Pilot', 'Modell', 'FivePct', 'FiveFillGrid', 'FiveFill', 'FiveTickGrid', 'FiveReset', 'FiveRate', 'WeekPct', 'WeekFillGrid', 'WeekFill', 'WeekTickGrid', 'WeekReset', 'WeekBudget', 'HeuteGeld', 'HeuteTokens', 'WocheGeld', 'WocheTokens', 'Oeffnen', 'Zuletzt') {
+foreach ($n in 'Schliessen', 'Pilot', 'Modell', 'FivePct', 'FiveFillGrid', 'FiveFill', 'FiveTickGrid', 'FiveReset', 'FiveRate', 'WeekPct', 'WeekFillGrid', 'WeekFill', 'WeekTickGrid', 'WeekReset', 'WeekBudget', 'GeminiRow', 'GeminiStats', 'HeuteGeld', 'HeuteTokens', 'WocheGeld', 'WocheTokens', 'Oeffnen', 'Zuletzt') {
   $ui[$n] = $win.FindName($n)
 }
 $ui.Schliessen.Add_Click({ $win.Hide() })
@@ -368,6 +378,14 @@ function Update-View {
     $ui.WeekTickGrid.Visibility = 'Hidden'
   }
   $ui.WeekReset.Text = Format-Reset $r.week $now
+
+  # Gemini Auxiliary
+  if ($r.geminiTokens -gt 0 -or $r.geminiCost -gt 0) {
+    $ui.GeminiRow.Visibility = 'Visible'
+    $ui.GeminiStats.Text = "$([math]::Round(($r.geminiTokens / 1000), 1))k Tok · $(Format-Geld $r.geminiCost)"
+  } else {
+    $ui.GeminiRow.Visibility = 'Collapsed'
+  }
 
   # Value
   $ui.HeuteGeld.Text = Format-Geld $r.todayCost

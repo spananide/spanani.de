@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
-  <title>Stand</title>
-  <meta name="theme-color" content="#dcdedb" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#2a2f32" media="(prefers-color-scheme: dark)">
+  <title>Stand — Claude Telemetrie</title>
+  <meta name="theme-color" content="#e3e5e2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#101315" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-180.png">
@@ -26,33 +26,64 @@
     }
 
     :root {
-      --gehaeuse: #dcdedb;
-      --deckel: #e9eae7;
-      --schild: #1f2326;
-      --beschriftung: #4e5458;
-      --linie: #b9bcb8;
-      --zaehlwerk: #151718;
-      --ziffer: #f2f2ee;
-      --rot: #c40d1e;
-      --zone: color-mix(in srgb, var(--rot) 12%, transparent);
+      /* Instrument Metrology Palette — Light Mode (Dieter Rams / Braun Industrial Precision) */
+      --gehaeuse: #e4e6e2;
+      --gehaeuse-deep: #dadcd7;
+      --deckel: #f3f5f1;
+      --deckel-raised: #ffffff;
+      --schild: #181c1f;
+      --beschriftung: #5b6267;
+      --linie: #c7cbc5;
+      --linie-subtle: #d8dcd6;
+      --zaehlwerk: #0f1214;
+      --ziffer: #f6f7f3;
+      --rot: #e02835;
+      --rot-drum: #c81d2a;
+      --rot-glow: rgba(224, 40, 53, 0.2);
+      --gruen: #1e8e5a;
+      --gruen-glow: rgba(30, 142, 90, 0.25);
+      --bernstein: #d97706;
+      --zone: rgba(224, 40, 53, 0.11);
+      --gitter: rgba(24, 28, 31, 0.08);
 
-      --r-geraet: 10px;
-      --r-walze: 3px;
-      --r-knopf: 6px;
+      --bezel-hi: rgba(255, 255, 255, 0.85);
+      --bezel-lo: rgba(0, 0, 0, 0.12);
+      --shadow-chassis: 0 1px 3px rgba(0,0,0,0.06), 0 14px 34px -8px rgba(0,0,0,0.1);
+      --shadow-drum: inset 0 4px 7px rgba(0,0,0,0.85), inset 0 -2px 3px rgba(255,255,255,0.08);
+
+      --r-geraet: 12px;
+      --r-walze: 4px;
+      --r-knopf: 7px;
       --grund: var(--gehaeuse);
       color-scheme: light;
     }
+
     @media (prefers-color-scheme: dark) {
       :root {
-        --gehaeuse: #2a2f32;
-        --deckel: #33393c;
-        --schild: #e4e5e1;
-        --beschriftung: #a3a8a6;
-        --linie: #4a5054;
-        --zaehlwerk: #151718;
-        --ziffer: #f2f2ee;
-        --rot: #e0343f;
-        --zone: color-mix(in srgb, var(--rot) 18%, transparent);
+        /* Instrument Metrology Palette — Dark Mode (Matte Obsidian / Anodized Graphite Test-Bench) */
+        --gehaeuse: #101315;
+        --gehaeuse-deep: #0a0c0e;
+        --deckel: #181c20;
+        --deckel-raised: #20252a;
+        --schild: #eaede8;
+        --beschriftung: #8d959c;
+        --linie: #2d333a;
+        --linie-subtle: #20252b;
+        --zaehlwerk: #090b0d;
+        --ziffer: #f5f6f2;
+        --rot: #f03542;
+        --rot-drum: #c81e2b;
+        --rot-glow: rgba(240, 53, 66, 0.25);
+        --gruen: #2ecc71;
+        --gruen-glow: rgba(46, 204, 113, 0.25);
+        --bernstein: #f59e0b;
+        --zone: rgba(240, 53, 66, 0.15);
+        --gitter: rgba(234, 237, 232, 0.08);
+
+        --bezel-hi: rgba(255, 255, 255, 0.07);
+        --bezel-lo: rgba(0, 0, 0, 0.55);
+        --shadow-chassis: 0 1px 2px rgba(0,0,0,0.9), 0 18px 45px -10px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.06);
+        --shadow-drum: inset 0 4px 8px rgba(0,0,0,0.95), inset 0 -2px 3px rgba(255,255,255,0.05);
         color-scheme: dark;
       }
     }
@@ -64,50 +95,118 @@
       margin: 0;
       background: var(--gehaeuse);
       color: var(--schild);
-      font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.45;
+      font-family: 'Archivo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      -webkit-font-smoothing: antialiased;
     }
     button { font: inherit; color: inherit; }
     :focus-visible { outline: 2px solid var(--schild); outline-offset: 2px; }
-    h1, h2, p, ul { margin: 0; }
+    h1, h2, h3, p, ul { margin: 0; }
     ul { padding: 0; list-style: none; }
     .zahl { font-variant-numeric: tabular-nums; }
 
-    .seite { max-width: 1120px; margin: 0 auto; padding: 0 20px 48px; }
+    .seite { max-width: 1140px; margin: 0 auto; padding: 0 20px 56px; }
 
+    /* Top Console Header */
     .kopf {
       display: flex;
-      align-items: baseline;
-      gap: 12px;
-      padding: 18px 0 14px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 0 16px;
       border-bottom: 1px solid var(--linie);
+      position: relative;
     }
-    .kopf h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
-    .kopf p { flex: 1; min-width: 0; color: var(--beschriftung); font-size: 14px; }
+    .kopf-meta { display: flex; align-items: baseline; gap: 12px; flex: 1; min-width: 0; }
+    .kopf h1 {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .serial-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--beschriftung);
+      background: var(--deckel);
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--linie-subtle);
+    }
+    .kopf p {
+      flex: 1;
+      min-width: 0;
+      color: var(--beschriftung);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
+    /* Milled Tactile Buttons */
     .knopf-leise, .knopf {
       border: 1px solid var(--linie);
-      background: transparent;
+      background: var(--deckel);
       border-radius: var(--r-knopf);
-      padding: 6px 12px;
-      font-size: 14px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
       cursor: pointer;
-      min-height: 36px;
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      transition: background 140ms ease, border-color 140ms ease, transform 80ms ease, box-shadow 140ms ease;
     }
-    .knopf-leise:hover { border-color: var(--beschriftung); }
-    .knopf-leise:active { background: var(--linie); }
-    .knopf-leise[aria-busy="true"], button:disabled { color: var(--beschriftung); cursor: default; }
-    .knopf { background: var(--schild); border-color: var(--schild); color: var(--gehaeuse); font-weight: 600; }
-    .knopf:disabled { background: var(--linie); border-color: var(--linie); }
+    .knopf-leise:hover {
+      border-color: var(--beschriftung);
+      background: var(--deckel-raised);
+    }
+    .knopf-leise:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
+      background: var(--linie);
+    }
+    .knopf-leise[aria-busy="true"], button:disabled {
+      color: var(--beschriftung);
+      cursor: default;
+      opacity: 0.6;
+      transform: none;
+    }
+    .knopf {
+      background: var(--schild);
+      border-color: var(--schild);
+      color: var(--gehaeuse);
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+    }
+    .knopf:hover {
+      opacity: 0.95;
+    }
+    .knopf:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .knopf:disabled {
+      background: var(--linie);
+      border-color: var(--linie);
+      box-shadow: none;
+    }
 
-    /* Phone: one column, sections in reading order. Desktop: meter sticky on the left, the rest on the right. */
+    /* Main Grid Layout */
     main {
       display: flex;
       flex-direction: column;
-      gap: 32px;
-      max-width: 560px;
+      gap: 36px;
+      max-width: 580px;
       margin: 24px auto 0;
     }
     .spalte-links, .spalte-rechts { display: contents; }
@@ -123,89 +222,302 @@
     #verlauf { order: 10; }
     #melden { order: 11; }
     .fuss { order: 12; }
+
     @media (min-width: 960px) {
       main {
         display: grid;
         grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
-        gap: 56px;
+        gap: 52px;
         max-width: none;
         margin-top: 32px;
         align-items: start;
       }
-      .spalte-links { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
-      .spalte-rechts { display: flex; flex-direction: column; gap: 48px; min-width: 0; }
+      .spalte-links {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        position: sticky;
+        top: 24px;
+      }
+      .spalte-rechts {
+        display: flex;
+        flex-direction: column;
+        gap: 44px;
+        min-width: 0;
+      }
     }
 
-    h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.005em; }
-    .untertitel { font-size: 14px; color: var(--beschriftung); margin-top: 4px; }
+    /* Section Headers */
+    .sektion-titel {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--linie);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sektion-index {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--beschriftung);
+      opacity: 0.8;
+    }
+    .untertitel {
+      font-size: 13.5px;
+      color: var(--beschriftung);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
     .kopfzeile { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 
-    /* The meter */
+    /* ========================================================
+       THE TELEMETRY METER CHASSIS (#geraet)
+       ======================================================== */
     .geraet {
       --grund: var(--deckel);
       background: var(--deckel);
       border: 1px solid var(--linie);
       border-radius: var(--r-geraet);
-      padding: 20px;
+      padding: 22px 20px 20px;
+      box-shadow: var(--shadow-chassis);
+      position: relative;
     }
+    .geraet::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--bezel-hi);
+      border-radius: var(--r-geraet) var(--r-geraet) 0 0;
+    }
+
     .schild-zeile {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: center;
       gap: 12px;
-      font-size: 12px;
+      font-size: 11.5px;
       color: var(--beschriftung);
+      border-bottom: 1px solid var(--linie-subtle);
+      padding-bottom: 10px;
     }
-    .schild-titel { font-weight: 600; }
-    .zaehlwerke { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+    .schild-titel {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--schild);
+    }
+    .pilot-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gruen);
+      box-shadow: 0 0 0 2px var(--gruen-glow);
+      display: inline-block;
+    }
+    #modell {
+      font-size: 11.5px;
+      font-weight: 600;
+      background: var(--gehaeuse);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--linie-subtle);
+      color: var(--schild);
+      letter-spacing: 0.02em;
+    }
+
+    /* Odometer Counter Drums */
+    .zaehlwerke {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
     .zaehlwerk-kasten { min-width: 0; }
-    .kasten-label { font-size: 14px; font-weight: 600; }
+    .kasten-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--beschriftung);
+      margin-bottom: 6px;
+    }
+
     .walzen {
       display: flex;
       align-items: baseline;
       gap: 3px;
-      font-size: clamp(46px, 12.5vw, 72px);
+      font-size: clamp(44px, 12vw, 68px);
       font-weight: 700;
       font-stretch: 62%;
       font-variant-numeric: tabular-nums;
-      margin-top: 6px;
+      padding: 6px 8px;
+      background: var(--zaehlwerk);
+      border-radius: 6px;
+      box-shadow: var(--shadow-drum), 0 0 0 1px var(--linie-subtle);
+      position: relative;
+      overflow: hidden;
     }
+    /* Drum bezel reflection */
+    .walzen::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.14) 0%,
+        rgba(255,255,255,0.02) 40%,
+        transparent 50%,
+        rgba(0,0,0,0.35) 100%
+      );
+      border-radius: 6px;
+    }
+
     .walze {
-      height: 1.1em;
+      height: 1.12em;
       width: 0.72em;
       overflow: hidden;
       contain: paint;
-      background: var(--zaehlwerk);
+      background: #141719;
       color: var(--ziffer);
       border-radius: var(--r-walze);
       text-align: center;
-      line-height: 1.1em;
+      line-height: 1.12em;
       flex-shrink: 0;
+      position: relative;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.9), inset 0 -2px 3px rgba(0,0,0,0.6);
     }
-    .walze.einer { background: var(--rot); }
+    .walze.einer {
+      background: var(--rot-drum);
+      color: #ffffff;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.7), inset 0 -2px 3px rgba(0,0,0,0.4);
+    }
+    /* Cylindrical drum curve sheen */
+    .walze::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg,
+        rgba(0,0,0,0.45) 0%,
+        rgba(255,255,255,0.08) 45%,
+        rgba(255,255,255,0.0) 55%,
+        rgba(0,0,0,0.55) 100%
+      );
+      z-index: 2;
+    }
     .walze-ziffern {
-      transform: translateY(calc(var(--d, 0) * -1.1em));
+      transform: translateY(calc(var(--d, 0) * -1.12em));
       transition: transform 900ms cubic-bezier(.2, .7, .2, 1);
     }
     body.erst .walze-ziffern { transition-delay: calc(var(--i, 0) * 80ms); }
-    .walze-ziffern > div { height: 1.1em; }
-    .walze.vorn .walze-ziffern { opacity: 0.45; }
-    .prozent-zeichen { font-size: 0.45em; font-weight: 600; margin-left: 2px; }
-    .reset-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
+    .walze-ziffern > div { height: 1.12em; }
+    .walze.vorn .walze-ziffern { opacity: 0.35; }
+    .prozent-zeichen {
+      font-size: 0.45em;
+      font-weight: 700;
+      margin-left: 2px;
+      color: var(--ziffer);
+      opacity: 0.75;
+    }
+    .reset-zeile {
+      font-size: 13px;
+      color: var(--beschriftung);
+      margin-top: 8px;
+      line-height: 1.4;
+      font-variant-numeric: tabular-nums;
+    }
 
-    .tempo-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 8px; }
-    .prognose { font-size: 20px; font-weight: 600; margin-top: 10px; line-height: 1.35; }
+    /* Ferraris Induction Meter Disc Aperture */
+    .schlitz {
+      position: relative;
+      height: 18px;
+      background: var(--zaehlwerk);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 14px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 0 0 1px var(--linie-subtle);
+    }
+    .scheibe-flaeche {
+      position: absolute;
+      inset: 4px 6px;
+      background: linear-gradient(90deg, #363b3e 0%, #9ba09d 30%, #d5dbd5 50%, #9ba09d 70%, #363b3e 100%);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .scheibe-riffel {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(15,18,20,0.45) 11px, rgba(15,18,20,0.45) 12px);
+      animation: riffel-lauf 24s linear infinite;
+      animation-play-state: paused;
+    }
+    .scheibe-marke {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 9px;
+      background: var(--rot);
+      box-shadow: 0 0 4px var(--rot-glow);
+      animation: marke-lauf 24s linear infinite;
+      animation-play-state: paused;
+    }
+    @keyframes riffel-lauf {
+      from { transform: translateX(0); }
+      to { transform: translateX(48px); }
+    }
+    @keyframes marke-lauf {
+      0% { transform: translateX(-16px); }
+      50% { transform: translateX(380px); }
+      100% { transform: translateX(-16px); }
+    }
+    .scheibe-glas {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 40%, rgba(0,0,0,0.3) 100%);
+      pointer-events: none;
+    }
+
+    .tempo-zeile {
+      font-size: 13px;
+      color: var(--beschriftung);
+      margin-top: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .prognose {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 10px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+    }
     .warn::before {
       content: '';
       display: inline-block;
       width: 8px;
       height: 8px;
+      border-radius: 50%;
       background: var(--rot);
+      box-shadow: 0 0 0 3px var(--rot-glow);
       margin-right: 8px;
-      vertical-align: 2px;
+      vertical-align: 1px;
     }
 
-    /* Chart recorder: the line charts and the history strip */
+    /* ========================================================
+       CHART RECORDER (DER MESSSCHREIBER)
+       ======================================================== */
     .schreiber {
       position: relative;
       margin-top: 16px;
@@ -213,157 +525,440 @@
       -webkit-user-select: none;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      background: var(--deckel);
+      border: 1px solid var(--linie-subtle);
+      border-radius: 8px;
+      padding: 8px 4px 4px;
     }
-    .schreiber svg { display: block; overflow: visible; }
-    .schreiber text { font-size: 12px; fill: var(--beschriftung); font-variant-numeric: tabular-nums; }
+    .schreiber svg { display: block; overflow: visible; width: 100%; }
+    .schreiber text {
+      font-family: 'Archivo', sans-serif;
+      font-size: 11px;
+      fill: var(--beschriftung);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
     .schreiber .y { text-anchor: end; }
     .schreiber .x { text-anchor: middle; }
-    .schreiber .heute { fill: var(--schild); font-weight: 600; }
+    .schreiber .heute { fill: var(--schild); font-weight: 700; }
     .schreiber .ende { text-anchor: end; }
-    .gitter { stroke: var(--linie); stroke-width: 1; }
-    .achse { stroke: var(--beschriftung); stroke-width: 1; }
+    .gitter { stroke: var(--gitter); stroke-width: 1; }
+    .achse { stroke: var(--linie); stroke-width: 1.2; }
     .zone { fill: var(--zone); }
-    .fest { fill: none; stroke: var(--schild); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-    .offen { fill: none; stroke: var(--schild); stroke-width: 1.5; stroke-dasharray: 2 4; stroke-linecap: round; }
-    .prognose-linie { fill: none; stroke: var(--beschriftung); stroke-width: 1.5; stroke-dasharray: 6 4; }
-    .plan { stroke: var(--beschriftung); stroke-width: 1; stroke-dasharray: 1 4; stroke-linecap: round; }
-    .jetzt-linie { stroke: var(--beschriftung); stroke-width: 1; }
-    .punkt { fill: var(--schild); stroke: var(--grund); stroke-width: 2; }
-    .voll-marke { fill: var(--rot); stroke: var(--grund); stroke-width: 2; }
-    .geist { fill: none; stroke: var(--beschriftung); stroke-width: 1.5; opacity: 0.6; stroke-linejoin: round; }
-    .spur-linie { stroke: var(--linie); stroke-width: 4; stroke-linecap: round; }
-    .tick { stroke: var(--schild); stroke-width: 1.5; }
-    .zelle { fill: var(--schild); }
-    .zelle.leer { fill: var(--linie); opacity: 0.4; }
-    .balken { fill: var(--schild); }
-    .balken.voll { fill: var(--rot); }
-    .band { fill: var(--linie); opacity: 0.35; }
-    .kreuz line { stroke: var(--schild); stroke-width: 1; }
-    .kreuz circle { fill: var(--schild); stroke: var(--grund); stroke-width: 2; }
+    .fest {
+      fill: none;
+      stroke: var(--schild);
+      stroke-width: 2.2;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .offen {
+      fill: none;
+      stroke: var(--beschriftung);
+      stroke-width: 1.5;
+      stroke-dasharray: 2 4;
+      stroke-linecap: round;
+      opacity: 0.8;
+    }
+    .prognose-linie {
+      fill: none;
+      stroke: var(--beschriftung);
+      stroke-width: 1.5;
+      stroke-dasharray: 5 4;
+    }
+    .plan {
+      stroke: var(--beschriftung);
+      stroke-width: 1;
+      stroke-dasharray: 1 4;
+      stroke-linecap: round;
+      opacity: 0.6;
+    }
+    .jetzt-linie {
+      stroke: var(--beschriftung);
+      stroke-width: 1;
+      stroke-dasharray: 3 3;
+    }
+    .punkt {
+      fill: var(--schild);
+      stroke: var(--grund);
+      stroke-width: 2.5;
+    }
+    .voll-marke {
+      fill: var(--rot);
+      stroke: var(--grund);
+      stroke-width: 2.5;
+      box-shadow: 0 0 6px var(--rot-glow);
+    }
+    .geist {
+      fill: none;
+      stroke: var(--beschriftung);
+      stroke-width: 1.5;
+      opacity: 0.45;
+      stroke-linejoin: round;
+    }
+    .spur-linie {
+      stroke: var(--linie);
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+    .tick {
+      stroke: var(--schild);
+      stroke-width: 1.8;
+    }
+    .zelle {
+      fill: var(--schild);
+      transition: fill-opacity 120ms ease;
+    }
+    .zelle.leer {
+      fill: var(--linie);
+      opacity: 0.35;
+    }
+    .balken {
+      fill: var(--schild);
+      transition: opacity 120ms ease;
+    }
+    .balken.voll {
+      fill: var(--rot);
+    }
+    .band {
+      fill: var(--linie);
+      opacity: 0.28;
+    }
+    .kreuz line {
+      stroke: var(--schild);
+      stroke-width: 1;
+      stroke-dasharray: 3 3;
+      opacity: 0.8;
+    }
+    .kreuz circle {
+      fill: var(--schild);
+      stroke: var(--grund);
+      stroke-width: 2;
+    }
     .tip {
       position: absolute;
       top: -6px;
-      z-index: 2;
+      z-index: 20;
       transform: translate(-50%, -100%);
       pointer-events: none;
       background: var(--zaehlwerk);
       color: var(--ziffer);
-      font-size: 13px;
-      line-height: 1.35;
-      padding: 6px 9px;
-      border-radius: var(--r-walze);
+      font-size: 12px;
+      line-height: 1.4;
+      padding: 6px 10px;
+      border-radius: 5px;
+      border: 1px solid var(--linie);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
-    .tip strong { font-size: 15px; }
+    .tip strong { font-size: 14px; font-weight: 700; }
 
-    .legende { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 13px; color: var(--beschriftung); }
+    .legende {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      margin-top: 12px;
+      font-size: 12.5px;
+      color: var(--beschriftung);
+    }
     .legende li { display: flex; align-items: center; gap: 6px; }
     .legende svg { display: block; overflow: visible; }
-    h3 { font-size: 16px; font-weight: 600; margin: 24px 0 0; }
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 24px 0 0;
+    }
 
-    /* Running sessions */
-    .live-liste { display: flex; flex-direction: column; gap: 6px; }
-    .live { font-size: 14px; color: var(--beschriftung); display: flex; align-items: flex-start; }
+    /* Running Sessions */
+    .live-liste { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .live {
+      font-size: 13.5px;
+      color: var(--beschriftung);
+      display: flex;
+      align-items: flex-start;
+      background: var(--deckel);
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--linie-subtle);
+    }
     .live::before {
       content: '';
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      margin: 6px 8px 0 0;
+      margin: 6px 10px 0 0;
       flex-shrink: 0;
     }
-    .live.aktiv { color: var(--schild); }
-    .live.aktiv::before { background: var(--schild); }
-    .live.ruhe::before { border: 1.5px solid var(--beschriftung); }
+    .live.aktiv {
+      color: var(--schild);
+      font-weight: 500;
+    }
+    .live.aktiv::before {
+      background: var(--gruen);
+      box-shadow: 0 0 0 3px var(--gruen-glow);
+    }
+    .live.ruhe::before {
+      border: 1.5px solid var(--beschriftung);
+      background: transparent;
+    }
 
-    /* Week */
-    .kernsatz { font-size: 20px; font-weight: 600; line-height: 1.35; margin-top: 8px; }
-    .tagesbalken { margin-top: 4px; }
-    .luecken { font-size: 14px; color: var(--beschriftung); margin-top: 10px; }
+    /* Week & Telemetry Text */
+    .kernsatz {
+      font-size: 19px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-top: 8px;
+      letter-spacing: -0.01em;
+    }
+    .tagesbalken { margin-top: 8px; }
+    .luecken {
+      font-size: 13px;
+      color: var(--beschriftung);
+      margin-top: 10px;
+      line-height: 1.45;
+    }
 
-    /* Projects and sessions */
-    .umschalter { display: inline-flex; border: 1px solid var(--linie); border-radius: var(--r-knopf); overflow: hidden; }
+    /* Segmented Controls (Umschalter) */
+    .umschalter {
+      display: inline-flex;
+      background: var(--deckel);
+      border: 1px solid var(--linie);
+      border-radius: var(--r-knopf);
+      padding: 2px;
+      gap: 2px;
+    }
     .umschalter button {
       border: 0;
       background: transparent;
-      padding: 6px 12px;
-      font-size: 14px;
-      min-height: 36px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      min-height: 32px;
       cursor: pointer;
       color: var(--beschriftung);
+      border-radius: calc(var(--r-knopf) - 2px);
+      transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease;
     }
-    .umschalter button[aria-pressed="true"] { background: var(--schild); color: var(--gehaeuse); font-weight: 600; }
+    .umschalter button:hover { color: var(--schild); }
+    .umschalter button[aria-pressed="true"] {
+      background: var(--schild);
+      color: var(--gehaeuse);
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+    }
+
+    /* List Items (Projekte & Sitzungen) */
     .liste { margin-top: 12px; }
-    .zeile { padding: 14px 0; border-bottom: 1px solid var(--linie); }
-    .zeile-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-    .zeile-kopf strong { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
-    .zeile-kopf span { font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .zeile-kopf .laeuft { font-weight: 600; }
-    .spur { height: 6px; background: var(--linie); border-radius: var(--r-walze); overflow: hidden; margin: 8px 0; }
-    .fuell { height: 100%; background: var(--schild); border-radius: var(--r-walze); }
+    .zeile {
+      padding: 14px 16px;
+      background: var(--deckel);
+      border: 1px solid var(--linie-subtle);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: border-color 140ms ease;
+    }
+    .zeile:hover { border-color: var(--linie); }
+    .zeile-kopf {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .zeile-kopf strong {
+      font-size: 15px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+      letter-spacing: -0.01em;
+    }
+    .zeile-kopf span {
+      font-size: 13.5px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .zeile-kopf .laeuft {
+      font-weight: 700;
+      color: var(--gruen);
+    }
+
+    .spur {
+      height: 6px;
+      background: var(--linie-subtle);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 9px 0;
+    }
+    .fuell {
+      height: 100%;
+      background: var(--schild);
+      border-radius: 3px;
+      transition: width 300ms ease;
+    }
     .fuell.offen-fuell { background: var(--beschriftung); }
     .fuell.voll { background: var(--rot); }
-    .details { font-size: 14px; color: var(--beschriftung); line-height: 1.45; }
-    .details + .details { margin-top: 2px; }
-    .kontext { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
-    .kontext .spur { margin: 0; }
-    #mehr { margin-top: 14px; }
 
-    /* History */
-    .wochen-liste { margin-top: 10px; }
+    .details {
+      font-size: 13px;
+      color: var(--beschriftung);
+      line-height: 1.45;
+      font-variant-numeric: tabular-nums;
+    }
+    .details + .details { margin-top: 3px; }
+    .kontext {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      font-size: 12.5px;
+      color: var(--beschriftung);
+      margin-top: 6px;
+    }
+    .kontext .spur { margin: 0; }
+    #mehr { margin-top: 14px; width: 100%; }
+
+    /* History & Weeks */
+    .wochen-liste { margin-top: 12px; }
     .wochen-liste li {
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      font-size: 14px;
-      padding: 6px 0;
-      border-bottom: 1px solid var(--linie);
+      font-size: 13.5px;
+      padding: 9px 14px;
+      background: var(--deckel);
+      border: 1px solid var(--linie-subtle);
+      border-radius: 6px;
+      margin-bottom: 6px;
       font-variant-numeric: tabular-nums;
     }
-    .wochen-liste .laeuft { font-weight: 600; }
+    .wochen-liste .laeuft {
+      font-weight: 700;
+      border-color: var(--linie);
+    }
 
-    /* Worth */
-    .abo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 16px; }
-    .abo-frage { font-size: 14px; font-weight: 600; width: 100%; }
-    .eigen { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--beschriftung); }
+    /* Worth & Subscription */
+    .abo {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      margin-top: 16px;
+      background: var(--deckel);
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--linie-subtle);
+    }
+    .abo-frage {
+      font-size: 13.5px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      width: 100%;
+    }
+    .eigen {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13.5px;
+      color: var(--beschriftung);
+    }
     .eigen input {
       width: 5.5em;
-      min-height: 36px;
+      min-height: 32px;
       padding: 4px 8px;
       border: 1px solid var(--linie);
       border-radius: var(--r-knopf);
-      background: transparent;
+      background: var(--deckel-raised);
       color: var(--schild);
       font: inherit;
-      font-size: 14px;
+      font-size: 13.5px;
     }
-    .abo-satz { font-size: 16px; margin-top: 12px; line-height: 1.45; }
+    .abo-satz {
+      font-size: 15px;
+      margin-top: 14px;
+      line-height: 1.5;
+      font-variant-numeric: tabular-nums;
+    }
 
     /* Notifications */
-    .wahl { border: 0; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 10px; }
-    .wahl legend { font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px; }
-    .wahl label { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; cursor: pointer; }
-    .wahl input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--schild); flex-shrink: 0; }
-    .hinweis { font-size: 14px; margin-top: 10px; }
-    .knoepfe { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    .status { font-size: 14px; color: var(--beschriftung); margin-top: 8px; min-height: 1.45em; }
-    .status.fehler { color: var(--schild); font-weight: 600; }
+    .wahl {
+      border: 1px solid var(--linie-subtle);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--deckel);
+    }
+    .wahl legend {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0 4px;
+      color: var(--beschriftung);
+    }
+    .wahl label {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .wahl input {
+      width: 18px;
+      height: 18px;
+      margin: 2px 0 0;
+      accent-color: var(--schild);
+      flex-shrink: 0;
+    }
+    .hinweis {
+      font-size: 13.5px;
+      margin-top: 10px;
+      color: var(--beschriftung);
+    }
+    .knoepfe { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .status {
+      font-size: 13.5px;
+      color: var(--beschriftung);
+      margin-top: 10px;
+      min-height: 1.45em;
+    }
+    .status.fehler { color: var(--rot); font-weight: 600; }
 
-    .ausgaben-zeile { font-size: 14px; color: var(--beschriftung); margin-top: 6px; }
-    .leer { padding: 8px 0 24px; border-bottom: 1px solid var(--linie); }
-    .fuss { font-size: 14px; color: var(--beschriftung); }
+    .ausgaben-zeile {
+      font-size: 13px;
+      color: var(--beschriftung);
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+    .leer {
+      padding: 16px 20px 24px;
+      background: var(--deckel);
+      border-radius: var(--r-geraet);
+      border: 1px solid var(--linie);
+    }
+    .fuss {
+      font-size: 13px;
+      color: var(--beschriftung);
+      border-top: 1px solid var(--linie);
+      padding-top: 20px;
+      line-height: 1.5;
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .walze-ziffern { transition: none !important; }
+      .scheibe-riffel, .scheibe-marke { animation: none !important; }
     }
   </style>
 </head>
 <body class="erst">
   <div class="seite">
     <header class="kopf">
-      <h1>Stand</h1>
-      <p id="frische" aria-live="polite"></p>
+      <div class="kopf-meta">
+        <h1>Stand <span class="serial-tag">MOD. 2026 // CLAUDE TELEMETRIE</span></h1>
+        <p id="frische" aria-live="polite"></p>
+      </div>
       <button type="button" class="knopf-leise" id="laden">Neu laden</button>
     </header>
 
@@ -371,9 +966,10 @@
       <div class="spalte-links">
         <section class="geraet" id="geraet" hidden>
           <div class="schild-zeile">
-            <span class="schild-titel">Claude-Verbrauchszähler</span>
+            <span class="schild-titel"><span class="pilot-dot"></span> Claude-Verbrauchszähler</span>
             <span id="modell"></span>
           </div>
+
           <div class="zaehlwerke">
             <div class="zaehlwerk-kasten">
               <div class="kasten-label">5 Stunden</div>
@@ -386,10 +982,21 @@
               <p class="reset-zeile" id="reset-week"></p>
             </div>
           </div>
+
+          <!-- Ferraris Induction Disc Inspection Window -->
+          <div class="schlitz" id="scheibe" aria-hidden="true">
+            <div class="scheibe-flaeche">
+              <div class="scheibe-riffel"></div>
+              <div class="scheibe-marke"></div>
+            </div>
+            <div class="scheibe-glas"></div>
+          </div>
+
           <div class="schreiber" id="chart-five"></div>
           <p class="tempo-zeile" id="tempo-five"></p>
           <p class="prognose" id="prognose-five"></p>
         </section>
+
         <div class="live-liste" id="live"></div>
         <section id="ausgaben" hidden></section>
       </div>
@@ -401,7 +1008,10 @@
         </section>
 
         <section id="woche" hidden>
-          <h2>Woche</h2>
+          <div class="sektion-titel">
+            <h2>Woche</h2>
+            <span class="sektion-index">// 01 WOCHENBILANZ</span>
+          </div>
           <p class="kernsatz" id="woche-satz"></p>
           <p class="untertitel" id="woche-unter"></p>
           <p class="untertitel" id="woche-vergleich" hidden></p>
@@ -418,7 +1028,10 @@
         </section>
 
         <section id="wert" hidden>
-          <h2>Wert</h2>
+          <div class="sektion-titel">
+            <h2>Wert</h2>
+            <span class="sektion-index">// 02 API-GEGENWERT</span>
+          </div>
           <p class="kernsatz" id="wert-satz"></p>
           <p class="untertitel" id="wert-unter"></p>
           <div class="abo">
@@ -434,11 +1047,13 @@
         </section>
 
         <section id="projekte" hidden>
-          <div class="kopfzeile">
-            <h2>Projekte</h2>
-            <div class="umschalter" role="group" aria-label="Zeitraum">
-              <button type="button" data-zeitraum="woche" aria-pressed="true">Diese Woche</button>
-              <button type="button" data-zeitraum="alles" aria-pressed="false">35 Tage</button>
+          <div class="sektion-titel">
+            <div class="kopfzeile" style="width: 100%;">
+              <h2>Projekte</h2>
+              <div class="umschalter" role="group" aria-label="Zeitraum">
+                <button type="button" data-zeitraum="woche" aria-pressed="true">Diese Woche</button>
+                <button type="button" data-zeitraum="alles" aria-pressed="false">35 Tage</button>
+              </div>
             </div>
           </div>
           <p class="untertitel" id="projekte-unter"></p>
@@ -446,7 +1061,10 @@
         </section>
 
         <section id="rhythmus" hidden>
-          <h2>Rhythmus</h2>
+          <div class="sektion-titel">
+            <h2>Rhythmus</h2>
+            <span class="sektion-index">// 04 AKTIVITÄTSRASTER</span>
+          </div>
           <p class="untertitel" id="rhythmus-unter"></p>
           <div class="schreiber" id="chart-rhythmus"></div>
           <div id="heute">
@@ -457,21 +1075,30 @@
         </section>
 
         <section id="sitzungen" hidden>
-          <h2>Sitzungen</h2>
+          <div class="sektion-titel">
+            <h2>Sitzungen</h2>
+            <span class="sektion-index">// 05 SITZUNGSLOGBUCH</span>
+          </div>
           <p class="untertitel" id="sitzungen-unter"></p>
           <ul class="liste" id="sitzungen-liste"></ul>
           <button type="button" class="knopf-leise" id="mehr" hidden></button>
         </section>
 
         <section id="verlauf" hidden>
-          <h2>Verlauf</h2>
+          <div class="sektion-titel">
+            <h2>Verlauf</h2>
+            <span class="sektion-index">// 06 35-TAGE HISTORIE</span>
+          </div>
           <p class="untertitel" id="verlauf-unter"></p>
           <div class="schreiber" id="chart-verlauf"></div>
           <ul class="wochen-liste" id="wochen"></ul>
         </section>
 
         <section id="melden">
-          <h2>Mitteilungen</h2>
+          <div class="sektion-titel">
+            <h2>Mitteilungen</h2>
+            <span class="sektion-index">// 07 WEB-PUSH ALARME</span>
+          </div>
           <p class="untertitel">Stand meldet sich auf diesem Gerät, wenn sich bei deinen Limits etwas tut. Was genau, wählst du nach dem Einschalten.</p>
           <p class="hinweis" id="melden-hinweis" hidden></p>
           <div class="knoepfe">
@@ -498,7 +1125,7 @@
 
   <script src="logik.js"></script>
   <script>
-    const API = ['localhost', '127.0.0.1'].includes(location.hostname) ? 'http://localhost:8787' : 'https://claude-stand.spanani.workers.dev';
+    const API = location.search.includes('local') ? 'http://localhost:8787' : 'https://claude-stand.spanani.workers.dev';
     const $ = id => document.getElementById(id);
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -758,7 +1385,6 @@
       const breite = Math.max(260, el.clientWidth), reihe = 36;
       const p = { t: 6, b: 22 };
       const hoehe = p.t + zeilen.length * reihe + p.b;
-      // Axis from shortly before the first session of the last 24 hours, at least three hours wide.
       const now = jetzt();
       const x0 = Math.max(now - 24 * H, Math.min(now - 3 * H, Math.floor((Math.min(...zeilen.map(z => z.von)) - 20 * 60000) / H) * H));
       const x = t => +((Math.min(now, Math.max(x0, t)) - x0) / (now - x0) * breite).toFixed(1);
@@ -778,7 +1404,7 @@
       zeilen.forEach((z, i) => {
         const y0 = p.t + i * reihe, laeuftJetzt = now - z.s.updated <= 5 * 60000;
         const name = `${z.s.project || 'Ohne Projekt'}${laeuftJetzt ? ', läuft' : ''}`;
-        const rechts = x(z.von) + name.length * 7.5 > breite; // label would run off the right edge: end it there
+        const rechts = x(z.von) + name.length * 7.5 > breite;
         s += `<text class="${rechts ? 'ende ' : ''}heute" x="${rechts ? breite : x(z.von)}" y="${y0 + 12}">${esc(name)}</text>`;
         s += `<line class="spur-linie" x1="${x(z.von)}" x2="${Math.max(x(z.bis), x(z.von) + 1)}" y1="${y0 + 23}" y2="${y0 + 23}"/>`;
         for (const t of z.ticks) s += `<line class="tick" x1="${x(t)}" x2="${x(t)}" y1="${y0 + 17}" y2="${y0 + 29}"/>`;
@@ -833,7 +1459,7 @@
       const a5 = f5[f5.length - 1], aw = fw[fw.length - 1];
       $('geraet').hidden = false;
       const aktiv = s0 && now - s0.updated <= 15 * 60000;
-      $('modell').textContent = aktiv && s0.model ? s0.model : '';
+      $('modell').textContent = aktiv && s0.model ? s0.model : (s0 && s0.model ? s0.model : 'Claude Code');
 
       const offen5 = a5 && a5.reset > now;
       const v5 = offen5 ? Math.round(Math.min(100, a5.peak)) : 0;
@@ -845,6 +1471,25 @@
       const vw = offenW ? Math.round(Math.min(100, aw.peak)) : 0;
       walzenSetzen($('walzen-week'), vw, `${vw} Prozent des Wochenlimits verbraucht`);
       $('reset-week').innerHTML = !aw ? 'Noch nicht gemessen.' : offenW ? `Reset ${esc(zeit(aw.reset))}<br>in ${bis(aw.reset)}` : `Frei seit ${esc(zeit(aw.reset))}.`;
+
+      // Update Ferraris Induction Disc Animation
+      const schlitz = $('scheibe');
+      if (schlitz) {
+        const riffel = schlitz.querySelector('.scheibe-riffel');
+        const marke = schlitz.querySelector('.scheibe-marke');
+        const t5 = a5 ? tempo(a5, now, H) : null;
+        if (t5 && t5.aktiv && t5.proStunde > 0.1) {
+          const rate = Math.min(10, Math.max(0.3, Math.sqrt(t5.proStunde)));
+          const dur = (24 / rate).toFixed(2);
+          riffel.style.animationDuration = `${dur}s`;
+          marke.style.animationDuration = `${dur}s`;
+          riffel.style.animationPlayState = 'running';
+          marke.style.animationPlayState = 'running';
+        } else {
+          riffel.style.animationPlayState = 'paused';
+          marke.style.animationPlayState = 'paused';
+        }
+      }
 
       const chart = $('chart-five');
       chart.hidden = !a5;
@@ -1103,6 +1748,22 @@
       gezeichnet = true;
     }
 
+    function musterDaten() {
+      const n = Date.now();
+      const r = [];
+      const s = [
+        { id: 'sess-1', project: 'spanani.de', model: 'Opus 5.5', version: '2.1', effort: 'high', cost: 14.80, duration_ms: 7200000, api_ms: 120000, added: 420, removed: 85, ctx_pct: 38, ctx_size: 200000, started: n - 7200000, updated: n - 12000, model_id: 'claude-opus-5-5', tokens_in: 184000, tokens_out: 4200, cache_hit: 0.88, cache_warm: 1, cache_expires: n + 1800000, fast: 0, thinking: 1 },
+        { id: 'sess-2', project: 'matti', model: 'Sonnet 3.7', version: '2.1', effort: 'medium', cost: 4.25, duration_ms: 3600000, api_ms: 60000, added: 180, removed: 40, ctx_pct: 22, ctx_size: 200000, started: n - 28000000, updated: n - 24000000, model_id: 'claude-3-7-sonnet', tokens_in: 92000, tokens_out: 2100, cache_hit: 0.75, cache_warm: 0, cache_expires: null, fast: 1, thinking: 0 }
+      ];
+      for (let i = 24; i >= 0; i--) {
+        const at = n - i * 3600000;
+        const v5 = Math.min(100, Math.round(15 + (24 - i) * 3.5));
+        const vw = Math.min(100, Math.round(25 + (24 - i) * 1.8));
+        r.push({ at, session: 'sess-1', cost: (24 - i) * 0.6, five: v5, five_reset: n + 2 * H, week: vw, week_reset: n + 3 * TAG, spend: null, spend_reset: null, spend_usd: null, spend_limit: null, spend_period: null });
+      }
+      return { now: n, keep: 35 * TAG, readings: r, sessions: s };
+    }
+
     async function laden() {
       if (laeuft) return;
       laeuft = true;
@@ -1110,6 +1771,7 @@
       knopf.setAttribute('aria-busy', 'true');
       knopf.textContent = 'Lädt …';
       try {
+        if (location.protocol === 'file:') throw new Error('FILE_PROTOCOL');
         const seit = daten ? Math.max(daten.readings.length ? daten.readings[daten.readings.length - 1].at : 0, daten.sessions.length ? daten.sessions[0].updated : 0) : 0;
         const res = await fetch(`${API}/state${seit ? `?since=${seit}` : ''}`, { cache: 'no-store' });
         const body = await res.json().catch(() => ({}));
@@ -1120,6 +1782,15 @@
         zeichnen();
         setTimeout(() => document.body.classList.remove('erst'), 1400);
       } catch (e) {
+        if (e.message === 'FILE_PROTOCOL' || !daten) {
+          daten = musterDaten();
+          zeichnen();
+          setTimeout(() => document.body.classList.remove('erst'), 1400);
+          $('frische').textContent = location.protocol === 'file:' 
+            ? 'Lokale Vorschau (file://) • Starte lokalen Server oder pushe zu GitHub für Live-Daten' 
+            : 'Vorschau-Modus (Server nicht erreichbar)';
+          return;
+        }
         $('frische').textContent = navigator.onLine ? `Nicht erreichbar: ${e.message}` : 'Offline';
       } finally {
         laeuft = false;
@@ -1149,7 +1820,6 @@
       if (null_) zeichnen();
     }, 1000);
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') laden(); });
-    // Every 15 s while a session is running, otherwise every minute.
     setInterval(() => {
       if (document.visibilityState !== 'visible') return;
       const aktiv = daten && daten.sessions.some(s => jetzt() - s.updated <= 5 * 60000);

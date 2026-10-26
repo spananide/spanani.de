@@ -1,4 +1,4 @@
-﻿# Claude Stand in the Windows tray: the icon shows the 5-hour %, a click opens the meter with both limits and
+# Claude Stand in the Windows tray: the icon shows the 5-hour %, a click opens the meter with both limits and
 # today's and this week's API value and tokens. Data: the files stand-statusline.ps1 writes to ~/.claude/stand.
 # Start: Start menu entry from -Install (opens the meter), -Leise starts without opening it. Check: -Test
 param([switch]$Test, [switch]$Install, [switch]$Leise)
@@ -176,14 +176,24 @@ Add-Type -AssemblyName PresentationFramework, System.Windows.Forms, System.Drawi
 Add-Type -Namespace Stand -Name Native -MemberDefinition @'
 [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
 [DllImport("user32.dll")] public static extern bool DestroyIcon(IntPtr handle);
+[DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetClassName(IntPtr hwnd, System.Text.StringBuilder name, int max);
 '@
 $null = [Stand.Native]::SetProcessDPIAware()
 Get-ChildItem -LiteralPath $store -Filter *.json -ErrorAction SilentlyContinue | Where-Object LastWriteTime -lt (Get-Date).AddDays(-35) | Remove-Item
 
 # Colors of the Stand page ("Zaehlerstand"), light and dark like the taskbar.
 $farben = @{
-  dunkel = @{ Gehaeuse = '#2a2f32'; Deckel = '#33393c'; Schild = '#e4e5e1'; Beschriftung = '#a3a8a6'; Linie = '#4a5054'; Zaehlwerk = '#151718'; Ziffer = '#f2f2ee'; Rot = '#e0343f' }
-  hell   = @{ Gehaeuse = '#dcdedb'; Deckel = '#e9eae7'; Schild = '#1f2326'; Beschriftung = '#4e5458'; Linie = '#b9bcb8'; Zaehlwerk = '#151718'; Ziffer = '#f2f2ee'; Rot = '#c40d1e' }
+  dunkel = @{
+    Gehaeuse = '#101315'; Deckel = '#181c20'; DeckelRaised = '#20252a'; Schild = '#eaede8';
+    Beschriftung = '#8d959c'; Linie = '#2d333a'; LinieSubtle = '#20252b'; Zaehlwerk = '#090b0d';
+    Ziffer = '#f5f6f2'; Rot = '#f03542'; RotDrum = '#c81e2b'; Gruen = '#2ecc71'
+  }
+  hell   = @{
+    Gehaeuse = '#e4e6e2'; Deckel = '#f3f5f1'; DeckelRaised = '#ffffff'; Schild = '#181c1f';
+    Beschriftung = '#5b6267'; Linie = '#c7cbc5'; LinieSubtle = '#d8dcd6'; Zaehlwerk = '#0f1214';
+    Ziffer = '#f6f7f3'; Rot = '#e02835'; RotDrum = '#c81d2a'; Gruen = '#1e8e5a'
+  }
 }
 $pinsel = New-Object Windows.Media.BrushConverter
 $motion = [Windows.SystemParameters]::ClientAreaAnimation
@@ -193,64 +203,89 @@ $app.ShutdownMode = 'OnExplicitShutdown'
 $win = [Windows.Markup.XamlReader]::Parse(@'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Claude Stand" Width="380" SizeToContent="Height" WindowStyle="None" AllowsTransparency="True"
+        Title="Claude Stand" Width="396" SizeToContent="Height" WindowStyle="None" AllowsTransparency="True"
         Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" Left="-3000" Top="0"
         FontFamily="Bahnschrift" FontSize="13" Foreground="{DynamicResource Schild}" UseLayoutRounding="True">
   <Window.Resources>
     <LinearGradientBrush x:Key="Scheibe" StartPoint="0,0" EndPoint="1,0">
-      <GradientStop Color="#3b4043" Offset="0"/>
-      <GradientStop Color="#a7aba8" Offset="0.3"/>
-      <GradientStop Color="#dcdeda" Offset="0.5"/>
-      <GradientStop Color="#a7aba8" Offset="0.7"/>
-      <GradientStop Color="#3b4043" Offset="1"/>
+      <GradientStop Color="#363b3e" Offset="0"/>
+      <GradientStop Color="#9ba09d" Offset="0.3"/>
+      <GradientStop Color="#d5dbd5" Offset="0.5"/>
+      <GradientStop Color="#9ba09d" Offset="0.7"/>
+      <GradientStop Color="#363b3e" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="Rand" StartPoint="0,0" EndPoint="1,0">
-      <GradientStop Color="#FF151718" Offset="0"/>
-      <GradientStop Color="#00151718" Offset="0.2"/>
-      <GradientStop Color="#00151718" Offset="0.8"/>
-      <GradientStop Color="#FF151718" Offset="1"/>
+      <GradientStop Color="#FF090B0D" Offset="0"/>
+      <GradientStop Color="#00090B0D" Offset="0.18"/>
+      <GradientStop Color="#00090B0D" Offset="0.82"/>
+      <GradientStop Color="#FF090B0D" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas" StartPoint="0,0" EndPoint="0,1">
+      <GradientStop Color="#25FFFFFF" Offset="0"/>
+      <GradientStop Color="#04FFFFFF" Offset="0.4"/>
+      <GradientStop Color="#00000000" Offset="0.5"/>
+      <GradientStop Color="#30000000" Offset="1"/>
     </LinearGradientBrush>
     <Style x:Key="Leise" TargetType="Button">
       <Setter Property="Foreground" Value="{DynamicResource Schild}"/>
       <Setter Property="BorderBrush" Value="{DynamicResource Linie}"/>
+      <Setter Property="Background" Value="{DynamicResource Deckel}"/>
       <Setter Property="Cursor" Value="Hand"/>
       <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border x:Name="B" Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,5">
+            <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12,5">
               <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
             <ControlTemplate.Triggers>
-              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource Beschriftung}"/></Trigger>
-              <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource Schild}"/></Trigger>
-              <Trigger Property="IsPressed" Value="True"><Setter TargetName="B" Property="Background" Value="{DynamicResource Linie}"/></Trigger>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource Beschriftung}"/>
+                <Setter TargetName="B" Property="Background" Value="{DynamicResource DeckelRaised}"/>
+              </Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource Schild}"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="B" Property="Background" Value="{DynamicResource Linie}"/>
+              </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>
   </Window.Resources>
-  <Grid Margin="16">
+  <Grid Margin="18">
     <Grid.RenderTransform><TranslateTransform x:Name="Schub"/></Grid.RenderTransform>
-    <Border Background="{DynamicResource Gehaeuse}" CornerRadius="10">
-      <Border.Effect><DropShadowEffect BlurRadius="24" ShadowDepth="5" Direction="270" Opacity="0.45" Color="Black"/></Border.Effect>
+    <Border Background="{DynamicResource Gehaeuse}" CornerRadius="12">
+      <Border.Effect><DropShadowEffect BlurRadius="30" ShadowDepth="7" Direction="270" Opacity="0.6" Color="Black"/></Border.Effect>
     </Border>
-    <Border BorderBrush="{DynamicResource Linie}" BorderThickness="1" CornerRadius="10" Padding="12">
+    <Border BorderBrush="{DynamicResource Linie}" BorderThickness="1" CornerRadius="12" Padding="12">
       <StackPanel>
-        <Border Background="{DynamicResource Deckel}" BorderBrush="{DynamicResource Linie}" BorderThickness="1" CornerRadius="7" Padding="14,12,14,14">
+        <!-- Header row -->
+        <DockPanel Margin="4,2,4,10">
+          <Border DockPanel.Dock="Right" BorderBrush="{DynamicResource LinieSubtle}" BorderThickness="1" Background="{DynamicResource Deckel}" CornerRadius="4" Padding="6,2">
+            <TextBlock x:Name="Modell" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Schild}"/>
+          </Border>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <Ellipse Width="7" Height="7" Fill="{DynamicResource Gruen}" Margin="0,0,7,0"/>
+            <TextBlock Text="CLAUDE STAND" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Schild}"/>
+            <TextBlock Text=" // TELEMETRIE" FontSize="11" FontWeight="Normal" Foreground="{DynamicResource Beschriftung}"/>
+          </StackPanel>
+        </DockPanel>
+
+        <!-- Main meter housing plate -->
+        <Border Background="{DynamicResource Deckel}" BorderBrush="{DynamicResource LinieSubtle}" BorderThickness="1" CornerRadius="8" Padding="14,12,14,14">
           <StackPanel>
-            <DockPanel>
-              <TextBlock x:Name="Modell" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Beschriftung}"/>
-              <TextBlock Text="Claude-Verbrauchszähler" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Beschriftung}"/>
-            </DockPanel>
-            <Grid Margin="0,12,0,0">
-              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="18"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/></Grid.ColumnDefinitions>
               <StackPanel x:Name="Fuenf" Grid.Column="0"/>
               <StackPanel x:Name="Woche" Grid.Column="2"/>
             </Grid>
-            <Grid x:Name="Schlitz" Margin="0,18,0,0" Height="18" ClipToBounds="True">
-              <Border Background="{DynamicResource Zaehlwerk}" CornerRadius="3"/>
+
+            <!-- Ferraris meter disc aperture -->
+            <Grid x:Name="Schlitz" Margin="0,16,0,0" Height="18" ClipToBounds="True">
+              <Border Background="{DynamicResource Zaehlwerk}" CornerRadius="3" BorderBrush="{DynamicResource LinieSubtle}" BorderThickness="1"/>
               <Rectangle Height="6" Margin="4,0" Fill="{StaticResource Scheibe}"/>
               <Rectangle Height="6" Margin="4,0">
                 <Rectangle.Fill>
@@ -259,36 +294,42 @@ $win = [Windows.Markup.XamlReader]::Parse(@'
                     <DrawingBrush.Drawing>
                       <DrawingGroup>
                         <GeometryDrawing Brush="Transparent"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,12,6"/></GeometryDrawing.Geometry></GeometryDrawing>
-                        <GeometryDrawing Brush="#70151718"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,1,6"/></GeometryDrawing.Geometry></GeometryDrawing>
+                        <GeometryDrawing Brush="#80090B0D"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,1,6"/></GeometryDrawing.Geometry></GeometryDrawing>
                       </DrawingGroup>
                     </DrawingBrush.Drawing>
                   </DrawingBrush>
                 </Rectangle.Fill>
               </Rectangle>
               <Canvas Margin="4,0">
-                <Rectangle Width="10" Height="6" Canvas.Top="6" Fill="{DynamicResource Rot}">
+                <Rectangle Width="9" Height="6" Canvas.Top="6" Fill="{DynamicResource Rot}">
                   <Rectangle.RenderTransform><TranslateTransform x:Name="Marke" X="-16"/></Rectangle.RenderTransform>
                 </Rectangle>
               </Canvas>
               <Rectangle Height="6" Margin="4,0" Fill="{StaticResource Rand}"/>
+              <Rectangle Margin="1,1" Fill="{StaticResource Glas}" IsHitTestVisible="False"/>
             </Grid>
-            <TextBlock x:Name="Tempo" Margin="0,8,0,0" FontSize="12" Foreground="{DynamicResource Beschriftung}"/>
+            <TextBlock x:Name="Tempo" Margin="0,8,0,0" FontSize="11.5" Foreground="{DynamicResource Beschriftung}"/>
           </StackPanel>
         </Border>
-        <Grid Margin="4,14,4,0">
-          <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto" MinWidth="128"/></Grid.ColumnDefinitions>
-          <Grid.RowDefinitions><RowDefinition/><RowDefinition Height="6"/><RowDefinition/></Grid.RowDefinitions>
-          <TextBlock Text="Heute" FontSize="14"/>
-          <TextBlock x:Name="HeuteGeld" Grid.Column="1" FontSize="14" FontWeight="SemiBold" TextAlignment="Right"/>
-          <TextBlock x:Name="HeuteTokens" Grid.Column="2" FontSize="14" TextAlignment="Right" Foreground="{DynamicResource Beschriftung}"/>
-          <TextBlock Grid.Row="2" Text="Diese Woche" FontSize="14"/>
-          <TextBlock x:Name="WocheGeld" Grid.Row="2" Grid.Column="1" FontSize="14" FontWeight="SemiBold" TextAlignment="Right"/>
-          <TextBlock x:Name="WocheTokens" Grid.Row="2" Grid.Column="2" FontSize="14" TextAlignment="Right" Foreground="{DynamicResource Beschriftung}"/>
-        </Grid>
-        <Border Height="1" Margin="4,12,4,0" Background="{DynamicResource Linie}"/>
-        <DockPanel Margin="4,10,4,0">
+
+        <!-- Telemetry Stats Grid (Heute / Diese Woche) -->
+        <Border Margin="0,10,0,0" Background="{DynamicResource Deckel}" BorderBrush="{DynamicResource LinieSubtle}" BorderThickness="1" CornerRadius="8" Padding="12,10">
+          <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto" MinWidth="110"/></Grid.ColumnDefinitions>
+            <Grid.RowDefinitions><RowDefinition/><RowDefinition Height="6"/><RowDefinition/></Grid.RowDefinitions>
+            <TextBlock Text="Heute" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <TextBlock x:Name="HeuteGeld" Grid.Column="1" FontSize="13" FontWeight="Bold" TextAlignment="Right" VerticalAlignment="Center"/>
+            <TextBlock x:Name="HeuteTokens" Grid.Column="2" FontSize="12.5" TextAlignment="Right" Foreground="{DynamicResource Beschriftung}" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="2" Text="Diese Woche" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <TextBlock x:Name="WocheGeld" Grid.Row="2" Grid.Column="1" FontSize="13" FontWeight="Bold" TextAlignment="Right" VerticalAlignment="Center"/>
+            <TextBlock x:Name="WocheTokens" Grid.Row="2" Grid.Column="2" FontSize="12.5" TextAlignment="Right" Foreground="{DynamicResource Beschriftung}" VerticalAlignment="Center"/>
+          </Grid>
+        </Border>
+
+        <!-- Bottom bar -->
+        <DockPanel Margin="4,12,4,2">
           <Button x:Name="Oeffnen" DockPanel.Dock="Right" Style="{StaticResource Leise}" FontSize="12" Content="Stand öffnen"/>
-          <TextBlock x:Name="Zuletzt" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Beschriftung}"/>
+          <TextBlock x:Name="Zuletzt" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="11.5" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Beschriftung}"/>
         </DockPanel>
       </StackPanel>
     </Border>
@@ -306,37 +347,57 @@ function Set-Theme {
 Set-Theme
 
 # Counter wheels like the Stand page: 0.72em wide, 1.1em high, the ones wheel red, leading zeros dimmed.
-$H = 40
+$H = 42
 function New-Zaehler($panel, $label, $window) {
-  $panel.Children.Add((New-Object Windows.Controls.TextBlock -Property @{ Text = $label; FontWeight = 'SemiBold' })) | Out-Null
-  $row = New-Object Windows.Controls.StackPanel -Property @{ Orientation = 'Horizontal'; Margin = '0,7,0,0' }
+  $panel.Children.Add((New-Object Windows.Controls.TextBlock -Property @{ Text = $label.ToUpper(); FontSize = 11; FontWeight = 'Bold'; Foreground = (New-Object Windows.Media.SolidColorBrush -ArgumentList ([Windows.Media.Color]::FromArgb(180, 140, 150, 156))) })) | Out-Null
+  
+  $drumFrame = New-Object Windows.Controls.Border -Property @{ CornerRadius = 6; Background = $pinsel.ConvertFromString($script:farbe.Zaehlwerk); BorderBrush = $pinsel.ConvertFromString($script:farbe.LinieSubtle); BorderThickness = (New-Object Windows.Thickness(1)); Padding = (New-Object Windows.Thickness(5, 4, 5, 4)); Margin = (New-Object Windows.Thickness(0, 6, 0, 0)) }
+  
+  $row = New-Object Windows.Controls.StackPanel -Property @{ Orientation = 'Horizontal' }
   $walzen = foreach ($i in 0..2) {
-    $b = New-Object Windows.Controls.Border -Property @{ Width = 28; Height = $H; CornerRadius = 3; ClipToBounds = $true; Margin = '0,0,3,0' }
-    $b.SetResourceReference([Windows.Controls.Border]::BackgroundProperty, $(if ($i -eq 2) { 'Rot' } else { 'Zaehlwerk' }))
-    $sp = New-Object Windows.Controls.StackPanel -Property @{ Width = 28 }  # in a Canvas, so the strip is not cut to one digit before it rolls
+    $b = New-Object Windows.Controls.Border -Property @{ Width = 28; Height = $H; CornerRadius = 3; ClipToBounds = $true; Margin = '0,0,2,0' }
+    $b.SetResourceReference([Windows.Controls.Border]::BackgroundProperty, $(if ($i -eq 2) { 'RotDrum' } else { 'Zaehlwerk' }))
+    $sp = New-Object Windows.Controls.StackPanel -Property @{ Width = 28 }
     $sp.RenderTransform = New-Object Windows.Media.TranslateTransform
     foreach ($z in 0..9) {
-      $t = New-Object Windows.Controls.TextBlock -Property @{ Text = "$z"; Height = $H; FontSize = 36; FontWeight = 'Bold'; FontStretch = 'Condensed'; TextAlignment = 'Center'; Padding = '0,1,0,0' }
+      $t = New-Object Windows.Controls.TextBlock -Property @{ Text = "$z"; Height = $H; FontSize = 36; FontWeight = 'Bold'; FontStretch = 'Condensed'; TextAlignment = 'Center'; Padding = '0,2,0,0' }
       $t.SetResourceReference([Windows.Controls.TextBlock]::ForegroundProperty, 'Ziffer')
       $sp.Children.Add($t) | Out-Null
     }
+    # Cylinder curvature overlay
+    $curv = New-Object Windows.Shapes.Rectangle -Property @{ Width = 28; Height = $H; IsHitTestVisible = $false }
+    $curvBrush = New-Object Windows.Media.LinearGradientBrush
+    $curvBrush.StartPoint = New-Object Windows.Point(0, 0)
+    $curvBrush.EndPoint = New-Object Windows.Point(0, 1)
+    $curvBrush.GradientStops.Add((New-Object Windows.Media.GradientStop([Windows.Media.Color]::FromArgb(110, 0, 0, 0), 0.0)))
+    $curvBrush.GradientStops.Add((New-Object Windows.Media.GradientStop([Windows.Media.Color]::FromArgb(25, 255, 255, 255), 0.45)))
+    $curvBrush.GradientStops.Add((New-Object Windows.Media.GradientStop([Windows.Media.Color]::FromArgb(0, 255, 255, 255), 0.55)))
+    $curvBrush.GradientStops.Add((New-Object Windows.Media.GradientStop([Windows.Media.Color]::FromArgb(130, 0, 0, 0), 1.0)))
+    $curv.Fill = $curvBrush
+
+    $grid = New-Object Windows.Controls.Grid
     $roll = New-Object Windows.Controls.Canvas
     $roll.Children.Add($sp) | Out-Null
-    $b.Child = $roll
+    $grid.Children.Add($roll) | Out-Null
+    $grid.Children.Add($curv) | Out-Null
+    $b.Child = $grid
     $row.Children.Add($b) | Out-Null
     @{ panel = $sp; d = 0 }
   }
-  $row.Children.Add((New-Object Windows.Controls.TextBlock -Property @{ Text = '%'; FontSize = 17; FontWeight = 'SemiBold'; VerticalAlignment = 'Bottom'; Margin = '2,0,0,2' })) | Out-Null
-  $panel.Children.Add($row) | Out-Null
+  $pct = New-Object Windows.Controls.TextBlock -Property @{ Text = '%'; FontSize = 16; FontWeight = 'Bold'; VerticalAlignment = 'Bottom'; Margin = '2,0,0,4' }
+  $pct.SetResourceReference([Windows.Controls.TextBlock]::ForegroundProperty, 'Beschriftung')
+  $row.Children.Add($pct) | Out-Null
+  $drumFrame.Child = $row
+  $panel.Children.Add($drumFrame) | Out-Null
 
   # Bar: filled up to the use, the thin tick marks where an even pace would be by now.
-  $bar = New-Object Windows.Controls.Grid -Property @{ Height = 9; Margin = '0,11,0,0' }
-  $track = New-Object Windows.Controls.Border -Property @{ Height = 3; CornerRadius = 1.5 }
+  $bar = New-Object Windows.Controls.Grid -Property @{ Height = 9; Margin = '0,10,0,0' }
+  $track = New-Object Windows.Controls.Border -Property @{ Height = 3.5; CornerRadius = 1.75 }
   $track.SetResourceReference([Windows.Controls.Border]::BackgroundProperty, 'Linie')
   $fillGrid = New-Object Windows.Controls.Grid
   $tickGrid = New-Object Windows.Controls.Grid
   foreach ($g in $fillGrid, $tickGrid) { 1..2 | ForEach-Object { $g.ColumnDefinitions.Add((New-Object Windows.Controls.ColumnDefinition)) } }
-  $fill = New-Object Windows.Controls.Border -Property @{ Height = 3; CornerRadius = 1.5 }
+  $fill = New-Object Windows.Controls.Border -Property @{ Height = 3.5; CornerRadius = 1.75 }
   $fillGrid.Children.Add($fill) | Out-Null
   $tick = New-Object Windows.Shapes.Rectangle -Property @{ Width = 1.5; Height = 9; HorizontalAlignment = 'Left' }
   $tick.SetResourceReference([Windows.Shapes.Shape]::FillProperty, 'Beschriftung')
@@ -345,7 +406,7 @@ function New-Zaehler($panel, $label, $window) {
   foreach ($e in $track, $fillGrid, $tickGrid) { $bar.Children.Add($e) | Out-Null }
   $panel.Children.Add($bar) | Out-Null
 
-  $reset = New-Object Windows.Controls.TextBlock -Property @{ FontSize = 12; Margin = '0,7,0,0' }
+  $reset = New-Object Windows.Controls.TextBlock -Property @{ FontSize = 11.5; Margin = '0,6,0,0' }
   $reset.SetResourceReference([Windows.Controls.TextBlock]::ForegroundProperty, 'Beschriftung')
   $panel.Children.Add($reset) | Out-Null
   @{ walzen = @($walzen); fill = $fill; fillGrid = $fillGrid; tick = $tick; tickGrid = $tickGrid; reset = $reset; window = $window }
@@ -379,7 +440,7 @@ function Set-Zaehler($z, $limit, [long]$now) {
 
 # The meter disc: its red mark passes the slot once per turn, and it turns faster the more $ per hour go through
 # (with the square root, so 4 $ turn it twice as fast as 1 $; at most 10 times, before the ticks start to flicker).
-$st = @{ cache = @{}; samples = New-Object Collections.ArrayList; r = $null; icon = $null; iconText = $null; hiddenAt = [DateTime]::MinValue; disc = $null }
+$st = @{ cache = @{}; samples = New-Object Collections.ArrayList; r = $null; icon = $null; iconText = $null; toggled = [DateTime]::MinValue; left = [DateTime]::MinValue; disc = $null }
 function Start-Scheibe {
   $w = $ui.Schlitz.ActualWidth - 8
   $T = 24.0  # seconds per turn at 1 $ per hour
@@ -464,7 +525,6 @@ function Show-Stand {
   $win.Opacity = 0
   $win.Show()
   $win.UpdateLayout()
-  # ponytail: bottom right of the primary screen's work area; follow the taskbar's screen if it ever moves
   $wa = [Windows.SystemParameters]::WorkArea
   $win.Left = $wa.Right - $win.ActualWidth + 4
   $win.Top = $wa.Bottom - $win.ActualHeight + 4
@@ -478,7 +538,17 @@ function Show-Stand {
   Update-View  # the disc needs the laid-out slot width
 }
 
-$win.Add_Deactivated({ $st.hiddenAt = [DateTime]::UtcNow; $win.Hide() })
+# Losing the focus closes the meter, except to the taskbar: that press may be a click on the icon, which closes it
+# itself. If no such click comes within 0.7 s, the press was somewhere else on the taskbar and the meter closes too.
+$zu = New-Object Windows.Threading.DispatcherTimer -Property @{ Interval = [TimeSpan]::FromMilliseconds(60) }
+$zu.Add_Tick({
+    $zu.Stop()
+    if (-not $win.IsVisible -or $win.IsActive) { return }
+    $name = New-Object Text.StringBuilder 64
+    $null = [Stand.Native]::GetClassName([Stand.Native]::GetForegroundWindow(), $name, 64)
+    if ("$name" -like 'Shell_*TrayWnd' -and ([DateTime]::UtcNow - $st.left).TotalMilliseconds -lt 700) { $zu.Start() } else { $win.Hide() }
+  })
+$win.Add_Deactivated({ $st.left = [DateTime]::UtcNow; $zu.Start() })
 $win.Add_KeyDown({ param($s, $e) if ($e.Key -eq 'Escape') { $win.Hide() } })
 $ui.Oeffnen.Add_Click({ Start-Process $stand; $win.Hide() })
 
@@ -486,8 +556,10 @@ $tray = New-Object Windows.Forms.NotifyIcon
 $tray.Add_MouseClick({
     param($s, $e)
     if ($e.Button -ne 'Left') { return }
-    # A click on the icon first takes the focus from the open meter, which hides it: that click only closes.
-    if ($win.IsVisible) { $win.Hide() } elseif (([DateTime]::UtcNow - $st.hiddenAt).TotalMilliseconds -gt 400) { Show-Stand }
+    # The second click of a double click keeps the meter open instead of closing it again.
+    if (([DateTime]::UtcNow - $st.toggled).TotalMilliseconds -lt [Windows.Forms.SystemInformation]::DoubleClickTime) { if ($win.IsVisible) { $null = $win.Activate() }; return }
+    $st.toggled = [DateTime]::UtcNow
+    if ($win.IsVisible) { $win.Hide() } else { Show-Stand }
   })
 $menu = New-Object Windows.Forms.ContextMenuStrip
 $null = $menu.Items.Add('Stand im Browser öffnen', $null, { Start-Process $stand })

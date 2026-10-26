@@ -143,12 +143,13 @@ if ($Test) {
   exit 0
 }
 
-$launch = "--headless powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+$psExe = (Get-Process -Id $PID).Path
+$launch = "-WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
 $autostart = Join-Path ([Environment]::GetFolderPath('Startup')) 'Claude Stand.lnk'
 function New-Verknuepfung($path, $extra) {
   $l = (New-Object -ComObject WScript.Shell).CreateShortcut($path)
-  $l.TargetPath = Join-Path $env:WINDIR 'System32\conhost.exe'
-  $l.Arguments = "$launch $extra"
+  $l.TargetPath = $psExe
+  $l.Arguments = if ($extra) { "$launch $extra" } else { $launch }
   $l.IconLocation = Join-Path $PSScriptRoot 'stand-tray.ico'
   $l.Description = 'Claude-Limits und Verbrauch im Infobereich'
   $l.Save()
@@ -156,7 +157,7 @@ function New-Verknuepfung($path, $extra) {
 if ($Install) {
   New-Verknuepfung (Join-Path ([Environment]::GetFolderPath('Programs')) 'Claude Stand.lnk')
   New-Verknuepfung $autostart '-Leise'
-  Start-Process (Join-Path $env:WINDIR 'System32\conhost.exe') $launch
+  Start-Process $psExe $launch
   # Windows 11 puts new tray icons into the overflow; show this one on the taskbar once, right after it first appears.
   for ($i = 0; $i -lt 30; $i++) {
     Start-Sleep -Milliseconds 500
@@ -484,26 +485,57 @@ function Update-View {
 }
 
 function Set-TrayIcon($text, $alarm) {
-  $px = [Windows.Forms.SystemInformation]::SmallIconSize.Width
-  $dv = New-Object Windows.Media.DrawingVisual
-  $dc = $dv.RenderOpen()
-  $bg = $pinsel.ConvertFromString($(if ($alarm) { $farbe.Rot } else { $farbe.Zaehlwerk }))
-  $dc.DrawRoundedRectangle($bg, $null, (New-Object Windows.Rect(0, 0, $px, $px)), ($px * 0.2), ($px * 0.2))
-  $face = New-Object Windows.Media.Typeface((New-Object Windows.Media.FontFamily('Bahnschrift')), [Windows.FontStyles]::Normal, [Windows.FontWeights]::Bold, [Windows.FontStretches]::Condensed)
-  $size = $px * $(if ($text.Length -ge 3) { 0.72 } else { 0.95 })
-  $ft = New-Object Windows.Media.FormattedText($text, $de, 'LeftToRight', $face, $size, $pinsel.ConvertFromString($farbe.Ziffer), 1.0)
-  $dc.DrawText($ft, (New-Object Windows.Point((($px - $ft.Width) / 2), (($px + $face.CapsHeight * $size) / 2 - $ft.Baseline))))
-  $dc.Close()
-  $bmp = New-Object Windows.Media.Imaging.RenderTargetBitmap($px, $px, 96, 96, [Windows.Media.PixelFormats]::Pbgra32)
-  $bmp.Render($dv)
-  $png = New-Object Windows.Media.Imaging.PngBitmapEncoder
-  $png.Frames.Add([Windows.Media.Imaging.BitmapFrame]::Create($bmp))
-  $ms = New-Object IO.MemoryStream
-  $png.Save($ms)
-  $handle = (New-Object Drawing.Bitmap($ms)).GetHicon()
-  $tray.Icon = [Drawing.Icon]::FromHandle($handle)
-  if ($st.icon) { $null = [Stand.Native]::DestroyIcon($st.icon) }
-  $st.icon = $handle
+  try {
+    $px = [Windows.Forms.SystemInformation]::SmallIconSize.Width
+    if ($px -lt 16) { $px = 16 }
+    $bmp = New-Object System.Drawing.Bitmap($px, $px)
+    $g = [System.Drawing.Graphics]::FromImage($bmp)
+    $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::ClearTypeGridFit
+
+    $bgHex = if ($alarm) { $script:farbe.Rot } else { $script:farbe.Zaehlwerk }
+    $bgCol = [System.Drawing.ColorTranslator]::FromHtml($bgHex)
+    $brush = New-Object System.Drawing.SolidBrush($bgCol)
+
+    $r = [int]($px * 0.22)
+    $rect = New-Object System.Drawing.Rectangle(0, 0, ($px - 1), ($px - 1))
+    $path = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $d = $r * 2
+    $path.AddArc($rect.X, $rect.Y, $d, $d, 180, 90)
+    $path.AddArc($rect.Right - $d, $rect.Y, $d, $d, 270, 90)
+    $path.AddArc($rect.Right - $d, $rect.Bottom - $d, $d, $d, 0, 90)
+    $path.AddArc($rect.X, $rect.Bottom - $d, $d, $d, 90, 90)
+    $path.CloseFigure()
+    $g.FillPath($brush, $path)
+
+    $pen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(45, 255, 255, 255), 1)
+    $g.DrawPath($pen, $path)
+
+    $fSize = if ($text.Length -ge 3) { $px * 0.50 } elseif ($text.Length -eq 2) { $px * 0.62 } else { $px * 0.72 }
+    $font = New-Object System.Drawing.Font('Bahnschrift', $fSize, [System.Drawing.FontStyle]::Bold, [System.Drawing.GraphicsUnit]::Pixel)
+    $sf = New-Object System.Drawing.StringFormat
+    $sf.Alignment = [System.Drawing.StringAlignment]::Center
+    $sf.LineAlignment = [System.Drawing.StringAlignment]::Center
+    $txtHex = $script:farbe.Ziffer
+    $txtCol = [System.Drawing.ColorTranslator]::FromHtml($txtHex)
+    $textBrush = New-Object System.Drawing.SolidBrush($txtCol)
+    $g.DrawString($text, $font, $textBrush, (New-Object System.Drawing.RectangleF(0, 0, $px, $px)), $sf)
+
+    $hIcon = $bmp.GetHicon()
+    $iconCopy = [System.Drawing.Icon]::FromHandle($hIcon).Clone()
+    $oldIcon = $tray.Icon
+    $tray.Icon = $iconCopy
+    if ($oldIcon -and $oldIcon -ne $tray.Icon) { try { $oldIcon.Dispose() } catch {} }
+    $null = [Stand.Native]::DestroyIcon($hIcon)
+
+    $font.Dispose()
+    $textBrush.Dispose()
+    $pen.Dispose()
+    $path.Dispose()
+    $brush.Dispose()
+    $g.Dispose()
+    $bmp.Dispose()
+  } catch {}
 }
 
 function Update-Stand {
@@ -553,6 +585,8 @@ $win.Add_KeyDown({ param($s, $e) if ($e.Key -eq 'Escape') { $win.Hide() } })
 $ui.Oeffnen.Add_Click({ Start-Process $stand; $win.Hide() })
 
 $tray = New-Object Windows.Forms.NotifyIcon
+$icoInit = Join-Path $PSScriptRoot 'stand-tray.ico'
+if (Test-Path $icoInit) { try { $tray.Icon = New-Object System.Drawing.Icon($icoInit) } catch {} }
 $tray.Add_MouseClick({
     param($s, $e)
     if ($e.Button -ne 'Left') { return }

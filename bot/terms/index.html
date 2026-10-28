@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Terms of Service // Spanani Bot</title>
+  <meta name="description" content="Terms of Service for Spanani Bot, the official community and project management bot of spanani.de.">
+  <meta name="author" content="spanani">
+  <meta name="theme-color" content="#000000">
+
+  <!-- OpenGraph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://spanani.de/bot/terms/">
+  <meta property="og:title" content="Terms of Service // Spanani Bot">
+  <meta property="og:description" content="Terms of Service governing the use of Spanani Bot and community features.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23000000'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23ffffff'/%3E%3Cpath d='M16 4v4M16 24v4M4 16h4M24 16h4' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    if (window.location.pathname.endsWith('/index.html')) {
+      const cleanPath = window.location.pathname.replace(/\/index\.html$/, '/') || '/';
+      window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-card: #08080a;
+      --bg-card-hover: #0e0e12;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.2);
+      --text: #ffffff;
+      --mu: #8e8e93;
+      --mu-dim: #48484a;
+      --accent: #9955e7;
+      --accent-green: #30d158;
+      --r-card: 12px;
+      --r-sm: 6px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; background: var(--bg); color: var(--text); }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Spotlight */
+    .spotlight {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(153, 85, 231, 0.06) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Grid Background */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-title {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.4px;
+    }
+    .brand-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--mu);
+      font-family: 'DM Mono', monospace;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+    }
+    .dot-live {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 6px var(--accent-green);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--mu);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--text); }
+
+    /* Content Layout */
+    main {
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+      position: relative;
+      z-index: 10;
+      flex: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mu);
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 4.5vw, 42px);
+      font-weight: 800;
+      letter-spacing: -1.2px;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      background: linear-gradient(180deg, #ffffff 40%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .meta-line {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--mu);
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .policy-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-card);
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      transition: border-color 0.2s;
+    }
+    .policy-section:hover {
+      border-color: var(--border-hover);
+    }
+
+    .section-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      margin-bottom: 14px;
+      color: #ffffff;
+    }
+
+    p {
+      color: #d1d1d6;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+    p:last-child { margin-bottom: 0; }
+
+    ul {
+      list-style: none;
+      margin-left: 0;
+      margin-bottom: 14px;
+    }
+    li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 8px;
+      color: #d1d1d6;
+      font-size: 13.5px;
+    }
+    li::before {
+      content: "—";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    code {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: #e0d4ff;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--mu);
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    footer a {
+      color: var(--mu);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    footer a:hover { color: #ffffff; }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="spotlight" id="spotlight"></div>
+  <div class="grid-bg"></div>
+
+  <!-- NAVIGATION -->
+  <nav>
+    <a href="/" class="brand">
+      <div class="brand-title">spanani.de</div>
+      <div class="brand-status">
+        <span class="dot-live"></span>
+        <span>bot service</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/bot/privacy/" class="nav-link">Privacy Policy</a>
+      <a href="/bot/terms/" class="nav-link active">Terms of Service</a>
+      <a href="https://discord.gg/spanani" target="_blank" class="nav-link" style="color:var(--accent);">Discord</a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <div class="hero-badge">Legal Terms &amp; Conditions</div>
+    <h1>Terms of Service</h1>
+    <div class="meta-line">Spanani Bot • Last updated: October 28, 2026 • Effective immediately</div>
+
+    <section class="policy-section">
+      <div class="section-num">Section 01</div>
+      <h2>Introduction &amp; Agreement</h2>
+      <p>
+        These Terms of Service ("Terms") govern your access to and use of <strong>Spanani Bot</strong> (Discord Application ID: <code>1564009935434416168</code>), operated by Spanani ("we", "us", or "our") via the website <strong>spanani.de</strong> and the official Spanani Discord community (<code>discord.gg/spanani</code>).
+      </p>
+      <p>
+        By using Spanani Bot, executing its slash commands (such as <code>/request</code>, <code>/ticket</code>, <code>/mcserver</code>, <code>/rank</code>, <code>/remind</code>), or interacting with its buttons and modal interfaces, you agree to be bound by these Terms and the official Discord Terms of Service and Community Guidelines. If you do not agree, do not use the Bot.
+      </p>
+    </section>
+
+    <section class="policy-section">
+      <div class="section-num">Section 02</div>
+      <h2>Permitted Use &amp; Conduct</h2>
+      <p>You agree to use Spanani Bot in compliance with all applicable laws and Discord platform standards:</p>
+      <ul>
+        <li><strong>No Abuse or Exploitation:</strong> You may not attempt to spam, flood, circumvent command cooldowns, or deliberately cause denial of service to the Bot or its hosting infrastructure.</li>
+        <li><strong>No Sensitive Credentials:</strong> Never enter passwords, private API tokens, private Discord bot secrets, or private personal data into public channels, tickets, or interactive modals.</li>
+        <li><strong>Respectful Interaction:</strong> In private project threads (opened via <code>/ticket</code>), abusive, threatening, or harassing behavior towards studio staff or other members is strictly prohibited and results in immediate ticket termination.</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <div class="section-num">Section 03</div>
+      <h2>Services, Proposals &amp; Project Quotes</h2>
+      <p>Spanani Bot facilitates freelance studio development workflows, project intake, and interactive quotes:</p>
+      <ul>
+        <li><strong>Inquiry Submission:</strong> Inquiries submitted via <code>/request</code> or <code>/ticket</code> constitute discovery requests, not legally binding contracts.</li>
+        <li><strong>Official Studio Quotes:</strong> When a quote card is generated, it specifies the agreed scope, estimated delivery timeline, and fixed investment amount in Euros (€).</li>
+        <li><strong>Acceptance &amp; Agreements:</strong> Clicking "Accept Proposal" records the client's confirmation and initiates the building phase. Payment milestones, source code transfer, and deliverable handoffs are conducted per individual project agreement.</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <div class="section-num">Section 04</div>
+      <h2>Interactive Tools &amp; Third-Party Services</h2>
+      <p>
+        Spanani Bot provides utility features including live Minecraft server status pings (<code>/mcserver</code>), MOTD previews, timestamp generation, and game calculators. These tools interface with third-party networks:
+      </p>
+      <ul>
+        <li>We are not responsible for the availability, latency, or content returned by external game servers or third-party APIs.</li>
+        <li>Commands implementing network checks employ strict server-side protection to block private, loopback, and local network ranges.</li>
+      </ul>
+    </section>
+
+    <section class="policy-section">
+      <div class="section-num">Section 05</div>
+      <h2>Availability &amp; Limitation of Liability</h2>
+      <p>
+        The Bot is provided on an <strong>"as is"</strong> and <strong>"as available"</strong> basis without warranties of any kind. While we maintain dedicated hosting with automated monitoring, we do not guarantee 100% uninterrupted uptime or that the Bot will be free from bugs, Discord API rate-limit delays, or platform outages.
+      </p>
+      <p>
+        To the fullest extent permitted by law, Spanani shall not be liable for any indirect, incidental, or consequential damages resulting from your use of or inability to use the Bot.
+      </p>
+    </section>
+
+    <section class="policy-section">
+      <div class="section-num">Section 06</div>
+      <h2>Modifications &amp; Termination</h2>
+      <p>
+        We reserve the right to modify, suspend, or discontinue any feature of Spanani Bot at any time. We may update these Terms periodically; significant revisions will be posted here and announced in the <code>#updates</code> channel. Continued use of the Bot constitutes acceptance of modified Terms.
+      </p>
+    </section>
+
+    <section class="policy-section">
+      <div class="section-num">Section 07</div>
+      <h2>Contact &amp; Support</h2>
+      <p>
+        If you have questions regarding these Terms or need support with a project ticket, contact us at:
+      </p>
+      <ul>
+        <li><strong>Email:</strong> <code>webmaster@spanani.de</code></li>
+        <li><strong>Discord:</strong> <code>discord.gg/spanani</code> (Contact @spanani)</li>
+        <li><strong>Website:</strong> <a href="https://spanani.de" style="color:var(--text);text-decoration:underline;">spanani.de</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="/">spanani.de</a>
+    <span>systems &amp; tools · 2026</span>
+    <div class="footer-links">
+      <a href="/bot/privacy/">privacy policy</a>
+      <a href="/bot/terms/">terms of service</a>
+    </div>
+  </footer>
+
+  <script>
+    const spot = document.getElementById('spotlight');
+    if (spot && window.matchMedia('(hover: hover)').matches) {
+      window.addEventListener('mousemove', e => {
+        spot.style.opacity = '1';
+        spot.style.left = e.clientX + 'px';
+        spot.style.top = e.clientY + 'px';
+      });
+      document.addEventListener('mouseleave', () => { spot.style.opacity = '0'; });
+    }
+  </script>
+</body>
+</html>

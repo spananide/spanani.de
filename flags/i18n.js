@@ -1,0 +1,152 @@
+export const STR = {
+  en: {
+    app_title: 'Flags',
+    sound_on: 'Sound on',
+    sound_off: 'Sound off',
+    sound_toggle: 'Sound on/off',
+    flags_learned: 'flags learned',
+    daily_title: 'Daily challenge',
+    daily_desc: '10 flags every day. One chance.',
+    daily_play: 'Play',
+    daily_done: 'Done: {correct}/{total}',
+    daily_practice: 'Play again for practice',
+    level_starter: 'Starter',
+    level_starter_desc: '30 famous flags, 3 choices',
+    level_easy: 'Easy',
+    level_easy_desc: 'Top 100 flags, 4 choices',
+    level_medium: 'Medium',
+    level_medium_desc: 'Nearly all flags, similar distractors',
+    level_hard: 'Hard',
+    level_hard_desc: 'Type the country name',
+    level_impossible: 'Impossible',
+    level_impossible_desc: 'Rare flags, cropped pieces, 3 lives, 10s timer',
+    accuracy: '{pct}%',
+    new_badge: 'New',
+    mode_learn: 'Learn',
+    mode_wall: 'Wall',
+    mode_reverse: 'Reverse',
+    mode_streak: 'Streak',
+    mode_timed: 'Timed',
+    pick_level: 'Pick a level',
+    coming_soon: 'Coming soon',
+    back_to_home: 'Back to home',
+    reset_progress: 'Reset progress',
+    reset_confirm: 'Do you really want to reset all your progress?',
+    impressum: 'Impressum',
+    datenschutz: 'Datenschutz',
+    back: 'Back',
+    submit: 'Submit',
+    skip: 'Skip',
+    next: 'Next',
+    type_placeholder: 'Country name...',
+    it_was: 'It was {name}',
+    you_typed: 'You typed: {typed}',
+    often_mixed: 'Often mixed up with {name}',
+    streak_count: 'Streak: {count}',
+    score: 'Score: {score}',
+    lives: 'Lives',
+    result_title: 'Run complete',
+    result_score: '{correct} / {total}',
+    result_accuracy: '{pct}% correct',
+    new_best: 'New best!',
+    missed_flags: 'Flags to review',
+    none_missed: 'Flawless run! No misses.',
+    play_again: 'Play again',
+    home: 'Home',
+    time_sec: '{sec}s',
+    timeout: 'Time is up!',
+  },
+  de: {
+    app_title: 'Flags',
+    sound_on: 'Ton an',
+    sound_off: 'Ton aus',
+    sound_toggle: 'Ton an/aus',
+    flags_learned: 'Flaggen gelernt',
+    daily_title: 'Tägliche Herausforderung',
+    daily_desc: '10 Flaggen jeden Tag. Eine Chance.',
+    daily_play: 'Spielen',
+    daily_done: 'Erledigt: {correct}/{total}',
+    daily_practice: 'Zur Übung noch einmal spielen',
+    level_starter: 'Starter',
+    level_starter_desc: '30 bekannte Flaggen, 3 Auswahlmöglichkeiten',
+    level_easy: 'Leicht',
+    level_easy_desc: 'Top 100 Flaggen, 4 Auswahlmöglichkeiten',
+    level_medium: 'Mittel',
+    level_medium_desc: 'Fast alle Flaggen, ähnliche Fehlantworten',
+    level_hard: 'Schwer',
+    level_hard_desc: 'Tippe den Ländernamen ein',
+    level_impossible: 'Unmöglich',
+    level_impossible_desc: 'Seltene Flaggen, Bildausschnitte, 3 Leben, 10 s Zeit',
+    accuracy: '{pct}%',
+    new_badge: 'Neu',
+    mode_learn: 'Lernen',
+    mode_wall: 'Wand',
+    mode_reverse: 'Umgekehrt',
+    mode_streak: 'Serie',
+    mode_timed: 'Auf Zeit',
+    pick_level: 'Wähle ein Level',
+    coming_soon: 'Bald verfügbar',
+    back_to_home: 'Zurück zur Startseite',
+    reset_progress: 'Fortschritt zurücksetzen',
+    reset_confirm: 'Möchtest du deinen gesamten Fortschritt wirklich zurücksetzen?',
+    impressum: 'Impressum',
+    datenschutz: 'Datenschutz',
+    back: 'Zurück',
+    submit: 'Absenden',
+    skip: 'Überspringen',
+    next: 'Weiter',
+    type_placeholder: 'Ländername...',
+    it_was: 'Es war {name}',
+    you_typed: 'Du hast getippt: {typed}',
+    often_mixed: 'Oft verwechselt mit {name}',
+    streak_count: 'Serie: {count}',
+    score: 'Punkte: {score}',
+    lives: 'Leben',
+    result_title: 'Runde beendet',
+    result_score: '{correct} / {total}',
+    result_accuracy: '{pct}% richtig',
+    new_best: 'Neue Bestleistung!',
+    missed_flags: 'Flaggen zum Wiederholen',
+    none_missed: 'Perfekte Runde! Keine Fehler.',
+    play_again: 'Nochmal spielen',
+    home: 'Startseite',
+    time_sec: '{sec} s',
+    timeout: 'Die Zeit ist um!',
+  },
+};
+
+export function makeT(lang = 'en') {
+  const dict = STR[lang] || STR.en;
+  return function t(key, vars) {
+    let str = dict[key] ?? STR.en[key] ?? key;
+    if (vars && typeof vars === 'object') {
+      for (const [k, v] of Object.entries(vars)) {
+        str = str.replaceAll(`{${k}}`, v);
+      }
+    }
+    return str;
+  };
+}
+
+const CONTINENT_NAMES = {
+  Africa: { en: 'Africa', de: 'Afrika' },
+  Asia: { en: 'Asia', de: 'Asien' },
+  Europe: { en: 'Europe', de: 'Europa' },
+  'North America': { en: 'North America', de: 'Nordamerika' },
+  'South America': { en: 'South America', de: 'Südamerika' },
+  Oceania: { en: 'Oceania', de: 'Ozeanien' },
+  Antarctica: { en: 'Antarctica', de: 'Antarktis' },
+  World: { en: 'Worldwide', de: 'Weltweit' },
+};
+
+export function contName(lang, k) {
+  if (k === 'World') return lang === 'de' ? 'Weltweit' : 'Worldwide';
+  const c = CONTINENT_NAMES[k];
+  if (!c) return k || '';
+  return c[lang] || c.en || k;
+}
+
+export function flagName(lang, f) {
+  if (!f) return '';
+  return f[lang] || f.en || '';
+}

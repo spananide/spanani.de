@@ -123,6 +123,15 @@ function renderHomeScreen(root, ctx) {
 
   const levelKeys = ['starter', 'easy', 'medium', 'hard', 'impossible'];
 
+  const heroCandidates = FLAGS.filter(f => f.t >= 1 && f.t <= 3);
+  const heroPool = heroCandidates.slice();
+  const heroFlags = [];
+  for (let i = 0; i < 6 && heroPool.length > 0; i++) {
+    const idx = Math.floor(Math.random() * heroPool.length);
+    heroFlags.push(heroPool[idx]);
+    heroPool.splice(idx, 1);
+  }
+
   let activePicker = null;
 
   root.innerHTML = `
@@ -130,7 +139,7 @@ function renderHomeScreen(root, ctx) {
       <header class="home-header">
         <h1 class="home-logo">${t('app_title')}</h1>
         <div class="home-controls">
-          <div class="lang-toggle" role="group" aria-label="Language">
+          <div class="lang-toggle" role="group" aria-label="${t('language')}">
             <button class="lang-btn ${lang === 'en' ? 'active' : ''}" id="lang-en" type="button">EN</button>
             <span class="lang-sep">|</span>
             <button class="lang-btn ${lang === 'de' ? 'active' : ''}" id="lang-de" type="button">DE</button>
@@ -140,6 +149,14 @@ function renderHomeScreen(root, ctx) {
           </button>
         </div>
       </header>
+
+      <div class="hero-strip" aria-hidden="true">
+        ${heroFlags.map(f => `
+          <div class="hero-thumb">
+            <img src="/flags/svg/${encodeURIComponent(f.c)}.svg" alt="" class="hero-img" loading="lazy" />
+          </div>
+        `).join('')}
+      </div>
 
       <section class="progress-panel" aria-label="${t('flags_learned')}">
         <div class="ring-container">
@@ -168,7 +185,7 @@ function renderHomeScreen(root, ctx) {
         </button>
       </section>
 
-      <nav class="level-list" aria-label="Levels">
+      <nav class="level-list" aria-label="${t('levels')}">
         ${levelKeys.map(lvl => {
           const run = store.state.runs[lvl];
           const accText = (run && run.total > 0)
@@ -186,7 +203,7 @@ function renderHomeScreen(root, ctx) {
         }).join('')}
       </nav>
 
-      <section class="modes-section" aria-label="Game modes">
+      <section class="modes-section" aria-label="${t('game_modes')}">
         <div class="mode-row">
           <button class="btn btn-secondary mode-btn" data-mode="learn" type="button">${t('mode_learn')}</button>
           <button class="btn btn-secondary mode-btn" data-mode="wall" type="button">${t('mode_wall')}</button>

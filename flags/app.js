@@ -123,7 +123,7 @@ function renderHomeScreen(root, ctx) {
 
   const levelKeys = ['starter', 'easy', 'medium', 'hard', 'impossible'];
 
-  const heroCandidates = FLAGS.filter(f => f.t >= 1 && f.t <= 3);
+  const heroCandidates = ctx.FLAGS.filter(f => f.t >= 1 && f.t <= 3);
   const heroPool = heroCandidates.slice();
   const heroFlags = [];
   for (let i = 0; i < 6 && heroPool.length > 0; i++) {
@@ -203,7 +203,7 @@ function renderHomeScreen(root, ctx) {
         }).join('')}
       </nav>
 
-      <section class="modes-section" aria-label="${t('game_modes')}">
+      <section class="modes-section" role="region" aria-label="${t('game_modes')}">
         <div class="mode-row">
           <button class="btn btn-secondary mode-btn" data-mode="learn" type="button">${t('mode_learn')}</button>
           <button class="btn btn-secondary mode-btn" data-mode="wall" type="button">${t('mode_wall')}</button>

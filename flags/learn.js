@@ -11,7 +11,7 @@ function escapeHtml(s) {
 }
 
 export function render(root, ctx, params = {}) {
-  const currentContinent = params.continent || 'all';
+  const currentContinent = (typeof params === 'string' ? params : params?.continent) || 'all';
 
   // Available continents that have at least one flag in dataset
   const availableContinents = ctx.engine.CONTINENTS.filter(c => ctx.FLAGS.some(f => f.k === c));
@@ -54,7 +54,7 @@ export function render(root, ctx, params = {}) {
 
     let revealedDetailsHtml = '';
     if (isRevealed) {
-      const nbrCodes = ctx.engine.neighbours(card.c, ctx.engine.LIKE);
+      const nbrCodes = ctx.engine.neighbours(card.c);
       let lookalikesHtml = '';
       if (nbrCodes && nbrCodes.length > 0) {
         const nbrs = nbrCodes.slice(0, 4);

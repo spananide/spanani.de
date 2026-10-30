@@ -390,3 +390,8 @@ if (!location.hash) {
 } else {
   navigate();
 }
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/flags/sw.js');
+}
+

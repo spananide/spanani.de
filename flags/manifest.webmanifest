@@ -1,0 +1,34 @@
+{
+  "name": "Flags",
+  "short_name": "Flags",
+  "description": "Learn every flag on earth: five levels from Starter to Impossible, flashcards and a mastery wall.",
+  "start_url": "/flags/",
+  "scope": "/flags/",
+  "display": "standalone",
+  "background_color": "#100e17",
+  "theme_color": "#100e17",
+  "icons": [
+    {
+      "src": "/flags/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/flags/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/flags/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/flags/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

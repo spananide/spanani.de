@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Atomic Precision Clock — spanani</title>
-  <meta name="description" content="Precision network-synced atomic clock rendered in your real location's timezone — not your device's. Swiss analog dial, 3D globe, stopwatch, and timer.">
+  <meta name="description" content="Precision network-synced atomic clock rendered in your real location's timezone — not your device's. Shows how far off your device's clock is, plus a Swiss analog dial, 3D globe, stopwatch, and timer.">
   <link rel="canonical" href="https://spanani.de/clock/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="spanani">
   <meta property="og:url" content="https://spanani.de/clock/">
   <meta property="og:title" content="Atomic Precision Clock — spanani">
-  <meta property="og:description" content="Precision network-synced atomic clock rendered in your real location's timezone — not your device's. Swiss analog dial, 3D globe, stopwatch, and timer.">
+  <meta property="og:description" content="Precision network-synced atomic clock rendered in your real location's timezone — not your device's. Shows how far off your device's clock is, plus a Swiss analog dial, 3D globe, stopwatch, and timer.">
   <meta property="og:image" content="https://spanani.de/assets/img/og/clock.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -86,18 +86,24 @@
     .loc-chip .loc-sep { color: var(--ink-faint); }
     .loc-chip .loc-src { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); }
     .loc-chip .loc-chev { width: 11px; height: 11px; color: var(--ink-faint); }
+    .drift { margin-top: var(--space-6); max-width: none; text-align: center; text-wrap: balance; font-family: var(--font-display); font-size: var(--fs-h3); font-weight: 500; letter-spacing: -0.015em; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+    .drift strong { font-weight: 600; color: var(--ink); white-space: nowrap; }
+    .drift--bad strong { color: var(--danger); }
+    .drift-hint { margin-top: var(--space-2); text-align: center; font-size: var(--fs-sm); color: var(--ink-soft); }
+    .drift-hint[hidden] { display: none; }
 
     .digital-view { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; }
     .time-zone-line { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: var(--space-3); }
     .time-digits {
       font-family: var(--font-numeric);
-      font-size: clamp(68px, 17vw, 168px);
+      font-size: clamp(40px, min(17vw, 23vw - 33px), 168px);
       font-weight: 400;
       letter-spacing: -0.03em;
       line-height: 0.95;
       font-variant-numeric: tabular-nums;
       color: var(--ink);
       display: flex;
+      flex-wrap: wrap;
       align-items: baseline;
       justify-content: center;
       user-select: none;
@@ -202,15 +208,9 @@
     .preset-pill { font-family: var(--font-mono); font-size: 11px; padding: 6px 12px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-pill); color: var(--ink-soft); cursor: pointer; transition: all 0.15s; }
     .preset-pill:hover { color: var(--ink); border-color: var(--line-strong); }
 
-    .globe-wrap { width: 100%; height: 380px; position: relative; cursor: grab; touch-action: none; }
+    .globe-wrap { width: 100%; height: min(460px, 62vh, 92vw); position: relative; cursor: grab; touch-action: none; }
     .globe-wrap:active { cursor: grabbing; }
     #globeCanvas { width: 100%; height: 100%; }
-    .pins-layer { position: absolute; inset: 0; pointer-events: none; }
-    .cpin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; font-family: var(--font-mono); }
-    .cp-time { background: var(--paper-raised); border: 1px solid var(--line); color: var(--ink); font-size: 10px; padding: 3px 8px; border-radius: var(--radius-sm); white-space: nowrap; box-shadow: var(--shadow-sm); }
-    .cp-name { font-size: 9px; color: var(--ink-soft); margin-top: 2px; text-shadow: 0 1px 3px var(--paper); }
-    .cpin--here .cp-time { border-color: rgba(var(--ac-rgb), 0.45); }
-    .cpin--here .cp-name { color: var(--ac); }
 
     .world-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
     .wl-card { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
@@ -316,6 +316,9 @@
           </div>
         </div>
 
+        <p class="drift" id="drift">Checking your device's clock…</p>
+        <p class="drift-hint" id="driftHint" hidden>Turn on automatic date and time in your system settings.</p>
+
         <button class="time-pill loc-chip" id="locChip" onclick="openModal('location')" aria-haspopup="dialog" aria-label="Location and timezone settings">
           <span class="dot-live pending" id="locDot"></span>
           <span id="locPlace">Locating…</span>
@@ -330,7 +333,7 @@
         <div class="tel-cell"><span class="tel-cell-l">Location Timezone</span><span class="tel-cell-v" id="telZone">—</span></div>
         <div class="tel-cell"><span class="tel-cell-l">UTC Time</span><span class="tel-cell-v" id="telUtcTime">--:--:-- UTC</span></div>
         <button type="button" class="tel-cell tel-cell--action" id="telEpochBtn" data-copy="" data-copy-message="Unix timestamp copied"><span class="tel-cell-l">Unix Timestamp</span><span class="tel-cell-v" id="telEpoch">--</span></button>
-        <div class="tel-cell"><span class="tel-cell-l">Sync Offset</span><span class="tel-cell-v" id="telOffset">± -- ms</span></div>
+        <div class="tel-cell"><span class="tel-cell-l">Time source</span><span class="tel-cell-v" id="telSource">Syncing…</span></div>
         <div class="tel-cell"><span class="tel-cell-l">Location Source</span><span class="tel-cell-v" id="telLocSrc">Resolving…</span></div>
       </div>
 
@@ -347,9 +350,9 @@
       <span>Timer</span>
     </button>
     <div class="dock-sep"></div>
-    <button class="dock-btn" onclick="openModal('globe')" title="3D Earth Globe (G)">
+    <button class="dock-btn" onclick="openModal('globe')" title="Globe (G)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-      <span>3D Globe</span>
+      <span>Globe</span>
     </button>
     <button class="dock-btn" onclick="openModal('world')" title="World Cities (W)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
@@ -415,12 +418,11 @@
   <div class="tool-modal" id="modal-globe">
     <div class="modal-card" style="max-width: 680px;" role="dialog" aria-modal="true" aria-labelledby="titleGlobe">
       <div class="modal-head">
-        <span class="modal-title" id="titleGlobe">3D Globe</span>
+        <span class="modal-title" id="titleGlobe">Globe</span>
         <button class="modal-close" onclick="closeModal('globe')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="globe-wrap" id="globeCont">
-        <canvas id="globeCanvas"></canvas>
-        <div class="pins-layer" id="globePins"></div>
+        <canvas id="globeCanvas" role="img" aria-label="Globe with world cities and their current times. The same times are listed under World."></canvas>
       </div>
     </div>
   </div>
@@ -534,8 +536,10 @@
       PAL = {
         paper: cs.getPropertyValue('--paper').trim(),
         paperRaised: cs.getPropertyValue('--paper-raised').trim(),
-        paperSunk: cs.getPropertyValue('--paper-sunk').trim(),
         line: cs.getPropertyValue('--line').trim(),
+        lineStrong: cs.getPropertyValue('--line-strong').trim(),
+        ink: cs.getPropertyValue('--ink').trim(),
+        ac: cs.getPropertyValue('--ac').trim(),
         inkSoftRgb: hexRgb(cs.getPropertyValue('--ink-soft').trim()),
         acRgb: cs.getPropertyValue('--ac-rgb').trim()
       };
@@ -615,16 +619,43 @@
     };
 
     // Fast-Race Atomic Network Sync Engine
-    let ntpOffset = 0;
     let anchorTs = null;
     let anchorPerf = null;
+    let syncBound = 0;
     let lastNtpSync = 0;
 
     function getAtomicTime() {
-      if (anchorTs !== null && anchorPerf !== null) {
+      if (anchorTs !== null) {
         return Math.round(anchorTs + (performance.now() - anchorPerf));
       }
-      return Date.now() + ntpOffset;
+      return Date.now();
+    }
+
+    // Only fractional stamps: whole-second fields (unixtime, timestamp) can be 999 ms late.
+    function parseServerTime(d) {
+      const iso = d.dateTime ? d.dateTime + 'Z' : d.utc_datetime || (d.date && d.time ? d.date + 'T' + d.time + 'Z' : '');
+      return iso.includes('.') ? Date.parse(iso.replace(/(\.\d{3})\d+/, '$1')) : NaN;
+    }
+
+    async function sampleTime(url) {
+      const sep = url.includes('?') ? '&' : '?';
+      const p0 = performance.now();
+      const res = await fetch(url + sep + '_=' + Math.random(), { cache: 'no-store', signal: AbortSignal.timeout(4000) });
+      const ts = parseServerTime(await res.json());
+      if (!Number.isFinite(ts)) throw new Error('bad time reply');
+      const rtt = performance.now() - p0;
+      return { url, ts, perf: p0 + rtt / 2, rtt };
+    }
+
+    function applySync(s) {
+      anchorTs = s.ts;
+      anchorPerf = s.perf;
+      syncBound = Math.max(1, Math.round(s.rtt / 2));
+      lastNtpSync = Date.now();
+      $('#sDot').className = 'dot-live';
+      $('#sText').textContent = 'Synced (±' + syncBound + 'ms)';
+      $('#telSource').textContent = new URL(s.url).hostname;
+      paintDrift();
     }
 
     async function syncNTP() {
@@ -633,34 +664,45 @@
         'https://gettimeapi.dev/v1/time?timezone=UTC',
         'https://worldtimeapi.org/api/timezone/Etc/UTC'
       ];
-      try {
-        const race = await Promise.any(urls.map(async u => {
-          const t0 = Date.now();
-          const p0 = performance.now();
-          const sep = u.indexOf('?') === -1 ? '?' : '&';
-          const res = await fetch(u + sep + '_=' + Math.random(), { cache: 'no-store' });
-          const d = await res.json();
-          let ts = NaN;
-          if (typeof d.unixtime === 'number') ts = d.unixtime * 1000 + (d.milliSeconds || 0);
-          else if (typeof d.dateTime === 'string') ts = new Date(d.dateTime + 'Z').getTime();
-          else if (typeof d.utc_datetime === 'string') ts = new Date(d.utc_datetime).getTime();
-          else if (typeof d.timestamp === 'number') ts = d.timestamp * (d.timestamp > 1e11 ? 1 : 1000);
-          if (!Number.isFinite(ts)) throw new Error();
-          const rtt = performance.now() - p0;
-          return { ts, perf: p0 + rtt / 2, off: Math.round(ts - (t0 + rtt / 2)), rtt };
-        }));
-
-        anchorTs = race.ts;
-        anchorPerf = race.perf;
-        ntpOffset = race.off;
-        lastNtpSync = Date.now();
-        $('#sDot').className = 'dot-live';
-        $('#sText').textContent = 'Synced (±' + Math.max(1, Math.round(race.rtt / 2)) + 'ms)';
-        $('#telOffset').textContent = (ntpOffset >= 0 ? '+' : '') + ntpOffset + ' ms · Locked';
-      } catch(e) {
+      let best = null;
+      // The first request to a server also pays for DNS and TLS, which skews its midpoint.
+      // So three in a row each: the fastest reply leaves the least room for error.
+      // ponytail: trusts the fastest server, no outlier vote; that needs 3+ reliable sources.
+      await Promise.allSettled(urls.map(async url => {
+        for (let i = 0; i < 3; i++) {
+          const s = await sampleTime(url);
+          if (!best || s.rtt < best.rtt) { best = s; applySync(s); }
+        }
+      }));
+      // A later failed round keeps the last lock, which still runs on performance.now().
+      if (!best && anchorTs === null) {
         $('#sDot').className = 'dot-live warn';
         $('#sText').textContent = 'Device clock · unsynced';
+        $('#telSource').textContent = 'None reachable';
+        $('#drift').textContent = "Couldn't reach a time server, so this is your device's own time.";
       }
+    }
+
+    // ms is device clock minus real time, so positive means the device runs ahead.
+    function describeDrift(ms, bound) {
+      const abs = Math.abs(ms);
+      if (abs <= Math.max(bound, 5)) return 'on time';
+      let amount;
+      if (abs < 1000) amount = abs + ' ms';
+      else if (abs < 60000) amount = (abs / 1000).toFixed(abs < 10000 ? 2 : 1) + ' s';
+      else if (abs < 3600000) amount = Math.floor(abs / 60000) + ' min ' + Math.floor(abs % 60000 / 1000) + ' s';
+      else amount = Math.floor(abs / 3600000) + ' h ' + Math.floor(abs % 3600000 / 60000) + ' min';
+      return amount + (ms > 0 ? ' ahead' : ' behind');
+    }
+
+    function paintDrift() {
+      const ms = Date.now() - getAtomicTime();
+      const text = describeDrift(ms, syncBound);
+      const bad = Math.abs(ms) >= 5000;
+      const el = $('#drift');
+      el.innerHTML = 'Your device is <strong>' + text + '</strong>' + (text === 'on time' ? '' : ms > 0 ? ' of real time' : ' real time');
+      el.classList.toggle('drift--bad', bad);
+      $('#driftHint').hidden = !bad;
     }
 
     // ---- Location / timezone resolution (never trusts the device's OS timezone setting) ----
@@ -824,6 +866,7 @@
     const daysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const monthsArr = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     let lastTitleMinute = -1;
+    let lastDriftSec = -1;
 
     function tick() {
       const ts = getAtomicTime();
@@ -881,6 +924,7 @@
       const epoch = Math.floor(ts / 1000);
       $('#telEpoch').textContent = epoch;
       $('#telEpochBtn').setAttribute('data-copy', String(epoch));
+      if (anchorTs !== null && epoch !== lastDriftSec) { lastDriftSec = epoch; paintDrift(); }
 
       const curMinute = d.getUTCHours() * 60 + d.getUTCMinutes();
       if (curMinute !== lastTitleMinute) {
@@ -1103,11 +1147,27 @@
     const LAND_BITS = '////7///8+f/H/7k/z/4j///f+B/4P//PwDyAf///wMAgAH/3/8/AAAQAP7//38AAMAAAPDz/w8AAAAAAAAP/x8AAACAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAACAAAAAAAOAAAAAAAAAAAAAAAGAAAAAAAMABAAAAAAAAAAAAAAEEAAAAAAD4AAAAAAAAAAAAAAAAEAAAAAAA8AMAAAAAAAAAAAAACAABAAAAAAD+AQAAAAAAAAAAAAAfAAAAAAAAAPgDAAAAAAAAAAAAAPwBAAAAAAAAAP8BAAAAPAAAAACAB/8AAAAAAAAAAP4DAAAA+AEAAAAA/v8HAAAAAAAAAOB/AAAAgD8AAAAAgP//AQAAAAAAAADwfwAAAMB/AAAAAID//wMAAAAAAAAAwP8BAAAA/wEAAAAA/P8/AAAAAAAAAAD8PwAAAOD/MAAAAID//wcAAAAAAAAAAP7/AAAA4P8wAAAAAP//BwAAAAAAAAAA+P8DAADA/8MBAAAA4P8fAAAAAAAAAACA/38AAAD8PxgAAAAA+P8AAAAAAAAAAAD4/x8AAAD/Pw4AAAAA/H8AAAAAAAAAAAD+/x8AAAD/fxgAAAAA8GMAAAAAAAAAAAD8/z8AAAD8/yEAAAAAAI4AAAAAAAAAAADw//8DAADA/w8AAAAAAEAIAAAAAAAAAAAA//9/AAAA/P8AAAAAAFAACAAAAAAAAAAA8P//HwAAgP8/AAAAAGAAcIEAAAAAAAAAAPz//wcAAOD/DwAAAAACAPgQAAAAAAAAAAD+//8BAADw/wcAAADAAAI+AgAAAAAAAAAA//8PAAAA+P8HAAAA4LzBDgAAAAAAAAAABP//BwAAAPz/DwAAAGC8YwEAAAAAAAAAAAD+/wEAAAD8/x8AAAAwfAMAAAAAAAAAAAAA/P8BAAAA/P9/AAAAeDgAAAAAAAAAAAAAAPz/AAAAAf//fwAAADYwAAAAAAAAAAAAAAD+DwAAwN///38AAAEIEAEAAAAAAAAAAACg/wEAAPj///8fAEAAAeAAAAAAAAAAAAAAwj4AAAD/////BwAGIAIcAAAAAAAAAAAAIBAAAADw////hwBgQHJAAAAAAAAAAAAAgAMAAADA/////wCAA/ADAgAAAAAAAAAAgA8AAACA////vw8AB+AHAgAAAAAAAAAA+AMAAAAA////nz+AD/gBAQAAAAAAAAAAjwADAADA////8x/gBz9BAAAAAAAAAADwEAQAAAD8//+//wH//AMAAAAAAAAAAMADCgAAAPD//3/+B///fwQAAAAAAAAAwAcAAAAA8P//vz/B////AgAAAAAAAAD8AAEAAAD8///7w////x8AAAAAAAAA6A8IAAAA4P//7+f///9/AAAAAAAAAOi/CAAAAMD////7////PwAAAAAAAAD9/wEAAAD4fw7//////yEAAAAAAAD8/w8AAADgPwD+/////yAAAAAAAID//wcAAAD4B8L/////Dx0AAAAAAPz/PwAAAGBQ8H////8/YwAAAAAA/v8fAAAAPID85////zEAAAAAAPj//wEAAPDA89////93CAAAAAD4//8BAAB8yIHz////jwAAAADA//8PAACA1wf3////PwIAAADA//8fAADg//X8////BwAAAAD//z8FAOD///////8HAAAA4P//RwAA/P//////fwAAAMD//z8AAPb//////wcAAAD8//sDAJT//////x8CAAD+//4AACP+////fzAABPj/8AAAgv7///8fGADC/4cLAAD3////fxDA9//BgADg/f///z8B/v8PhQHg/f////8D//9lHAbu/////9///zmHge3///8///8zD4DP////47uM+AEO+v//AXAdPwDI/h8AuIYPAPEXAACMHwDwAAB0fwCAAAD0hwAAAOwhAAC4AQAAAAAAAAAA';
     let triggerGlobeResize = () => {};
     let setGlobeView = () => {};
+
+    // One bit per point: rows of latitude `step` degrees apart, each spaced by its own circumference.
+    function decodeLand(b64, step) {
+      const bytes = atob(b64), pts = [], rows = Math.round(180 / step);
+      let i = 0;
+      for (let r = 0; r < rows; r++) {
+        const lat = -90 + (r + 0.5) * step;
+        const n = Math.max(1, Math.round(360 / step * Math.cos(lat * Math.PI / 180)));
+        for (let k = 0; k < n; k++, i++) {
+          if (bytes.charCodeAt(i >> 3) >> (i & 7) & 1) pts.push([lat, -180 + (k + 0.5) * 360 / n]);
+        }
+      }
+      return pts;
+    }
+
     (function initGlobe() {
       const canvas = $('#globeCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       const cont = $('#globeCont');
+      const modal = $('#modal-globe');
       let rotY = 0.32, rotX = 0.18, velX = 0, drag = false, lx = 0, ly = 0;
 
       function resize() {
@@ -1163,49 +1223,56 @@
       const grat = [];
       for (let lon = -180; lon < 180; lon += 30) {
         const l = [];
-        for (let lat = -84; lat <= 84; lat += 4) l.push(ll2v(lat, lon));
-        grat.push({ pts: l, major: lon === 0 });
+        for (let lat = -90; lat <= 90; lat += 4) l.push(ll2v(lat, lon));
+        grat.push(l);
       }
       for (let lat = -60; lat <= 60; lat += 30) {
         const l = [];
         for (let lon = -180; lon <= 180; lon += 4) l.push(ll2v(lat, lon));
-        grat.push({ pts: l, major: lat === 0 });
+        grat.push(l);
+      }
+
+      const landPts = decodeLand(LAND_BITS, LAND_STEP).map(([lat, lon]) => ll2v(lat, lon));
+
+      const pinTimes = new Map();
+      let pinKey = '';
+      function pinTime(tz, ts) {
+        const key = Math.floor(ts / 60000) + '|' + CFG.h24;
+        if (key !== pinKey) { pinKey = key; pinTimes.clear(); }
+        if (!pinTimes.has(tz)) {
+          let s = '--:--';
+          try { s = new Date(ts).toLocaleTimeString('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 }); } catch(e) {}
+          pinTimes.set(tz, s);
+        }
+        return pinTimes.get(tz);
       }
 
       function drawFrame() {
         requestAnimationFrame(drawFrame);
+        if (!modal.classList.contains('open')) return;
         const W = canvas.offsetWidth, H = canvas.offsetHeight;
         if (!W || !H) return;
-        const cx = W / 2, cy = H / 2, GR = Math.min(W, H) * 0.42;
-        ctx.clearRect(0, 0, W, H);
-        if (!drag) { rotY += velX * 0.88; velX *= 0.88; }
+        const cx = W / 2, cy = H / 2, GR = Math.min(W, H) * 0.46;
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        const halo = ctx.createRadialGradient(cx, cy, GR * 0.72, cx, cy, GR * 1.35);
-        halo.addColorStop(0, `rgba(${PAL.acRgb}, 0.10)`);
-        halo.addColorStop(1, 'transparent');
-        ctx.beginPath();
-        ctx.arc(cx, cy, GR * 1.35, 0, Math.PI * 2);
-        ctx.fillStyle = halo;
-        ctx.fill();
+        if (!drag && !reduced) rotY += velX * 0.88;
+        velX *= 0.88;
+
+        ctx.clearRect(0, 0, W, H);
 
         ctx.save();
         ctx.beginPath();
         ctx.arc(cx, cy, GR, 0, Math.PI * 2);
+        ctx.fillStyle = PAL.paperRaised;
+        ctx.fill();
         ctx.clip();
 
-        const base = ctx.createRadialGradient(cx - GR * 0.2, cy - GR * 0.2, GR * 0.1, cx, cy, GR);
-        base.addColorStop(0, PAL.paperRaised);
-        base.addColorStop(0.62, PAL.paper);
-        base.addColorStop(1, PAL.paperSunk);
-        ctx.fillStyle = base;
-        ctx.fillRect(cx - GR, cy - GR, GR * 2, GR * 2);
-
-        for (const g of grat) {
-          ctx.strokeStyle = g.major ? `rgba(${PAL.acRgb}, 0.28)` : PAL.line;
-          ctx.lineWidth = g.major ? 1.1 : 0.8;
+        ctx.strokeStyle = PAL.line;
+        ctx.lineWidth = 0.8;
+        for (const pts of grat) {
           ctx.beginPath();
           let pv = false;
-          for (const pt of g.pts) {
+          for (const pt of pts) {
             const [rx, ry, rz] = rv(pt);
             if (rz > 0) {
               if (!pv) ctx.moveTo(cx + rx * GR, cy - ry * GR);
@@ -1217,54 +1284,49 @@
         }
         ctx.restore();
 
+        // Dots bunch up towards the rim, so they get fainter there.
+        const r = GR * 0.0072, near = new Path2D(), rim = new Path2D();
+        for (const pt of landPts) {
+          const [rx, ry, rz] = rv(pt);
+          if (rz > 0.04) {
+            const sx = cx + rx * GR, sy = cy - ry * GR, path = rz > 0.35 ? near : rim;
+            path.moveTo(sx + r, sy);
+            path.arc(sx, sy, r, 0, Math.PI * 2);
+          }
+        }
+        ctx.fillStyle = `rgba(${PAL.inkSoftRgb}, 0.62)`;
+        ctx.fill(near);
+        ctx.fillStyle = `rgba(${PAL.inkSoftRgb}, 0.3)`;
+        ctx.fill(rim);
+
         ctx.beginPath();
         ctx.arc(cx, cy, GR, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(${PAL.acRgb}, 0.32)`;
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(cx, cy, GR * 0.992, 0, Math.PI * 2);
-        ctx.strokeStyle = PAL.line;
+        ctx.strokeStyle = PAL.lineStrong;
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        const pins = $('#globePins');
-        if (pins) pins.innerHTML = '';
-        const now = new Date(getAtomicTime());
+        ctx.fillStyle = PAL.ink;
         for (const city of CITIES) {
           const [rx, ry, rz] = rv(ll2v(city.lat, city.lon));
           if (rz < 0.08) continue;
           const alpha = Math.min(1, (rz - 0.08) * 6);
           const sx = cx + rx * GR, sy = cy - ry * GR;
+          ctx.globalAlpha = alpha;
           ctx.beginPath();
           ctx.arc(sx, sy, 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(${PAL.inkSoftRgb}, ${0.9 * alpha})`;
           ctx.fill();
-
-          if (pins) {
-            let ts = '--:--';
-            try {
-              ts = now.toLocaleTimeString('en-GB', { timeZone: city.tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 });
-            } catch(e) {}
-            const cr2 = cont.getBoundingClientRect();
-            const pin = document.createElement('div');
-            pin.className = 'cpin';
-            pin.style.left = (sx / W * cr2.width) + 'px';
-            pin.style.top = (sy / H * cr2.height) + 'px';
-            pin.style.opacity = alpha;
-            pin.innerHTML = `<div class="cp-time">${ts}</div><div class="cp-name">${city.name}</div>`;
-            pins.appendChild(pin);
-          }
         }
+        ctx.globalAlpha = 1;
 
-        // "You are here" pin, from the resolved location
         const loc = CFG.loc || {};
-        if (typeof loc.lat === 'number' && typeof loc.lon === 'number') {
+        const hasYou = typeof loc.lat === 'number' && typeof loc.lon === 'number';
+        let youV = null;
+        if (hasYou) {
           const [rx, ry, rz] = rv(ll2v(loc.lat, loc.lon));
+          youV = { rx, ry, rz, sx: cx + rx * GR, sy: cy - ry * GR };
           if (rz > 0.02) {
             const alpha = Math.min(1, (rz - 0.02) * 6);
-            const sx = cx + rx * GR, sy = cy - ry * GR;
-            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const sx = youV.sx, sy = youV.sy;
             if (reduced) {
               ctx.beginPath();
               ctx.arc(sx, sy, 9, 0, Math.PI * 2);
@@ -1283,20 +1345,75 @@
             ctx.arc(sx, sy, 4, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(${PAL.acRgb}, ${0.95 * alpha})`;
             ctx.fill();
+          }
+        }
 
-            if (pins) {
-              let ts2 = '--:--';
-              try { ts2 = now.toLocaleTimeString('en-GB', { timeZone: loc.tz, hour: '2-digit', minute: '2-digit', hour12: !CFG.h24 }); } catch(e) {}
-              const cr2 = cont.getBoundingClientRect();
-              const pin = document.createElement('div');
-              pin.className = 'cpin cpin--here';
-              pin.style.left = (sx / W * cr2.width) + 'px';
-              pin.style.top = (sy / H * cr2.height) + 'px';
-              pin.style.opacity = alpha;
-              pin.innerHTML = `<div class="cp-time">${ts2}</div><div class="cp-name">${loc.label || 'You'}</div>`;
-              pins.appendChild(pin);
+        ctx.font = "500 11px 'Atkinson Hyperlegible Mono', monospace";
+        const nowTs = getAtomicTime();
+        const candidates = [];
+        if (hasYou && youV && youV.rz > 0.25) {
+          candidates.push({
+            isYou: true,
+            name: (loc.label || 'You').split(',')[0],
+            tz: loc.tz,
+            sx: youV.sx,
+            sy: youV.sy,
+            rz: youV.rz
+          });
+        }
+        const cityCands = [];
+        for (const city of CITIES) {
+          if (hasYou && Math.abs(city.lat - loc.lat) <= 0.5 && Math.abs(city.lon - loc.lon) <= 0.5) continue;
+          const [rx, ry, rz] = rv(ll2v(city.lat, city.lon));
+          if (rz > 0.25) {
+            cityCands.push({
+              isYou: false,
+              name: city.name,
+              tz: city.tz,
+              sx: cx + rx * GR,
+              sy: cy - ry * GR,
+              rz
+            });
+          }
+        }
+        cityCands.sort((a, b) => b.rz - a.rz);
+        candidates.push(...cityCands);
+
+        const placed = [];
+        for (const cand of candidates) {
+          const text = cand.name + '  ' + pinTime(cand.tz, nowTs);
+          const w = ctx.measureText(text).width + 14;
+          const h = 20;
+          const x = Math.max(2, Math.min(W - 2 - w, cand.sx - w / 2));
+          if (x < 2 || x + w > W - 2) continue;
+
+          const yOptions = [cand.sy - 8 - 20, cand.sy + 8];
+          let chosenY = null;
+          for (const y of yOptions) {
+            if (y < 2 || y + h > H - 2) continue;
+            const hit = placed.some(b => !(x + w + 3 <= b.x || b.x + b.w + 3 <= x || y + h + 3 <= b.y || b.y + b.h + 3 <= y));
+            if (!hit) {
+              chosenY = y;
+              break;
             }
           }
+          if (chosenY === null) continue;
+
+          placed.push({ x, y: chosenY, w, h });
+
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(x, chosenY, w, h, 6);
+          else ctx.rect(x, chosenY, w, h);
+          ctx.fillStyle = PAL.paper;
+          ctx.fill();
+          ctx.strokeStyle = cand.isYou ? PAL.ac : PAL.line;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = PAL.ink;
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'left';
+          ctx.fillText(text, x + 7, chosenY + 10);
         }
       }
       requestAnimationFrame(drawFrame);

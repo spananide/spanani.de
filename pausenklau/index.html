@@ -260,6 +260,7 @@
       .row .div { grid-column: 1 / -1; order: 3; }
       .choice.inline { grid-template-columns: 1fr; }
       .blabels span:nth-child(even) { visibility: hidden; }
+      .tile .v { font-size: 22px; }
     }
     @media (prefers-reduced-motion: no-preference) { .lesson.live { animation: livePulse 2.4s ease-in-out infinite; } }
     @keyframes livePulse { 50% { box-shadow: 0 0 0 1px var(--accent), 0 0 0 5px var(--accent-soft); } }
@@ -463,19 +464,19 @@
       </fieldset>
       <div id="okFields">
         <div class="field">
-          <label class="lbl" for="endIn">Schluss (+ überzogen, − früher)</label>
+          <label class="lbl" for="endIn">Schluss in m:ss (+ überzogen, − früher)</label>
           <div class="stepper">
             <button type="button" data-step="end:-5">−5</button><button type="button" data-step="end:-1">−1</button>
-            <input class="inp" type="number" id="endIn" step="1" min="-120" max="120" inputmode="numeric">
+            <input class="inp" type="text" id="endIn" inputmode="text" autocomplete="off" placeholder="0:00">
             <button type="button" data-step="end:1">+1</button><button type="button" data-step="end:5">+5</button>
           </div>
           <div class="hintrow"><span class="hint" id="endHint"></span><button type="button" class="nowbtn" data-now="end">Jetzt ist Schluss</button></div>
         </div>
         <div class="field">
-          <label class="lbl" for="lateIn" id="lateLbl">Später angefangen (min)</label>
+          <label class="lbl" for="lateIn" id="lateLbl">Später angefangen (m:ss)</label>
           <div class="stepper">
             <button type="button" data-step="late:-5">−5</button><button type="button" data-step="late:-1">−1</button>
-            <input class="inp" type="number" id="lateIn" step="1" min="0" max="120" inputmode="numeric">
+            <input class="inp" type="text" id="lateIn" inputmode="text" autocomplete="off" placeholder="0:00">
             <button type="button" data-step="late:1">+1</button><button type="button" data-step="late:5">+5</button>
           </div>
           <div class="hintrow"><span class="hint zero" id="lateHint"></span><button type="button" class="nowbtn" data-now="late" id="lateNow">Jetzt geht's los</button></div>
@@ -609,9 +610,13 @@ const toMin = s => { const [h,m] = String(s).split(':').map(Number); return h*60
 const fromMin = m => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
 const isHM = s => /^\d{1,2}:\d{2}$/.test(s) && toMin(s) < 24 * 60;
 const fmtD = d => `${pad(d.getDate())}.${pad(d.getMonth()+1)}.`;
-const sgn = n => n > 0 ? '+' + n : n < 0 ? '−' + (-n) : '±0';
+// Schluss und Verspätung sind Minuten und dürfen Bruchteile haben (5:12 = 5.2), damit alte Einträge und der Worker gültig bleiben.
+const mmss = m => { const s = Math.round(Math.abs(m) * 60); return Math.floor(s / 60) + ':' + pad(s % 60); };
+const sgn = m => { const s = Math.round(m * 60); return (s > 0 ? '+' : s < 0 ? '−' : '±') + mmss(m); };
+const timeIn = m => (Math.round(m * 60) < 0 ? '-' : '') + mmss(m);
+const parseMmss = v => { const x = String(v).trim().replace('−', '-').match(/^([+-]?)(\d{1,3})(?::([0-5]?\d))?$/); return x ? (x[1] === '-' ? -1 : 1) * (+x[2] * 60 + (+x[3] || 0)) / 60 : null; };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const clamp = (v, a, b) => Math.max(a, Math.min(b, Math.round(+v || 0)));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, +v || 0));
 const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
 const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
@@ -784,7 +789,7 @@ function forecast(te) {
   const ok = teacherEntries(te, '').filter(e => e.s === 'ok' && !e.pend);
   if (ok.length < 2) return '';
   const avg = f => ok.reduce((a, e) => a + f(e), 0) / ok.length, late = avg(e => e.late || 0);
-  return `Prognose: ${sgn1(avg(e => e.end))} min${late >= 0.5 ? `, ${fmt1(late)} min zu spät` : ''}`;
+  return `Prognose: ${sgn(avg(e => e.end))} min${late >= 0.5 ? `, ${mmss(late)} min zu spät` : ''}`;
 }
 
 // ---------- DOM ----------
@@ -801,43 +806,72 @@ async function api(method, path, data) {
   if (!r.ok) throw Object.assign(new Error(j.error || 'Fehler ' + r.status), { status: r.status });
   return j;
 }
-// Änderungen werden lokal gemerkt und nachgeholt, falls das Gerät gerade offline ist
-const pending = { profile: false, weeks: new Set() };
+// Änderungen werden lokal gemerkt und nachgeholt, falls das Gerät gerade offline ist.
+// pending.weeks: Woche → geänderte Stellen ("e/1-08:00", "off/2026-11-05", "ch/1-08:00"); null = ganze Woche schreiben
+const pending = { profile: false, weeks: new Map() };
+let saveGen = 0; // zählt jede lokale Änderung, damit eine laufende Anfrage keine neuere überschreibt
 const cacheKey = () => 'pk-cache-' + state.username;
 function cacheLocal() {
-  if (state.username) lsSet(cacheKey(), { profile: state.profile, weeks: state.weeks, pending: { profile: pending.profile, weeks: [...pending.weeks] } });
+  if (state.username) lsSet(cacheKey(), { profile: state.profile, weeks: state.weeks, pending: { profile: pending.profile, weeks: [...pending.weeks].map(([mk, p]) => [mk, p && [...p]]) } });
+}
+// Nur die hier geänderten Stellen über den Serverstand legen, damit Einträge anderer Geräte bleiben
+function mergeWeek(server, local, paths) {
+  const out = structuredClone(server || {});
+  for (const p of paths) {
+    const i = p.indexOf('/'), part = p.slice(0, i), key = p.slice(i + 1), v = local?.[part]?.[key];
+    if (v === undefined) { if (out[part]) delete out[part][key]; } else (out[part] ||= {})[key] = v;
+  }
+  return out;
 }
 let chain = Promise.resolve();
 function flush() {
   chain = chain.then(async () => {
     try {
-      if (pending.profile) { pending.profile = false; await api('PUT', '/profile', { profile: state.profile }).catch(e => { pending.profile = true; throw e; }); }
-      for (const mk of [...pending.weeks]) { pending.weeks.delete(mk); await api('PUT', '/week/' + mk, { data: state.weeks[mk] || {} }).catch(e => { pending.weeks.add(mk); throw e; }); }
+      if (pending.profile) { const g = saveGen; await api('PUT', '/profile', { profile: state.profile }); if (g === saveGen) pending.profile = false; }
+      if (pending.weeks.size) {
+        const srv = [...pending.weeks.values()].some(Boolean) ? (await api('GET', '/me')).weeks || {} : {};
+        for (const mk of [...pending.weeks.keys()]) {
+          const paths = pending.weeks.get(mk);
+          if (paths) state.weeks[mk] = mergeWeek(srv[mk], state.weeks[mk], paths);
+          else if (!state.weeks[mk]) { pending.weeks.delete(mk); continue; } // nie eine Woche auf dem Server leeren, die hier gar nicht vorliegt
+          const g = saveGen;
+          await api('PUT', '/week/' + mk, { data: state.weeks[mk] });
+          if (g === saveGen) pending.weeks.delete(mk); // sonst holt der nächste flush sie nach
+        }
+      }
       setSync('');
     } catch (e) { setSync(e.offline ? 'Offline · wird nachgeholt' : 'Nicht gespeichert: ' + e.message); }
     cacheLocal();
   });
   return chain;
 }
-const saveProfile = () => { pending.profile = true; cacheLocal(); flush(); };
-const saveWeek = mk => { pending.weeks.add(mk); cacheLocal(); flush(); };
+const saveProfile = () => { saveGen++; pending.profile = true; cacheLocal(); flush(); };
+const saveWeek = (mk, part, key) => {
+  saveGen++;
+  const p = pending.weeks.get(mk);
+  if (!pending.weeks.has(mk) || p) pending.weeks.set(mk, new Set([...(p || []), part + '/' + key]));
+  cacheLocal(); flush();
+};
 function setSync(msg) { $('#sync').textContent = msg; $('#sync').className = 'sync' + (msg ? ' warn' : ''); }
 async function refresh() {
   if (!state.token) return;
-  if (pending.profile || pending.weeks.size) await flush();
+  await flush();
   if (pending.profile || pending.weeks.size) return;
   try {
-    const d = await api('GET', '/me');
+    const gen = saveGen, d = await api('GET', '/me');
+    if (gen !== saveGen) return refresh(); // während des Ladens wurde getippt: die Antwort ist schon veraltet
     state.username = d.username;
     state.profile = { ...blankProfile(), ...d.profile, v: d.profile.v || 3 };
     state.weeks = d.weeks || {};
-    if (migrateV2(state.profile, state.weeks)) { pending.profile = true; Object.keys(state.weeks).forEach(mk => pending.weeks.add(mk)); flush(); }
+    if (migrateV2(state.profile, state.weeks)) { pending.profile = true; Object.keys(state.weeks).forEach(mk => pending.weeks.set(mk, null)); flush(); }
     cacheLocal(); setSync('');
     loadHolidays(); show(); loadGroup();
   } catch (e) { if (e.offline) setSync('Offline'); }
 }
 function forgetSession() {
-  if (state.username) lsSet(cacheKey(), null);
+  // Noch nicht Hochgeladenes bleibt auf dem Gerät und wird nach dem nächsten Anmelden nachgeholt
+  if (pending.profile || pending.weeks.size) cacheLocal();
+  else if (state.username) lsSet(cacheKey(), null);
   lsSet('pk-token', null); lsSet('pk-user', null);
   Object.assign(state, { token: null, username: '', profile: blankProfile(), weeks: {}, grp: null, scope: 'me' });
   pending.profile = false; pending.weeks.clear();
@@ -893,6 +927,7 @@ $('#authForm').addEventListener('submit', async e => {
     state.token = r.token; state.username = r.username;
     lsSet('pk-token', r.token); lsSet('pk-user', r.username);
     $('#aPw').value = $('#aPw2').value = '';
+    if (loadCache()) show();
     await refresh();
   } catch (err) { $('#aErr').textContent = err.message; }
   finally { btn.disabled = false; }
@@ -1058,7 +1093,7 @@ $('#edSave').onclick = () => {
 function migrateOldLocalData() {
   const old = lsGet('pausenklau-v1');
   if (!old?.weeks || Object.keys(state.weeks).length) return;
-  for (const [mk, w] of Object.entries(old.weeks)) { state.weeks[mk] = w; pending.weeks.add(mk); }
+  for (const [mk, w] of Object.entries(old.weeks)) { state.weeks[mk] = w; pending.weeks.set(mk, null); }
   lsSet('pausenklau-v1', null); lsSet('pausenklau-v1-plan', null);
   toast('Deine alten Einträge aus diesem Browser wurden übernommen');
 }
@@ -1126,8 +1161,8 @@ function gridHtml({ mon, lessons, preview, teachers }) {
         if (!e) { if (past) { cls = 'open'; badge = '<span class="b open">eintragen</span>'; } }
         else if (e.s === 'cancelled') { cls = 'cancelled'; badge = '<span class="b open">Ausfall</span>'; }
         else if (e.s === 'skipped') { cls = 'skipped'; badge = '<span class="b open">geskippt</span>'; }
-        else if (e.pend) badge = `<span class="b zero">${e.late ? e.late + '′ spät' : 'pünktlich da'}</span>`;
-        else badge = `<span class="b ${e.end > 0 ? 'over' : e.end < 0 ? 'early' : 'zero'}">${sgn(e.end)}${e.late ? ` · ${e.late}′ spät` : ''}</span>`;
+        else if (e.pend) badge = `<span class="b zero">${e.late ? mmss(e.late) + ' spät' : 'pünktlich da'}</span>`;
+        else badge = `<span class="b ${e.end > 0 ? 'over' : e.end < 0 ? 'early' : 'zero'}">${sgn(e.end)}</span>${e.late ? `<span class="note">${mmss(e.late)} spät</span>` : ''}`;
         if (e?.n) badge = `<span class="note">${esc(e.n)}</span>` + badge;
         for (const x of (P().events || []).filter(x => x.k === L.key && x.d === ds)) badge = `<span class="note hw">${esc(x.n.replace(/^HA [^:]*:/, 'HA:'))}</span>` + badge;
         if (ds === td && nm >= s - 5 && nm <= en + 15) cls += ' live';
@@ -1162,11 +1197,9 @@ function renderWeek() {
     else if (e.s === 'ok') { if (e.end > 0) over += e.end; else under -= e.end; late += e.late || 0; }
   }
   if (!ME()) under += late;
-  $('#weeksum').innerHTML = `<span>Diese Woche: <b>${sgn(over)}</b> min überzogen</span><span><b>${under}</b> min unterzogen</span>${ME() ? `<span><b>${late}</b> min zu spät</span>` : ''}<span><b>${canc}</b> Ausfälle</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
+  $('#weeksum').innerHTML = `<span>Diese Woche: <b>${sgn(over)}</b> min überzogen</span><span><b>${mmss(under)}</b> min unterzogen</span>${ME() ? `<span><b>${mmss(late)}</b> min zu spät</span>` : ''}<span><b>${canc}</b> Ausfälle</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
 }
 
-const fmt1 = n => (Math.round(n * 10) / 10).toLocaleString('de-DE');
-const sgn1 = v => (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt1(Math.abs(v));
 // Gruppen-Rangliste vom Server; from passt zum gewählten Zeitraum
 async function loadGroup(from = rangeFrom()) {
   try { state.grp = { ...await api('GET', '/group' + (from ? '?from=' + from : '')), from }; } catch { return; }
@@ -1184,12 +1217,12 @@ function trendHtml(from) {
   }
   const ks = Object.keys(wk).sort().slice(-12);
   if (ks.length < 2) return '';
-  const max = Math.max(1, ...ks.map(k => wk[k].over)), top = ks.find(k => wk[k].over === max);
+  const max = Math.max(1 / 60, ...ks.map(k => wk[k].over)), top = ks.find(k => wk[k].over === max);
   return `<div class="trend"><h3>Überzogen pro Woche</h3>
-    <div class="bars">${ks.map(k => `<div title="Woche ab ${fmtD(fromIso(k))}: ${wk[k].over} min überzogen${ME() ? `, ${wk[k].late} min zu spät` : ''}">${k === top ? `<b>+${max}</b>` : ''}<i style="height:${wk[k].over / max * 100}%"></i></div>`).join('')}</div>
+    <div class="bars">${ks.map(k => `<div title="Woche ab ${fmtD(fromIso(k))}: ${mmss(wk[k].over)} min überzogen${ME() ? `, ${mmss(wk[k].late)} min zu spät` : ''}">${k === top ? `<b>${sgn(max)}</b>` : ''}<i style="height:${wk[k].over / max * 100}%"></i></div>`).join('')}</div>
     <div class="blabels">${ks.map(k => `<span>${fmtD(fromIso(k))}</span>`).join('')}</div></div>`;
 }
-const mainVal = (r, s) => s === 'avg' ? sgn1(r.avg) : s === 'cancel' ? String(r.cancel) : s === 'late' ? r.late + ' min' : s === 'net' ? sgn(r.net) : s === 'under' ? '−' + r.under : '+' + r.over;
+const mainVal = (r, s) => s === 'avg' ? sgn(r.avg) : s === 'cancel' ? String(r.cancel) : s === 'late' ? mmss(r.late) + ' min' : s === 'net' ? sgn(r.net) : s === 'under' ? '−' + mmss(r.under) : '+' + mmss(r.over);
 let lastRank = null; // für „Als Bild teilen“
 function renderRank() {
   const from = rangeFrom(), grp = state.scope === 'group' && state.grp?.group;
@@ -1202,9 +1235,9 @@ function renderRank() {
   const sum = f => rows.reduce((a, r) => a + r[f], 0);
   const tracked = sum('n'), skips = sum('skip');
   $('#tiles').innerHTML = `
-    <div class="tile"><div class="k">Pause verloren</div><div class="v">${sum('over')}<small>min</small></div><div class="s">durch Überziehen</div></div>
-    <div class="tile"><div class="k">Unterzogen</div><div class="v">${sum('under')}<small>min</small></div><div class="s">${ME() ? 'früher Schluss' : 'früher Schluss + später Beginn'}</div></div>
-    ${ME() ? `<div class="tile"><div class="k">Zu spät</div><div class="v">${sum('late')}<small>min</small></div><div class="s">Lehrer kamen später</div></div>` : ''}
+    <div class="tile"><div class="k">Pause verloren</div><div class="v">${mmss(sum('over'))}<small>min</small></div><div class="s">durch Überziehen</div></div>
+    <div class="tile"><div class="k">Unterzogen</div><div class="v">${mmss(sum('under'))}<small>min</small></div><div class="s">${ME() ? 'früher Schluss' : 'früher Schluss + später Beginn'}</div></div>
+    ${ME() ? `<div class="tile"><div class="k">Zu spät</div><div class="v">${mmss(sum('late'))}<small>min</small></div><div class="s">Lehrer kamen später</div></div>` : ''}
     <div class="tile"><div class="k">Ausfälle</div><div class="v">${sum('cancel')}</div><div class="s">Stunden</div></div>
     <div class="tile"><div class="k">Erfasst</div><div class="v">${tracked}</div><div class="s">Stunden${skips ? ` · ${skips} geskippt` : ''}</div></div>`;
   const withData = rows.filter(r => r.n);
@@ -1218,8 +1251,8 @@ function renderRank() {
   const nm = k => esc(names[k] || teacherName(k) || k);
   const aw = (k, r, s) => r ? `<div class="award"><div class="k">${k}</div><div class="n">${nm(r.k)}</div><div class="s">${s}</div></div>` : '';
   $('#awards').innerHTML = !tracked
-    ? `<p class="note-pill empty"><strong>Noch nichts eingetragen.</strong> Tipp in der Wochenansicht auf eine Stunde und trag ein, wie viele Minuten überzogen oder früher Schluss gemacht wurde. Oder nutz oben den Live-Countdown: „Jetzt ist Schluss“ rechnet die Minuten selbst aus.</p>`
-    : `<div class="awards">${aw('Überzieh-König', king, king && `${king.over} min in ${king.nOver} ${king.nOver === 1 ? 'Stunde' : 'Stunden'}`)}${aw('Pausenfreund', friend, friend && `${friend.under} min früher raus`)}${aw('Zuspätkommer', slow, slow && `${slow.late} min zu spät`)}${aw('Uhrwerk', clock, clock && `Ø ${fmt1(off(clock))} min daneben`)}${rec ? `<div class="award"><div class="k">Rekord</div><div class="n num">+${rec.end} min</div><div class="s">${nm(rec.t)} · ${esc(rec.c)} · ${fmtD(fromIso(rec.ds))}</div></div>` : ''}</div>`;
+    ? `<p class="note-pill empty"><strong>Noch nichts eingetragen.</strong> Tipp in der Wochenansicht auf eine Stunde und trag ein, wie lange überzogen oder früher Schluss gemacht wurde. Oder nutz oben den Live-Countdown: „Jetzt ist Schluss“ rechnet die Zeit sekundengenau aus.</p>`
+    : `<div class="awards">${aw('Überzieh-König', king, king && `${mmss(king.over)} min in ${king.nOver} ${king.nOver === 1 ? 'Stunde' : 'Stunden'}`)}${aw('Pausenfreund', friend, friend && `${mmss(friend.under)} min früher raus`)}${aw('Zuspätkommer', slow, slow && `${mmss(slow.late)} min zu spät`)}${aw('Uhrwerk', clock, clock && `Ø ${mmss(off(clock))} min daneben`)}${rec ? `<div class="award"><div class="k">Rekord</div><div class="n num">${sgn(rec.end)} min</div><div class="s">${nm(rec.t)} · ${esc(rec.c)} · ${fmtD(fromIso(rec.ds))}</div></div>` : ''}</div>`;
   const courses = {};
   for (const l of [...P().plans.A, ...P().plans.B]) (courses[l.te] ||= new Set()).add(l.c);
   const s = state.sort;
@@ -1232,7 +1265,7 @@ function renderRank() {
     return `<li class="row${none ? ' nodata' : ''}${ME() && !grp && !none ? ' click' : ''}" data-k="${esc(r.k)}">
       <span class="pos">${none ? '–' : pad(i + 1)}</span>
       <div class="who"><b>${nm(r.k)}</b><small>${esc(r.k)}${sub}</small></div>
-      <div class="div" title="${nm(r.k)}: ${r.under} min unterzogen, ${r.over} min überzogen"><span class="l" style="width:${r.under / max * 100}%"></span><span class="mid"></span><span class="r" style="width:${r.over / max * 100}%"></span></div>
+      <div class="div" title="${nm(r.k)}: ${mmss(r.under)} min unterzogen, ${mmss(r.over)} min überzogen"><span class="l" style="width:${r.under / max * 100}%"></span><span class="mid"></span><span class="r" style="width:${r.over / max * 100}%"></span></div>
       <div class="vals"><span class="num">${none ? '—' : main}</span><br>${r.n} Std · ${r.cancel} Ausf.</div></li>`;
   }).join('') || '<p class="muted">Noch keine Lehrer im Stundenplan.</p>';
 }
@@ -1242,14 +1275,14 @@ function openTeacher(k) {
   const es = teacherEntries(k, rangeFrom()), ok = es.filter(e => e.s === 'ok');
   const avg = f => ok.length ? ok.reduce((a, e) => a + f(e), 0) / ok.length : 0;
   const worst = ok.filter(e => e.end > 0).sort((a, b) => b.end - a.end)[0];
-  const byDay = DAYS.map((n, d) => { const x = ok.filter(e => e.d === d); return x.length ? `${n} ${sgn1(x.reduce((a, e) => a + e.end, 0) / x.length)}` : ''; }).filter(Boolean).join(' · ');
+  const byDay = DAYS.map((n, d) => { const x = ok.filter(e => e.d === d); return x.length ? `${n} ${sgn(x.reduce((a, e) => a + e.end, 0) / x.length)}` : ''; }).filter(Boolean).join(' · ');
   const tile = (key, v, s) => `<div class="tile"><div class="k">${key}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
   $('#tdTitle').textContent = teacherName(k) || k;
   $('#tdMeta').textContent = [k, ...new Set([...P().plans.A, ...P().plans.B].filter(l => l.te === k).map(l => l.c))].join(' · ');
-  $('#tdBody').innerHTML = `<div class="tiles">${tile('Ø Schluss', sgn1(avg(e => e.end)), 'min pro Stunde')}${tile('Ø zu spät', fmt1(avg(e => e.late || 0)), 'min pro Stunde')}${tile('Erfasst', ok.length, `Stunden · ${es.filter(e => e.s === 'cancelled').length} Ausf.`)}</div>
-    ${worst ? `<p>Schlimmste Stunde: <b>+${worst.end} min</b> in ${esc(worst.c)} am ${fmtD(fromIso(worst.ds))}</p>` : ''}
+  $('#tdBody').innerHTML = `<div class="tiles">${tile('Ø Schluss', sgn(avg(e => e.end)), 'min pro Stunde')}${tile('Ø zu spät', mmss(avg(e => e.late || 0)), 'min pro Stunde')}${tile('Erfasst', ok.length, `Stunden · ${es.filter(e => e.s === 'cancelled').length} Ausf.`)}</div>
+    ${worst ? `<p>Schlimmste Stunde: <b>${sgn(worst.end)} min</b> in ${esc(worst.c)} am ${fmtD(fromIso(worst.ds))}</p>` : ''}
     ${byDay ? `<p>Ø nach Wochentag: ${byDay}</p>` : ''}
-    <ul class="tlist">${es.map(e => `<li><span class="num">${fmtD(fromIso(e.ds))}</span> ${esc(e.c)} · ${e.s === 'cancelled' ? 'Ausfall' : e.s === 'skipped' ? 'geskippt' : `${e.pend ? 'Ende offen' : sgn(e.end) + ' min'}${e.late ? ` · ${e.late}′ spät` : ''}`}${e.n ? ` · <i>${esc(e.n)}</i>` : ''}</li>`).join('')}</ul>`;
+    <ul class="tlist">${es.map(e => `<li><span class="num">${fmtD(fromIso(e.ds))}</span> ${esc(e.c)} · ${e.s === 'cancelled' ? 'Ausfall' : e.s === 'skipped' ? 'geskippt' : `${e.pend ? 'Ende offen' : sgn(e.end) + ' min'}${e.late ? ` · ${mmss(e.late)} spät` : ''}`}${e.n ? ` · <i>${esc(e.n)}</i>` : ''}</li>`).join('')}</ul>`;
   $('#tdlg').showModal();
 }
 $('#rank').addEventListener('click', e => { const r = e.target.closest('.row.click'); if (r) openTeacher(r.dataset.k); });
@@ -1374,7 +1407,7 @@ function tickLive() {
     let what = '', time = '', prog = false, acts = '';
     const who = l => `${esc(teacherLabel(l.te))}${l.r ? ' · Raum ' + esc(l.r) : ''}`;
     const status = e => e?.s === 'cancelled' ? 'Ausfall eingetragen' : e?.s === 'skipped' ? 'Geskippt'
-      : e?.pend ? (e.late ? `Lehrer kam ${e.late} min zu spät` : 'Lehrer war pünktlich') : e ? `Eingetragen: ${sgn(e.end)} min` : '';
+      : e?.pend ? (e.late ? `Lehrer kam ${mmss(e.late)} min zu spät` : 'Lehrer war pünktlich') : e ? `Eingetragen: ${sgn(e.end)} min` : '';
     if (st.k === 'lesson') {
       // ME: solange der Lehrer nicht da ist, läuft ein eigener Zu-spät-Zähler
       const wait = ME() && early && (!st.e || st.e.s === 'ok');
@@ -1398,7 +1431,7 @@ function tickLive() {
       const gap = st.prev ? toMin(st.next.start) - toMin(st.prev.end) : 0;
       const stolen = st.pe?.s === 'ok' && st.pe.end > 0 ? Math.min(st.pe.end, gap) : 0;
       const title = !ME() ? 'Pause' : !st.prev ? `Erste Stunde um ${st.next.start}` : gap > 20 ? 'Freistunde' : 'Pause';
-      const info = st.prev ? `${gap} min ${title === 'Freistunde' ? 'frei' : 'Pause'}${stolen ? `, davon ${stolen} min von ${esc(st.prev.c)} geklaut` : ''} · ` : '';
+      const info = st.prev ? `${gap} min ${title === 'Freistunde' ? 'frei' : 'Pause'}${stolen ? `, davon ${mmss(stolen)} min von ${esc(st.prev.c)} geklaut` : ''} · ` : '';
       const fc = forecast(st.next.te);
       what = `${title}<small>${info}Nächste Stunde: ${esc(st.next.c)} · ${who(st.next)}${fc ? ' · ' + fc : ''}</small>`;
       time = `<span class="lv-time"><small>${st.prev ? 'noch' : 'in'}</small><span id="lvT"></span></span>`;
@@ -1422,7 +1455,7 @@ function record(L, mon, patch, msg) {
   const mk = iso(mon), w = editWeek(mk), old = w.e[L.key];
   w.e[L.key] = { s: 'ok', end: 0, late: 0, n: '', ...(old?.s === 'ok' ? old : {}), c: L.c, t: L.te, ...patch };
   if ('end' in patch) delete w.e[L.key].pend;
-  saveWeek(mk); render(); tickLive(); toast(msg);
+  saveWeek(mk, 'e', L.key); render(); tickLive(); toast(msg);
 }
 $('#live').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
@@ -1434,11 +1467,12 @@ $('#live').addEventListener('click', e => {
   }
   const st = liveState(); if (!st.L) return;
   if (act === 'start' || act === 'inontime') {
-    const late = act === 'start' ? clamp((st.sec - secOf(st.L.start)) / 60, 0, 120) : 0;
-    if (!ME()) return record(st.L, st.mon, { late }, `${st.L.c}: ${late} min später angefangen`);
-    record(st.L, st.mon, { late, in: true, ...(!st.e && { pend: true }) }, late ? `${teacherName(st.L.te) || st.L.te}: ${late} min zu spät` : `${teacherName(st.L.te) || st.L.te} war pünktlich`);
+    const late = act === 'start' ? Math.floor(st.sec - secOf(st.L.start)) / 60 : 0;
+    const name = teacherName(st.L.te) || st.L.te;
+    if (!ME()) return record(st.L, st.mon, { late }, `${st.L.c}: ${mmss(late)} min später angefangen`);
+    record(st.L, st.mon, { late, in: true, ...(!st.e && { pend: true }) }, late ? `${name}: ${mmss(late)} min zu spät` : `${name} war pünktlich`);
   }
-  else { const end = act === 'ontime' ? 0 : clamp((st.sec - secOf(st.L.end)) / 60, -120, 120); record(st.L, st.mon, { end }, `${st.L.c}: ${sgn(end)} min eingetragen`); }
+  else { const end = act === 'ontime' ? 0 : Math.trunc(st.sec - secOf(st.L.end)) / 60; record(st.L, st.mon, { end }, `${st.L.c}: ${sgn(end)} min eingetragen`); }
 });
 $('#cf').addEventListener('submit', e => {
   e.preventDefault();
@@ -1454,14 +1488,36 @@ $('#cReset').addEventListener('click', () => {
 
 // ---------- Eintrag zu einer Stunde ----------
 let cur = null;
-function endHint() {
-  const v = clamp($('#endIn').value, -120, 120);
-  $('#endHint').textContent = v > 0 ? `${v} min überzogen` : v < 0 ? `${-v} min früher Schluss` : 'pünktlich';
-  $('#endHint').className = 'hint ' + (v > 0 ? 'over' : v < 0 ? 'early' : 'zero');
-  const late = clamp($('#lateIn').value, 0, 120);
-  $('#lateHint').textContent = ME() && cur && late ? `Lehrer kam um ${fromMin(toMin(cur.start) + late)}` : '';
+const END_MAX = 300;
+function readTime(inp, lo, hi) {
+  const raw = inp.value.trim(), v = parseMmss(raw), ok = !raw || (v !== null && v >= lo && v <= hi);
+  inp.setCustomValidity(ok ? '' : `Schreib Minuten oder Minuten:Sekunden, zum Beispiel 5:30 (bis ${hi} Minuten).`);
+  return { ok, v: ok ? v || 0 : 0 };
 }
-function setStatus2(s) { $('#s-' + s).checked = true; $('#okFields').hidden = s !== 'ok'; }
+function endHint() {
+  const e = readTime($('#endIn'), -END_MAX, END_MAX);
+  if (!e.ok) {
+    $('#endHint').textContent = 'Schreib es als 5 oder 5:30';
+    $('#endHint').className = 'hint over';
+  } else {
+    $('#endHint').textContent = e.v > 0 ? `${mmss(e.v)} min überzogen` : e.v < 0 ? `${mmss(e.v)} min früher Schluss` : 'pünktlich';
+    $('#endHint').className = 'hint ' + (e.v > 0 ? 'over' : e.v < 0 ? 'early' : 'zero');
+  }
+  const l = readTime($('#lateIn'), 0, END_MAX);
+  if (!l.ok) {
+    $('#lateHint').textContent = 'Schreib es als 5 oder 5:30';
+    $('#lateHint').className = 'hint over';
+  } else {
+    $('#lateHint').className = 'hint zero';
+    if (ME() && cur && l.v) {
+      const t = toMin(cur.start) * 60 + Math.round(l.v * 60);
+      $('#lateHint').textContent = `Lehrer kam um ${fromMin(Math.floor(t / 60))}:${pad(t % 60)}`;
+    } else {
+      $('#lateHint').textContent = '';
+    }
+  }
+}
+function setStatus2(s) { $('#s-' + s).checked = true; $('#okFields').hidden = s !== 'ok'; $('#endIn').disabled = $('#lateIn').disabled = s !== 'ok'; }
 function openLesson(key) {
   const L = lessonsOf(state.mon).find(l => l.key === key);
   if (!L) return;
@@ -1470,11 +1526,11 @@ function openLesson(key) {
   $('#dTitle').textContent = L.c;
   $('#dMeta').textContent = `${teacherLabel(L.te)}${L.r ? ' · Raum ' + L.r : ''} · ${DAYS[L.d]} ${fmtD(fromIso(L.date))} · ${L.start}–${L.end}`;
   setStatus2(e?.s || 'ok');
-  $('#endIn').value = e?.end ?? 0; $('#lateIn').value = e?.late ?? 0; $('#noteIn').value = e?.n || '';
+  $('#endIn').value = timeIn(e?.end ?? 0); $('#lateIn').value = timeIn(e?.late ?? 0); $('#noteIn').value = e?.n || '';
   $$('[data-now]').forEach(b => b.hidden = L.date !== todayIso());
   $('#delBtn').hidden = !e;
   $('#hwWrap').hidden = !ME(); $('#hwIn').value = '';
-  $('#lateLbl').textContent = ME() ? 'Lehrer zu spät gekommen (min)' : 'Später angefangen (min)';
+  $('#lateLbl').textContent = ME() ? 'Lehrer zu spät gekommen (m:ss)' : 'Später angefangen (m:ss)';
   $('#lateNow').textContent = ME() ? 'Lehrer ist jetzt da' : "Jetzt geht's los";
   endHint();
   $('#dlg').showModal();
@@ -1486,12 +1542,13 @@ $('#lf').addEventListener('click', e => {
   const st = e.target.closest('[data-step]'), nw = e.target.closest('[data-now]');
   if (st) {
     const [f, n] = st.dataset.step.split(':'), inp = $('#' + f + 'In');
-    inp.value = f === 'end' ? clamp(+inp.value + +n, -120, 120) : clamp(+inp.value + +n, 0, 120);
+    inp.value = timeIn(clamp((parseMmss(inp.value) || 0) + +n, f === 'end' ? -END_MAX : 0, END_MAX));
     endHint();
   }
   if (nw) {
-    if (nw.dataset.now === 'end') $('#endIn').value = clamp(nowMin() - toMin(cur.end), -120, 120);
-    else $('#lateIn').value = clamp(nowMin() - toMin(cur.start), 0, 120);
+    const n = now(), sec = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds();
+    if (nw.dataset.now === 'end') $('#endIn').value = timeIn(clamp((sec - secOf(cur.end)) / 60, -END_MAX, END_MAX));
+    else $('#lateIn').value = timeIn(clamp((sec - secOf(cur.start)) / 60, 0, END_MAX));
     endHint();
   }
 });
@@ -1499,15 +1556,15 @@ $('#lf').addEventListener('submit', e => {
   e.preventDefault();
   const mk = iso(state.mon), w = editWeek(mk), s = $('#lf').s.value;
   w.e[cur.key] = { s, c: cur.c, t: cur.te,
-    end: s === 'ok' ? clamp($('#endIn').value, -120, 120) : 0,
-    late: s === 'ok' ? clamp($('#lateIn').value, 0, 120) : 0,
+    end: s === 'ok' ? parseMmss($('#endIn').value) ?? 0 : 0,
+    late: s === 'ok' ? parseMmss($('#lateIn').value) ?? 0 : 0,
     n: $('#noteIn').value.trim().slice(0, 120) };
-  saveWeek(mk); $('#dlg').close(); render(); liveSig = ''; tickLive();
+  saveWeek(mk, 'e', cur.key); $('#dlg').close(); render(); liveSig = ''; tickLive();
 });
 $('#delBtn').addEventListener('click', () => {
   const mk = iso(state.mon);
   delete editWeek(mk).e[cur.key];
-  saveWeek(mk); $('#dlg').close(); render(); liveSig = ''; tickLive();
+  saveWeek(mk, 'e', cur.key); $('#dlg').close(); render(); liveSig = ''; tickLive();
 });
 
 // ---------- Hausaufgabe (nur ME): wird ein Termin an der nächsten Stunde desselben Kurses ----------
@@ -1539,7 +1596,7 @@ function setChange(r, te) {
   if (r) c.r = r;
   if (te) c.te = te;
   if (r || te) w.ch[cur.key] = c; else delete w.ch[cur.key];
-  saveWeek(mk); $('#chdlg').close(); render(); liveSig = ''; tickLive();
+  saveWeek(mk, 'ch', cur.key); $('#chdlg').close(); render(); liveSig = ''; tickLive();
 }
 $('#chf').addEventListener('submit', e => { e.preventDefault(); setChange($('#chR').value.trim(), $('#chT').value.trim()); });
 $('#chClear').onclick = () => setChange('', '');
@@ -1559,7 +1616,7 @@ function openDay(ds) {
 function setDayOff(reason) {
   const mk = iso(mondayOf(fromIso(curDay))), w = editWeek(mk);
   if (reason) w.off[curDay] = reason; else delete w.off[curDay];
-  saveWeek(mk); $('#ddlg').close(); render(); liveSig = ''; tickLive();
+  saveWeek(mk, 'off', curDay); $('#ddlg').close(); render(); liveSig = ''; tickLive();
 }
 $('#df').addEventListener('submit', e => { e.preventDefault(); setDayOff($('#ddReason').value.trim().slice(0, 40) || 'Schulfrei'); });
 $('#ddClear').addEventListener('click', () => setDayOff(null));
@@ -1600,7 +1657,9 @@ $('#flip').onclick = () => {
 $('#sLogout').onclick = async () => {
   await flush();
   await api('POST', '/logout').catch(() => {});
+  const left = pending.profile || pending.weeks.size;
   forgetSession(); show();
+  if (left) toast('Nicht Hochgeladenes bleibt auf diesem Gerät und wird nach dem nächsten Anmelden nachgeholt.');
 };
 $('#sExport').onclick = () => {
   const blob = new Blob([JSON.stringify({ app: 'pausenklau', v: 2, username: state.username, profile: state.profile, weeks: state.weeks }, null, 1)], { type: 'application/json' });
@@ -1632,6 +1691,7 @@ $('#sDelForm').addEventListener('submit', async e => {
   $('#sDelErr').textContent = '';
   try {
     await api('DELETE', '/account', { password: $('#sDelPw').value });
+    pending.profile = false; pending.weeks.clear();
     forgetSession(); show(); toast('Konto gelöscht');
   } catch (err) { $('#sDelErr').textContent = err.message; }
 });
@@ -1647,15 +1707,21 @@ setInterval(resync, 10 * 60e3);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { resync(); if (!editing && P().onboarded && !ob.reupload) refresh(); } });
 resync();
 
+function loadCache() {
+  const c = lsGet(cacheKey());
+  if (!c) return false;
+  state.profile = { ...blankProfile(), ...c.profile, v: c.profile?.v || 3 };
+  state.weeks = c.weeks || {};
+  pending.profile = !!c.pending?.profile;
+  for (const w of c.pending?.weeks || []) Array.isArray(w) ? pending.weeks.set(w[0], w[1] && new Set(w[1])) : pending.weeks.set(w, null);
+  if (migrateV2(state.profile, state.weeks)) { pending.profile = true; Object.keys(state.weeks).forEach(mk => pending.weeks.set(mk, null)); }
+  loadHolidays();
+  return true;
+}
+
 // Gespeicherten Stand sofort zeigen (auch offline), dann vom Server auffrischen
 state.username = lsGet('pk-user') || '';
-const cached = state.token && state.username && lsGet(cacheKey());
-if (cached) {
-  state.profile = { ...blankProfile(), ...cached.profile, v: cached.profile?.v || 3 }; state.weeks = cached.weeks || {};
-  pending.profile = !!cached.pending?.profile; (cached.pending?.weeks || []).forEach(w => pending.weeks.add(w));
-  if (migrateV2(state.profile, state.weeks)) { pending.profile = true; Object.keys(state.weeks).forEach(mk => pending.weeks.add(mk)); }
-  loadHolidays();
-}
+const cached = state.token && state.username && loadCache();
 if (!state.token || cached) show();
 refresh();
 // Offline-Start: der Service Worker hält die Seite selbst vor, die Daten liegen ohnehin im localStorage

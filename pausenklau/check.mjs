@@ -36,10 +36,11 @@ ${extractFn('hasMidBreak')}
 ${extractFn('mergeWeek')}
 ${extractFn('plansAt')}
 ${extractFn('dayNow')}
-return { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, secOf, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote, breakStop, plansAt, dayNow };
+${extractFn('breakBook')}
+return { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, secOf, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote, breakStop, plansAt, dayNow, breakBook };
 `)();
 
-const { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, secOf, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote, breakStop, plansAt, dayNow } = fns;
+const { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, secOf, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote, breakStop, plansAt, dayNow, breakBook } = fns;
 
 // 1. Roundtrip for every integer s from -18000 to 18000
 for (let s = -18000; s <= 18000; s++) {
@@ -233,5 +234,67 @@ assert.deepEqual(breakStop({ mbs: 100 }, 300.9), { mb: 200 / 60, mbs: undefined 
 assert.deepEqual(breakStop({ mbs: 100, mb: 2 }, 300), {});
 assert.deepEqual(breakStop(undefined, 300), {});
 assert.deepEqual(breakStop({}, 300), {});
+
+// 15. breakBook
+{
+  const l = (start, end, key = start) => ({ start, end, key });
+  const a = l('08:00', '09:30', 'a');
+  const b = l('09:50', '11:20', 'b');
+  const c = l('11:40', '12:25', 'c');
+  const ent = m => x => m[x.key];
+
+  // a, b, c all {s:'ok',end:0} except a has end:3: plan 40, stolen 3.
+  let res = breakBook([a, b, c], ent({ a: { s: 'ok', end: 3 }, b: { s: 'ok', end: 0 }, c: { s: 'ok', end: 0 } }));
+  assert.strictEqual(res.plan, 40);
+  assert.ok(Math.abs(res.stolen - 3) < 1e-9);
+
+  // a end:30: stolen capped at 20.
+  res = breakBook([a, b, c], ent({ a: { s: 'ok', end: 30 }, b: { s: 'ok', end: 0 }, c: { s: 'ok', end: 0 } }));
+  assert.strictEqual(res.plan, 40);
+  assert.ok(Math.abs(res.stolen - 20) < 1e-9);
+
+  // a end:-4: stolen 0, plan 40.
+  res = breakBook([a, b, c], ent({ a: { s: 'ok', end: -4 }, b: { s: 'ok', end: 0 }, c: { s: 'ok', end: 0 } }));
+  assert.strictEqual(res.plan, 40);
+  assert.ok(Math.abs(res.stolen - 0) < 1e-9);
+
+  // a without an entry: plan 20 (only b's gap counts); a with {s:'ok',end:0,pend:true}: plan 20.
+  res = breakBook([a, b, c], ent({ b: { s: 'ok', end: 0 }, c: { s: 'ok', end: 0 } }));
+  assert.strictEqual(res.plan, 20);
+  assert.ok(Math.abs(res.stolen - 0) < 1e-9);
+
+  res = breakBook([a, b, c], ent({ a: { s: 'ok', end: 0, pend: true }, b: { s: 'ok', end: 0 }, c: { s: 'ok', end: 0 } }));
+  assert.strictEqual(res.plan, 20);
+  assert.ok(Math.abs(res.stolen - 0) < 1e-9);
+
+  // c end:9, a and b end:0: plan 40, stolen 0 (overrunning the last lesson is not a break).
+  res = breakBook([a, b, c], ent({ a: { s: 'ok', end: 0 }, b: { s: 'ok', end: 0 }, c: { s: 'ok', end: 9 } }));
+  assert.strictEqual(res.plan, 40);
+  assert.ok(Math.abs(res.stolen - 0) < 1e-9);
+
+  // a {s:'ok',end:0,mb:200/60}, b and c end:0: plan 45, stolen 100/60.
+  res = breakBook([a, b, c], ent({ a: { s: 'ok', end: 0, mb: 200 / 60 }, b: { s: 'ok', end: 0 }, c: { s: 'ok', end: 0 } }));
+  assert.strictEqual(res.plan, 45);
+  assert.ok(Math.abs(res.stolen - 100 / 60) < 1e-9);
+
+  // a mb:6.5: plan 45, stolen 0. a mb:0: plan 45, stolen 5.
+  res = breakBook([a, b, c], ent({ a: { s: 'ok', end: 0, mb: 6.5 }, b: { s: 'ok', end: 0 }, c: { s: 'ok', end: 0 } }));
+  assert.strictEqual(res.plan, 45);
+  assert.ok(Math.abs(res.stolen - 0) < 1e-9);
+
+  res = breakBook([a, b, c], ent({ a: { s: 'ok', end: 0, mb: 0 }, b: { s: 'ok', end: 0 }, c: { s: 'ok', end: 0 } }));
+  assert.strictEqual(res.plan, 45);
+  assert.ok(Math.abs(res.stolen - 5) < 1e-9);
+
+  // a {s:'ok',end:0,pend:true,mb:3}, b and c without entries: plan 5, stolen 2.
+  res = breakBook([a, b, c], ent({ a: { s: 'ok', end: 0, pend: true, mb: 3 } }));
+  assert.strictEqual(res.plan, 5);
+  assert.ok(Math.abs(res.stolen - 2) < 1e-9);
+
+  // Empty list: plan 0, stolen 0.
+  res = breakBook([], ent({}));
+  assert.strictEqual(res.plan, 0);
+  assert.ok(Math.abs(res.stolen - 0) < 1e-9);
+}
 
 console.log('ok');

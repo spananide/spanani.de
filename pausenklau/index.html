@@ -118,6 +118,7 @@
     .lv-cds { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--fs-xs); color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 10px; }
     .lv-cds b { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 500; color: var(--ink); margin-left: 6px; }
     .linkbtn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font: inherit; }
+    .lv-free { list-style: none; display: grid; gap: 6px; font-size: var(--fs-sm); color: var(--ink-soft); } .lv-free b { font-family: var(--font-mono); font-weight: 500; color: var(--ink); }
     .undo { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 1001; display: flex; align-items: center; gap: 16px; width: max-content; max-width: calc(100vw - 32px); background: var(--paper-raised); border: 1px solid var(--line-strong); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 10px 16px; font-size: var(--fs-sm); }
     #undoBtn { min-height: 36px; white-space: nowrap; flex: none; }
 
@@ -137,6 +138,7 @@
     .daytabs button { flex: 1; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 7px 0; font-weight: 600; font-size: var(--fs-sm); color: var(--ink-soft); cursor: pointer; }
     .daytabs button.sel { color: var(--ink); border-color: var(--ink); }
     .daytabs button.today::after { content: ''; display: block; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); margin: 3px auto 0; }
+    .daytabs small { display: block; font-family: var(--font-mono); font-size: 10px; font-weight: 400; }
     .grid { display: grid; grid-template-columns: 44px repeat(5, minmax(0, 1fr)); gap: 0 8px; }
     .dayhead { background: none; border: 0; padding: 4px 0 12px; text-align: center; color: var(--ink-soft); font-weight: 600; font-size: var(--fs-sm); min-width: 0; cursor: pointer; }
     .dayhead:hover { color: var(--ink); }
@@ -200,6 +202,26 @@
     .vals { text-align: right; font-size: var(--fs-xs); color: var(--ink-soft); line-height: 1.4; }
     .vals .num { font-size: 15px; color: var(--ink); }
     .empty { margin-bottom: var(--space-6); }
+    body.me #viewRank { display: flex; flex-direction: column; }
+    body.me #rkTop { order: 1; justify-content: flex-start; }
+    body.me #ranges { margin-left: auto; }
+    body.me #tiles { display: none; }
+    body.me #rkListHead { order: 3; }
+    body.me #rkListHead h2 { display: none; }
+    body.me #viewRank .legend { order: 4; }
+    body.me #rank { order: 5; margin-bottom: var(--space-6); }
+    body.me #trend { order: 6; }
+    body.me #awards { order: 7; }
+    body.me #awards h3 { font-size: 16px; margin-bottom: 10px; }
+    .rk-lead { order: 2; margin-bottom: var(--space-5); }
+    .rk-big { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 3vw, 26px); letter-spacing: -0.02em; line-height: 1.2; max-width: none; }
+    .rk-big .num { font-weight: 500; font-size: clamp(48px, 9vw, 72px); line-height: 1; color: var(--danger); }
+    .rk-sub { color: var(--ink-soft); font-size: var(--fs-sm); margin-top: var(--space-2); max-width: none; }
+    .rk-foot { order: 8; margin-top: var(--space-4); }
+    .rk-aw { display: grid; margin-bottom: var(--space-5); }
+    .rk-aw > div { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 2px 14px; padding: 10px 0; border-top: 1px solid var(--line); font-size: var(--fs-sm); }
+    .rk-aw dt { color: var(--ink-soft); }
+    .rk-aw dd b { font-family: var(--font-display); font-weight: 700; }
 
     /* Einstellungen */
     .settings { display: grid; gap: var(--space-4); max-width: 760px; }
@@ -250,6 +272,12 @@
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
     .actions .sp { flex: 1; }
     .actions .btn { padding: 10px 16px; min-height: 42px; }
+    dialog h3[tabindex]:focus, dialog h3[tabindex]:focus-visible { outline: none; }
+    body.me #dlg { padding-bottom: 0; }
+    body.me #lf .actions { position: sticky; bottom: 0; z-index: 1; flex-wrap: nowrap; background: var(--paper); margin: 20px -26px 0; padding: 12px 26px calc(14px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
+    body.me .nav-links, body.me .legal-note, body.me .hint-tip, body.me .hint-sep { display: none; }
+    body.me .site-nav--tool .nav-inner { justify-content: space-between; }
+    #dayOff { display: none; }
 
     @media (max-width: 900px) {
       .ed-layout { grid-template-columns: 1fr; }
@@ -264,7 +292,17 @@
       .choice.inline { grid-template-columns: 1fr; }
       .blabels span:nth-child(even) { visibility: hidden; }
       .tile .v { font-size: 22px; }
+      .rk-aw > div { grid-template-columns: 1fr; }
+      body.me .nav-tool-controls { display: contents; }
+      body.me .site-nav--tool .nav-inner { row-gap: 8px; padding-block: 8px; min-height: 0; }
+      body.me #tabs { order: 3; flex: 1 1 100%; display: flex; }
+      body.me #tabs .mode-btn { flex: 1; }
+      body.me #sync { order: 4; flex-basis: 100%; }
+      body.me #sync:empty { display: none; }
+      body.me #dayOff { display: block; margin-top: 4px; }
+      body.me #grid > .dayhead:not(.info) { height: 0; padding: 0; overflow: hidden; visibility: hidden; }
     }
+    @media (max-width: 420px) { body.me #lf .actions { gap: 6px; padding-inline: 16px; } body.me #lf .actions .btn { padding-inline: 8px; flex: none; } }
     @media (prefers-reduced-motion: no-preference) { .lesson.live { animation: livePulse 2.4s ease-in-out infinite; } }
     @keyframes livePulse { 50% { box-shadow: 0 0 0 1px var(--accent), 0 0 0 5px var(--accent-soft); } }
   </style>
@@ -400,11 +438,11 @@
         <div class="daytabs" id="daytabs"></div>
         <div class="grid" id="grid"></div>
         <div class="weeksum" id="weeksum"></div>
-        <p class="fine" style="margin-top:var(--space-2)"><span id="abfix">A/B-Woche stimmt nicht? <button class="linkbtn" id="flip">Ab dieser Woche tauschen</button> · </span>Tipp auf einen Tag, um ihn schulfrei zu machen.</p>
+        <p class="fine" style="margin-top:var(--space-2)"><span id="abfix">A/B-Woche stimmt nicht? <button class="linkbtn" id="flip">Ab dieser Woche tauschen</button><span class="hint-sep"> · </span></span><span class="hint-tip">Tipp auf einen Tag, um ihn schulfrei zu machen.</span><button type="button" class="linkbtn" id="dayOff"></button></p>
       </section>
 
       <section id="viewRank" hidden>
-        <div class="rankhead">
+        <div class="rankhead" id="rkTop">
           <span class="fine" id="rangeInfo"></span>
           <div class="mode-switch" id="scope" hidden><button class="mode-btn active" data-scope="me">Ich</button><button class="mode-btn" data-scope="group">Gruppe</button></div>
           <button class="btn btn-ghost" id="share">Als Bild teilen</button>
@@ -414,10 +452,11 @@
             <button class="mode-btn" data-range="month">Monat</button>
           </div>
         </div>
+        <div class="rk-lead" id="rkLead" hidden></div>
         <div class="tiles" id="tiles"></div>
         <div id="trend"></div>
         <div id="awards"></div>
-        <div class="rankhead">
+        <div class="rankhead" id="rkListHead">
           <h2>Rangliste</h2>
           <div class="mode-switch sorts" id="sorts">
             <button class="mode-btn active" data-sort="over">Überzogen</button>
@@ -430,6 +469,7 @@
         </div>
         <div class="legend"><span><i style="background:var(--success)"></i><span id="lgUnder">Unterzogen (früher Schluss + später Beginn)</span></span><span><i style="background:var(--danger)"></i>Überzogen (in die Pause)</span></div>
         <ol class="rank" id="rank"></ol>
+        <div class="rk-foot" id="rkFoot" hidden></div>
       </section>
 
       <section id="viewSettings" class="settings" hidden>
@@ -456,7 +496,7 @@
   <!-- Eintrag zu einer Stunde -->
   <dialog id="dlg">
     <form id="lf">
-      <h3 id="dTitle"></h3>
+      <h3 id="dTitle" tabindex="-1" autofocus></h3>
       <p class="meta" id="dMeta"></p>
       <p class="fine" style="margin:-8px 0 14px"><button type="button" class="linkbtn" id="chOpen">Raum oder Lehrer nur diesmal ändern</button></p>
       <fieldset class="seg">
@@ -532,7 +572,7 @@
 
   <!-- Lehrer-Profil (nur ME) -->
   <dialog id="tdlg">
-    <h3 id="tdTitle"></h3>
+    <h3 id="tdTitle" tabindex="-1" autofocus></h3>
     <p class="meta" id="tdMeta"></p>
     <div id="tdBody"></div>
     <div class="actions"><span class="sp"></span><button type="button" class="btn btn-primary" data-close>Schließen</button></div>
@@ -740,6 +780,17 @@ const netOf = e => (+e.end || 0) + pauseDiff(e);
 const overOf = e => Math.max(0, +e.end || 0) + Math.max(0, pauseDiff(e));
 const earlyOf = e => Math.max(0, -(+e.end || 0)) + Math.max(0, -pauseDiff(e));
 const mbNote = e => typeof e.mb === 'number' ? (e.mb ? 'Pause ' + mmss(e.mb) : 'Keine Pause') : e.mbs != null ? 'Pause offen' : '';
+// Pausenkonto eines Tages. ls = stattfindende Stunden der Reihe nach, ent(l) = ihr Eintrag.
+// Eine Lücke zählt nur, wenn die Stunde davor fertig eingetragen ist; geklaut ist das Überziehen, höchstens die Lücke. Dazu die gestoppte 5-Minuten-Pause.
+function breakBook(ls, ent) {
+  let plan = 0, stolen = 0;
+  ls.forEach((l, i) => {
+    const e = ent(l), gap = i + 1 < ls.length ? toMin(ls[i + 1].start) - toMin(l.end) : 0;
+    if (e?.s === 'ok' && !e.pend && gap > 0) { plan += gap; stolen += Math.min(gap, Math.max(0, +e.end || 0)); }
+    if (e?.s === 'ok' && typeof e.mb === 'number') { plan += MB_LEN; stolen += Math.min(MB_LEN, Math.max(0, MB_LEN - e.mb)); }
+  });
+  return { plan, stolen };
+}
 const teacherName = te => P().teachers[te] || '';
 const teacherLabel = te => teacherName(te) ? `${te} (${teacherName(te)})` : te;
 function builtinOff(ds) {
@@ -827,6 +878,20 @@ function stats() {
     t.late += e.late || 0;
   }
   return { rec, rows: Object.values(by).map(derive) };
+}
+// ME: Pausenkonto über alle Tage ab from bis heute
+function breakTotals(from) {
+  let plan = 0, stolen = 0; const td = todayIso();
+  for (const [mk, w] of Object.entries(state.weeks)) {
+    const mon = fromIso(mk), ent = l => w.e?.[l.key], ls = lessonsOf(mon).filter(l => !['cancelled', 'skipped'].includes(ent(l)?.s));
+    for (let d = 0; d < 5; d++) {
+      const ds = iso(addDays(mon, d));
+      if (ds < from || ds > td || offReason(ds)) continue;
+      const b = breakBook(ls.filter(l => l.d === d), ent);
+      plan += b.plan; stolen += b.stolen;
+    }
+  }
+  return { plan, stolen };
 }
 // Für ME ist Zuspätkommen eine eigene Kategorie, für alle anderen zählt es zu „unterzogen“
 const derive = t => ({ ...t, under: ME() ? t.early : t.early + t.late, net: t.over - t.early - t.late, avg: t.n ? (t.over - t.early - t.late) / t.n : 0 });
@@ -951,6 +1016,7 @@ async function loadHolidays() {
 
 // ---------- Bildschirme ----------
 function show() {
+  document.body.classList.toggle('me', ME());
   const screen = !state.token ? 'auth' : editing ? 'editor' : (!P().onboarded || ob.reupload) ? 'onb' : 'app';
   for (const id of ['auth', 'onb', 'editor', 'app']) $('#' + id).hidden = id !== screen;
   $('#tabs').hidden = screen !== 'app';
@@ -1208,14 +1274,16 @@ function axisMarks(lessons) {
 }
 const mark = (on, html) => on ? `<mark>${html}</mark>` : html; // nur diesmal geändert: grün wie im Schul-Stundenplan
 function gridHtml({ mon, lessons, preview, teachers }) {
-  const { lines, labels } = axisMarks(lessons.length ? lessons : [{ start: '08:00', end: '13:00' }]);
+  const dayOnly = mon && !preview && ME() && matchMedia('(max-width: 760px)').matches && lessons.some(l => l.d === state.day);
+  const axisLs = dayOnly ? lessons.filter(l => l.d === state.day) : lessons;
+  const { lines, labels } = axisMarks(axisLs.length ? axisLs : [{ start: '08:00', end: '13:00' }]);
   const D0 = lines[0], D1 = lines.at(-1), H = (D1 - D0) * K;
   const td = todayIso(), nm = nowMin(), entries = mon ? state.weeks[iso(mon)]?.e || {} : {};
   let h = '<div></div>';
   for (let d = 0; d < 5; d++) {
     const ds = mon ? iso(addDays(mon, d)) : '', off = mon && offReason(ds);
     const evs = mon && !off ? (P().events || []).filter(x => x.d === ds && !x.k).map(x => esc((x.t ? x.t + ' ' : '') + x.n)).join(', ') : '';
-    h += `<button class="dayhead${ds === td ? ' today' : ''}${d === state.day ? ' sel' : ''}" data-d="${d}" data-day="${ds}" ${preview ? 'tabindex="-1"' : ''}>${DAYS[d]}${mon ? ' ' + fmtD(addDays(mon, d)) : ''}${mon ? `<small${evs ? ` class="ev" title="${evs}"` : ''}>${off ? esc(off) : evs || '&nbsp;'}</small>` : ''}</button>`;
+    h += `<button class="dayhead${ds === td ? ' today' : ''}${d === state.day ? ' sel' : ''}${off || evs ? ' info' : ''}" data-d="${d}" data-day="${ds}" ${preview ? 'tabindex="-1"' : ''}>${DAYS[d]}${mon ? ' ' + fmtD(addDays(mon, d)) : ''}${mon ? `<small${evs ? ` class="ev" title="${evs}"` : ''}>${off ? esc(off) : evs || '&nbsp;'}</small>` : ''}</button>`;
   }
   const mid = g => ((g[0] + g.at(-1)) / 2 - D0) * K;
   h += `<div class="axis" style="height:${H}px">${labels.map(g => `<span style="top:${mid(g)}px">${g.map(fromMin).join('<br>')}</span>`).join('')}</div>`;
@@ -1253,14 +1321,16 @@ function gridHtml({ mon, lessons, preview, teachers }) {
 
 function renderWeek() {
   const mon = state.mon, mk = iso(mon), td = todayIso();
+  $('#today').hidden = ME() && iso(mon) === iso(mondayOf(now()));
   $('#range').textContent = `${fmtD(mon)} – ${fmtD(addDays(mon, 4))}${addDays(mon, 4).getFullYear()}`;
   const a = isA(mon);
   $('#abchip').hidden = $('#abfix').hidden = !P().ab;
   $('#abchip').textContent = a ? 'A-Woche' : 'B-Woche';
   $('#abchip').className = 'chip' + (a ? ' a' : '');
+  $('#dayOff').textContent = `${DAYS[state.day]} ${fmtD(addDays(mon, state.day))} schulfrei machen`;
   const lessons = lessonsOf(mon);
   $('#grid').innerHTML = gridHtml({ mon, lessons });
-  $('#daytabs').innerHTML = DAYS.map((n, d) => `<button data-d="${d}" class="${d === state.day ? 'sel' : ''}${iso(addDays(mon, d)) === td ? ' today' : ''}">${n}</button>`).join('');
+  $('#daytabs').innerHTML = DAYS.map((n, d) => `<button data-d="${d}" class="${d === state.day ? 'sel' : ''}${iso(addDays(mon, d)) === td ? ' today' : ''}">${ME() ? `${n}<small>${pad(addDays(mon, d).getDate())}.</small>` : n}</button>`).join('');
   let over = 0, under = 0, late = 0, canc = 0, open = 0;
   const entries = state.weeks[mk]?.e || {}, nm = nowMin();
   for (const L of lessons) {
@@ -1303,6 +1373,7 @@ function trendHtml(from) {
 const mainVal = (r, s) => s === 'avg' ? sgn(r.avg) : s === 'cancel' ? String(r.cancel) : s === 'late' ? mmss(r.late) + ' min' : s === 'net' ? sgn(r.net) : s === 'under' ? '−' + mmss(r.under) : '+' + mmss(r.over);
 let lastRank = null; // für „Als Bild teilen“
 function renderRank() {
+  $('#rkLead').hidden = $('#rkFoot').hidden = !ME();
   const from = rangeFrom(), grp = state.scope === 'group' && state.grp?.group;
   if (grp && state.grp.from !== from) loadGroup(from);
   const { rows, rec } = grp ? { rows: state.grp.rows.map(derive), rec: null } : stats();
@@ -1328,9 +1399,22 @@ function renderRank() {
   const names = grp ? Object.fromEntries(state.grp.rows.map(r => [r.k, r.name])) : {};
   const nm = k => esc(names[k] || teacherName(k) || k);
   const aw = (k, r, s) => r ? `<div class="award"><div class="k">${k}</div><div class="n">${nm(r.k)}</div><div class="s">${s}</div></div>` : '';
-  $('#awards').innerHTML = !tracked
-    ? `<p class="note-pill empty"><strong>Noch nichts eingetragen.</strong> Tipp in der Wochenansicht auf eine Stunde und trag ein, wie lange überzogen oder früher Schluss gemacht wurde. Oder nutz oben den Live-Countdown: „Jetzt ist Schluss“ rechnet die Zeit sekundengenau aus.</p>`
-    : `<div class="awards">${aw('Überzieh-König', king, king && `${mmss(king.over)} min in ${king.nOver} ${king.nOver === 1 ? 'Stunde' : 'Stunden'}`)}${aw('Pausenfreund', friend, friend && `${mmss(friend.under)} min früher raus`)}${aw('Zuspätkommer', slow, slow && `${mmss(slow.late)} min zu spät`)}${aw('Uhrwerk', clock, clock && `Ø ${mmss(off(clock))} min daneben`)}${rec ? `<div class="award"><div class="k">Rekord</div><div class="n num">${sgn(overOf(rec))} min</div><div class="s">${nm(rec.t)} · ${esc(rec.c)} · ${fmtD(fromIso(rec.ds))}</div></div>` : ''}</div>`;
+  const emptyNote = `<p class="note-pill empty"><strong>Noch nichts eingetragen.</strong> Tipp in der Wochenansicht auf eine Stunde und trag ein, wie lange überzogen oder früher Schluss gemacht wurde. Oder nutz oben den Live-Countdown: „Jetzt ist Schluss“ rechnet die Zeit sekundengenau aus.</p>`;
+  if (ME()) {
+    $('#rkFoot').append($('#share'));
+    const bk = grp ? null : breakTotals(from), line = (k, n, s) => `<div><dt>${k}</dt><dd><b>${n}</b> ${s}</dd></div>`;
+    const more = [`${mmss(sum('under'))} min früher Schluss`, `${mmss(sum('late'))} min zu spät`, `${sum('cancel')} ${sum('cancel') === 1 ? 'Ausfall' : 'Ausfälle'}`];
+    $('#rkLead').innerHTML = !tracked ? emptyNote : `<p class="rk-big"><span class="num">${mmss(sum('over'))}</span><span>Minuten geklaut${king ? `, ${mmss(king.over)} von ${nm(king.k)}` : ''}</span></p>
+      ${bk?.plan ? `<p class="rk-sub">${mmss(bk.plan - bk.stolen)} von ${mmss(bk.plan)} Minuten Pause bekommen, ${Math.round(bk.stolen / bk.plan * 100)} % geklaut.</p>` : ''}
+      <p class="rk-sub">Dazu ${more.join(', ')} in ${tracked} erfassten ${tracked === 1 ? 'Stunde' : 'Stunden'}${skips ? `, ${skips} geskippt` : ''}.</p>`;
+    const lines = [king && line('Überzieh-König', nm(king.k), `${mmss(king.over)} min in ${king.nOver} ${king.nOver === 1 ? 'Stunde' : 'Stunden'}`), friend && line('Pausenfreund', nm(friend.k), `${mmss(friend.under)} min früher raus`), slow && line('Zuspätkommer', nm(slow.k), `${mmss(slow.late)} min zu spät`), clock && line('Uhrwerk', nm(clock.k), `Ø ${mmss(off(clock))} min daneben`), rec && line('Rekord', `${sgn(overOf(rec))} min`, `${nm(rec.t)}, ${esc(rec.c)}, ${fmtD(fromIso(rec.ds))}`)].filter(Boolean);
+    $('#awards').innerHTML = tracked && lines.length ? `<h3>Auszeichnungen</h3><dl class="rk-aw">${lines.join('')}</dl>` : '';
+  } else {
+    $('#rkTop').insertBefore($('#share'), $('#ranges'));
+    $('#awards').innerHTML = !tracked
+      ? emptyNote
+      : `<div class="awards">${aw('Überzieh-König', king, king && `${mmss(king.over)} min in ${king.nOver} ${king.nOver === 1 ? 'Stunde' : 'Stunden'}`)}${aw('Pausenfreund', friend, friend && `${mmss(friend.under)} min früher raus`)}${aw('Zuspätkommer', slow, slow && `${mmss(slow.late)} min zu spät`)}${aw('Uhrwerk', clock, clock && `Ø ${mmss(off(clock))} min daneben`)}${rec ? `<div class="award"><div class="k">Rekord</div><div class="n num">${sgn(overOf(rec))} min</div><div class="s">${nm(rec.t)} · ${esc(rec.c)} · ${fmtD(fromIso(rec.ds))}</div></div>` : ''}</div>`;
+  }
   const courses = {};
   for (const l of allPlanLessons()) (courses[l.te] ||= new Set()).add(l.c);
   const s = state.sort;
@@ -1441,6 +1525,7 @@ function renderSettings() {
 }
 
 function render() {
+  $('#live').hidden = ME() && state.view !== 'week';
   for (const v of ['week', 'rank', 'settings']) $('#view' + v[0].toUpperCase() + v.slice(1)).hidden = state.view !== v;
   $$('#tabs [data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
   ({ week: renderWeek, rank: renderRank, settings: renderSettings })[state.view]();
@@ -1470,21 +1555,55 @@ function countdowns() {
 function renderClockPill() {
   const n = now(), t = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   $('#sDot').className = 'dot-live' + (clockSrc === 'net' ? '' : clockSrc === 'pending' ? ' pending' : ' warn');
-  $('#sText').textContent = clockSrc === 'net' ? `${t} · Netzwerkzeit` : clockSrc === 'manual' ? `${t} · manuell` : clockSrc === 'cached' ? `${t} · offline` : clockSrc === 'device' ? `${t} · Gerätezeit` : 'Zeit wird synchronisiert…';
+  $('#sText').textContent = clockSrc === 'net' ? (ME() ? t : `${t} · Netzwerkzeit`) : clockSrc === 'manual' ? `${t} · manuell` : clockSrc === 'cached' ? `${t} · offline` : clockSrc === 'device' ? `${t} · Gerätezeit` : 'Zeit wird synchronisiert…';
+}
+// ME: nächster Schultag mit Unterricht, auch über Wochenende und Ferien hinweg
+function nextSchoolDay(n) {
+  for (let i = 1; i <= 60; i++) {
+    const d = addDays(n, i), ds = iso(d);
+    if ((d.getDay() + 6) % 7 > 4 || offReason(ds)) continue;
+    const mon = mondayOf(d), wk = state.weeks[iso(mon)]?.e || {};
+    const ls = lessonsOf(mon).filter(l => l.date === ds && !['cancelled', 'skipped'].includes(wk[l.key]?.s));
+    if (ls.length) return { ds, first: ls[0], label: i === 1 ? 'Morgen' : `${WD[d.getDay()]}, ${fmtD(d)}` };
+  }
+  return null;
+}
+// ME: was nach Schulschluss und an freien Tagen im Panel steht
+function freeInfo(n) {
+  const ds = iso(n), mon = mondayOf(n), wk = state.weeks[iso(mon)]?.e || {}, ent = l => wk[l.key], nowM = n.getHours() * 60 + n.getMinutes(), lines = [];
+  const today = (n.getDay() + 6) % 7 > 4 || offReason(ds) ? [] : lessonsOf(mon).filter(l => l.date === ds);
+  const done = today.map(ent).filter(e => e?.s === 'ok');
+  const open = today.filter(l => (!ent(l) || ent(l).pend) && toMin(l.end) < nowM);
+  if (done.length) {
+    const sum = f => done.reduce((a, e) => a + f(e), 0), early = sum(earlyOf), late = sum(e => e.late || 0), parts = [`<b>${sgn(sum(overOf))}</b> min überzogen`];
+    if (early) parts.push(`<b>${mmss(early)}</b> min früher Schluss`);
+    if (late) parts.push(`<b>${mmss(late)}</b> min zu spät`);
+    lines.push('Heute ' + parts.join(', '));
+    const b = breakBook(today.filter(l => !['cancelled', 'skipped'].includes(ent(l)?.s)), ent);
+    if (b.plan) lines.push(`<b>${mmss(b.plan - b.stolen)}</b> von ${mmss(b.plan)} Minuten Pause bekommen`);
+  }
+  if (open.length) lines.push(`<b>${open.length}</b> ${open.length === 1 ? 'Stunde' : 'Stunden'} noch nicht eingetragen`);
+  const nx = nextSchoolDay(n);
+  if (nx) {
+    lines.push(`${nx.label}: ${esc(nx.first.c)} um ${nx.first.start}${nx.first.r ? ', Raum ' + esc(nx.first.r) : ''}`);
+    for (const x of (P().events || []).filter(x => x.d === nx.ds)) lines.push(esc(x.k ? x.n.replace(/^HA /, 'Hausaufgabe ') : 'Termin: ' + x.n));
+  }
+  return { lines, acts: open.length ? `<button type="button" class="btn btn-primary" data-act="openfirst" data-key="${open[0].key}">Eintragen</button>` : '' };
 }
 function tickLive() {
   renderClockPill();
   if ($('#app').hidden) return;
   const st = liveState(), { n, sec } = st;
   const early = st.k === 'lesson' && sec - secOf(st.L.start) < 20 * 60 && !st.e?.late && !st.e?.in;
-  const sig = [st.k, st.L?.key, st.next?.key, st.prevOpen?.key, st.title, JSON.stringify(st.e || null), JSON.stringify(st.pe || null), early, clockSrc, iso(n)].join('|');
+  const lateBtn = st.k === 'lesson' && sec - secOf(st.L.start) < 45 * 60; // danach trägt man es im Eintragsfenster nach
+  const sig = [st.k, st.L?.key, st.next?.key, st.prevOpen?.key, lateBtn, st.title, JSON.stringify(st.e || null), JSON.stringify(st.pe || null), early, clockSrc, iso(n)].join('|');
   if (sig !== liveSig) {
     liveSig = sig;
-    const src = clockSrc === 'net' ? '<span>Netzwerkzeit · Europe/Berlin</span>'
+    const src = clockSrc === 'net' ? (ME() ? '' : '<span>Netzwerkzeit · Europe/Berlin</span>')
       : clockSrc === 'pending' ? '<span>Zeit wird synchronisiert…</span>'
       : clockSrc === 'cached' ? '<span>Offline · Zeit vom letzten Abgleich</span>'
       : `<span style="color:var(--danger)">${clockSrc === 'manual' ? 'Manuell gestellt' : 'Gerätezeit, evtl. falsch'} · <button type="button" class="linkbtn" data-act="clock">Uhr stellen</button></span>`;
-    let what = '', time = '', prog = false, acts = '', prevInfo = '';
+    let what = '', time = '', prog = false, acts = '', prevInfo = '', freeHtml = '';
     const who = l => `${esc(teacherLabel(l.te))}${l.r ? ' · Raum ' + esc(l.r) : ''}`;
     const status = e => e?.s === 'cancelled' ? 'Ausfall eingetragen' : e?.s === 'skipped' ? 'Geskippt'
       : e?.pend ? (e.late ? `Lehrer kam ${mmss(e.late)} min zu spät` : e.in ? 'Lehrer war pünktlich' : '') : e ? `Eingetragen: ${sgn(netOf(e))} min` : '';
@@ -1496,7 +1615,7 @@ function tickLive() {
       time = '<span class="lv-time"><small>noch</small><span id="lvT"></span></span>'; prog = true;
       if (wait) acts = '<button type="button" class="btn btn-primary" data-act="start">Lehrer ist jetzt da</button><button type="button" class="btn btn-ghost" data-act="inontime">War pünktlich</button><button type="button" class="btn btn-ghost" data-act="end">Lehrer macht jetzt Schluss</button>';
       else if (!st.e || st.e.s === 'ok') acts = `<button type="button" class="btn btn-primary" data-act="end">Lehrer macht jetzt Schluss</button>${early ? '<button type="button" class="btn btn-ghost" data-act="start">Unterricht beginnt jetzt</button>' : ''}`;
-      if (ME() && !early && !st.e?.late && !st.e?.in && (!st.e || (st.e.s === 'ok' && st.e.pend))) acts += '<button type="button" class="btn btn-ghost" data-act="start">Lehrer kam eben erst</button>';
+      if (ME() && !early && lateBtn && !st.e?.late && !st.e?.in && (!st.e || (st.e.s === 'ok' && st.e.pend))) acts += '<button type="button" class="btn btn-ghost" data-act="start">Lehrer kam eben erst</button>';
       if (st.prevOpen) { prevInfo = `${esc(st.prevOpen.c)} überzieht noch? <b class="num" id="lvO"></b>`; acts += `<button type="button" class="btn btn-ghost" data-act="prevend">${esc(st.prevOpen.c)}: jetzt Schluss</button>`; }
     } else if (st.k === 'over') {
       const nx = st.next ? ` · danach ${esc(st.next.c)} um ${st.next.start}` : '';
@@ -1518,23 +1637,26 @@ function tickLive() {
       const fc = forecast(st.next.te);
       what = `${title}<small>${info}Nächste Stunde: ${esc(st.next.c)} · ${who(st.next)}${fc ? ' · ' + fc : ''}</small>`;
       time = `<span class="lv-time"><small>${st.prev ? 'noch' : 'in'}</small><span id="lvT"></span></span>`;
-    } else what = `${esc(st.title)}${st.sub ? `<small>${st.sub}</small>` : ''}`;
+    } else {
+      what = `${esc(st.title)}${st.sub ? `<small>${st.sub}</small>` : ''}`;
+      if (ME()) { const f = freeInfo(n); acts = f.acts; if (f.lines.length) freeHtml = `<ul class="lv-free">${f.lines.map(x => `<li>${x}</li>`).join('')}</ul>`; }
+    }
     let mbInfo = '';
     if (ME() && st.L && (st.k === 'lesson' || st.k === 'over') && (!st.e || st.e.s === 'ok') && hasMidBreak(st.L, lessonsOf(st.mon).filter(l => l.d === st.L.d))) {
       if (typeof st.e?.mb === 'number') mbInfo = `5-Minuten-Pause: ${st.e.mb ? mmss(st.e.mb) : 'keine'}, ${sgn(pauseDiff(st.e))} min`;
       else if (st.e?.mbs != null) {
         mbInfo = '5-Minuten-Pause läuft: <b class="num" id="lvB"></b> von 5:00';
         acts = '<button type="button" class="btn btn-primary" data-act="mbstop">Pause vorbei</button><button type="button" class="btn btn-ghost" data-act="mbcancel">Falsch gestartet</button>' + acts.replaceAll('btn-primary', 'btn-ghost');
-      } else if (!early) acts += '<button type="button" class="btn btn-ghost" data-act="mbstart">Pause startet</button><button type="button" class="btn btn-ghost" data-act="mbnone">Keine Pause gemacht</button>';
+      } else if (!early) acts += '<button type="button" class="btn btn-ghost" data-act="mbstart">Pause startet</button><button type="button" class="btn btn-ghost" data-act="mbnone">Keine Pause</button>';
     }
     const cds = countdowns();
     $('#live').innerHTML = `<div class="lv-top"><span id="lvC"></span>${src}</div>
-      <div class="lv-main"><div class="lv-what">${what}</div>${time}</div>
+      <div class="lv-main"><div class="lv-what">${what}</div>${time}</div>${freeHtml}
       ${prog ? '<div class="lv-prog"><i id="lvP"></i></div>' : ''}${prevInfo ? `<p class="fine">${prevInfo}</p>` : ''}${mbInfo ? `<p class="fine">${mbInfo}</p>` : ''}${acts ? `<div class="lv-act">${acts}</div>` : ''}
       ${cds.length ? `<div class="lv-cds">${cds.map(([k, t]) => `<span data-to="${+t}">${esc(k)}<b></b></span>`).join('')}</div>` : ''}`;
   }
   for (const c of $$('#live [data-to]')) { const s = (+c.dataset.to - +n) / 1000; c.hidden = s <= 0; c.lastChild.textContent = fmtLong(s); }
-  $('#lvC').textContent = `${WD[n.getDay()]}, ${fmtD(n)}${n.getFullYear()} · ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  $('#lvC').textContent = ME() ? `${WD[n.getDay()]}, ${fmtD(n)}${n.getFullYear()}` : `${WD[n.getDay()]}, ${fmtD(n)}${n.getFullYear()} · ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   const t = $('#lvT');
   if (t) t.textContent = fmtS(st.k === 'lesson' ? secOf(st.L.end) - sec : st.k === 'over' ? sec - secOf(st.L.end) : secOf(st.next.start) - sec);
   const lt = $('#lvL');
@@ -1572,6 +1694,7 @@ $('#live').addEventListener('click', e => {
     $('#cDate').value = iso(n); $('#cTime').value = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
     return $('#cdlg').showModal();
   }
+  if (act === 'openfirst') { goToday(); return openLesson(b.dataset.key); }
   const st = liveState(); if (!st.L) return;
   if (act === 'mbstart') return record(st.L, st.mon, { mbs: Math.floor(st.sec), ...(!st.e && { pend: true }) }, '5-Minuten-Pause läuft');
   if (act === 'mbcancel') return record(st.L, st.mon, { mbs: undefined }, 'Pause zurückgesetzt');
@@ -1764,6 +1887,8 @@ $('#prev').onclick = () => { state.mon = addDays(state.mon, -7); state.navigated
 $('#next').onclick = () => { state.mon = addDays(state.mon, 7); state.navigated = true; render(); };
 function goToday() { const t = now(); state.mon = mondayOf(t); state.day = t.getDay() >= 1 && t.getDay() <= 5 ? t.getDay() - 1 : 0; state.navigated = false; if (!$('#app').hidden) render(); liveSig = ''; tickLive(); }
 $('#today').onclick = goToday;
+$('#dayOff').onclick = () => openDay(iso(addDays(state.mon, state.day)));
+matchMedia('(max-width: 760px)').addEventListener('change', () => { if (!$('#app').hidden && state.view === 'week') renderWeek(); });
 $('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-view]'); if (b) { state.view = b.dataset.view; render(); } });
 $('#sorts').addEventListener('click', e => {
   const b = e.target.closest('[data-sort]'); if (!b) return;

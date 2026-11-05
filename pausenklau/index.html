@@ -118,6 +118,8 @@
     .lv-cds { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--fs-xs); color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 10px; }
     .lv-cds b { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 500; color: var(--ink); margin-left: 6px; }
     .linkbtn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font: inherit; }
+    .undo { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 1001; display: flex; align-items: center; gap: 16px; width: max-content; max-width: calc(100vw - 32px); background: var(--paper-raised); border: 1px solid var(--line-strong); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 10px 16px; font-size: var(--fs-sm); }
+    #undoBtn { min-height: 36px; white-space: nowrap; flex: none; }
 
     /* Week nav */
     .wnav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: var(--space-4); }
@@ -206,8 +208,9 @@
     .set p { color: var(--ink-soft); font-size: var(--fs-sm); }
     .trend { margin-bottom: var(--space-5); }
     .trend h3 { font-size: 16px; margin-bottom: 10px; }
-    .bars { display: flex; gap: 2px; height: 130px; border-bottom: 1px solid var(--line); }
-    .bars > div { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
+    .bars { display: flex; gap: 2px; height: 148px; padding-top: 18px; border-bottom: 1px solid var(--line); }
+    .bars > div { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+    .bars b { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); white-space: nowrap; margin-bottom: 2px; }
     .bars i { width: min(100%, 36px); background: var(--danger); border-radius: 4px 4px 0 0; }
     .bars b, .blabels span { font-family: var(--font-mono); font-size: 10.5px; font-weight: 400; color: var(--ink-soft); }
     .blabels { display: flex; gap: 2px; margin-top: 4px; }
@@ -572,6 +575,21 @@
     </form>
   </dialog>
 
+  <dialog id="vdlg">
+    <form id="vf">
+      <h3>Ab wann gilt der geänderte Plan?</h3>
+      <p class="meta">Tage davor zeigen weiter den alten Plan. Bei einem Tippfehler im Plan nimm „Für alle Wochen“.</p>
+      <label class="lbl" for="vDate">Gilt ab</label>
+      <input class="inp" type="date" id="vDate" required>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="vAll">Für alle Wochen</button>
+        <span class="sp"></span>
+        <button type="button" class="btn btn-ghost" data-close>Abbrechen</button>
+        <button type="submit" class="btn btn-primary">Übernehmen</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="cdlg">
     <form id="cf">
       <h3>Uhr stellen</h3>
@@ -597,6 +615,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="undo" id="undo" role="status" hidden><span id="undoMsg"></span><button type="button" class="linkbtn" id="undoBtn">Rückgängig</button></div>
 
 <script>
 const API = 'https://pausenklau-api.spanani.workers.dev';
@@ -695,10 +714,15 @@ function lessonsFor(plan, mon) {
   return plan.map(l => ({ ...l, key: l.d + '-' + l.s, start: l.s, end: l.e, date: mon ? iso(addDays(mon, l.d)) : '' }))
     .sort((a, b) => a.d - b.d || toMin(a.s) - toMin(b.s));
 }
+// planHist: alte Stundenpläne, aufsteigend nach until. Ein Plan gilt für Tage vor seinem until, danach der nächste, zuletzt profile.plans.
+function plansAt(ds, profile = P()) {
+  return (profile.planHist || []).find(h => ds < h.until)?.plans || profile.plans;
+}
+const allPlanLessons = () => [...(P().planHist || []).flatMap(h => Object.values(h.plans).flat()), ...Object.values(P().plans).flat()];
 // Mit den Änderungen dieser Woche (Raum oder Vertretung nur für eine Stunde)
 const lessonsOf = mon => {
-  const ch = state.weeks[iso(mon)]?.ch || {};
-  return lessonsFor(P().plans[isA(mon) ? 'A' : 'B'] || [], mon)
+  const ch = state.weeks[iso(mon)]?.ch || {}, v = isA(mon) ? 'A' : 'B';
+  return [0, 1, 2, 3, 4].flatMap(d => lessonsFor((plansAt(iso(addDays(mon, d)))[v] || []).filter(l => l.d === d), mon))
     .map(l => ch[l.key] ? { ...l, r: ch[l.key].r || l.r, te: ch[l.key].te || l.te, chR: !!ch[l.key].r, chT: !!ch[l.key].te } : l);
 };
 // 5-Minuten-Pause in Doppelstunden (nur ME). Doppelstunde = ein Block ab MB_DOUBLE Minuten.
@@ -750,21 +774,31 @@ function planFromAI(lessons, ctx = { byName: {}, byCourse: {}, teachers: {} }) {
 
 // ---------- Live-Status: Countdown bis Stundenende, danach +Zeit ----------
 const secOf = hm => toMin(hm) * 60;
+// Was läuft gerade? ls = Stunden des Tages, ent(l) = ihr Eintrag, sec = Sekunden seit Mitternacht.
+// Ausgefallene und geskippte Stunden zählen als frei. Hat der Lehrer früher Schluss gemacht, ist die Stunde ab diesem Moment vorbei.
+function dayNow(ls, ent, sec) {
+  const act = ls.filter(l => !['cancelled', 'skipped'].includes(ent(l)?.s));
+  const ended = l => { const x = ent(l); return !!x && !x.pend && x.end < 0 && sec < secOf(l.end) && sec >= secOf(l.end) + x.end * 60; };
+  const cur = act.find(l => sec >= secOf(l.start) && sec < secOf(l.end) && !ended(l));
+  const prev = act.filter(l => secOf(l.end) <= sec || ended(l)).pop();
+  const next = act.find(l => secOf(l.start) > sec);
+  const open = !!prev && (!ent(prev) || !!ent(prev).pend);
+  return { act, cur, prev, next, prevOpen: cur && open && secOf(prev.end) <= sec && sec - secOf(prev.end) < 1200 ? prev : null };
+}
+const breakStop = (e, sec) => e?.mbs != null && typeof e.mb !== 'number' ? { mb: Math.max(0, Math.floor(sec) - e.mbs) / 60, mbs: undefined } : {};
 function liveState() {
   const n = now(), ds = iso(n), dow = (n.getDay() + 6) % 7, mon = mondayOf(n);
   const sec = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds() + n.getMilliseconds() / 1000;
   const off = dow > 4 ? 'Wochenende' : offReason(ds);
   if (off) return { k: 'free', n, sec, title: off, sub: 'Heute keine Schule' };
-  const ls = lessonsOf(mon).filter(l => l.d === dow);
-  const cur = ls.find(l => sec >= secOf(l.start) && sec < secOf(l.end));
-  const prev = ls.filter(l => secOf(l.end) <= sec).pop(), next = ls.find(l => secOf(l.start) > sec);
   const e = l => state.weeks[iso(mon)]?.e?.[l.key];
-  if (cur) return { k: 'lesson', n, sec, mon, L: cur, e: e(cur) };
+  const { act, cur, prev, next, prevOpen } = dayNow(lessonsOf(mon).filter(l => l.d === dow), e, sec);
+  if (cur) return { k: 'lesson', n, sec, mon, L: cur, e: e(cur), prevOpen };
   // +Zeit läuft bis zur nächsten Stunde, höchstens 20 min; ist das Ende schon eingetragen, ist Pause
   // pend = nur die Ankunft des Lehrers ist eingetragen, das Ende noch nicht
-  if (prev && !(e(prev) && !e(prev).pend && next) && sec - secOf(prev.end) < Math.min(1200, next ? secOf(next.start) - secOf(prev.end) : 1200)) return { k: 'over', n, sec, mon, L: prev, e: e(prev), next };
+  if (prev && secOf(prev.end) <= sec && !(e(prev) && !e(prev).pend && next) && sec - secOf(prev.end) < Math.min(1200, next ? secOf(next.start) - secOf(prev.end) : 1200)) return { k: 'over', n, sec, mon, L: prev, e: e(prev), next };
   if (next) return { k: 'break', n, sec, mon, next, prev, pe: prev && e(prev) };
-  return { k: 'free', n, sec, title: ls.length ? 'Schulschluss' : 'Heute kein Unterricht', sub: '' };
+  return { k: 'free', n, sec, title: act.length ? 'Schulschluss' : 'Heute kein Unterricht', sub: '' };
 }
 const fmtS = s => { s = Math.max(0, Math.floor(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return (h ? h + ':' + pad(m) : pad(m)) + ':' + pad(s % 60); };
 
@@ -786,7 +820,7 @@ function stats() {
     const t = add(e.t);
     if (e.s === 'cancelled') { t.cancel++; continue; }
     if (e.s === 'skipped') { t.skip++; continue; }
-    t.n++;
+    if (!e.pend) t.n++;
     const ov = overOf(e);
     if (ov > 0) { t.over += ov; t.nOver++; if (!rec || ov > overOf(rec)) rec = { ...e, ds }; }
     t.early += earlyOf(e);
@@ -897,6 +931,7 @@ function forgetSession() {
   lsSet('pk-token', null); lsSet('pk-user', null);
   Object.assign(state, { token: null, username: '', profile: blankProfile(), weeks: {}, grp: null, scope: 'me' });
   pending.profile = false; pending.weeks.clear();
+  $('#undo').hidden = true; undoFn = null;
 }
 
 // Ferien & Feiertage je Bundesland (OpenHolidays API), eine Woche lang zwischengespeichert
@@ -1100,17 +1135,32 @@ $('#edCancel').onclick = () => {
   if (!P().onboarded) { editing = null; goStep(3); return show(); }
   editing = null; show();
 };
-$('#edSave').onclick = () => {
-  const d = editing.draft;
-  if (!Object.values(d.plans).flat().length) return toast('Trag mindestens eine Stunde ein.');
-  const first = !P().onboarded;
-  Object.assign(P(), { v: 3, plans: { A: d.plans.A || [], B: P().ab ? d.plans.B || [] : [] }, teachers: d.teachers, onboarded: true });
+function finishPlan(plans, teachers, first) {
+  Object.assign(P(), { v: 3, plans, teachers, onboarded: true });
   if (first) migrateOldLocalData();
   saveProfile();
   editing = null; ob.results = {}; ob.reupload = false;
   toast(first ? 'Fertig! Viel Spaß beim Mitzählen.' : 'Stundenplan gespeichert');
   goToday(); show();
+}
+let nextPlan = null; // wartet auf die Antwort im Dialog „Ab wann gilt der geänderte Plan?“
+$('#edSave').onclick = () => {
+  const d = editing.draft;
+  if (!Object.values(d.plans).flat().length) return toast('Trag mindestens eine Stunde ein.');
+  const first = !P().onboarded, plans = { A: d.plans.A || [], B: P().ab ? d.plans.B || [] : [] };
+  if (!ME() || first || JSON.stringify(plans) === JSON.stringify({ A: P().plans.A || [], B: P().plans.B || [] })) return finishPlan(plans, d.teachers, first);
+  nextPlan = { plans, teachers: d.teachers };
+  const last = P().planHist?.at(-1)?.until, min = last ? iso(addDays(fromIso(last), 1)) : '', td = todayIso();
+  $('#vDate').min = min; $('#vDate').value = min > td ? min : td;
+  $('#vdlg').showModal();
 };
+$('#vf').addEventListener('submit', e => {
+  e.preventDefault();
+  P().planHist = [...(P().planHist || []), { until: $('#vDate').value, plans: structuredClone(P().plans) }];
+  $('#vdlg').close();
+  finishPlan(nextPlan.plans, { ...P().teachers, ...nextPlan.teachers }, false);
+});
+$('#vAll').onclick = () => { $('#vdlg').close(); finishPlan(nextPlan.plans, nextPlan.teachers, false); };
 // Einträge aus der ersten Version (nur im Browser gespeichert) einmalig übernehmen
 function migrateOldLocalData() {
   const old = lsGet('pausenklau-v1');
@@ -1183,12 +1233,13 @@ function gridHtml({ mon, lessons, preview, teachers }) {
         if (!e) { if (past) { cls = 'open'; badge = '<span class="b open">eintragen</span>'; } }
         else if (e.s === 'cancelled') { cls = 'cancelled'; badge = '<span class="b open">Ausfall</span>'; }
         else if (e.s === 'skipped') { cls = 'skipped'; badge = '<span class="b open">geskippt</span>'; }
+        else if (e.pend && past) { cls = 'open'; badge = `<span class="b open">eintragen</span>${e.late ? `<span class="note">${mmss(e.late)} spät</span>` : ''}`; }
         else if (e.pend && typeof e.mb !== 'number') badge = `<span class="b zero">${e.late ? mmss(e.late) + ' spät' : e.in ? 'pünktlich da' : 'Ende offen'}</span>`;
         else badge = `<span class="b ${netOf(e) > 0 ? 'over' : netOf(e) < 0 ? 'early' : 'zero'}">${sgn(netOf(e))}</span>${e.late ? `<span class="note">${mmss(e.late)} spät</span>` : ''}`;
         if (e?.n) badge = `<span class="note">${esc(e.n)}</span>` + badge;
         if (e && mbNote(e)) badge = `<span class="note">${mbNote(e)}</span>` + badge;
         for (const x of (P().events || []).filter(x => x.k === L.key && x.d === ds)) badge = `<span class="note hw">${esc(x.n.replace(/^HA [^:]*:/, 'HA:'))}</span>` + badge;
-        if (ds === td && nm >= s - 5 && nm <= en + 15) cls += ' live';
+        if (ds === td && nm >= s - 5 && nm <= en + 15 && (!e || e.s === 'ok')) cls += ' live';
       } else badge = `<span class="t num">${L.start}–${L.end}</span>`;
       const idx = preview ? editing.draft.plans[editing.v].findIndex(x => x.d === L.d && x.s === L.s) : -1;
       h += `<button class="lesson ${cls}" data-key="${L.key}" data-idx="${idx}" style="top:${(s - D0) * K}px;height:${(en - s) * K}px">
@@ -1215,12 +1266,12 @@ function renderWeek() {
   for (const L of lessons) {
     if (offReason(L.date)) continue;
     const e = entries[L.key];
-    if (!e) { if (L.date < td || (L.date === td && nm > toMin(L.end))) open++; }
-    else if (e.s === 'cancelled') canc++;
-    else if (e.s === 'ok') { over += overOf(e); under += earlyOf(e); late += e.late || 0; }
+    if ((!e || e.pend) && (L.date < td || (L.date === td && nm > toMin(L.end)))) open++;
+    if (e?.s === 'cancelled') canc++;
+    else if (e?.s === 'ok') { over += overOf(e); under += earlyOf(e); late += e.late || 0; }
   }
   if (!ME()) under += late;
-  $('#weeksum').innerHTML = `<span>Diese Woche: <b>${sgn(over)}</b> min überzogen</span><span><b>${mmss(under)}</b> min unterzogen</span>${ME() ? `<span><b>${mmss(late)}</b> min zu spät</span>` : ''}<span><b>${canc}</b> Ausfälle</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
+  $('#weeksum').innerHTML = `<span>${mk === iso(mondayOf(now())) ? 'Diese Woche' : 'Woche'}: <b>${sgn(over)}</b> min überzogen</span><span><b>${mmss(under)}</b> min unterzogen</span>${ME() ? `<span><b>${mmss(late)}</b> min zu spät</span>` : ''}<span><b>${canc}</b> ${canc === 1 ? 'Ausfall' : 'Ausfälle'}</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
 }
 
 // Gruppen-Rangliste vom Server; from passt zum gewählten Zeitraum
@@ -1238,8 +1289,12 @@ function trendHtml(from) {
     const x = wk[mk] ||= { over: 0, late: 0 };
     x.over += overOf(e); x.late += e.late || 0;
   }
-  const ks = Object.keys(wk).sort().slice(-12);
+  const seen = Object.keys(wk).sort(), all = [];
+  if (!seen.length) return '';
+  for (let d = fromIso(seen[0]); iso(d) <= seen.at(-1); d = addDays(d, 7)) all.push(iso(d));
+  const ks = all.slice(-12);
   if (ks.length < 2) return '';
+  for (const k of ks) wk[k] ||= { over: 0, late: 0 };
   const max = Math.max(1 / 60, ...ks.map(k => wk[k].over)), top = ks.find(k => wk[k].over === max);
   return `<div class="trend"><h3>Überzogen pro Woche</h3>
     <div class="bars">${ks.map(k => `<div title="Woche ab ${fmtD(fromIso(k))}: ${mmss(wk[k].over)} min überzogen${ME() ? `, ${mmss(wk[k].late)} min zu spät` : ''}">${k === top ? `<b>${sgn(max)}</b>` : ''}<i style="height:${wk[k].over / max * 100}%"></i></div>`).join('')}</div>
@@ -1261,8 +1316,8 @@ function renderRank() {
     <div class="tile"><div class="k">Pause verloren</div><div class="v">${mmss(sum('over'))}<small>min</small></div><div class="s">durch Überziehen</div></div>
     <div class="tile"><div class="k">Unterzogen</div><div class="v">${mmss(sum('under'))}<small>min</small></div><div class="s">${ME() ? 'früher Schluss' : 'früher Schluss + später Beginn'}</div></div>
     ${ME() ? `<div class="tile"><div class="k">Zu spät</div><div class="v">${mmss(sum('late'))}<small>min</small></div><div class="s">Lehrer kamen später</div></div>` : ''}
-    <div class="tile"><div class="k">Ausfälle</div><div class="v">${sum('cancel')}</div><div class="s">Stunden</div></div>
-    <div class="tile"><div class="k">Erfasst</div><div class="v">${tracked}</div><div class="s">Stunden${skips ? ` · ${skips} geskippt` : ''}</div></div>`;
+    <div class="tile"><div class="k">Ausfälle</div><div class="v">${sum('cancel')}</div><div class="s">${sum('cancel') === 1 ? 'Stunde' : 'Stunden'}</div></div>
+    <div class="tile"><div class="k">Erfasst</div><div class="v">${tracked}</div><div class="s">${tracked === 1 ? 'Stunde' : 'Stunden'}${skips ? ` · ${skips} geskippt` : ''}</div></div>`;
   const withData = rows.filter(r => r.n);
   const top = f => withData.filter(r => r[f] > 0).sort((a, b) => b[f] - a[f])[0];
   const king = top('over'), friend = top('under'), slow = ME() && top('late');
@@ -1277,7 +1332,7 @@ function renderRank() {
     ? `<p class="note-pill empty"><strong>Noch nichts eingetragen.</strong> Tipp in der Wochenansicht auf eine Stunde und trag ein, wie lange überzogen oder früher Schluss gemacht wurde. Oder nutz oben den Live-Countdown: „Jetzt ist Schluss“ rechnet die Zeit sekundengenau aus.</p>`
     : `<div class="awards">${aw('Überzieh-König', king, king && `${mmss(king.over)} min in ${king.nOver} ${king.nOver === 1 ? 'Stunde' : 'Stunden'}`)}${aw('Pausenfreund', friend, friend && `${mmss(friend.under)} min früher raus`)}${aw('Zuspätkommer', slow, slow && `${mmss(slow.late)} min zu spät`)}${aw('Uhrwerk', clock, clock && `Ø ${mmss(off(clock))} min daneben`)}${rec ? `<div class="award"><div class="k">Rekord</div><div class="n num">${sgn(overOf(rec))} min</div><div class="s">${nm(rec.t)} · ${esc(rec.c)} · ${fmtD(fromIso(rec.ds))}</div></div>` : ''}</div>`;
   const courses = {};
-  for (const l of [...P().plans.A, ...P().plans.B]) (courses[l.te] ||= new Set()).add(l.c);
+  for (const l of allPlanLessons()) (courses[l.te] ||= new Set()).add(l.c);
   const s = state.sort;
   rows.sort((a, b) => (+!!(b.n || b.cancel) - +!!(a.n || a.cancel)) || (b[s] - a[s]) || (b.n - a.n));
   const max = Math.max(1, ...rows.map(r => Math.max(r.over, r.under)));
@@ -1295,13 +1350,13 @@ function renderRank() {
 
 // ME: Lehrer-Profil aus den eigenen Einträgen im gewählten Zeitraum
 function openTeacher(k) {
-  const es = teacherEntries(k, rangeFrom()), ok = es.filter(e => e.s === 'ok');
+  const es = teacherEntries(k, rangeFrom()), ok = es.filter(e => e.s === 'ok' && !e.pend);
   const avg = f => ok.length ? ok.reduce((a, e) => a + f(e), 0) / ok.length : 0;
   const worst = ok.filter(e => overOf(e) > 0).sort((a, b) => overOf(b) - overOf(a))[0];
   const byDay = DAYS.map((n, d) => { const x = ok.filter(e => e.d === d); return x.length ? `${n} ${sgn(x.reduce((a, e) => a + netOf(e), 0) / x.length)}` : ''; }).filter(Boolean).join(' · ');
   const tile = (key, v, s) => `<div class="tile"><div class="k">${key}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
   $('#tdTitle').textContent = teacherName(k) || k;
-  $('#tdMeta').textContent = [k, ...new Set([...P().plans.A, ...P().plans.B].filter(l => l.te === k).map(l => l.c))].join(' · ');
+  $('#tdMeta').textContent = [k, ...new Set(allPlanLessons().filter(l => l.te === k).map(l => l.c))].join(' · ');
   $('#tdBody').innerHTML = `<div class="tiles">${tile('Ø Schluss', sgn(avg(e => netOf(e))), 'min pro Stunde')}${tile('Ø zu spät', mmss(avg(e => e.late || 0)), 'min pro Stunde')}${tile('Erfasst', ok.length, `Stunden · ${es.filter(e => e.s === 'cancelled').length} Ausf.`)}</div>
     ${worst ? `<p>Schlimmste Stunde: <b>${sgn(overOf(worst))} min</b> in ${esc(worst.c)} am ${fmtD(fromIso(worst.ds))}</p>` : ''}
     ${byDay ? `<p>Ø nach Wochentag: ${byDay}</p>` : ''}
@@ -1400,14 +1455,16 @@ const at = (ds, t) => { const d = fromIso(ds), [h, m] = t ? t.split(':').map(Num
 function countdowns() {
   if (!ME()) return [];
   const n = now(), ds = iso(n), out = [];
-  const ls = lessonsOf(mondayOf(n)).filter(l => !offReason(l.date));
+  const wk = state.weeks[iso(mondayOf(n))]?.e || {};
+  const ls = lessonsOf(mondayOf(n)).filter(l => !offReason(l.date) && !['cancelled', 'skipped'].includes(wk[l.key]?.s));
+  const finish = l => { const x = wk[l.key]; return new Date(+at(l.date, l.end) + (x && !x.pend && x.end < 0 ? x.end * 6e4 : 0)); };
   const today = ls.filter(l => l.date === ds).at(-1), last = ls.at(-1);
-  if (today) out.push(['Schulschluss in', at(ds, today.end)]);
-  if (last) out.push(['Wochenende in', at(last.date, last.end)]);
+  if (today) out.push(['Schulschluss in', finish(today)]);
+  if (last) out.push(['Wochenende in', finish(last)]);
   const hol = state.holidays.filter(([a, b]) => b > a && b >= ds).sort((x, y) => x[0] < y[0] ? -1 : 1)[0];
   if (hol) out.push(hol[0] <= ds ? [hol[2] + ' noch', addDays(fromIso(hol[1]), 1)] : [hol[2] + ' in', fromIso(hol[0])]);
-  const ev = (P().events || []).map(x => [x.n + ' in', at(x.d, x.t)]).filter(x => x[1] > n).sort((a, b) => a[1] - b[1])[0];
-  if (ev) out.push(ev);
+  const evs = (P().events || []).map(x => ({ x, t: at(x.d, x.t) })).filter(v => v.t > n).sort((a, b) => a.t - b.t);
+  for (const v of [evs.find(v => !v.x.k), evs.find(v => v.x.k)]) if (v) out.push([v.x.n + ' in', v.t]);
   return out;
 }
 function renderClockPill() {
@@ -1420,14 +1477,14 @@ function tickLive() {
   if ($('#app').hidden) return;
   const st = liveState(), { n, sec } = st;
   const early = st.k === 'lesson' && sec - secOf(st.L.start) < 20 * 60 && !st.e?.late && !st.e?.in;
-  const sig = [st.k, st.L?.key, st.next?.key, st.title, JSON.stringify(st.e || null), JSON.stringify(st.pe || null), early, clockSrc, iso(n)].join('|');
+  const sig = [st.k, st.L?.key, st.next?.key, st.prevOpen?.key, st.title, JSON.stringify(st.e || null), JSON.stringify(st.pe || null), early, clockSrc, iso(n)].join('|');
   if (sig !== liveSig) {
     liveSig = sig;
     const src = clockSrc === 'net' ? '<span>Netzwerkzeit · Europe/Berlin</span>'
       : clockSrc === 'pending' ? '<span>Zeit wird synchronisiert…</span>'
       : clockSrc === 'cached' ? '<span>Offline · Zeit vom letzten Abgleich</span>'
       : `<span style="color:var(--danger)">${clockSrc === 'manual' ? 'Manuell gestellt' : 'Gerätezeit, evtl. falsch'} · <button type="button" class="linkbtn" data-act="clock">Uhr stellen</button></span>`;
-    let what = '', time = '', prog = false, acts = '';
+    let what = '', time = '', prog = false, acts = '', prevInfo = '';
     const who = l => `${esc(teacherLabel(l.te))}${l.r ? ' · Raum ' + esc(l.r) : ''}`;
     const status = e => e?.s === 'cancelled' ? 'Ausfall eingetragen' : e?.s === 'skipped' ? 'Geskippt'
       : e?.pend ? (e.late ? `Lehrer kam ${mmss(e.late)} min zu spät` : e.in ? 'Lehrer war pünktlich' : '') : e ? `Eingetragen: ${sgn(netOf(e))} min` : '';
@@ -1439,6 +1496,8 @@ function tickLive() {
       time = '<span class="lv-time"><small>noch</small><span id="lvT"></span></span>'; prog = true;
       if (wait) acts = '<button type="button" class="btn btn-primary" data-act="start">Lehrer ist jetzt da</button><button type="button" class="btn btn-ghost" data-act="inontime">War pünktlich</button><button type="button" class="btn btn-ghost" data-act="end">Lehrer macht jetzt Schluss</button>';
       else if (!st.e || st.e.s === 'ok') acts = `<button type="button" class="btn btn-primary" data-act="end">Lehrer macht jetzt Schluss</button>${early ? '<button type="button" class="btn btn-ghost" data-act="start">Unterricht beginnt jetzt</button>' : ''}`;
+      if (ME() && !early && !st.e?.late && !st.e?.in && (!st.e || (st.e.s === 'ok' && st.e.pend))) acts += '<button type="button" class="btn btn-ghost" data-act="start">Lehrer kam eben erst</button>';
+      if (st.prevOpen) { prevInfo = `${esc(st.prevOpen.c)} überzieht noch? <b class="num" id="lvO"></b>`; acts += `<button type="button" class="btn btn-ghost" data-act="prevend">${esc(st.prevOpen.c)}: jetzt Schluss</button>`; }
     } else if (st.k === 'over') {
       const nx = st.next ? ` · danach ${esc(st.next.c)} um ${st.next.start}` : '';
       if (st.e && !st.e.pend) {
@@ -1453,8 +1512,9 @@ function tickLive() {
       // Pausenlänge laut Plan und wie viel davon das Überziehen gekostet hat
       const gap = st.prev ? toMin(st.next.start) - toMin(st.prev.end) : 0;
       const stolen = st.pe?.s === 'ok' && st.pe.end > 0 ? Math.min(st.pe.end, gap) : 0;
+      const extra = st.pe?.s === 'ok' && st.pe.end < 0 ? -st.pe.end : 0;
       const title = !ME() ? 'Pause' : !st.prev ? `Erste Stunde um ${st.next.start}` : gap > 20 ? 'Freistunde' : 'Pause';
-      const info = st.prev ? `${gap} min ${title === 'Freistunde' ? 'frei' : 'Pause'}${stolen ? `, davon ${mmss(stolen)} min von ${esc(st.prev.c)} geklaut` : ''} · ` : '';
+      const info = st.prev ? `${gap} min ${title === 'Freistunde' ? 'frei' : 'Pause'}${stolen ? `, davon ${mmss(stolen)} min von ${esc(st.prev.c)} geklaut` : ''}${extra ? `, ${mmss(extra)} min früher Schluss` : ''} · ` : '';
       const fc = forecast(st.next.te);
       what = `${title}<small>${info}Nächste Stunde: ${esc(st.next.c)} · ${who(st.next)}${fc ? ' · ' + fc : ''}</small>`;
       time = `<span class="lv-time"><small>${st.prev ? 'noch' : 'in'}</small><span id="lvT"></span></span>`;
@@ -1470,7 +1530,7 @@ function tickLive() {
     const cds = countdowns();
     $('#live').innerHTML = `<div class="lv-top"><span id="lvC"></span>${src}</div>
       <div class="lv-main"><div class="lv-what">${what}</div>${time}</div>
-      ${prog ? '<div class="lv-prog"><i id="lvP"></i></div>' : ''}${mbInfo ? `<p class="fine">${mbInfo}</p>` : ''}${acts ? `<div class="lv-act">${acts}</div>` : ''}
+      ${prog ? '<div class="lv-prog"><i id="lvP"></i></div>' : ''}${prevInfo ? `<p class="fine">${prevInfo}</p>` : ''}${mbInfo ? `<p class="fine">${mbInfo}</p>` : ''}${acts ? `<div class="lv-act">${acts}</div>` : ''}
       ${cds.length ? `<div class="lv-cds">${cds.map(([k, t]) => `<span data-to="${+t}">${esc(k)}<b></b></span>`).join('')}</div>` : ''}`;
   }
   for (const c of $$('#live [data-to]')) { const s = (+c.dataset.to - +n) / 1000; c.hidden = s <= 0; c.lastChild.textContent = fmtLong(s); }
@@ -1480,15 +1540,29 @@ function tickLive() {
   const lt = $('#lvL');
   if (lt) lt.textContent = '+' + fmtS(sec - secOf(st.L.start));
   const bt = $('#lvB'); if (bt && st.e?.mbs != null) bt.textContent = fmtS(sec - st.e.mbs);
+  const ot = $('#lvO'); if (ot && st.prevOpen) ot.textContent = '+' + fmtS(sec - secOf(st.prevOpen.end));
   const p = $('#lvP');
   if (p) p.style.width = (sec - secOf(st.L.start)) / (secOf(st.L.end) - secOf(st.L.start)) * 100 + '%';
 }
+// Fehltipps zurücknehmen: before ist der Eintrag vor der Änderung, null = es gab keinen
+let undoT = 0, undoFn = null;
+function offerUndo(msg, mk, key, before) {
+  $('#undoMsg').textContent = msg; $('#undo').hidden = false;
+  undoFn = () => {
+    const w = editWeek(mk);
+    if (before) w.e[key] = before; else delete w.e[key];
+    saveWeek(mk, 'e', key); render(); liveSig = ''; tickLive();
+  };
+  clearTimeout(undoT); undoT = setTimeout(() => { $('#undo').hidden = true; undoFn = null; }, 1e4);
+}
+$('#undoBtn').onclick = () => { clearTimeout(undoT); $('#undo').hidden = true; undoFn?.(); undoFn = null; toast('Rückgängig gemacht'); };
 function record(L, mon, patch, msg) {
   const mk = iso(mon), w = editWeek(mk), old = w.e[L.key];
+  const before = w.e[L.key] ? structuredClone(w.e[L.key]) : null;
   w.e[L.key] = { s: 'ok', end: 0, late: 0, n: '', ...(old?.s === 'ok' ? old : {}), c: L.c, t: L.te, ...patch };
   if ('end' in patch) delete w.e[L.key].pend;
   if ('mbs' in patch && patch.mbs === undefined) delete w.e[L.key].mbs;
-  saveWeek(mk, 'e', L.key); render(); tickLive(); toast(msg);
+  saveWeek(mk, 'e', L.key); render(); liveSig = ''; tickLive(); offerUndo(msg, mk, L.key, before);
 }
 $('#live').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
@@ -1503,6 +1577,7 @@ $('#live').addEventListener('click', e => {
   if (act === 'mbcancel') return record(st.L, st.mon, { mbs: undefined }, 'Pause zurückgesetzt');
   if (act === 'mbnone') return record(st.L, st.mon, { mb: 0, mbs: undefined, ...(!st.e && { pend: true }) }, `Keine Pause: ${sgn(MB_LEN)} min`);
   if (act === 'mbstop') { const mb = Math.max(0, Math.floor(st.sec) - st.e.mbs) / 60; return record(st.L, st.mon, { mb, mbs: undefined }, `Pause ${mmss(mb)}: ${sgn(MB_LEN - mb)} min`); }
+  if (act === 'prevend') { const L = st.prevOpen; if (!L) return; const end = Math.trunc(st.sec - secOf(L.end)) / 60; return record(L, st.mon, { end, ...breakStop(state.weeks[iso(st.mon)]?.e?.[L.key], st.sec) }, `${L.c}: ${sgn(end)} min eingetragen`); }
   if (act === 'start' || act === 'inontime') {
     const late = act === 'start' ? Math.floor(st.sec - secOf(st.L.start)) / 60 : 0;
     const name = teacherName(st.L.te) || st.L.te;
@@ -1511,8 +1586,7 @@ $('#live').addEventListener('click', e => {
   }
   else {
     const end = act === 'ontime' ? 0 : Math.trunc(st.sec - secOf(st.L.end)) / 60;
-    const stop = st.e?.mbs != null && typeof st.e?.mb !== 'number' ? { mb: Math.max(0, Math.floor(st.sec) - st.e.mbs) / 60, mbs: undefined } : {};
-    record(st.L, st.mon, { end, ...stop }, `${st.L.c}: ${sgn(end)} min eingetragen`);
+    record(st.L, st.mon, { end, ...breakStop(st.e, st.sec) }, `${st.L.c}: ${sgn(end)} min eingetragen`);
   }
 });
 $('#cf').addEventListener('submit', e => {
@@ -1601,6 +1675,7 @@ $('#lf').addEventListener('click', e => {
 });
 $('#lf').addEventListener('submit', e => {
   e.preventDefault();
+  if (!addHomework()) return;
   const mk = iso(state.mon), w = editWeek(mk), s = $('#lf').s.value;
   const old = w.e[cur.key], raw = $('#mbIn').value.trim();
   const entry = { s, c: cur.c, t: cur.te,
@@ -1615,9 +1690,10 @@ $('#lf').addEventListener('submit', e => {
   saveWeek(mk, 'e', cur.key); $('#dlg').close(); render(); liveSig = ''; tickLive();
 });
 $('#delBtn').addEventListener('click', () => {
-  const mk = iso(state.mon);
-  delete editWeek(mk).e[cur.key];
-  saveWeek(mk, 'e', cur.key); $('#dlg').close(); render(); liveSig = ''; tickLive();
+  const mk = iso(state.mon), w = editWeek(mk);
+  const before = w.e[cur.key] ? structuredClone(w.e[cur.key]) : null;
+  delete w.e[cur.key];
+  saveWeek(mk, 'e', cur.key); $('#dlg').close(); render(); liveSig = ''; tickLive(); offerUndo('Eintrag gelöscht', mk, cur.key, before);
 });
 
 // ---------- Hausaufgabe (nur ME): wird ein Termin an der nächsten Stunde desselben Kurses ----------
@@ -1627,19 +1703,21 @@ function nextLessonOf(L) {
     if (l.c === L.c && !offReason(l.date) && (l.date > L.date || (l.date === L.date && toMin(l.start) > toMin(L.start)))) return l;
   return null;
 }
-$('#hwAdd').onclick = () => {
-  const n = $('#hwIn').value.trim(); if (!n) return;
+function addHomework() {
+  const n = $('#hwIn').value.trim(); if (!n) return true;
   const nx = nextLessonOf(cur);
-  if (!nx) return toast('Keine nächste Stunde in den nächsten Wochen gefunden.');
+  if (!nx) { toast('Keine nächste Stunde in den nächsten Wochen gefunden.'); return false; }
   P().events = [...(P().events || []), { d: nx.date, t: nx.start, n: `HA ${cur.c}: ${n}`, k: nx.key }].sort(byWhen);
   $('#hwIn').value = ''; saveProfile(); render(); liveSig = '';
   toast(`Hausaufgabe für ${DAYS[nx.d]} ${fmtD(fromIso(nx.date))} eingetragen`);
-};
+  return true;
+}
+$('#hwAdd').onclick = addHomework;
 
 // ---------- Raum oder Lehrer nur für diese Stunde ----------
 $('#chOpen').onclick = () => {
   const ch = state.weeks[iso(state.mon)]?.ch?.[cur.key] || {};
-  const pl = (P().plans[isA(state.mon) ? 'A' : 'B'] || []).find(l => l.d + '-' + l.s === cur.key);
+  const pl = (plansAt(cur.date)[isA(state.mon) ? 'A' : 'B'] || []).find(l => l.d + '-' + l.s === cur.key);
   $('#chMeta').textContent = `${cur.c} · ${DAYS[cur.d]} ${fmtD(fromIso(cur.date))} · laut Plan ${teacherLabel(pl.te)}${pl.r ? ', Raum ' + pl.r : ''}`;
   $('#chR').value = ch.r || ''; $('#chT').value = ch.te || '';
   $('#dlg').close(); $('#chdlg').showModal();

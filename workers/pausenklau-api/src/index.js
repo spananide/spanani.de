@@ -137,7 +137,7 @@ async function groupView(env, username, from) {
       if (e.s === 'skipped') { t.skip++; continue; }
       const end = +e.end || 0, mb = typeof e.mb === 'number' ? 5 - e.mb : 0; // 5-Minuten-Pause in Doppelstunden
       const over = Math.max(0, end) + Math.max(0, mb);
-      t.n++; t.late += +e.late || 0;
+      if (!e.pend) t.n++; t.late += +e.late || 0;
       if (over > 0) { t.over += over; t.nOver++; }
       t.early += Math.max(0, -end) + Math.max(0, -mb);
     }

@@ -24,18 +24,22 @@ ${extractConst('sgn')}
 ${extractConst('timeIn')}
 ${extractConst('parseMmss')}
 ${extractConst('toMin')}
+${extractConst('secOf')}
 ${extractConst('MB_LEN')}
 ${extractConst('pauseDiff')}
 ${extractConst('netOf')}
 ${extractConst('overOf')}
 ${extractConst('earlyOf')}
 ${extractConst('mbNote')}
+${extractConst('breakStop')}
 ${extractFn('hasMidBreak')}
 ${extractFn('mergeWeek')}
-return { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote };
+${extractFn('plansAt')}
+${extractFn('dayNow')}
+return { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, secOf, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote, breakStop, plansAt, dayNow };
 `)();
 
-const { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote } = fns;
+const { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, secOf, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote, breakStop, plansAt, dayNow } = fns;
 
 // 1. Roundtrip for every integer s from -18000 to 18000
 for (let s = -18000; s <= 18000; s++) {
@@ -143,5 +147,91 @@ assert.strictEqual(mbNote({ mb: 0 }), 'Keine Pause');
 assert.strictEqual(mbNote({ mb: 3.5 }), 'Pause 3:30');
 assert.strictEqual(mbNote({ mbs: 9 }), 'Pause offen');
 assert.strictEqual(mbNote({}), '');
+
+// 12. plansAt
+assert.strictEqual(plansAt('2027-01-15', { plans: 'curr' }), 'curr');
+const pOne = { plans: 'curr', planHist: [{ until: '2027-02-01', plans: 'old' }] };
+assert.strictEqual(plansAt('2027-01-31', pOne), 'old');
+assert.strictEqual(plansAt('2027-02-01', pOne), 'curr');
+const pTwo = { plans: 'p3', planHist: [{ until: '2026-08-01', plans: 'p1' }, { until: '2027-02-01', plans: 'p2' }] };
+assert.strictEqual(plansAt('2026-07-31', pTwo), 'p1');
+assert.strictEqual(plansAt('2026-08-01', pTwo), 'p2');
+assert.strictEqual(plansAt('2027-01-31', pTwo), 'p2');
+assert.strictEqual(plansAt('2027-02-01', pTwo), 'p3');
+
+// 13. dayNow
+{
+  const l = (start, end, key = start) => ({ start, end, key });
+  const ent = m => x => m[x.key];
+
+  const a = l('08:00', '09:30', 'a');
+  const b = l('09:35', '10:20', 'b');
+  const c = l('11:00', '11:45', 'c');
+  const ls = [a, b, c];
+
+  // 09:00 no entries: cur is a, prevOpen null.
+  const r1 = dayNow(ls, ent({}), secOf('09:00'));
+  assert.strictEqual(r1.cur, a);
+  assert.strictEqual(r1.prevOpen, null);
+
+  // 09:36 no entries: cur is b, prev is a, prevOpen is a (overrun past the next start).
+  const r2 = dayNow(ls, ent({}), secOf('09:36'));
+  assert.strictEqual(r2.cur, b);
+  assert.strictEqual(r2.prev, a);
+  assert.strictEqual(r2.prevOpen, a);
+
+  // 09:36 with {a:{s:'ok',end:6}}: prevOpen null.
+  const r3 = dayNow(ls, ent({ a: { s: 'ok', end: 6 } }), secOf('09:36'));
+  assert.strictEqual(r3.prevOpen, null);
+
+  // 09:36 with {a:{s:'ok',end:0,late:2,pend:true}}: prevOpen is a.
+  const r4 = dayNow(ls, ent({ a: { s: 'ok', end: 0, late: 2, pend: true } }), secOf('09:36'));
+  assert.strictEqual(r4.prevOpen, a);
+
+  // 09:50 no entries: prevOpen null (20 minutes after a's end is 09:50).
+  const r5 = dayNow(ls, ent({}), secOf('09:50'));
+  assert.strictEqual(r5.prevOpen, null);
+
+  // {b:{s:'cancelled'}} at 09:40: cur undefined, next is c, prev is a.
+  const r6 = dayNow(ls, ent({ b: { s: 'cancelled' } }), secOf('09:40'));
+  assert.strictEqual(r6.cur, undefined);
+  assert.strictEqual(r6.next, c);
+  assert.strictEqual(r6.prev, a);
+
+  // {b:{s:'skipped'}} at 09:40: cur undefined.
+  const r7 = dayNow(ls, ent({ b: { s: 'skipped' } }), secOf('09:40'));
+  assert.strictEqual(r7.cur, undefined);
+
+  // {c:{s:'cancelled'}} at 10:30: next undefined.
+  const r8 = dayNow(ls, ent({ c: { s: 'cancelled' } }), secOf('10:30'));
+  assert.strictEqual(r8.next, undefined);
+
+  // Early finish: {a:{s:'ok',end:-30}} at 09:05: cur undefined, prev is a, next is b. Same entry at 08:50: cur is a (that moment has not come yet).
+  const earlyEntry = { a: { s: 'ok', end: -30 } };
+  const r9 = dayNow(ls, ent(earlyEntry), secOf('09:05'));
+  assert.strictEqual(r9.cur, undefined);
+  assert.strictEqual(r9.prev, a);
+  assert.strictEqual(r9.next, b);
+
+  const r10 = dayNow(ls, ent(earlyEntry), secOf('08:50'));
+  assert.strictEqual(r10.cur, a);
+
+  // A manual {a:{s:'ok',end:3}} at 09:00: cur is a. A pend entry {a:{s:'ok',end:0,pend:true}} at 09:00: cur is a.
+  const r11 = dayNow(ls, ent({ a: { s: 'ok', end: 3 } }), secOf('09:00'));
+  assert.strictEqual(r11.cur, a);
+
+  const r12 = dayNow(ls, ent({ a: { s: 'ok', end: 0, pend: true } }), secOf('09:00'));
+  assert.strictEqual(r12.cur, a);
+
+  // All lessons cancelled at 09:00: act is empty.
+  const r13 = dayNow(ls, ent({ a: { s: 'cancelled' }, b: { s: 'cancelled' }, c: { s: 'cancelled' } }), secOf('09:00'));
+  assert.deepEqual(r13.act, []);
+}
+
+// 14. breakStop
+assert.deepEqual(breakStop({ mbs: 100 }, 300.9), { mb: 200 / 60, mbs: undefined });
+assert.deepEqual(breakStop({ mbs: 100, mb: 2 }, 300), {});
+assert.deepEqual(breakStop(undefined, 300), {});
+assert.deepEqual(breakStop({}, 300), {});
 
 console.log('ok');

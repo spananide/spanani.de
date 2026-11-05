@@ -481,6 +481,11 @@
           </div>
           <div class="hintrow"><span class="hint zero" id="lateHint"></span><button type="button" class="nowbtn" data-now="late" id="lateNow">Jetzt geht's los</button></div>
         </div>
+        <div class="field" id="mbWrap" hidden>
+          <label class="lbl" for="mbIn">5-Minuten-Pause (m:ss, 0 = keine)</label>
+          <input class="inp" type="text" id="mbIn" inputmode="text" autocomplete="off" placeholder="offen">
+          <div class="hintrow"><span class="hint zero" id="mbHint"></span></div>
+        </div>
       </div>
       <label class="lbl" for="noteIn">Notiz</label>
       <input class="inp" type="text" id="noteIn" maxlength="120" placeholder="z. B. Klausur zurückgegeben">
@@ -696,6 +701,21 @@ const lessonsOf = mon => {
   return lessonsFor(P().plans[isA(mon) ? 'A' : 'B'] || [], mon)
     .map(l => ch[l.key] ? { ...l, r: ch[l.key].r || l.r, te: ch[l.key].te || l.te, chR: !!ch[l.key].r, chT: !!ch[l.key].te } : l);
 };
+// 5-Minuten-Pause in Doppelstunden (nur ME). Doppelstunde = ein Block ab MB_DOUBLE Minuten.
+const MB_LEN = 5, MB_DOUBLE = 80, MB_NOON = 720, MB_GAP = 45;
+// ponytail: eine Lücke ab MB_GAP Minuten, die ab 12 Uhr endet, gilt als lange Pause. Eine solche Freistunde sieht genauso aus; bei festen Schulzeiten die Konstanten anpassen.
+function hasMidBreak(L, day) {
+  const s = toMin(L.start);
+  if (toMin(L.end) - s < MB_DOUBLE) return false;
+  if (s < MB_NOON) return true;
+  const seq = [...day.filter(x => toMin(x.end) <= s).sort((a, b) => toMin(a.start) - toMin(b.start)), L];
+  return seq.length > 1 && !seq.some((x, i) => i && toMin(x.start) >= MB_NOON && toMin(x.start) - toMin(seq[i - 1].end) >= MB_GAP);
+}
+const pauseDiff = e => typeof e.mb === 'number' ? MB_LEN - e.mb : 0;
+const netOf = e => (+e.end || 0) + pauseDiff(e);
+const overOf = e => Math.max(0, +e.end || 0) + Math.max(0, pauseDiff(e));
+const earlyOf = e => Math.max(0, -(+e.end || 0)) + Math.max(0, -pauseDiff(e));
+const mbNote = e => typeof e.mb === 'number' ? (e.mb ? 'Pause ' + mmss(e.mb) : 'Keine Pause') : e.mbs != null ? 'Pause offen' : '';
 const teacherName = te => P().teachers[te] || '';
 const teacherLabel = te => teacherName(te) ? `${te} (${teacherName(te)})` : te;
 function builtinOff(ds) {
@@ -767,7 +787,9 @@ function stats() {
     if (e.s === 'cancelled') { t.cancel++; continue; }
     if (e.s === 'skipped') { t.skip++; continue; }
     t.n++;
-    if (e.end > 0) { t.over += e.end; t.nOver++; if (!rec || e.end > rec.end) rec = { ...e, ds }; } else t.early -= e.end;
+    const ov = overOf(e);
+    if (ov > 0) { t.over += ov; t.nOver++; if (!rec || ov > overOf(rec)) rec = { ...e, ds }; }
+    t.early += earlyOf(e);
     t.late += e.late || 0;
   }
   return { rec, rows: Object.values(by).map(derive) };
@@ -789,7 +811,7 @@ function forecast(te) {
   const ok = teacherEntries(te, '').filter(e => e.s === 'ok' && !e.pend);
   if (ok.length < 2) return '';
   const avg = f => ok.reduce((a, e) => a + f(e), 0) / ok.length, late = avg(e => e.late || 0);
-  return `Prognose: ${sgn(avg(e => e.end))} min${late >= 0.5 ? `, ${mmss(late)} min zu spät` : ''}`;
+  return `Prognose: ${sgn(avg(e => netOf(e)))} min${late >= 0.5 ? `, ${mmss(late)} min zu spät` : ''}`;
 }
 
 // ---------- DOM ----------
@@ -1161,9 +1183,10 @@ function gridHtml({ mon, lessons, preview, teachers }) {
         if (!e) { if (past) { cls = 'open'; badge = '<span class="b open">eintragen</span>'; } }
         else if (e.s === 'cancelled') { cls = 'cancelled'; badge = '<span class="b open">Ausfall</span>'; }
         else if (e.s === 'skipped') { cls = 'skipped'; badge = '<span class="b open">geskippt</span>'; }
-        else if (e.pend) badge = `<span class="b zero">${e.late ? mmss(e.late) + ' spät' : 'pünktlich da'}</span>`;
-        else badge = `<span class="b ${e.end > 0 ? 'over' : e.end < 0 ? 'early' : 'zero'}">${sgn(e.end)}</span>${e.late ? `<span class="note">${mmss(e.late)} spät</span>` : ''}`;
+        else if (e.pend && typeof e.mb !== 'number') badge = `<span class="b zero">${e.late ? mmss(e.late) + ' spät' : e.in ? 'pünktlich da' : 'Ende offen'}</span>`;
+        else badge = `<span class="b ${netOf(e) > 0 ? 'over' : netOf(e) < 0 ? 'early' : 'zero'}">${sgn(netOf(e))}</span>${e.late ? `<span class="note">${mmss(e.late)} spät</span>` : ''}`;
         if (e?.n) badge = `<span class="note">${esc(e.n)}</span>` + badge;
+        if (e && mbNote(e)) badge = `<span class="note">${mbNote(e)}</span>` + badge;
         for (const x of (P().events || []).filter(x => x.k === L.key && x.d === ds)) badge = `<span class="note hw">${esc(x.n.replace(/^HA [^:]*:/, 'HA:'))}</span>` + badge;
         if (ds === td && nm >= s - 5 && nm <= en + 15) cls += ' live';
       } else badge = `<span class="t num">${L.start}–${L.end}</span>`;
@@ -1194,7 +1217,7 @@ function renderWeek() {
     const e = entries[L.key];
     if (!e) { if (L.date < td || (L.date === td && nm > toMin(L.end))) open++; }
     else if (e.s === 'cancelled') canc++;
-    else if (e.s === 'ok') { if (e.end > 0) over += e.end; else under -= e.end; late += e.late || 0; }
+    else if (e.s === 'ok') { over += overOf(e); under += earlyOf(e); late += e.late || 0; }
   }
   if (!ME()) under += late;
   $('#weeksum').innerHTML = `<span>Diese Woche: <b>${sgn(over)}</b> min überzogen</span><span><b>${mmss(under)}</b> min unterzogen</span>${ME() ? `<span><b>${mmss(late)}</b> min zu spät</span>` : ''}<span><b>${canc}</b> Ausfälle</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
@@ -1213,7 +1236,7 @@ function trendHtml(from) {
     const ds = iso(addDays(fromIso(mk), +key.split('-')[0]));
     if (e.s !== 'ok' || ds < from || offReason(ds)) continue;
     const x = wk[mk] ||= { over: 0, late: 0 };
-    x.over += Math.max(0, e.end); x.late += e.late || 0;
+    x.over += overOf(e); x.late += e.late || 0;
   }
   const ks = Object.keys(wk).sort().slice(-12);
   if (ks.length < 2) return '';
@@ -1252,7 +1275,7 @@ function renderRank() {
   const aw = (k, r, s) => r ? `<div class="award"><div class="k">${k}</div><div class="n">${nm(r.k)}</div><div class="s">${s}</div></div>` : '';
   $('#awards').innerHTML = !tracked
     ? `<p class="note-pill empty"><strong>Noch nichts eingetragen.</strong> Tipp in der Wochenansicht auf eine Stunde und trag ein, wie lange überzogen oder früher Schluss gemacht wurde. Oder nutz oben den Live-Countdown: „Jetzt ist Schluss“ rechnet die Zeit sekundengenau aus.</p>`
-    : `<div class="awards">${aw('Überzieh-König', king, king && `${mmss(king.over)} min in ${king.nOver} ${king.nOver === 1 ? 'Stunde' : 'Stunden'}`)}${aw('Pausenfreund', friend, friend && `${mmss(friend.under)} min früher raus`)}${aw('Zuspätkommer', slow, slow && `${mmss(slow.late)} min zu spät`)}${aw('Uhrwerk', clock, clock && `Ø ${mmss(off(clock))} min daneben`)}${rec ? `<div class="award"><div class="k">Rekord</div><div class="n num">${sgn(rec.end)} min</div><div class="s">${nm(rec.t)} · ${esc(rec.c)} · ${fmtD(fromIso(rec.ds))}</div></div>` : ''}</div>`;
+    : `<div class="awards">${aw('Überzieh-König', king, king && `${mmss(king.over)} min in ${king.nOver} ${king.nOver === 1 ? 'Stunde' : 'Stunden'}`)}${aw('Pausenfreund', friend, friend && `${mmss(friend.under)} min früher raus`)}${aw('Zuspätkommer', slow, slow && `${mmss(slow.late)} min zu spät`)}${aw('Uhrwerk', clock, clock && `Ø ${mmss(off(clock))} min daneben`)}${rec ? `<div class="award"><div class="k">Rekord</div><div class="n num">${sgn(overOf(rec))} min</div><div class="s">${nm(rec.t)} · ${esc(rec.c)} · ${fmtD(fromIso(rec.ds))}</div></div>` : ''}</div>`;
   const courses = {};
   for (const l of [...P().plans.A, ...P().plans.B]) (courses[l.te] ||= new Set()).add(l.c);
   const s = state.sort;
@@ -1274,15 +1297,15 @@ function renderRank() {
 function openTeacher(k) {
   const es = teacherEntries(k, rangeFrom()), ok = es.filter(e => e.s === 'ok');
   const avg = f => ok.length ? ok.reduce((a, e) => a + f(e), 0) / ok.length : 0;
-  const worst = ok.filter(e => e.end > 0).sort((a, b) => b.end - a.end)[0];
-  const byDay = DAYS.map((n, d) => { const x = ok.filter(e => e.d === d); return x.length ? `${n} ${sgn(x.reduce((a, e) => a + e.end, 0) / x.length)}` : ''; }).filter(Boolean).join(' · ');
+  const worst = ok.filter(e => overOf(e) > 0).sort((a, b) => overOf(b) - overOf(a))[0];
+  const byDay = DAYS.map((n, d) => { const x = ok.filter(e => e.d === d); return x.length ? `${n} ${sgn(x.reduce((a, e) => a + netOf(e), 0) / x.length)}` : ''; }).filter(Boolean).join(' · ');
   const tile = (key, v, s) => `<div class="tile"><div class="k">${key}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
   $('#tdTitle').textContent = teacherName(k) || k;
   $('#tdMeta').textContent = [k, ...new Set([...P().plans.A, ...P().plans.B].filter(l => l.te === k).map(l => l.c))].join(' · ');
-  $('#tdBody').innerHTML = `<div class="tiles">${tile('Ø Schluss', sgn(avg(e => e.end)), 'min pro Stunde')}${tile('Ø zu spät', mmss(avg(e => e.late || 0)), 'min pro Stunde')}${tile('Erfasst', ok.length, `Stunden · ${es.filter(e => e.s === 'cancelled').length} Ausf.`)}</div>
-    ${worst ? `<p>Schlimmste Stunde: <b>${sgn(worst.end)} min</b> in ${esc(worst.c)} am ${fmtD(fromIso(worst.ds))}</p>` : ''}
+  $('#tdBody').innerHTML = `<div class="tiles">${tile('Ø Schluss', sgn(avg(e => netOf(e))), 'min pro Stunde')}${tile('Ø zu spät', mmss(avg(e => e.late || 0)), 'min pro Stunde')}${tile('Erfasst', ok.length, `Stunden · ${es.filter(e => e.s === 'cancelled').length} Ausf.`)}</div>
+    ${worst ? `<p>Schlimmste Stunde: <b>${sgn(overOf(worst))} min</b> in ${esc(worst.c)} am ${fmtD(fromIso(worst.ds))}</p>` : ''}
     ${byDay ? `<p>Ø nach Wochentag: ${byDay}</p>` : ''}
-    <ul class="tlist">${es.map(e => `<li><span class="num">${fmtD(fromIso(e.ds))}</span> ${esc(e.c)} · ${e.s === 'cancelled' ? 'Ausfall' : e.s === 'skipped' ? 'geskippt' : `${e.pend ? 'Ende offen' : sgn(e.end) + ' min'}${e.late ? ` · ${mmss(e.late)} spät` : ''}`}${e.n ? ` · <i>${esc(e.n)}</i>` : ''}</li>`).join('')}</ul>`;
+    <ul class="tlist">${es.map(e => `<li><span class="num">${fmtD(fromIso(e.ds))}</span> ${esc(e.c)} · ${e.s === 'cancelled' ? 'Ausfall' : e.s === 'skipped' ? 'geskippt' : `${e.pend ? 'Ende offen' : sgn(netOf(e)) + ' min'}${e.late ? ` · ${mmss(e.late)} spät` : ''}${mbNote(e) ? ' · ' + mbNote(e) : ''}`}${e.n ? ` · <i>${esc(e.n)}</i>` : ''}</li>`).join('')}</ul>`;
   $('#tdlg').showModal();
 }
 $('#rank').addEventListener('click', e => { const r = e.target.closest('.row.click'); if (r) openTeacher(r.dataset.k); });
@@ -1407,12 +1430,12 @@ function tickLive() {
     let what = '', time = '', prog = false, acts = '';
     const who = l => `${esc(teacherLabel(l.te))}${l.r ? ' · Raum ' + esc(l.r) : ''}`;
     const status = e => e?.s === 'cancelled' ? 'Ausfall eingetragen' : e?.s === 'skipped' ? 'Geskippt'
-      : e?.pend ? (e.late ? `Lehrer kam ${mmss(e.late)} min zu spät` : 'Lehrer war pünktlich') : e ? `Eingetragen: ${sgn(e.end)} min` : '';
+      : e?.pend ? (e.late ? `Lehrer kam ${mmss(e.late)} min zu spät` : e.in ? 'Lehrer war pünktlich' : '') : e ? `Eingetragen: ${sgn(netOf(e))} min` : '';
     if (st.k === 'lesson') {
       // ME: solange der Lehrer nicht da ist, läuft ein eigener Zu-spät-Zähler
       const wait = ME() && early && (!st.e || st.e.s === 'ok');
-      const fc = forecast(st.L.te);
-      what = `${esc(st.L.c)}<small>${who(st.L)} · ${st.L.start}–${st.L.end}${st.e ? ' · ' + status(st.e) : fc ? ' · ' + fc : ''}${wait ? ' · <span style="color:var(--danger)">Lehrer noch nicht da: <b class="num" id="lvL"></b></span>' : ''}</small>`;
+      const fc = forecast(st.L.te), stx = st.e ? status(st.e) : '';
+      what = `${esc(st.L.c)}<small>${who(st.L)} · ${st.L.start}–${st.L.end}${stx ? ' · ' + stx : fc ? ' · ' + fc : ''}${wait ? ' · <span style="color:var(--danger)">Lehrer noch nicht da: <b class="num" id="lvL"></b></span>' : ''}</small>`;
       time = '<span class="lv-time"><small>noch</small><span id="lvT"></span></span>'; prog = true;
       if (wait) acts = '<button type="button" class="btn btn-primary" data-act="start">Lehrer ist jetzt da</button><button type="button" class="btn btn-ghost" data-act="inontime">War pünktlich</button><button type="button" class="btn btn-ghost" data-act="end">Lehrer macht jetzt Schluss</button>';
       else if (!st.e || st.e.s === 'ok') acts = `<button type="button" class="btn btn-primary" data-act="end">Lehrer macht jetzt Schluss</button>${early ? '<button type="button" class="btn btn-ghost" data-act="start">Unterricht beginnt jetzt</button>' : ''}`;
@@ -1420,7 +1443,7 @@ function tickLive() {
       const nx = st.next ? ` · danach ${esc(st.next.c)} um ${st.next.start}` : '';
       if (st.e && !st.e.pend) {
         what = `${esc(st.L.c)}<small>${status(st.e)}${nx}</small>`;
-        time = st.e.s === 'ok' ? `<span class="lv-time ${st.e.end > 0 ? 'over' : st.e.end < 0 ? 'early' : ''}">${sgn(st.e.end)}<small> min</small></span>` : '';
+        time = st.e.s === 'ok' ? `<span class="lv-time ${netOf(st.e) > 0 ? 'over' : netOf(st.e) < 0 ? 'early' : ''}">${sgn(netOf(st.e))}<small> min</small></span>` : '';
       } else {
         what = `${esc(st.L.c)} überzieht<small>Klingel war um ${st.L.end} · ${esc(teacherName(st.L.te) || st.L.te)}${nx}</small>`;
         time = '<span class="lv-time over">+<span id="lvT"></span></span>';
@@ -1436,10 +1459,18 @@ function tickLive() {
       what = `${title}<small>${info}Nächste Stunde: ${esc(st.next.c)} · ${who(st.next)}${fc ? ' · ' + fc : ''}</small>`;
       time = `<span class="lv-time"><small>${st.prev ? 'noch' : 'in'}</small><span id="lvT"></span></span>`;
     } else what = `${esc(st.title)}${st.sub ? `<small>${st.sub}</small>` : ''}`;
+    let mbInfo = '';
+    if (ME() && st.L && (st.k === 'lesson' || st.k === 'over') && (!st.e || st.e.s === 'ok') && hasMidBreak(st.L, lessonsOf(st.mon).filter(l => l.d === st.L.d))) {
+      if (typeof st.e?.mb === 'number') mbInfo = `5-Minuten-Pause: ${st.e.mb ? mmss(st.e.mb) : 'keine'}, ${sgn(pauseDiff(st.e))} min`;
+      else if (st.e?.mbs != null) {
+        mbInfo = '5-Minuten-Pause läuft: <b class="num" id="lvB"></b> von 5:00';
+        acts = '<button type="button" class="btn btn-primary" data-act="mbstop">Pause vorbei</button><button type="button" class="btn btn-ghost" data-act="mbcancel">Falsch gestartet</button>' + acts.replaceAll('btn-primary', 'btn-ghost');
+      } else if (!early) acts += '<button type="button" class="btn btn-ghost" data-act="mbstart">Pause startet</button><button type="button" class="btn btn-ghost" data-act="mbnone">Keine Pause gemacht</button>';
+    }
     const cds = countdowns();
     $('#live').innerHTML = `<div class="lv-top"><span id="lvC"></span>${src}</div>
       <div class="lv-main"><div class="lv-what">${what}</div>${time}</div>
-      ${prog ? '<div class="lv-prog"><i id="lvP"></i></div>' : ''}${acts ? `<div class="lv-act">${acts}</div>` : ''}
+      ${prog ? '<div class="lv-prog"><i id="lvP"></i></div>' : ''}${mbInfo ? `<p class="fine">${mbInfo}</p>` : ''}${acts ? `<div class="lv-act">${acts}</div>` : ''}
       ${cds.length ? `<div class="lv-cds">${cds.map(([k, t]) => `<span data-to="${+t}">${esc(k)}<b></b></span>`).join('')}</div>` : ''}`;
   }
   for (const c of $$('#live [data-to]')) { const s = (+c.dataset.to - +n) / 1000; c.hidden = s <= 0; c.lastChild.textContent = fmtLong(s); }
@@ -1448,6 +1479,7 @@ function tickLive() {
   if (t) t.textContent = fmtS(st.k === 'lesson' ? secOf(st.L.end) - sec : st.k === 'over' ? sec - secOf(st.L.end) : secOf(st.next.start) - sec);
   const lt = $('#lvL');
   if (lt) lt.textContent = '+' + fmtS(sec - secOf(st.L.start));
+  const bt = $('#lvB'); if (bt && st.e?.mbs != null) bt.textContent = fmtS(sec - st.e.mbs);
   const p = $('#lvP');
   if (p) p.style.width = (sec - secOf(st.L.start)) / (secOf(st.L.end) - secOf(st.L.start)) * 100 + '%';
 }
@@ -1455,6 +1487,7 @@ function record(L, mon, patch, msg) {
   const mk = iso(mon), w = editWeek(mk), old = w.e[L.key];
   w.e[L.key] = { s: 'ok', end: 0, late: 0, n: '', ...(old?.s === 'ok' ? old : {}), c: L.c, t: L.te, ...patch };
   if ('end' in patch) delete w.e[L.key].pend;
+  if ('mbs' in patch && patch.mbs === undefined) delete w.e[L.key].mbs;
   saveWeek(mk, 'e', L.key); render(); tickLive(); toast(msg);
 }
 $('#live').addEventListener('click', e => {
@@ -1466,13 +1499,21 @@ $('#live').addEventListener('click', e => {
     return $('#cdlg').showModal();
   }
   const st = liveState(); if (!st.L) return;
+  if (act === 'mbstart') return record(st.L, st.mon, { mbs: Math.floor(st.sec), ...(!st.e && { pend: true }) }, '5-Minuten-Pause läuft');
+  if (act === 'mbcancel') return record(st.L, st.mon, { mbs: undefined }, 'Pause zurückgesetzt');
+  if (act === 'mbnone') return record(st.L, st.mon, { mb: 0, mbs: undefined, ...(!st.e && { pend: true }) }, `Keine Pause: ${sgn(MB_LEN)} min`);
+  if (act === 'mbstop') { const mb = Math.max(0, Math.floor(st.sec) - st.e.mbs) / 60; return record(st.L, st.mon, { mb, mbs: undefined }, `Pause ${mmss(mb)}: ${sgn(MB_LEN - mb)} min`); }
   if (act === 'start' || act === 'inontime') {
     const late = act === 'start' ? Math.floor(st.sec - secOf(st.L.start)) / 60 : 0;
     const name = teacherName(st.L.te) || st.L.te;
     if (!ME()) return record(st.L, st.mon, { late }, `${st.L.c}: ${mmss(late)} min später angefangen`);
     record(st.L, st.mon, { late, in: true, ...(!st.e && { pend: true }) }, late ? `${name}: ${mmss(late)} min zu spät` : `${name} war pünktlich`);
   }
-  else { const end = act === 'ontime' ? 0 : Math.trunc(st.sec - secOf(st.L.end)) / 60; record(st.L, st.mon, { end }, `${st.L.c}: ${sgn(end)} min eingetragen`); }
+  else {
+    const end = act === 'ontime' ? 0 : Math.trunc(st.sec - secOf(st.L.end)) / 60;
+    const stop = st.e?.mbs != null && typeof st.e?.mb !== 'number' ? { mb: Math.max(0, Math.floor(st.sec) - st.e.mbs) / 60, mbs: undefined } : {};
+    record(st.L, st.mon, { end, ...stop }, `${st.L.c}: ${sgn(end)} min eingetragen`);
+  }
 });
 $('#cf').addEventListener('submit', e => {
   e.preventDefault();
@@ -1516,8 +1557,11 @@ function endHint() {
       $('#lateHint').textContent = '';
     }
   }
+  const b = readTime($('#mbIn'), 0, END_MAX), raw = $('#mbIn').value.trim(), run = cur && state.weeks[iso(state.mon)]?.e?.[cur.key]?.mbs;
+  $('#mbHint').textContent = !b.ok ? 'Schreib es als 5 oder 5:30' : raw ? `${sgn(MB_LEN - b.v)} min` : run != null ? `Läuft seit ${fromMin(Math.floor(run / 60))}:${pad(run % 60)}` : 'Noch nicht erfasst';
+  $('#mbHint').className = 'hint ' + (!b.ok || (raw && b.v < MB_LEN) ? 'over' : raw && b.v > MB_LEN ? 'early' : 'zero');
 }
-function setStatus2(s) { $('#s-' + s).checked = true; $('#okFields').hidden = s !== 'ok'; $('#endIn').disabled = $('#lateIn').disabled = s !== 'ok'; }
+function setStatus2(s) { $('#s-' + s).checked = true; $('#okFields').hidden = s !== 'ok'; $('#endIn').disabled = $('#lateIn').disabled = s !== 'ok'; $('#mbIn').disabled = s !== 'ok' || $('#mbWrap').hidden; }
 function openLesson(key) {
   const L = lessonsOf(state.mon).find(l => l.key === key);
   if (!L) return;
@@ -1525,8 +1569,10 @@ function openLesson(key) {
   const e = state.weeks[iso(state.mon)]?.e?.[key];
   $('#dTitle').textContent = L.c;
   $('#dMeta').textContent = `${teacherLabel(L.te)}${L.r ? ' · Raum ' + L.r : ''} · ${DAYS[L.d]} ${fmtD(fromIso(L.date))} · ${L.start}–${L.end}`;
+  $('#mbWrap').hidden = !(ME() && hasMidBreak(L, lessonsOf(state.mon).filter(l => l.d === L.d)) || typeof e?.mb === 'number' || e?.mbs != null);
   setStatus2(e?.s || 'ok');
   $('#endIn').value = timeIn(e?.end ?? 0); $('#lateIn').value = timeIn(e?.late ?? 0); $('#noteIn').value = e?.n || '';
+  $('#mbIn').value = typeof e?.mb === 'number' ? timeIn(e.mb) : '';
   $$('[data-now]').forEach(b => b.hidden = L.date !== todayIso());
   $('#delBtn').hidden = !e;
   $('#hwWrap').hidden = !ME(); $('#hwIn').value = '';
@@ -1538,6 +1584,7 @@ function openLesson(key) {
 $('#lf').addEventListener('change', e => { if (e.target.name === 's') setStatus2(e.target.value); });
 $('#endIn').addEventListener('input', endHint);
 $('#lateIn').addEventListener('input', endHint);
+$('#mbIn').addEventListener('input', endHint);
 $('#lf').addEventListener('click', e => {
   const st = e.target.closest('[data-step]'), nw = e.target.closest('[data-now]');
   if (st) {
@@ -1555,10 +1602,16 @@ $('#lf').addEventListener('click', e => {
 $('#lf').addEventListener('submit', e => {
   e.preventDefault();
   const mk = iso(state.mon), w = editWeek(mk), s = $('#lf').s.value;
-  w.e[cur.key] = { s, c: cur.c, t: cur.te,
+  const old = w.e[cur.key], raw = $('#mbIn').value.trim();
+  const entry = { s, c: cur.c, t: cur.te,
     end: s === 'ok' ? parseMmss($('#endIn').value) ?? 0 : 0,
     late: s === 'ok' ? parseMmss($('#lateIn').value) ?? 0 : 0,
     n: $('#noteIn').value.trim().slice(0, 120) };
+  if (s === 'ok' && !$('#mbWrap').hidden) {
+    if (raw) entry.mb = typeof old?.mb === 'number' && raw === timeIn(old.mb) ? old.mb : parseMmss(raw);
+    else if (old?.mbs != null) entry.mbs = old.mbs;
+  }
+  w.e[cur.key] = entry;
   saveWeek(mk, 'e', cur.key); $('#dlg').close(); render(); liveSig = ''; tickLive();
 });
 $('#delBtn').addEventListener('click', () => {

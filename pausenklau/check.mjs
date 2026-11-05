@@ -23,11 +23,19 @@ ${extractConst('mmss')}
 ${extractConst('sgn')}
 ${extractConst('timeIn')}
 ${extractConst('parseMmss')}
+${extractConst('toMin')}
+${extractConst('MB_LEN')}
+${extractConst('pauseDiff')}
+${extractConst('netOf')}
+${extractConst('overOf')}
+${extractConst('earlyOf')}
+${extractConst('mbNote')}
+${extractFn('hasMidBreak')}
 ${extractFn('mergeWeek')}
-return { pad, mmss, sgn, timeIn, parseMmss, mergeWeek };
+return { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote };
 `)();
 
-const { pad, mmss, sgn, timeIn, parseMmss, mergeWeek } = fns;
+const { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote } = fns;
 
 // 1. Roundtrip for every integer s from -18000 to 18000
 for (let s = -18000; s <= 18000; s++) {
@@ -82,5 +90,58 @@ assert.deepEqual(res2, { e: { '1-08:00': { s: 'ok', end: 2 } } });
 // server undefined
 const res3 = mergeWeek(undefined, local1, ['e/a', 'e/c']);
 assert.deepEqual(res3, { e: { a: 9, c: 3 } });
+
+// 8. hasMidBreak
+const l = (start, end) => ({ start, end });
+assert.strictEqual(hasMidBreak(l('08:00', '09:30'), []), true);
+assert.strictEqual(hasMidBreak(l('08:00', '08:45'), []), false);
+assert.strictEqual(hasMidBreak(l('10:00', '11:20'), []), true); // exactly 80 min
+assert.strictEqual(hasMidBreak(l('10:00', '11:19'), []), false);
+
+// Morning free period
+assert.strictEqual(hasMidBreak(l('10:00', '11:30'), [l('08:00', '08:45')]), true);
+
+// Late morning without a gap
+assert.strictEqual(hasMidBreak(l('12:10', '13:40'), [l('10:30', '12:10')]), true);
+
+// After the long break
+assert.strictEqual(hasMidBreak(l('14:00', '15:30'), [l('08:00', '09:30'), l('11:30', '13:00')]), false);
+
+// Second afternoon double
+assert.strictEqual(hasMidBreak(l('15:35', '17:05'), [l('11:30', '13:00'), l('14:00', '15:30')]), false);
+
+// Day begins in the afternoon
+assert.strictEqual(hasMidBreak(l('14:00', '15:30'), []), false);
+
+// A later lesson that day does not count
+assert.strictEqual(hasMidBreak(l('08:00', '09:30'), [l('14:00', '15:30')]), true);
+
+// 9. pauseDiff with sgn
+assert.strictEqual(sgn(pauseDiff({ mb: 5 })), '±0:00');
+assert.strictEqual(sgn(pauseDiff({ mb: 200 / 60 })), '+1:40');
+assert.strictEqual(sgn(pauseDiff({ mb: 6.5 })), '−1:30');
+assert.strictEqual(sgn(pauseDiff({ mb: 0 })), '+5:00');
+assert.strictEqual(sgn(pauseDiff({})), '±0:00');
+assert.strictEqual(sgn(pauseDiff({ mbs: 100 })), '±0:00');
+
+// 10. overOf / earlyOf / netOf
+const e1 = { end: -2, mb: 3 };
+assert.strictEqual(overOf(e1), 2);
+assert.strictEqual(earlyOf(e1), 2);
+assert.strictEqual(netOf(e1), 0);
+
+const e2 = { end: 7.2, mb: 0 };
+assert.ok(Math.abs(overOf(e2) - 12.2) < 1e-9);
+assert.strictEqual(earlyOf(e2), 0);
+
+const e3 = { end: 5 };
+assert.strictEqual(overOf(e3), 5);
+assert.strictEqual(earlyOf(e3), 0);
+
+// 11. mbNote
+assert.strictEqual(mbNote({ mb: 0 }), 'Keine Pause');
+assert.strictEqual(mbNote({ mb: 3.5 }), 'Pause 3:30');
+assert.strictEqual(mbNote({ mbs: 9 }), 'Pause offen');
+assert.strictEqual(mbNote({}), '');
 
 console.log('ok');

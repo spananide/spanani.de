@@ -31,7 +31,7 @@ Worker (see below).
 | Page | What's there |
 |---|---|
 | `/` | Homepage: name-first hero, a working slash-command picker of what I build, a live Discord status, featured projects and a way to get in touch. |
-| `/projects` | Every side project in one place: Bauchgefühl, Pausenklau, the clock, the Rust raid calculator, the tennis tracker, the Daumenduell party games, and the WW2 Frontline Minecraft resource pack. |
+| `/projects` | Every side project in one place: Bauchgefühl, Pausenklau, the clock, the Rust raid calculator, the tennis tracker, the Daumenduell party games, the WW2 Frontline Minecraft resource pack, and the spanani Discord bot. |
 | `/services` | What I take on for other people: websites, Discord bots, Minecraft mods/plugins, server setup, custom tools, and an FAQ. No prices listed — every project's different, message me and we'll figure it out. |
 | `/contact` | Discord and email, both click-to-copy, plus a message helper that turns a few answers into a first message you send yourself. Nothing is submitted anywhere. |
 | `/de/`, `/de/projekte`, `/de/leistungen`, `/de/kontakt` | German versions of the four main pages, linked both ways with `hreflang` and a language link in the nav. |

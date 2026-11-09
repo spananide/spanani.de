@@ -1,6 +1,6 @@
 // Pausenklau offline: erst Netz (damit Updates sofort ankommen), sonst die zuletzt geladene Version.
 // Nur eigene GET-Anfragen ohne Query; API, Ferien- und Zeitdienste laufen immer übers Netz.
-const CACHE = 'pausenklau-v1';
+const CACHE = 'pausenklau-v2';
 
 self.addEventListener('install', e => {
   self.skipWaiting();

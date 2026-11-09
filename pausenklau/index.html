@@ -1589,11 +1589,30 @@ function freeInfo(n) {
     lines.push(`${nx.label}: ${esc(nx.first.c)} um ${nx.first.start}${nx.first.r ? ', Raum ' + esc(nx.first.r) : ''}`);
     for (const x of (P().events || []).filter(x => x.d === nx.ds)) lines.push(esc(x.k ? x.n.replace(/^HA /, 'Hausaufgabe ') : 'Termin: ' + x.n));
   }
-  return { lines, acts: open.length ? `<button type="button" class="btn btn-primary" data-act="openfirst" data-key="${open[0].key}">Eintragen</button>` : '' };
+  return { lines, acts: open.length ? `<button type="button" class="btn btn-primary" data-act="openfirst" data-key="${open[0].key}">Eintragen</button>${open.length > 1 ? '<button type="button" class="btn btn-ghost" data-act="allontime">Alle pünktlich</button>' : ''}` : '' };
+}
+let audioCtx = null, beepedFor = null, wl = null, wlBusy = false;
+function mbSignal() {
+  try { navigator.vibrate?.([200, 100, 200]); } catch {}
+  try {
+    if (audioCtx) {
+      const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+      osc.frequency.value = 880; g.gain.value = 0.15;
+      osc.connect(g); g.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+    }
+  } catch {}
+}
+function syncWake(on) {
+  if (on && !wl && !wlBusy && navigator.wakeLock) {
+    wlBusy = true;
+    navigator.wakeLock.request('screen').then(l => { wl = l; l.addEventListener('release', () => { wl = null; }); }).catch(() => {}).finally(() => { wlBusy = false; });
+  }
+  if (!on && wl) { wl.release().catch(() => {}); wl = null; }
 }
 function tickLive() {
   renderClockPill();
-  if ($('#app').hidden) return;
+  if ($('#app').hidden) { syncWake(false); return; }
   const st = liveState(), { n, sec } = st;
   const early = st.k === 'lesson' && sec - secOf(st.L.start) < 20 * 60 && !st.e?.late && !st.e?.in;
   const lateBtn = st.k === 'lesson' && sec - secOf(st.L.start) < 45 * 60; // danach trägt man es im Eintragsfenster nach
@@ -1616,6 +1635,7 @@ function tickLive() {
       time = '<span class="lv-time"><small>noch</small><span id="lvT"></span></span>'; prog = true;
       if (wait) acts = '<button type="button" class="btn btn-primary" data-act="start">Lehrer ist jetzt da</button><button type="button" class="btn btn-ghost" data-act="inontime">War pünktlich</button><button type="button" class="btn btn-ghost" data-act="end">Lehrer macht jetzt Schluss</button>';
       else if (!st.e || st.e.s === 'ok') acts = `<button type="button" class="btn btn-primary" data-act="end">Lehrer macht jetzt Schluss</button>${early ? '<button type="button" class="btn btn-ghost" data-act="start">Unterricht beginnt jetzt</button>' : ''}`;
+      if (early && !st.e) acts += '<button type="button" class="btn btn-ghost" data-act="cancel">Fällt aus</button>';
       if (ME() && !early && lateBtn && !st.e?.late && !st.e?.in && (!st.e || (st.e.s === 'ok' && st.e.pend))) acts += '<button type="button" class="btn btn-ghost" data-act="start">Lehrer kam eben erst</button>';
       if (st.prevOpen) { prevInfo = `${esc(st.prevOpen.c)} überzieht noch? <b class="num" id="lvO"></b>`; acts += `<button type="button" class="btn btn-ghost" data-act="prevend">${esc(st.prevOpen.c)}: jetzt Schluss</button>`; }
     } else if (st.k === 'over') {
@@ -1638,6 +1658,7 @@ function tickLive() {
       const fc = forecast(st.next.te);
       what = `${title}<small>${info}Nächste Stunde: ${esc(st.next.c)} · ${who(st.next)}${fc ? ' · ' + fc : ''}</small>`;
       time = `<span class="lv-time"><small>${st.prev ? 'noch' : 'in'}</small><span id="lvT"></span></span>`;
+      acts = '<button type="button" class="btn btn-ghost" data-act="cancel">Fällt aus</button>';
     } else {
       what = `${esc(st.title)}${st.sub ? `<small>${st.sub}</small>` : ''}`;
       if (ME()) { const f = freeInfo(n); acts = f.acts; if (f.lines.length) freeHtml = `<ul class="lv-free">${f.lines.map(x => `<li>${x}</li>`).join('')}</ul>`; }
@@ -1663,18 +1684,27 @@ function tickLive() {
   const lt = $('#lvL');
   if (lt) lt.textContent = '+' + fmtS(sec - secOf(st.L.start));
   const bt = $('#lvB'); if (bt && st.e?.mbs != null) bt.textContent = fmtS(sec - st.e.mbs);
+  const run = st.e?.mbs != null && typeof st.e.mb !== 'number';
+  if (run && sec - st.e.mbs >= 300) {
+    if (bt) bt.style.color = 'var(--danger)';
+    if (beepedFor !== st.e.mbs) { beepedFor = st.e.mbs; mbSignal(); }
+  }
+  syncWake(run);
   const ot = $('#lvO'); if (ot && st.prevOpen) ot.textContent = '+' + fmtS(sec - secOf(st.prevOpen.end));
   const p = $('#lvP');
   if (p) p.style.width = (sec - secOf(st.L.start)) / (secOf(st.L.end) - secOf(st.L.start)) * 100 + '%';
 }
-// Fehltipps zurücknehmen: before ist der Eintrag vor der Änderung, null = es gab keinen
+// Fehltipps zurücknehmen: befores = { [key]: eintragVorherOderNull }
 let undoT = 0, undoFn = null;
-function offerUndo(msg, mk, key, before) {
+function offerUndo(msg, mk, befores) {
   $('#undoMsg').textContent = msg; $('#undo').hidden = false;
   undoFn = () => {
     const w = editWeek(mk);
-    if (before) w.e[key] = before; else delete w.e[key];
-    saveWeek(mk, 'e', key); render(); liveSig = ''; tickLive();
+    for (const [key, before] of Object.entries(befores)) {
+      if (before) w.e[key] = before; else delete w.e[key];
+      saveWeek(mk, 'e', key);
+    }
+    render(); liveSig = ''; tickLive();
   };
   clearTimeout(undoT); undoT = setTimeout(() => { $('#undo').hidden = true; undoFn = null; }, 1e4);
 }
@@ -1685,7 +1715,24 @@ function record(L, mon, patch, msg) {
   w.e[L.key] = { s: 'ok', end: 0, late: 0, n: '', ...(old?.s === 'ok' ? old : {}), c: L.c, t: L.te, ...patch };
   if ('end' in patch) delete w.e[L.key].pend;
   if ('mbs' in patch && patch.mbs === undefined) delete w.e[L.key].mbs;
-  saveWeek(mk, 'e', L.key); render(); liveSig = ''; tickLive(); offerUndo(msg, mk, L.key, before);
+  saveWeek(mk, 'e', L.key); render(); liveSig = ''; tickLive(); offerUndo(msg, mk, { [L.key]: before });
+}
+function allOnTime() {
+  const n = now(), mon = mondayOf(n), mk = iso(mon), ds = iso(n), w = editWeek(mk);
+  const secNow = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds();
+  const targets = lessonsOf(mon).filter(l => l.date === ds && toMin(l.end) * 60 <= secNow && !['cancelled', 'skipped'].includes(w.e[l.key]?.s) && (!w.e[l.key] || w.e[l.key].pend));
+  if (!targets.length) return;
+  const befores = {};
+  for (const l of targets) befores[l.key] = w.e[l.key] ? structuredClone(w.e[l.key]) : null;
+  for (const l of targets) {
+    const old = w.e[l.key];
+    w.e[l.key] = { s: 'ok', end: 0, late: 0, n: '', ...(old?.s === 'ok' ? old : {}), c: l.c, t: l.te, end: 0, ...breakStop(old, secOf(l.end)) };
+    delete w.e[l.key].pend;
+    if (w.e[l.key].mbs === undefined) delete w.e[l.key].mbs;
+    saveWeek(mk, 'e', l.key);
+  }
+  render(); liveSig = ''; tickLive();
+  offerUndo(`${targets.length} Stunden pünktlich eingetragen`, mk, befores);
 }
 $('#live').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
@@ -1696,8 +1743,13 @@ $('#live').addEventListener('click', e => {
     return $('#cdlg').showModal();
   }
   if (act === 'openfirst') { goToday(); return openLesson(b.dataset.key); }
+  if (act === 'cancel') { const st = liveState(), L = st.k === 'break' ? st.next : st.L; if (!L) return; return record(L, st.mon, { s: 'cancelled', end: 0 }, `${L.c} fällt aus`); }
+  if (act === 'allontime') return allOnTime();
   const st = liveState(); if (!st.L) return;
-  if (act === 'mbstart') return record(st.L, st.mon, { mbs: Math.floor(st.sec), ...(!st.e && { pend: true }) }, '5-Minuten-Pause läuft');
+  if (act === 'mbstart') {
+    try { audioCtx ||= new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume?.(); } catch {}
+    return record(st.L, st.mon, { mbs: Math.floor(st.sec), ...(!st.e && { pend: true }) }, '5-Minuten-Pause läuft');
+  }
   if (act === 'mbcancel') return record(st.L, st.mon, { mbs: undefined }, 'Pause zurückgesetzt');
   if (act === 'mbnone') return record(st.L, st.mon, { mb: 0, mbs: undefined, ...(!st.e && { pend: true }) }, `Keine Pause: ${sgn(MB_LEN)} min`);
   if (act === 'mbstop') { const mb = Math.max(0, Math.floor(st.sec) - st.e.mbs) / 60; return record(st.L, st.mon, { mb, mbs: undefined }, `Pause ${mmss(mb)}: ${sgn(MB_LEN - mb)} min`); }
@@ -1817,7 +1869,7 @@ $('#delBtn').addEventListener('click', () => {
   const mk = iso(state.mon), w = editWeek(mk);
   const before = w.e[cur.key] ? structuredClone(w.e[cur.key]) : null;
   delete w.e[cur.key];
-  saveWeek(mk, 'e', cur.key); $('#dlg').close(); render(); liveSig = ''; tickLive(); offerUndo('Eintrag gelöscht', mk, cur.key, before);
+  saveWeek(mk, 'e', cur.key); $('#dlg').close(); render(); liveSig = ''; tickLive(); offerUndo('Eintrag gelöscht', mk, { [cur.key]: before });
 });
 
 // ---------- Hausaufgabe (nur ME): wird ein Termin an der nächsten Stunde desselben Kurses ----------

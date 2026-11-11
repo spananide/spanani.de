@@ -457,6 +457,17 @@ a:hover {
   font-size: var(--fs-body);
 }
 
+.card-social a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.card-social svg {
+  flex: none;
+}
+
 .hours {
   display: flex;
   flex-direction: column;

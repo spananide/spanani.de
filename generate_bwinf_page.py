@@ -1260,13 +1260,17 @@ page_html += '''        </div>
   </main>
 
   <script>
-    // Tab Umschaltung Hauptnavigation
+    // Tab Umschaltung Hauptnavigation (ohne ungewolltes Hochscrollen)
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('pane-' + tabId).classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      
+      // Button auf Mobile horizontal zentrieren/sichtbar halten, aber KEIN vertikales Hochscrollen!
+      if (btn && btn.scrollIntoView) {
+        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      }
     }
 
     // Code Datei Umschaltung

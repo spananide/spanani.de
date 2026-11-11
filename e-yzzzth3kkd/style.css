@@ -452,20 +452,28 @@ a:hover {
   margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
-  gap: var(--s1);
-  font-size: var(--fs-body);
+  gap: 12px;
 }
 
 .card-social a {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 44px;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--navy);
+  border-radius: var(--r-btn);
+  color: var(--navy);
+  transition: transform 0.12s;
+}
+
+.card-social a:active {
+  transform: scale(0.97);
 }
 
 .card-social svg {
-  flex: none;
+  width: 26px;
+  height: 26px;
 }
 
 .hours {

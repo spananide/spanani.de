@@ -74,7 +74,6 @@ body {
   background-color: var(--wall);
   color: var(--navy);
   text-align: left;
-  padding-bottom: 84px;
 }
 
 h1, h2, h3, p, dl, dd, dt {
@@ -118,11 +117,11 @@ a:hover {
   text-decoration-thickness: 2px;
 }
 
-.btn, .btn-call, .strip-cta {
+.btn, .strip-cta {
   transition: transform 0.12s;
 }
 
-.btn:active, .btn-call:active, .strip-cta:active {
+.btn:active, .strip-cta:active {
   transform: scale(0.97);
 }
 
@@ -132,7 +131,6 @@ a:hover {
 }
 
 .board :focus-visible,
-.call-bar :focus-visible,
 .strip-cta:focus-visible {
   outline: 3px solid var(--blond);
   outline-offset: 2px;
@@ -536,30 +534,6 @@ a:hover {
   margin-bottom: 0;
 }
 
-.call-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: var(--navy);
-  padding: 12px 20px;
-  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  z-index: 100;
-}
-
-.btn-call {
-  display: block;
-  width: 100%;
-  text-align: center;
-  background-color: var(--blond);
-  color: var(--navy);
-  border-radius: var(--r-btn);
-  font-weight: 800;
-  font-size: var(--fs-body);
-  padding: 14px 20px;
-  text-decoration: none;
-}
-
 @media (min-width: 760px) {
   .container {
     padding: 0 24px;
@@ -610,12 +584,6 @@ a:hover {
   .footer {
     margin-top: var(--s8);
     padding-bottom: var(--s8);
-  }
-  .call-bar {
-    display: none;
-  }
-  body {
-    padding-bottom: 0;
   }
 }
 

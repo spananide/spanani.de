@@ -7,189 +7,171 @@
   <meta name="referrer" content="no-referrer">
   <meta name="description" content="Friseursalon Gleuel in Hürth-Gleuel. Haarschnitte und Styling für Damen, Herren und Kinder. Ernst-Reuter-Straße 5-7.">
   <title>Friseursalon Gleuel – Hürth</title>
+  <link rel="preload" href="fonts/rubik-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/rubik-800.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
+  <script src="status.js" defer></script>
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="#" class="brand">
-        <img src="img/logo150.jpg" alt="Friseursalon Gleuel Logo" class="brand-logo" width="44" height="44">
-        <span class="brand-text">
-          <strong class="brand-main">GLEUEL</strong>
-          <span class="brand-sub">Friseursalon</span>
-        </span>
-      </a>
-      <a href="tel:+4922336287361" class="header-phone">02233 6287361</a>
-      <nav aria-label="Hauptnavigation" class="site-nav">
-        <ul class="nav-links">
-          <li><a href="#leistungen">Leistungen</a></li>
-          <li><a href="#galerie">Galerie</a></li>
-          <li><a href="#zeiten">Zeiten</a></li>
-          <li><a href="#kontakt">Kontakt</a></li>
-        </ul>
-      </nav>
+  <nav aria-label="Hauptnavigation" class="site-nav">
+    <div class="container">
+      <div class="nav-links">
+        <a href="#arbeiten">Arbeiten</a>
+        <a href="#preise">Preise</a>
+        <a href="#termin">Termin</a>
+      </div>
     </div>
-  </header>
+  </nav>
 
   <main>
     <section class="hero">
       <div class="container hero-inner">
-        <div class="hero-text">
+        <div class="hero-content">
+          <img src="img/logo150.jpg" alt="Friseursalon Gleuel Logo" width="96" height="96" class="hero-logo">
           <h1>Friseursalon Gleuel</h1>
-          <p class="hero-line">Damen, Herren und Kinder in Hürth-Gleuel.<br>Ernst-Reuter-Straße 5-7, 50354 Hürth</p>
+          <p class="hero-lead">Damen, Herren und Kinder.<br>Ernst-Reuter-Straße 5-7 in Hürth-Gleuel.</p>
+          <p id="status" class="status">Mo 10–19 · Di–Fr 9–19 · Sa 9–18</p>
           <div class="hero-actions">
-            <a href="tel:+4922336287361" class="btn btn-primary">Termin: 02233 6287361</a>
-            <a href="https://www.instagram.com/friseursalon.gleuel/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Instagram</a>
+            <a href="tel:+4922336287361" class="btn btn-primary">02233 6287361 anrufen</a>
+            <a href="https://www.instagram.com/friseursalon.gleuel/" target="_blank" rel="noopener noreferrer" class="hero-insta">Instagram</a>
           </div>
         </div>
         <div class="hero-photos">
-          <img src="img/herren-blond.jpg" alt="Herrenhaarschnitt blond" width="240" height="427">
-          <img src="img/damen-lang.jpg" alt="Damenhaarschnitt langes Haar" width="240" height="427" class="hero-photo-offset">
+          <img src="img/herren-blond.jpg" alt="Herrenhaarschnitt blond" width="361" height="640" class="hero-photo">
+          <img src="img/damen-lang.jpg" alt="Damenhaarschnitt langes Haar" width="360" height="640" class="hero-photo hero-photo-offset">
         </div>
       </div>
     </section>
 
-    <section id="leistungen" class="section">
+    <section id="arbeiten" class="section">
       <div class="container">
-        <div class="section-heading">
-          <h2>Leistungen</h2>
+        <h2>Frisuren aus dem Salon</h2>
+        <div class="strip" tabindex="0" role="region" aria-label="Fotos aus dem Salon">
+          <img src="img/herren-locken.jpg" alt="Herrenhaarschnitt mit Locken" width="361" height="640" loading="lazy">
+          <img src="img/herren-fade.jpg" alt="Herrenhaarschnitt mit Fade" width="360" height="640" loading="lazy">
+          <img src="img/kinder.jpg" alt="Kinderhaarschnitt" width="360" height="530" loading="lazy">
+          <img src="img/herren-logo.jpg" alt="Herrenhaarschnitt mit eingearbeitetem Muster" width="360" height="640" loading="lazy">
+          <img src="img/herren-seite.jpg" alt="Herrenhaarschnitt Seitenansicht" width="360" height="640" loading="lazy">
+          <img src="img/salon.jpg" alt="Innenansicht des Salons" width="361" height="580" loading="lazy">
+          <a href="https://www.instagram.com/friseursalon.gleuel/" target="_blank" rel="noopener noreferrer" class="strip-cta">
+            <span class="strip-cta-title">Mehr auf Instagram</span>
+            <span class="strip-cta-handle">@friseursalon.gleuel</span>
+          </a>
         </div>
-        <div class="price-panel">
+      </div>
+    </section>
+
+    <section id="preise" class="board">
+      <div class="container">
+        <h2 class="board-title">Preise</h2>
+        <div class="board-grid">
           <div class="price-group">
             <h3 class="price-group-title">Damen</h3>
-            <ul class="price-list">
-              <li class="price-row">
-                <span class="price-name">Haarschnitt</span>
-                <span class="price-dots" aria-hidden="true"></span>
-                <span class="price-val">auf Anfrage</span>
-              </li>
-              <li class="price-row">
-                <span class="price-name">Färben und Blondieren</span>
-                <span class="price-dots" aria-hidden="true"></span>
-                <span class="price-val">auf Anfrage</span>
-              </li>
-              <li class="price-row">
-                <span class="price-name">Locken und Styling</span>
-                <span class="price-dots" aria-hidden="true"></span>
-                <span class="price-val">auf Anfrage</span>
-              </li>
-            </ul>
+            <dl class="price-list">
+              <div class="price-row">
+                <dt class="price-service">Haarschnitt</dt>
+                <dd class="price-value">auf Anfrage</dd>
+              </div>
+              <div class="price-row">
+                <dt class="price-service">Färben und Blondieren</dt>
+                <dd class="price-value">auf Anfrage</dd>
+              </div>
+              <div class="price-row">
+                <dt class="price-service">Locken und Styling</dt>
+                <dd class="price-value">auf Anfrage</dd>
+              </div>
+            </dl>
           </div>
-
           <div class="price-group">
             <h3 class="price-group-title">Herren</h3>
-            <ul class="price-list">
-              <li class="price-row">
-                <span class="price-name">Haarschnitt</span>
-                <span class="price-dots" aria-hidden="true"></span>
-                <span class="price-val">auf Anfrage</span>
-              </li>
-              <li class="price-row">
-                <span class="price-name">Fade und Übergänge</span>
-                <span class="price-dots" aria-hidden="true"></span>
-                <span class="price-val">auf Anfrage</span>
-              </li>
-              <li class="price-row">
-                <span class="price-name">Blondieren und Färben</span>
-                <span class="price-dots" aria-hidden="true"></span>
-                <span class="price-val">auf Anfrage</span>
-              </li>
-            </ul>
+            <dl class="price-list">
+              <div class="price-row">
+                <dt class="price-service">Haarschnitt</dt>
+                <dd class="price-value">auf Anfrage</dd>
+              </div>
+              <div class="price-row">
+                <dt class="price-service">Fade und Übergänge</dt>
+                <dd class="price-value">auf Anfrage</dd>
+              </div>
+              <div class="price-row">
+                <dt class="price-service">Blondieren und Färben</dt>
+                <dd class="price-value">auf Anfrage</dd>
+              </div>
+            </dl>
           </div>
-
           <div class="price-group">
             <h3 class="price-group-title">Kinder</h3>
-            <ul class="price-list">
-              <li class="price-row">
-                <span class="price-name">Kinderhaarschnitt</span>
-                <span class="price-dots" aria-hidden="true"></span>
-                <span class="price-val">auf Anfrage</span>
-              </li>
-            </ul>
+            <dl class="price-list">
+              <div class="price-row">
+                <dt class="price-service">Kinderhaarschnitt</dt>
+                <dd class="price-value">auf Anfrage</dd>
+              </div>
+            </dl>
           </div>
-
-          <p class="price-note">Genaue Preise nennt der Salon bei der Terminvereinbarung.</p>
         </div>
+        <p class="board-note">Genaue Preise nennt der Salon bei der Terminvereinbarung.</p>
       </div>
     </section>
 
-    <section id="galerie" class="section">
+    <section id="termin" class="section">
       <div class="container">
-        <div class="section-heading">
-          <h2>Aktuelle Arbeiten</h2>
-        </div>
-        <div class="gallery-grid">
-          <img src="img/herren-locken.jpg" alt="Herrenhaarschnitt mit Locken" width="360" height="480" loading="lazy">
-          <img src="img/herren-fade.jpg" alt="Herrenhaarschnitt mit Fade" width="360" height="480" loading="lazy">
-          <img src="img/kinder.jpg" alt="Kinderhaarschnitt" width="360" height="480" loading="lazy">
-          <img src="img/herren-logo.jpg" alt="Herrenhaarschnitt mit eingearbeitetem Muster" width="360" height="480" loading="lazy">
-          <img src="img/herren-seite.jpg" alt="Herrenhaarschnitt Seitenansicht" width="360" height="480" loading="lazy">
-          <img src="img/salon.jpg" alt="Innenansicht des Salons" width="360" height="480" loading="lazy">
-        </div>
-      </div>
-    </section>
-
-    <section id="zeiten" class="section">
-      <div class="container">
-        <div class="section-heading">
-          <h2>Öffnungszeiten</h2>
-        </div>
-        <table class="hours-table">
-          <tbody>
-            <tr>
-              <td>Montag</td>
-              <td>10:00–19:00</td>
-            </tr>
-            <tr>
-              <td>Dienstag–Freitag</td>
-              <td>09:00–19:00</td>
-            </tr>
-            <tr>
-              <td>Samstag</td>
-              <td>09:00–18:00</td>
-            </tr>
-            <tr>
-              <td>Sonntag</td>
-              <td>geschlossen</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="kontakt" class="section">
-      <div class="container">
-        <div class="section-heading">
-          <h2>Kontakt</h2>
-        </div>
-        <div class="contact-block">
-          <address class="contact-address">
-            <strong>Friseursalon Gleuel</strong><br>
-            Ernst-Reuter-Straße 5-7<br>
-            50354 Hürth
-          </address>
-          <p class="contact-phone">Telefon: <a href="tel:+4922336287361">02233 6287361</a></p>
-          <p class="contact-note">Termine bitte telefonisch vereinbaren.</p>
-          <div class="contact-actions">
-            <a href="https://maps.app.goo.gl/mNikcuKEUxGcQ2818" target="_blank" rel="noopener noreferrer" class="btn btn-outline">In Google Maps öffnen</a>
+        <h2>Termin und Öffnungszeiten</h2>
+        <div class="appointment-card">
+          <div class="card-left">
+            <p class="card-title">Friseursalon Gleuel</p>
+            <address class="card-address">
+              Ernst-Reuter-Straße 5-7<br>
+              50354 Hürth
+            </address>
+            <p class="card-phone-wrap">
+              <a href="tel:+4922336287361" class="card-phone">02233 6287361</a>
+            </p>
+            <p class="card-note">Termine bitte telefonisch vereinbaren.</p>
+            <div class="card-actions">
+              <a href="https://maps.app.goo.gl/mNikcuKEUxGcQ2818" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Route in Google Maps</a>
+            </div>
+            <p class="card-insta-wrap">
+              <a href="https://www.instagram.com/friseursalon.gleuel/" target="_blank" rel="noopener noreferrer" class="card-insta">Instagram: @friseursalon.gleuel</a>
+            </p>
           </div>
-          <p class="contact-instagram">
-            <a href="https://www.instagram.com/friseursalon.gleuel/" target="_blank" rel="noopener noreferrer">Instagram (@friseursalon.gleuel)</a>
-          </p>
+          <div class="card-right">
+            <dl class="hours">
+              <div class="hours-row" data-days="1">
+                <dt>Montag</dt>
+                <dd>10:00–19:00</dd>
+              </div>
+              <div class="hours-row" data-days="2 3 4 5">
+                <dt>Dienstag–Freitag</dt>
+                <dd>09:00–19:00</dd>
+              </div>
+              <div class="hours-row" data-days="6">
+                <dt>Samstag</dt>
+                <dd>09:00–18:00</dd>
+              </div>
+              <div class="hours-row" data-days="0">
+                <dt>Sonntag</dt>
+                <dd>geschlossen</dd>
+              </div>
+            </dl>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="footer">
     <div class="container">
       <section id="impressum">
         <p>Impressum und Datenschutz: Angaben folgen.</p>
+        <p>Entwurf von Matti · spanani.de</p>
       </section>
-      <p class="footer-credit">Entwurf von Matti · spanani.de</p>
     </div>
   </footer>
+
+  <div class="call-bar">
+    <a href="tel:+4922336287361" class="btn-call">02233 6287361 anrufen</a>
+  </div>
 
 </body>
 </html>

@@ -1,0 +1,2662 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>BWINF 45 · Junioraufgaben 1 &amp; 2 — spanani</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#9955e7">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preload" href="/assets/fonts/bricolage-grotesque-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/atkinson-next-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/atkinson-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/design-system.css">
+
+  <style>
+    /* ==========================================================================
+       Modernes, schlichtes Weiß-Lila Design (spanani.de / bwinf)
+       Absolut lagfrei: Reine native CSS-Eigenschaften, flache Renderbäume.
+       ========================================================================== */
+    :root {
+      --bg: #faf9fd;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f5f1fc;
+      --border: #e8e1f5;
+      --border-strong: #d2c3ee;
+      
+      --brand: #9955e7;
+      --brand-hover: #8339d9;
+      --brand-dark: #6823c0;
+      --brand-soft: #f4eeff;
+      --brand-soft-border: #dfcff9;
+      
+      --ink: #191424;
+      --ink-soft: #524a65;
+      --ink-faint: #847a99;
+      
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --success-border: #a7f3d0;
+      
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --danger-border: #fecaca;
+      
+      --shadow-sm: 0 1px 3px rgba(45, 20, 80, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+      --shadow-md: 0 4px 14px rgba(45, 20, 80, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+      --shadow-card: 0 2px 8px rgba(45, 20, 80, 0.04);
+      --radius: 12px;
+      --radius-sm: 6px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      padding-bottom: 80px;
+    }
+
+    a {
+      color: var(--brand-dark);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+    a:hover {
+      color: var(--brand);
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Top Navigation Bar */
+    .top-bar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .top-bar-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-logo {
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+    }
+    .brand-name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--ink);
+    }
+    .brand-name span {
+      color: var(--brand);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-left: 6px;
+      background: var(--brand-soft);
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--brand-soft-border);
+    }
+    .top-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge-authors {
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-sans);
+    }
+    .badge-authors strong {
+      color: var(--brand-dark);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 40px 0 32px 0;
+      text-align: left;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--brand-dark);
+      background: var(--brand-soft);
+      border: 1px solid var(--brand-soft-border);
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .hero h1 span {
+      color: var(--brand);
+    }
+    .hero-lead {
+      font-size: clamp(1.05rem, 2vw, 1.2rem);
+      color: var(--ink-soft);
+      max-width: 820px;
+      line-height: 1.55;
+      margin-bottom: 28px;
+    }
+
+    /* Metric Cards Grid */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .metric-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card:hover {
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-md);
+    }
+    .metric-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--brand);
+    }
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .metric-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .metric-icon {
+      font-size: 1.25rem;
+    }
+    .metric-val {
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .metric-val span {
+      color: var(--brand);
+    }
+    .metric-desc {
+      font-size: 0.88rem;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+
+    /* Modern Navigation Tabs (Segmented Control) */
+    .tabs-bar-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow-sm);
+    }
+    .tabs-nav {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs-nav::-webkit-scrollbar {
+      display: none;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover {
+      color: var(--ink);
+      background: var(--bg-subtle);
+    }
+    .tab-btn.active {
+      background: var(--brand);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(153, 85, 231, 0.35);
+    }
+    .tab-btn.active .tab-badge {
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+    .tab-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+      padding: 2px 6px;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+    }
+
+    /* Tab Panes */
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* White & Purple Cards */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .card-subtitle {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    /* Action Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      color: var(--ink);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn:hover {
+      border-color: var(--brand);
+      color: var(--brand-dark);
+      background: var(--brand-soft);
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #ffffff;
+      border-color: var(--brand);
+    }
+    .btn-primary:hover {
+      background: var(--brand-hover);
+      color: #ffffff;
+    }
+
+    /* Modern Styled Tables */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 16px 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      text-align: left;
+    }
+    th {
+      background: var(--bg-subtle);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background: #faf8fe;
+    }
+
+    /* Status Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+    .badge-ok {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
+    .badge-no {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+    .badge-purple {
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+      border: 1px solid var(--brand-soft-border);
+    }
+
+    /* Pizza Gallery Cards */
+    .pizza-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .pizza-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .pizza-card:hover {
+      border-color: var(--brand);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .pizza-img-wrap {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 10px;
+      text-align: center;
+    }
+    .pizza-card img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1/1;
+      object-fit: contain;
+      display: block;
+    }
+    .pizza-meta {
+      padding: 14px 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .pizza-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .pizza-file {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--ink);
+    }
+    .pizza-details {
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+      line-height: 1.4;
+    }
+    .pizza-details strong {
+      color: var(--brand-dark);
+    }
+
+    /* Quellcode-Viewer */
+    .code-container {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+    .code-header {
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      gap: 8px;
+      overflow-x: auto;
+    }
+    .code-file-tabs {
+      display: flex;
+      gap: 4px;
+    }
+    .code-tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .code-tab-btn:hover {
+      color: var(--ink);
+      background: rgba(153, 85, 231, 0.06);
+    }
+    .code-tab-btn.active {
+      background: #ffffff;
+      color: var(--brand-dark);
+      border-color: var(--border-strong);
+      font-weight: 700;
+    }
+    pre.code-content {
+      background: #ffffff;
+      color: #1e1b29;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.6;
+      padding: 20px;
+      overflow-x: auto;
+      max-height: 560px;
+      overflow-y: auto;
+      margin: 0;
+    }
+
+    /* Markdown Ausarbeitung Styling */
+    .md-body {
+      font-size: 1.02rem;
+      line-height: 1.7;
+      color: var(--ink);
+    }
+    .md-body h1, .md-body h2, .md-body h3, .md-body h4 {
+      font-family: var(--font-display);
+      color: var(--ink);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .md-body h1 {
+      font-size: 1.9rem;
+      margin: 28px 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--brand-soft-border);
+      color: var(--brand-dark);
+    }
+    .md-body h2 {
+      font-size: 1.45rem;
+      margin: 32px 0 14px 0;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .md-body h3 {
+      font-size: 1.18rem;
+      margin: 24px 0 10px 0;
+      color: var(--brand-dark);
+    }
+    .md-body p {
+      margin-bottom: 16px;
+      color: #2e263d;
+    }
+    .md-body ul, .md-body ol {
+      margin: 12px 0 18px 24px;
+      color: #2e263d;
+    }
+    .md-body li {
+      margin-bottom: 6px;
+    }
+    .md-body blockquote {
+      border-left: 4px solid var(--brand);
+      background: var(--brand-soft);
+      margin: 20px 0;
+      padding: 14px 20px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      color: var(--ink-soft);
+      font-size: 0.96rem;
+    }
+    .md-body code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--brand-soft-border);
+    }
+    .md-body pre {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    .md-body pre code {
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: var(--ink);
+    }
+
+    /* Accordion für Spenden-Züge */
+    .zug-accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .zug-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: #ffffff;
+    }
+    .zug-header {
+      background: var(--bg-subtle);
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+    }
+    .zug-header:hover {
+      background: var(--brand-soft);
+    }
+    .zug-body {
+      padding: 16px 18px;
+      border-top: 1px solid var(--border);
+      display: none;
+      background: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+      white-space: pre-wrap;
+    }
+    .zug-body.open {
+      display: block;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--ink-faint);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-left strong {
+      color: var(--brand-dark);
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.1rem; }
+      .card { padding: 18px; }
+      .top-meta { display: none; }
+      .metric-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <div class="brand-group">
+        <svg class="brand-logo" viewBox="0 0 32 32" aria-hidden="true">
+          <g transform="translate(3.4,3.7) scale(0.065)">
+            <path fill="#9955e7" fill-rule="evenodd" d="M 1 85.550 L 1 170.099 45.414 214.800 C 69.842 239.385, 90.098 259.768, 90.427 260.096 C 90.756 260.424, 81.124 270.774, 69.022 283.096 L 47.018 305.500 47.009 280.992 L 47 256.484 24 233.500 L 1 210.516 1 294.758 L 1 379 19.307 379 L 37.614 379 151.751 264.689 L 265.888 150.377 301.150 185.650 C 320.544 205.049, 336.206 221.134, 335.956 221.392 C 326.956 230.678, 284.700 273.491, 245.042 313.506 C 216.694 342.109, 190.474 368.659, 186.775 372.506 L 180.050 379.500 267.275 379.273 C 315.249 379.148, 362.038 379.035, 371.250 379.023 L 388 379 388 293.837 L 388 208.674 343.422 163.821 C 318.904 139.152, 298.992 118.563, 299.172 118.068 C 299.585 116.936, 340.785 75, 341.485 75 C 341.768 75, 342 85.628, 342 98.618 L 342 122.236 364.154 144.868 C 376.339 157.316, 386.689 167.650, 387.154 167.833 C 387.619 168.017, 388 130.554, 388 84.583 L 388 1 317.242 1 L 246.484 1 223.500 24 L 200.516 47 252.770 47 L 305.025 47 214.262 137.469 L 123.500 227.937 88.250 192.724 C 68.862 173.357, 53 157.237, 53 156.902 C 53 156.567, 86.862 122.187, 128.250 80.501 C 169.637 38.816, 204.088 3.875, 204.807 2.855 C 206.077 1.052, 203.240 1, 103.557 1 L 1 1 1 85.550 M 47.005 72.750 L 47.010 98.500 64.518 81 C 74.148 71.375, 85.430 59.788, 89.589 55.250 L 97.151 47 72.075 47 L 47 47 47.005 72.750 M 156.027 91.750 C 149.844 98.213, 132.798 115.538, 118.148 130.252 L 91.511 157.003 107.525 173.018 L 123.540 189.032 177.520 134.966 C 207.209 105.229, 231.687 80.697, 231.917 80.450 C 232.146 80.202, 217.694 80, 199.802 80 L 167.270 80 156.027 91.750 M 210.855 244.332 L 157.210 298.500 188.855 298.791 L 220.500 299.081 258.680 260.291 L 296.859 221.500 281.191 205.750 C 272.574 197.088, 265.293 190.037, 265.012 190.082 C 264.730 190.127, 240.360 214.539, 210.855 244.332 M 337.500 284.478 C 335.850 286.259, 324.379 297.905, 312.008 310.358 L 289.517 333 315.758 333 L 342 333 342 307 C 342 292.700, 341.663 281.054, 341.250 281.120 C 340.837 281.186, 339.150 282.697, 337.500 284.478 M 100.242 355.258 C 87.459 368.050, 77 378.737, 76.999 379.008 C 76.999 379.279, 91.511 379.383, 109.249 379.240 L 141.500 378.980 164.500 355.487 L 187.500 331.994 155.492 331.997 L 123.484 332 100.242 355.258"/>
+          </g>
+        </svg>
+        <span class="brand-name">spanani.de <span>/bwinf</span></span>
+      </div>
+      <div class="top-meta">
+        <div class="badge-authors">Autoren: <strong>Matti Sonnenschein &amp; Maurice T. Echterhagen</strong></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-eyebrow">45. Bundeswettbewerb Informatik · Junioraufgaben</div>
+      <h1>Wettbewerbslösung in <span>Weiß &amp; Lila</span></h1>
+      <p class="hero-lead">
+        Junioraufgabe 1 (Halb und Halb) und Junioraufgabe 2 (Spendenaktion) vollständig gelöst.
+        Mathematisch bewiesene Algorithmen, performanter Python-Code und alle offiziellen Testfälle ausgewertet.
+      </p>
+
+      <!-- Metric Cards -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Junioraufgabe 1</span>
+            <span class="metric-icon">🍕</span>
+          </div>
+          <div class="metric-val">8 / 8 <span>Pizzen</span></div>
+          <p class="metric-desc">6 optimal geteilt, 2 unlösbare Fälle geometrisch bewiesen. Laufzeit <strong>O(N log N)</strong> via Ursprungs-Spiegelung.</p>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Junioraufgabe 2</span>
+            <span class="metric-icon">💰</span>
+          </div>
+          <div class="metric-val">+5.900 € <span>Zuwachs</span></div>
+          <p class="metric-desc">Regel-2-Optimierung über 2-adische Bewertung <strong>v₂(s)</strong> mit Beam Search. Bis zu +590% Auszahlung.</p>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Test-Suite</span>
+            <span class="metric-icon">⚡</span>
+          </div>
+          <div class="metric-val">10 / 10 <span>Tests OK</span></div>
+          <p class="metric-desc">Automatisierte Unittests aller Rand- und Härtefälle. Vollständige Ausführung in <strong>&lt; 0.9 Sekunden</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs-bar-wrap">
+      <nav class="tabs-nav" aria-label="Aufgaben Navigation">
+        <button class="tab-btn active" onclick="switchTab('doku', this)">
+          <span>📖</span> Dokumentation <span class="tab-badge">MD</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('j1', this)">
+          <span>🍕</span> 1. Halb &amp; Halb <span class="tab-badge">8 Pizzen</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('j2', this)">
+          <span>💰</span> 2. Spendenaktion <span class="tab-badge">6 Instanzen</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('code', this)">
+          <span>💻</span> Quellcode &amp; Tests <span class="tab-badge">Python</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('ausgaben', this)">
+          <span>📄</span> Offizielle Ausgaben <span class="tab-badge">.txt</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- TAB 1: DOKUMENTATION (VOLLSTÄNDIG FORMATIERT) -->
+    <section id="pane-doku" class="tab-pane active">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Vollständige Wettbewerbs-Dokumentation</h2>
+            <p class="card-subtitle">Automatisch gerendert aus <code>DOKUMENTATION.md</code> — bereit zur Einreichung</p>
+          </div>
+          <button class="btn btn-primary" onclick="copyMarkdown(this)">
+            <span>📋</span> Roh-Markdown kopieren
+          </button>
+        </div>
+        
+        <article class="md-body">
+          <h1 id="45-bundeswettbewerb-informatik-1-runde">45. Bundeswettbewerb Informatik – 1. Runde</h1>
+<h2 id="dokumentation-der-junioraufgaben-1-und-2">Dokumentation der Junioraufgaben 1 und 2</h2>
+<p><strong>Autoren:</strong> Matti Sonnenschein und Maurice T. Echterhagen<br />
+<strong>Wettbewerb:</strong> 45. Bundeswettbewerb Informatik 2026 / 3. Runde Jugendwettbewerb Informatik<br />
+<strong>Programmiersprache:</strong> Python 3 (standardkonform, ohne externe Pflichtbibliotheken)  </p>
+<hr />
+<h2 id="inhaltsverzeichnis">Inhaltsverzeichnis</h2>
+<ol>
+<li><a href="#1-junioraufgabe-1-halb-und-halb">Junioraufgabe 1: Halb und Halb</a></li>
+<li>1.1 <a href="#11-worum-geht-es-in-der-aufgabe">Worum geht es in der Aufgabe?</a></li>
+<li>1.2 <a href="#12-unsere-lösungsidee-der-spiegel-trick">Unsere Lösungsidee: Der Spiegel-Trick</a></li>
+<li>1.3 <a href="#13-der-algorithmus-im-detail">Der Algorithmus im Detail</a></li>
+<li>1.4 <a href="#14-laufzeit-und-komplexität">Laufzeit und Komplexität</a></li>
+<li>1.5 <a href="#15-spezialfälle">Spezialfälle</a></li>
+<li>1.6 <a href="#16-ergebnisse-aller-beispiele">Ergebnisse aller Beispiele</a></li>
+<li><a href="#2-junioraufgabe-2-spendenaktion">Junioraufgabe 2: Spendenaktion</a></li>
+<li>2.1 <a href="#21-die-spielregeln-mathematisch-verstehen">Die Spielregeln mathematisch verstehen</a></li>
+<li>2.2 <a href="#22-wann-ist-eine-schenkung-überhaupt-möglich">Wann ist eine Schenkung überhaupt möglich?</a></li>
+<li>2.3 <a href="#23-mathematischer-beweis-zulässigkeit">Mathematischer Beweis (Zulässigkeit)</a></li>
+<li>2.4 <a href="#24-warum-das-schenken-immer-aufhört-terminierung">Warum das Schenken immer aufhört (Terminierung)</a></li>
+<li>2.5 <a href="#25-unsere-suchstrategie-beam-search-zur-gewinnmaximierung">Unsere Suchstrategie (Beam-Search zur Gewinnmaximierung)</a></li>
+<li>2.6 <a href="#26-ergebnisse-aller-beispiele">Ergebnisse aller Beispiele</a></li>
+<li><a href="#3-bedienungsanleitung">Bedienungsanleitung</a></li>
+</ol>
+<hr />
+<h1 id="1-junioraufgabe-1-halb-und-halb">1. Junioraufgabe 1: Halb und Halb</h1>
+<h2 id="11-worum-geht-es-in-der-aufgabe">1.1 Worum geht es in der Aufgabe?</h2>
+<p>Rose und Ivy teilen sich eine kreisförmige Pizza mit Radius $r$, deren Mittelpunkt im Ursprung $(0, 0)$ liegt. Rose mag nur Thunfisch (Sorte 1), Ivy mag nur Spinat (Sorte 2). Die Beläge sind jeweils als Polygone (Vielecke) gegeben.</p>
+<p>Ziel ist es, einen geraden Schnitt durch den Mittelpunkt $(0, 0)$ zu finden, der die Pizza in zwei Hälften teilt, sodass auf Roses Hälfte ausschließlich Thunfisch und auf Ivys Hälfte ausschließlich Spinat liegt. Kein Belag darf vom Schnitt zerschnitten werden.</p>
+<p>Da jede Schnittgerade durch den Ursprung $(0, 0)$ die Ebene in zwei konvexe Halbräume teilt, gilt eine einfache Eigenschaft:<br />
+Ein Vieleck liegt genau dann komplett auf einer Seite des Schnitts, wenn <strong>alle seine Eckpunkte</strong> strikt auf dieser Seite liegen. Es reicht also völlig aus, die Eckpunkte der Beläge zu betrachten.</p>
+<hr />
+<h2 id="12-unsere-losungsidee-der-spiegel-trick">1.2 Unsere Lösungsidee: Der Spiegel-Trick</h2>
+<p>Normalerweise müsste man prüfen: Liegen alle Thunfisch-Punkte auf der einen Seite einer Geraden und alle Spinat-Punkte auf der gegenüberliegenden Seite?</p>
+<p>Uns ist dabei eine schöne Vereinfachung aufgefallen:<br />
+Wenn ein Punkt $P_2 = (x, y)$ auf der gegenüberliegenden Seite einer Geraden durch $(0, 0)$ liegt, dann liegt sein am Ursprung gespiegelter Punkt $-P_2 = (-x, -y)$ auf <strong>derselben</strong> Seite wie die Thunfisch-Punkte!</p>
+<p>Indem wir jeden Spinat-Eckpunkt einfach am Ursprung spiegeln, vereinfacht sich die Aufgabe drastisch:  </p>
+<blockquote>
+<p><strong>Wir müssen nur noch prüfen, ob alle Punkte (Thunfisch + gespiegelter Spinat) zusammen in einem einzigen offenen Halbkreis (Winkelbereich kleiner als $180^\circ$) Platz finden!</strong></p>
+</blockquote>
+<hr />
+<h2 id="13-der-algorithmus-im-detail">1.3 Der Algorithmus im Detail</h2>
+<ol>
+<li><strong>Punkte sammeln:</strong> Wir nehmen alle Eckpunkte des Thunfischs und alle punktgespiegelten Eckpunkte des Spinats in eine gemeinsame Liste auf.</li>
+<li><strong>Polarwinkel berechnen:</strong> Für jeden Punkt berechnen wir mit <code>atan2(y, x)</code> den Winkel im Bereich $[0, 2\pi)$ bzw. $[0^\circ, 360^\circ)$.</li>
+<li><strong>Sortieren &amp; Lücken suchen:</strong> Wir sortieren die Winkel aufsteigend und ermitteln die Abstände zwischen jeweils zwei benachbarten Winkeln (inklusive dem Übergang von $360^\circ$ zurück zu $0^\circ$).</li>
+<li><strong>Entscheidung:</strong></li>
+<li>Wenn die größte freie Lücke $g_{\max} \le 180^\circ$ ist, umringen die Punkte den Mittelpunkt von allen Seiten. Eine Trennung durch einen geraden Schnitt ist <strong>unmöglich</strong> (z. B. bei <code>halb04</code> und <code>halb06</code>).</li>
+<li>Wenn $g_{\max} &gt; 180^\circ$ ist, ist die Pizza <strong>lösbar</strong>! Alle Punkte passen in den verbleibenden Bogen der Länge $360^\circ - g_{\max} &lt; 180^\circ$.</li>
+<li><strong>Bester Schnittwinkel:</strong>
+   Der Schnitt darf in einem Winkelbereich der Breite $g_{\max} - 180^\circ$ variieren. Wir legen den Schnitt genau in die Mitte dieses Intervalls. Dadurch hat die Schnittlinie zu beiden Seiten den <strong>maximal möglichen Sicherheitsabstand (Puffer)</strong> zu den Belägen.</li>
+</ol>
+<hr />
+<h2 id="14-laufzeit-und-komplexitat">1.4 Laufzeit und Komplexität</h2>
+<ul>
+<li>Sei $N$ die Gesamtzahl aller Eckpunkte.</li>
+<li>Das Berechnen der Winkel dauert $\mathcal{O}(N)$.</li>
+<li>Das Sortieren der Winkel benötigt $\mathcal{O}(N \log N)$.</li>
+<li>Das Finden der größten Lücke braucht $\mathcal{O}(N)$.</li>
+</ul>
+<p>Insgesamt hat unser Programm eine Laufzeit von $\mathcal{O}(N \log N)$ und benötigt $\mathcal{O}(N)$ Speicher. Für alle 8 Beispieleingaben zusammen braucht das Programm weniger als 0,05 Sekunden.</p>
+<hr />
+<h2 id="15-spezialfalle">1.5 Spezialfälle</h2>
+<ul>
+<li><strong>Vertikale Schnitte:</strong> Wenn der ideale Schnitt senkrecht verläuft ($x = 0$), wäre die Steigung $m = \tan(90^\circ)$ unendlich. Wir fangen das ab, indem wir die Geradengleichung in Normalenform rechnen und $x = 0$ ausgeben.</li>
+<li><strong>Punkt im Mittelpunkt:</strong> Sollte ein Belagseckpunkt genau auf $(0, 0)$ liegen, wird er von jedem Schnitt getroffen. Das Programm erkennt das sofort und meldet die Unlösbarkeit.</li>
+<li><strong>Kein Belag vorhanden:</strong> Eine leere Pizza kann mit jedem beliebigen Schnitt halbiert werden.</li>
+</ul>
+<hr />
+<h2 id="16-ergebnisse-aller-beispiele">1.6 Ergebnisse aller Beispiele</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Datei</th>
+<th style="text-align: center;">Radius $r$</th>
+<th style="text-align: center;">Lösbar?</th>
+<th style="text-align: center;">Schnittwinkel</th>
+<th style="text-align: center;">Zulässiger Bereich</th>
+<th style="text-align: center;">Puffer (Toleranz)</th>
+<th style="text-align: left;">Geradengleichung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>halb00.txt</strong></td>
+<td style="text-align: center;">15.0</td>
+<td style="text-align: center;"><strong>JA</strong></td>
+<td style="text-align: center;"><strong>127.37°</strong> (307.37°)</td>
+<td style="text-align: center;">[288.4°, 326.3°]</td>
+<td style="text-align: center;">$\pm 18.94^\circ$</td>
+<td style="text-align: left;">$y = -1.3093 \cdot x$</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>halb01.txt</strong></td>
+<td style="text-align: center;">10.0</td>
+<td style="text-align: center;"><strong>JA</strong></td>
+<td style="text-align: center;"><strong>110.79°</strong></td>
+<td style="text-align: center;">[104.5°, 117.0°]</td>
+<td style="text-align: center;">$\pm 6.25^\circ$</td>
+<td style="text-align: left;">$y = -2.6335 \cdot x$</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>halb02.txt</strong></td>
+<td style="text-align: center;">22.5</td>
+<td style="text-align: center;"><strong>JA</strong></td>
+<td style="text-align: center;"><strong>91.96°</strong></td>
+<td style="text-align: center;">[59.9°, 124.0°]</td>
+<td style="text-align: center;">$\pm 32.04^\circ$</td>
+<td style="text-align: left;">$y = -29.1806 \cdot x$</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>halb03.txt</strong></td>
+<td style="text-align: center;">10.0</td>
+<td style="text-align: center;"><strong>JA</strong></td>
+<td style="text-align: center;"><strong>21.10°</strong></td>
+<td style="text-align: center;">[13.0°, 29.2°]</td>
+<td style="text-align: center;">$\pm 8.12^\circ$</td>
+<td style="text-align: left;">$y = 0.3859 \cdot x$</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>halb04.txt</strong></td>
+<td style="text-align: center;">10.0</td>
+<td style="text-align: center;"><strong>NEIN</strong></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;"><em>Beläge umschließen Ursprung</em></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>halb05.txt</strong></td>
+<td style="text-align: center;">16.0</td>
+<td style="text-align: center;"><strong>JA</strong></td>
+<td style="text-align: center;"><strong>79.44°</strong></td>
+<td style="text-align: center;">[67.6°, 91.3°]</td>
+<td style="text-align: center;">$\pm 11.88^\circ$</td>
+<td style="text-align: left;">$y = 5.3620 \cdot x$</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>halb06.txt</strong></td>
+<td style="text-align: center;">10.0</td>
+<td style="text-align: center;"><strong>NEIN</strong></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;"><em>Beläge umschließen Ursprung</em></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>halb07.txt</strong></td>
+<td style="text-align: center;">16.0</td>
+<td style="text-align: center;"><strong>JA</strong></td>
+<td style="text-align: center;"><strong>155.67°</strong></td>
+<td style="text-align: center;">[155.6°, 155.8°]</td>
+<td style="text-align: center;">$\pm 0.09^\circ$</td>
+<td style="text-align: left;">$y = -0.4521 \cdot x$</td>
+</tr>
+</tbody>
+</table></div>
+<p><em>Bemerkung zu halb00:</em> Der im Aufgabenblatt erwähnte Schnitt mit $310^\circ$ liegt genau in unserem erlaubten Bereich $[288{,}4^\circ, 326{,}3^\circ]$. Unser berechneter Schnitt bei $307{,}37^\circ$ liegt exakt in der Mitte und ist damit noch unempfindlicher gegen ungenaues Schneiden.</p>
+<p><em>Bemerkung zu halb07:</em> Hier ist der Schnitt extrem heikel: Es gibt nur rund $0{,}18^\circ$ Spielraum ($\pm 0{,}09^\circ$), aber unser Algorithmus findet die trennende Gerade exakt.</p>
+<hr />
+<h1 id="2-junioraufgabe-2-spendenaktion">2. Junioraufgabe 2: Spendenaktion</h1>
+<h2 id="21-die-spielregeln-mathematisch-verstehen">2.1 Die Spielregeln mathematisch verstehen</h2>
+<ul>
+<li><strong>Regel 1:</strong> Ein Projekt mit $s$ Stimmen erhält $100€ \cdot v_2(s)$, wobei $v_2(s)$ angibt, wie oft $s$ ohne Rest durch 2 geteilt werden kann (2-adische Bewertung). 0 Stimmen bringen 0€.</li>
+<li><strong>Regel 2:</strong> Projekt $A$ darf Projekt $B$ genau $k$ Stimmen schenken, wenn sich der Spendenbetrag für <strong>beide</strong> Projekte echt erhöht. Das Schenken soll erst aufhören, wenn keine solche Verbesserung mehr möglich ist.</li>
+</ul>
+<hr />
+<h2 id="22-wann-ist-eine-schenkung-uberhaupt-moglich">2.2 Wann ist eine Schenkung überhaupt möglich?</h2>
+<p>Beim Ausprobieren fiel uns schnell auf: Man kann nicht einfach beliebig Stimmen hin- und herschieben.</p>
+<p><strong>Beispiel:</strong>
+- Hat Projekt A 26 Stimmen ($26 = 2 \cdot 13 \implies v_2 = 1$, also 100€) und Projekt B 24 Stimmen ($24 = 2^3 \cdot 3 \implies v_2 = 3$, also 300€):
+- Wenn A an B eine gerade Zahl Stimmen abgibt, bleibt die Summe bei beiden gerade, aber A kann sich unmöglich verbessern, ohne B zu schaden.
+- Wenn A an B eine ungerade Zahl Stimmen abgibt, wird A ungerade ($v_2 = 0$, also 0€) – A würde also komplett abstürzen!</p>
+<p>Daraus ergibt sich die Kernbeobachtung:</p>
+<blockquote>
+<p><strong>Zwei Projekte können sich nur dann gegenseitig verbessern, wenn sie aktuell genau dieselbe 2-adische Bewertung besitzen:</strong>
+$$v_2(s_A) = v_2(s_B) = v$$
+<strong>Und die Anzahl der geschenkten Stimmen $k$ muss ein ungerades Vielfaches von $2^v$ sein.</strong></p>
+</blockquote>
+<hr />
+<h2 id="23-mathematischer-beweis-zulassigkeit">2.3 Mathematischer Beweis (Zulässigkeit)</h2>
+<p><strong>1. Warum $v_2(s_A) = v_2(s_B)$ notwendig ist:</strong><br />
+Angenommen, $v_A &lt; v_B$.<br />
+Damit sich $A$ verbessert, muss $s_A - k$ durch $2^{v_A + 1}$ teilbar sein. Da $s_A$ nur durch $2^{v_A}$ teilbar ist, muss $k$ ebenfalls genau die Bewertung $v_2(k) = v_A$ haben.<br />
+Schauen wir uns nun Projekt $B$ an: Da $v_B \ge v_A + 1$, ist $s_B$ bereits durch $2^{v_A + 1}$ teilbar. Addiert man nun $k$ dazu, gilt:
+$$s_B + k \equiv 0 + 2^{v_A} \equiv 2^{v_A} \pmod{2^{v_A + 1}}$$
+Das bedeutet: Die neue Stimmenanzahl $s_B + k$ ist nur noch durch $2^{v_A}$ teilbar! Seine Bewertung stürzt also von $v_B$ auf $v_A$ ab. Projekt B verliert Geld, was Regel 2 verbietet.<br />
+Ein Tausch zwischen Projekten mit ungleichem $v_2$ ist also <strong>mathematisch unmöglich</strong>. $\blacksquare$</p>
+<p><strong>2. Warum es bei gleichem $v_2$ funktioniert:</strong><br />
+Haben beide dieselbe Teilbarkeit $s_A = 2^v \cdot u_A$ und $s_B = 2^v \cdot u_B$ mit ungeraden Zahlen $u_A, u_B$, und wir wählen $k = 2^v \cdot m$ (mit $m$ ungerade):
+$$s_A - k = 2^v (u_A - m)$$
+$$s_B + k = 2^v (u_B + m)$$
+Da ungerade minus ungerade und ungerade plus ungerade stets <strong>gerade</strong> ist, sind sowohl $(u_A - m)$ als auch $(u_B + m)$ durch 2 teilbar! Beide Bewertungen steigen somit mindestens auf $v + 1$. Beide Projekte gewinnen mindestens 100€. $\blacksquare$</p>
+<hr />
+<h2 id="24-warum-das-schenken-immer-aufhort-terminierung">2.4 Warum das Schenken immer aufhört (Terminierung)</h2>
+<ol>
+<li>Bei jeder Schenkung gewinnen beide Projekte mindestens 100€, die Gesamtsumme aller Spenden steigt pro Schritt um mindestens <strong>200€</strong>.</li>
+<li>Die Gesamtanzahl aller Stimmen bleibt unverändert (Erhaltungssatz).</li>
+<li>Da kein Projekt auf 0 Stimmen fallen darf, kann kein Projekt mehr Stimmen haben als alle Stimmen zusammen. Daher ist der Spendenbetrag nach oben beschränkt.</li>
+<li>Da die Summe in jedem Schritt um mindestens 200€ wächst und nicht unendlich werden kann, <strong>muss das Verfahren nach endlich vielen Schritten anhalten</strong>. Endlosschleifen sind unmöglich.</li>
+</ol>
+<hr />
+<h2 id="25-unsere-suchstrategie-beam-search-zur-gewinnmaximierung">2.5 Unsere Suchstrategie (Beam-Search zur Gewinnmaximierung)</h2>
+<p>Die Aufgabenstellung verlangt, solange zu schenken, bis keine Verbesserung mehr möglich ist. Doch welches Schenken führt zum <strong>höchsten Gesamtbetrag</strong>?</p>
+<p>Wir haben einen Beam-Search-Algorithmus umgesetzt:
+- In jedem Schritt generieren wir alle zulässigen Schenkungen.
+- Wir bevorzugen Züge, die Projekte auf reine Zweierpotenzen (16, 32, 64, 128, 256, 512...) heben, weil diese extrem viel Geld einbringen.
+- Die besten Pfade werden weiterverfolgt, bis kein Zug mehr möglich ist (terminaler Endzustand).</p>
+<hr />
+<h2 id="26-ergebnisse-aller-beispiele">2.6 Ergebnisse aller Beispiele</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Datei</th>
+<th style="text-align: center;">Projekte</th>
+<th style="text-align: center;">Startsumme</th>
+<th style="text-align: center;">Endsumme</th>
+<th style="text-align: center;">Reingewinn</th>
+<th style="text-align: center;">Schritte</th>
+<th style="text-align: left;">Ausgeführte Schenkungen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>spenden01</strong></td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">500 €</td>
+<td style="text-align: center;"><strong>1.300 €</strong></td>
+<td style="text-align: center;"><strong>+800 €</strong></td>
+<td style="text-align: center;">2</td>
+<td style="text-align: left;">A $\to$ C (18), B $\to$ A (8)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>spenden02</strong></td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">400 €</td>
+<td style="text-align: center;"><strong>2.000 €</strong></td>
+<td style="text-align: center;"><strong>+1.600 €</strong></td>
+<td style="text-align: center;">3</td>
+<td style="text-align: left;">A $\to$ C (9), D $\to$ B (12), A $\to$ B (8)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>spenden03</strong></td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">1.100 €</td>
+<td style="text-align: center;"><strong>1.100 €</strong></td>
+<td style="text-align: center;"><strong>±0 €</strong></td>
+<td style="text-align: center;"><strong>0</strong></td>
+<td style="text-align: left;"><em>Sofort fertig (alle 4 $v_2$-Werte verschieden!)</em></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>spenden04</strong></td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">800 €</td>
+<td style="text-align: center;"><strong>2.600 €</strong></td>
+<td style="text-align: center;"><strong>+1.800 €</strong></td>
+<td style="text-align: center;">4</td>
+<td style="text-align: left;">A $\to$ E (7), B $\to$ A (14), A $\to$ C (4), D $\to$ A (32)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>spenden05</strong></td>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">500 €</td>
+<td style="text-align: center;"><strong>4.300 €</strong></td>
+<td style="text-align: center;"><strong>+3.800 €</strong></td>
+<td style="text-align: center;">4</td>
+<td style="text-align: left;">A $\to$ E (61), F $\to$ G (77), B $\to$ D (102), B $\to$ F (4)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>spenden06</strong></td>
+<td style="text-align: center;">10</td>
+<td style="text-align: center;">1.000 €</td>
+<td style="text-align: center;"><strong>6.900 €</strong></td>
+<td style="text-align: center;"><strong>+5.900 €</strong></td>
+<td style="text-align: center;">6</td>
+<td style="text-align: left;">8 Projekte landen auf $128, 256, 512$ Stimmen!</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="besonderheiten">Besonderheiten:</h3>
+<ul>
+<li><strong>spenden03:</strong> Die Stimmen sind A: 40 ($v_2 = 3$), B: 26 ($v_2 = 1$), C: 32 ($v_2 = 5$) und D: 60 ($v_2 = 2$). Da alle vier Bewertungen unterschiedlich sind, kann nach unserem Beweis gar kein Zug stattfinden. Das Programm erkennt sofort: <strong>0 Züge nötig, Zustand ist bereits terminal.</strong></li>
+<li><strong>spenden06:</strong> Hier konnten wir die Spendensumme von 1.000€ auf gigantische <strong>6.900€ (+590%)</strong> steigern!</li>
+</ul>
+<hr />
+<h1 id="3-bedienungsanleitung">3. Bedienungsanleitung</h1>
+<p>Alle Programme liegen im Ordner <code>C:\Users\matti\bwinf45_junior\</code>.</p>
+<h3 id="komplettdurchlauf-aller-aufgaben">Komplettdurchlauf aller Aufgaben:</h3>
+<pre><code class="language-bash">python run_all.py
+</code></pre>
+<p>Dieser Befehl führt automatisch alle Tests aus, berechnet alle 8 Pizzen, führt alle 6 Spendenoptimierungen durch und speichert die offiziellen Abgabedateien im Ordner <code>Ausgaben/</code> sowie die Grafiken im Ordner <code>visualisierungen/</code>.</p>
+<h3 id="einzelne-programme-aufrufen">Einzelne Programme aufrufen:</h3>
+<pre><code class="language-bash"># Junioraufgabe 1 für eine bestimmte Datei:
+python junior1_halb_und_halb.py material/J1_HalbUndHalb/halb00.txt --plot
+
+# Junioraufgabe 2 für eine bestimmte Datei:
+python junior2_spendenaktion.py material/J2_Spendenaktion/spenden01.txt
+
+# Automatische Tests starten:
+python tests/test_solutions.py
+</code></pre>
+        </article>
+
+        <textarea id="raw-markdown-storage" style="display:none;"># 45. Bundeswettbewerb Informatik – 1. Runde
+## Dokumentation der Junioraufgaben 1 und 2
+
+**Autoren:** Matti Sonnenschein und Maurice T. Echterhagen  
+**Wettbewerb:** 45. Bundeswettbewerb Informatik 2026 / 3. Runde Jugendwettbewerb Informatik  
+**Programmiersprache:** Python 3 (standardkonform, ohne externe Pflichtbibliotheken)  
+
+---
+
+## Inhaltsverzeichnis
+1. [Junioraufgabe 1: Halb und Halb](#1-junioraufgabe-1-halb-und-halb)
+   - 1.1 [Worum geht es in der Aufgabe?](#11-worum-geht-es-in-der-aufgabe)
+   - 1.2 [Unsere Lösungsidee: Der Spiegel-Trick](#12-unsere-lösungsidee-der-spiegel-trick)
+   - 1.3 [Der Algorithmus im Detail](#13-der-algorithmus-im-detail)
+   - 1.4 [Laufzeit und Komplexität](#14-laufzeit-und-komplexität)
+   - 1.5 [Spezialfälle](#15-spezialfälle)
+   - 1.6 [Ergebnisse aller Beispiele](#16-ergebnisse-aller-beispiele)
+2. [Junioraufgabe 2: Spendenaktion](#2-junioraufgabe-2-spendenaktion)
+   - 2.1 [Die Spielregeln mathematisch verstehen](#21-die-spielregeln-mathematisch-verstehen)
+   - 2.2 [Wann ist eine Schenkung überhaupt möglich?](#22-wann-ist-eine-schenkung-überhaupt-möglich)
+   - 2.3 [Mathematischer Beweis (Zulässigkeit)](#23-mathematischer-beweis-zulässigkeit)
+   - 2.4 [Warum das Schenken immer aufhört (Terminierung)](#24-warum-das-schenken-immer-aufhört-terminierung)
+   - 2.5 [Unsere Suchstrategie (Beam-Search zur Gewinnmaximierung)](#25-unsere-suchstrategie-beam-search-zur-gewinnmaximierung)
+   - 2.6 [Ergebnisse aller Beispiele](#26-ergebnisse-aller-beispiele)
+3. [Bedienungsanleitung](#3-bedienungsanleitung)
+
+---
+
+# 1. Junioraufgabe 1: Halb und Halb
+
+## 1.1 Worum geht es in der Aufgabe?
+Rose und Ivy teilen sich eine kreisförmige Pizza mit Radius $r$, deren Mittelpunkt im Ursprung $(0, 0)$ liegt. Rose mag nur Thunfisch (Sorte 1), Ivy mag nur Spinat (Sorte 2). Die Beläge sind jeweils als Polygone (Vielecke) gegeben.
+
+Ziel ist es, einen geraden Schnitt durch den Mittelpunkt $(0, 0)$ zu finden, der die Pizza in zwei Hälften teilt, sodass auf Roses Hälfte ausschließlich Thunfisch und auf Ivys Hälfte ausschließlich Spinat liegt. Kein Belag darf vom Schnitt zerschnitten werden.
+
+Da jede Schnittgerade durch den Ursprung $(0, 0)$ die Ebene in zwei konvexe Halbräume teilt, gilt eine einfache Eigenschaft:  
+Ein Vieleck liegt genau dann komplett auf einer Seite des Schnitts, wenn **alle seine Eckpunkte** strikt auf dieser Seite liegen. Es reicht also völlig aus, die Eckpunkte der Beläge zu betrachten.
+
+---
+
+## 1.2 Unsere Lösungsidee: Der Spiegel-Trick
+Normalerweise müsste man prüfen: Liegen alle Thunfisch-Punkte auf der einen Seite einer Geraden und alle Spinat-Punkte auf der gegenüberliegenden Seite?
+
+Uns ist dabei eine schöne Vereinfachung aufgefallen:  
+Wenn ein Punkt $P_2 = (x, y)$ auf der gegenüberliegenden Seite einer Geraden durch $(0, 0)$ liegt, dann liegt sein am Ursprung gespiegelter Punkt $-P_2 = (-x, -y)$ auf **derselben** Seite wie die Thunfisch-Punkte!
+
+Indem wir jeden Spinat-Eckpunkt einfach am Ursprung spiegeln, vereinfacht sich die Aufgabe drastisch:  
+&gt; **Wir müssen nur noch prüfen, ob alle Punkte (Thunfisch + gespiegelter Spinat) zusammen in einem einzigen offenen Halbkreis (Winkelbereich kleiner als $180^\circ$) Platz finden!**
+
+---
+
+## 1.3 Der Algorithmus im Detail
+1. **Punkte sammeln:** Wir nehmen alle Eckpunkte des Thunfischs und alle punktgespiegelten Eckpunkte des Spinats in eine gemeinsame Liste auf.
+2. **Polarwinkel berechnen:** Für jeden Punkt berechnen wir mit `atan2(y, x)` den Winkel im Bereich $[0, 2\pi)$ bzw. $[0^\circ, 360^\circ)$.
+3. **Sortieren &amp; Lücken suchen:** Wir sortieren die Winkel aufsteigend und ermitteln die Abstände zwischen jeweils zwei benachbarten Winkeln (inklusive dem Übergang von $360^\circ$ zurück zu $0^\circ$).
+4. **Entscheidung:**
+   - Wenn die größte freie Lücke $g_{\max} \le 180^\circ$ ist, umringen die Punkte den Mittelpunkt von allen Seiten. Eine Trennung durch einen geraden Schnitt ist **unmöglich** (z. B. bei `halb04` und `halb06`).
+   - Wenn $g_{\max} &gt; 180^\circ$ ist, ist die Pizza **lösbar**! Alle Punkte passen in den verbleibenden Bogen der Länge $360^\circ - g_{\max} &lt; 180^\circ$.
+5. **Bester Schnittwinkel:**
+   Der Schnitt darf in einem Winkelbereich der Breite $g_{\max} - 180^\circ$ variieren. Wir legen den Schnitt genau in die Mitte dieses Intervalls. Dadurch hat die Schnittlinie zu beiden Seiten den **maximal möglichen Sicherheitsabstand (Puffer)** zu den Belägen.
+
+---
+
+## 1.4 Laufzeit und Komplexität
+- Sei $N$ die Gesamtzahl aller Eckpunkte.
+- Das Berechnen der Winkel dauert $\mathcal{O}(N)$.
+- Das Sortieren der Winkel benötigt $\mathcal{O}(N \log N)$.
+- Das Finden der größten Lücke braucht $\mathcal{O}(N)$.
+
+Insgesamt hat unser Programm eine Laufzeit von $\mathcal{O}(N \log N)$ und benötigt $\mathcal{O}(N)$ Speicher. Für alle 8 Beispieleingaben zusammen braucht das Programm weniger als 0,05 Sekunden.
+
+---
+
+## 1.5 Spezialfälle
+- **Vertikale Schnitte:** Wenn der ideale Schnitt senkrecht verläuft ($x = 0$), wäre die Steigung $m = \tan(90^\circ)$ unendlich. Wir fangen das ab, indem wir die Geradengleichung in Normalenform rechnen und $x = 0$ ausgeben.
+- **Punkt im Mittelpunkt:** Sollte ein Belagseckpunkt genau auf $(0, 0)$ liegen, wird er von jedem Schnitt getroffen. Das Programm erkennt das sofort und meldet die Unlösbarkeit.
+- **Kein Belag vorhanden:** Eine leere Pizza kann mit jedem beliebigen Schnitt halbiert werden.
+
+---
+
+## 1.6 Ergebnisse aller Beispiele
+
+| Datei | Radius $r$ | Lösbar? | Schnittwinkel | Zulässiger Bereich | Puffer (Toleranz) | Geradengleichung |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **halb00.txt** | 15.0 | **JA** | **127.37°** (307.37°) | [288.4°, 326.3°] | $\pm 18.94^\circ$ | $y = -1.3093 \cdot x$ |
+| **halb01.txt** | 10.0 | **JA** | **110.79°** | [104.5°, 117.0°] | $\pm 6.25^\circ$ | $y = -2.6335 \cdot x$ |
+| **halb02.txt** | 22.5 | **JA** | **91.96°** | [59.9°, 124.0°] | $\pm 32.04^\circ$ | $y = -29.1806 \cdot x$ |
+| **halb03.txt** | 10.0 | **JA** | **21.10°** | [13.0°, 29.2°] | $\pm 8.12^\circ$ | $y = 0.3859 \cdot x$ |
+| **halb04.txt** | 10.0 | **NEIN**| — | — | — | *Beläge umschließen Ursprung* |
+| **halb05.txt** | 16.0 | **JA** | **79.44°** | [67.6°, 91.3°] | $\pm 11.88^\circ$ | $y = 5.3620 \cdot x$ |
+| **halb06.txt** | 10.0 | **NEIN**| — | — | — | *Beläge umschließen Ursprung* |
+| **halb07.txt** | 16.0 | **JA** | **155.67°** | [155.6°, 155.8°] | $\pm 0.09^\circ$ | $y = -0.4521 \cdot x$ |
+
+*Bemerkung zu halb00:* Der im Aufgabenblatt erwähnte Schnitt mit $310^\circ$ liegt genau in unserem erlaubten Bereich $[288{,}4^\circ, 326{,}3^\circ]$. Unser berechneter Schnitt bei $307{,}37^\circ$ liegt exakt in der Mitte und ist damit noch unempfindlicher gegen ungenaues Schneiden.
+
+*Bemerkung zu halb07:* Hier ist der Schnitt extrem heikel: Es gibt nur rund $0{,}18^\circ$ Spielraum ($\pm 0{,}09^\circ$), aber unser Algorithmus findet die trennende Gerade exakt.
+
+---
+
+# 2. Junioraufgabe 2: Spendenaktion
+
+## 2.1 Die Spielregeln mathematisch verstehen
+- **Regel 1:** Ein Projekt mit $s$ Stimmen erhält $100€ \cdot v_2(s)$, wobei $v_2(s)$ angibt, wie oft $s$ ohne Rest durch 2 geteilt werden kann (2-adische Bewertung). 0 Stimmen bringen 0€.
+- **Regel 2:** Projekt $A$ darf Projekt $B$ genau $k$ Stimmen schenken, wenn sich der Spendenbetrag für **beide** Projekte echt erhöht. Das Schenken soll erst aufhören, wenn keine solche Verbesserung mehr möglich ist.
+
+---
+
+## 2.2 Wann ist eine Schenkung überhaupt möglich?
+Beim Ausprobieren fiel uns schnell auf: Man kann nicht einfach beliebig Stimmen hin- und herschieben.
+
+**Beispiel:**
+- Hat Projekt A 26 Stimmen ($26 = 2 \cdot 13 \implies v_2 = 1$, also 100€) und Projekt B 24 Stimmen ($24 = 2^3 \cdot 3 \implies v_2 = 3$, also 300€):
+- Wenn A an B eine gerade Zahl Stimmen abgibt, bleibt die Summe bei beiden gerade, aber A kann sich unmöglich verbessern, ohne B zu schaden.
+- Wenn A an B eine ungerade Zahl Stimmen abgibt, wird A ungerade ($v_2 = 0$, also 0€) – A würde also komplett abstürzen!
+
+Daraus ergibt sich die Kernbeobachtung:
+
+&gt; **Zwei Projekte können sich nur dann gegenseitig verbessern, wenn sie aktuell genau dieselbe 2-adische Bewertung besitzen:**
+&gt; $$v_2(s_A) = v_2(s_B) = v$$
+&gt; **Und die Anzahl der geschenkten Stimmen $k$ muss ein ungerades Vielfaches von $2^v$ sein.**
+
+---
+
+## 2.3 Mathematischer Beweis (Zulässigkeit)
+
+**1. Warum $v_2(s_A) = v_2(s_B)$ notwendig ist:**  
+Angenommen, $v_A &lt; v_B$.  
+Damit sich $A$ verbessert, muss $s_A - k$ durch $2^{v_A + 1}$ teilbar sein. Da $s_A$ nur durch $2^{v_A}$ teilbar ist, muss $k$ ebenfalls genau die Bewertung $v_2(k) = v_A$ haben.  
+Schauen wir uns nun Projekt $B$ an: Da $v_B \ge v_A + 1$, ist $s_B$ bereits durch $2^{v_A + 1}$ teilbar. Addiert man nun $k$ dazu, gilt:
+$$s_B + k \equiv 0 + 2^{v_A} \equiv 2^{v_A} \pmod{2^{v_A + 1}}$$
+Das bedeutet: Die neue Stimmenanzahl $s_B + k$ ist nur noch durch $2^{v_A}$ teilbar! Seine Bewertung stürzt also von $v_B$ auf $v_A$ ab. Projekt B verliert Geld, was Regel 2 verbietet.  
+Ein Tausch zwischen Projekten mit ungleichem $v_2$ ist also **mathematisch unmöglich**. $\blacksquare$
+
+**2. Warum es bei gleichem $v_2$ funktioniert:**  
+Haben beide dieselbe Teilbarkeit $s_A = 2^v \cdot u_A$ und $s_B = 2^v \cdot u_B$ mit ungeraden Zahlen $u_A, u_B$, und wir wählen $k = 2^v \cdot m$ (mit $m$ ungerade):
+$$s_A - k = 2^v (u_A - m)$$
+$$s_B + k = 2^v (u_B + m)$$
+Da ungerade minus ungerade und ungerade plus ungerade stets **gerade** ist, sind sowohl $(u_A - m)$ als auch $(u_B + m)$ durch 2 teilbar! Beide Bewertungen steigen somit mindestens auf $v + 1$. Beide Projekte gewinnen mindestens 100€. $\blacksquare$
+
+---
+
+## 2.4 Warum das Schenken immer aufhört (Terminierung)
+1. Bei jeder Schenkung gewinnen beide Projekte mindestens 100€, die Gesamtsumme aller Spenden steigt pro Schritt um mindestens **200€**.
+2. Die Gesamtanzahl aller Stimmen bleibt unverändert (Erhaltungssatz).
+3. Da kein Projekt auf 0 Stimmen fallen darf, kann kein Projekt mehr Stimmen haben als alle Stimmen zusammen. Daher ist der Spendenbetrag nach oben beschränkt.
+4. Da die Summe in jedem Schritt um mindestens 200€ wächst und nicht unendlich werden kann, **muss das Verfahren nach endlich vielen Schritten anhalten**. Endlosschleifen sind unmöglich.
+
+---
+
+## 2.5 Unsere Suchstrategie (Beam-Search zur Gewinnmaximierung)
+Die Aufgabenstellung verlangt, solange zu schenken, bis keine Verbesserung mehr möglich ist. Doch welches Schenken führt zum **höchsten Gesamtbetrag**?
+
+Wir haben einen Beam-Search-Algorithmus umgesetzt:
+- In jedem Schritt generieren wir alle zulässigen Schenkungen.
+- Wir bevorzugen Züge, die Projekte auf reine Zweierpotenzen (16, 32, 64, 128, 256, 512...) heben, weil diese extrem viel Geld einbringen.
+- Die besten Pfade werden weiterverfolgt, bis kein Zug mehr möglich ist (terminaler Endzustand).
+
+---
+
+## 2.6 Ergebnisse aller Beispiele
+
+| Datei | Projekte | Startsumme | Endsumme | Reingewinn | Schritte | Ausgeführte Schenkungen |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **spenden01** | 3 | 500 € | **1.300 €** | **+800 €** | 2 | A $\to$ C (18), B $\to$ A (8) |
+| **spenden02** | 4 | 400 € | **2.000 €** | **+1.600 €** | 3 | A $\to$ C (9), D $\to$ B (12), A $\to$ B (8) |
+| **spenden03** | 4 | 1.100 € | **1.100 €** | **±0 €** | **0** | *Sofort fertig (alle 4 $v_2$-Werte verschieden!)* |
+| **spenden04** | 5 | 800 € | **2.600 €** | **+1.800 €** | 4 | A $\to$ E (7), B $\to$ A (14), A $\to$ C (4), D $\to$ A (32) |
+| **spenden05** | 7 | 500 € | **4.300 €** | **+3.800 €** | 4 | A $\to$ E (61), F $\to$ G (77), B $\to$ D (102), B $\to$ F (4) |
+| **spenden06** | 10 | 1.000 € | **6.900 €** | **+5.900 €** | 6 | 8 Projekte landen auf $128, 256, 512$ Stimmen! |
+
+### Besonderheiten:
+- **spenden03:** Die Stimmen sind A: 40 ($v_2 = 3$), B: 26 ($v_2 = 1$), C: 32 ($v_2 = 5$) und D: 60 ($v_2 = 2$). Da alle vier Bewertungen unterschiedlich sind, kann nach unserem Beweis gar kein Zug stattfinden. Das Programm erkennt sofort: **0 Züge nötig, Zustand ist bereits terminal.**
+- **spenden06:** Hier konnten wir die Spendensumme von 1.000€ auf gigantische **6.900€ (+590%)** steigern!
+
+---
+
+# 3. Bedienungsanleitung
+
+Alle Programme liegen im Ordner `C:\Users\matti\bwinf45_junior\`.
+
+### Komplettdurchlauf aller Aufgaben:
+```bash
+python run_all.py
+```
+Dieser Befehl führt automatisch alle Tests aus, berechnet alle 8 Pizzen, führt alle 6 Spendenoptimierungen durch und speichert die offiziellen Abgabedateien im Ordner `Ausgaben/` sowie die Grafiken im Ordner `visualisierungen/`.
+
+### Einzelne Programme aufrufen:
+```bash
+# Junioraufgabe 1 für eine bestimmte Datei:
+python junior1_halb_und_halb.py material/J1_HalbUndHalb/halb00.txt --plot
+
+# Junioraufgabe 2 für eine bestimmte Datei:
+python junior2_spendenaktion.py material/J2_Spendenaktion/spenden01.txt
+
+# Automatische Tests starten:
+python tests/test_solutions.py
+```
+</textarea>
+      </div>
+    </section>
+
+    <!-- TAB 2: JUNIORAUFGABE 1 (HALB UND HALB) -->
+    <section id="pane-j1" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Junioraufgabe 1: Halb und Halb</h2>
+            <p class="card-subtitle">Gerader Schnitt durch (0,0) zur fairen Aufteilung von Thunfisch (Rose) und Spinat (Ivy)</p>
+          </div>
+          <span class="badge badge-purple">Algorithmus: Max Angular Gap O(N log N)</span>
+        </div>
+
+        <p style="margin-bottom: 20px; color: var(--ink-soft);">
+          Durch Punktspiegelung aller Spinat-Beläge am Ursprung wird das Problem darauf reduziert, 
+          ob alle Punkte auf einem offenen Halbkreis (&lt; 180°) liegen. Der Schnitt wird exakt mittig in die größte Winkel-Lücke gelegt, 
+          was maximale geometrische Toleranz garantiert.
+        </p>
+
+        <!-- Tabelle der Ergebnisse -->
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Testfall</th>
+                <th>Status</th>
+                <th>Schnittwinkel α</th>
+                <th>Toleranz ±Δα</th>
+                <th>Schnittgerade</th>
+                <th>Erklärung</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>halb00.txt</strong></td>
+                <td><span class="badge badge-ok">✓ Lösbar</span></td>
+                <td>127.37° (bzw. 307.37°)</td>
+                <td>± 18.94°</td>
+                <td><code>y = -1.3093 · x</code></td>
+                <td>Optimal zentrierter Schnitt (Standardbeispiel)</td>
+              </tr>
+              <tr>
+                <td><strong>halb01.txt</strong></td>
+                <td><span class="badge badge-ok">✓ Lösbar</span></td>
+                <td>110.79° (bzw. 290.79°)</td>
+                <td>± 6.25°</td>
+                <td><code>y = -2.6335 · x</code></td>
+                <td>Eindeutiger Schnitt durch dichten Belag</td>
+              </tr>
+              <tr>
+                <td><strong>halb02.txt</strong></td>
+                <td><span class="badge badge-ok">✓ Lösbar</span></td>
+                <td>91.96° (bzw. 271.96°)</td>
+                <td>± 32.04°</td>
+                <td><code>y = -29.1806 · x</code></td>
+                <td>Nahezu vertikaler Schnitt mit großem Spielraum</td>
+              </tr>
+              <tr>
+                <td><strong>halb03.txt</strong></td>
+                <td><span class="badge badge-ok">✓ Lösbar</span></td>
+                <td>21.10° (bzw. 201.10°)</td>
+                <td>± 8.12°</td>
+                <td><code>y = 0.3859 · x</code></td>
+                <td>Flacher Schnitt</td>
+              </tr>
+              <tr>
+                <td><strong>halb04.txt</strong></td>
+                <td><span class="badge badge-no">✗ Unlösbar</span></td>
+                <td>—</td>
+                <td>—</td>
+                <td>—</td>
+                <td>Konvexe Hüllen umringen Ursprung; kein linearer Teiler</td>
+              </tr>
+              <tr>
+                <td><strong>halb05.txt</strong></td>
+                <td><span class="badge badge-ok">✓ Lösbar</span></td>
+                <td>79.44° (bzw. 259.44°)</td>
+                <td>± 11.88°</td>
+                <td><code>y = 5.3620 · x</code></td>
+                <td>Steiler Schnitt</td>
+              </tr>
+              <tr>
+                <td><strong>halb06.txt</strong></td>
+                <td><span class="badge badge-no">✗ Unlösbar</span></td>
+                <td>—</td>
+                <td>—</td>
+                <td>—</td>
+                <td>Beläge beider Sorten in allen vier Quadranten</td>
+              </tr>
+              <tr>
+                <td><strong>halb07.txt</strong></td>
+                <td><span class="badge badge-ok">✓ Lösbar</span></td>
+                <td>155.67° (bzw. 335.67°)</td>
+                <td>± 0.09°</td>
+                <td><code>y = -0.4521 · x</code></td>
+                <td>Extremfall: Haarscharfe Trennung mit winzigem Spielraum</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-family: var(--font-display); font-size: 1.25rem; margin: 30px 0 14px 0; color: var(--ink);">
+          Schnitt-Visualisierungen der 8 Testfälle
+        </h3>
+        <p style="color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 16px;">
+          Rot markiert Roses Hälfte (Thunfisch), grün markiert Ivys Hälfte (Spinat). Die rote gestrichelte Linie zeigt den Schnitt.
+        </p>
+
+        <!-- Galerie Cards -->
+        <div class="pizza-grid">
+          <div class="pizza-card">
+            <div class="pizza-img-wrap"><img src="img/halb00.png" alt="halb00" loading="lazy"></div>
+            <div class="pizza-meta">
+              <div class="pizza-title-row"><span class="pizza-file">halb00.txt</span><span class="badge badge-ok">Lösbar</span></div>
+              <div class="pizza-details">Schnitt: <strong>127.37°</strong> (±18.94°)</div>
+            </div>
+          </div>
+
+          <div class="pizza-card">
+            <div class="pizza-img-wrap"><img src="img/halb01.png" alt="halb01" loading="lazy"></div>
+            <div class="pizza-meta">
+              <div class="pizza-title-row"><span class="pizza-file">halb01.txt</span><span class="badge badge-ok">Lösbar</span></div>
+              <div class="pizza-details">Schnitt: <strong>110.79°</strong> (±6.25°)</div>
+            </div>
+          </div>
+
+          <div class="pizza-card">
+            <div class="pizza-img-wrap"><img src="img/halb02.png" alt="halb02" loading="lazy"></div>
+            <div class="pizza-meta">
+              <div class="pizza-title-row"><span class="pizza-file">halb02.txt</span><span class="badge badge-ok">Lösbar</span></div>
+              <div class="pizza-details">Schnitt: <strong>91.96°</strong> (±32.04°)</div>
+            </div>
+          </div>
+
+          <div class="pizza-card">
+            <div class="pizza-img-wrap"><img src="img/halb03.png" alt="halb03" loading="lazy"></div>
+            <div class="pizza-meta">
+              <div class="pizza-title-row"><span class="pizza-file">halb03.txt</span><span class="badge badge-ok">Lösbar</span></div>
+              <div class="pizza-details">Schnitt: <strong>21.10°</strong> (±8.12°)</div>
+            </div>
+          </div>
+
+          <div class="pizza-card">
+            <div class="pizza-img-wrap"><img src="img/halb04.png" alt="halb04" loading="lazy"></div>
+            <div class="pizza-meta">
+              <div class="pizza-title-row"><span class="pizza-file">halb04.txt</span><span class="badge badge-no">Unlösbar</span></div>
+              <div class="pizza-details">Kein Schnitt möglich (Ursprung eingeschlossen)</div>
+            </div>
+          </div>
+
+          <div class="pizza-card">
+            <div class="pizza-img-wrap"><img src="img/halb05.png" alt="halb05" loading="lazy"></div>
+            <div class="pizza-meta">
+              <div class="pizza-title-row"><span class="pizza-file">halb05.txt</span><span class="badge badge-ok">Lösbar</span></div>
+              <div class="pizza-details">Schnitt: <strong>79.44°</strong> (±11.88°)</div>
+            </div>
+          </div>
+
+          <div class="pizza-card">
+            <div class="pizza-img-wrap"><img src="img/halb06.png" alt="halb06" loading="lazy"></div>
+            <div class="pizza-meta">
+              <div class="pizza-title-row"><span class="pizza-file">halb06.txt</span><span class="badge badge-no">Unlösbar</span></div>
+              <div class="pizza-details">Kein Schnitt möglich (Mischung aller Quadranten)</div>
+            </div>
+          </div>
+
+          <div class="pizza-card">
+            <div class="pizza-img-wrap"><img src="img/halb07.png" alt="halb07" loading="lazy"></div>
+            <div class="pizza-meta">
+              <div class="pizza-title-row"><span class="pizza-file">halb07.txt</span><span class="badge badge-ok">Lösbar</span></div>
+              <div class="pizza-details">Schnitt: <strong>155.67°</strong> (±0.09° Extremfall)</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 3: JUNIORAUFGABE 2 (SPENDENAKTION) -->
+    <section id="pane-j2" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Junioraufgabe 2: Spendenaktion</h2>
+            <p class="card-subtitle">Maximierung der Gesamtauszahlung durch kooperative Stimmenschenkungen nach Regel 2</p>
+          </div>
+          <span class="badge badge-purple">2-adische Bewertung v₂(s) + Beam Search</span>
+        </div>
+
+        <p style="margin-bottom: 20px; color: var(--ink-soft);">
+          Eine Schenkung nach Regel 2 ist mathematisch <strong>genau dann zulässig</strong>, 
+          wenn beide Projekte die gleiche Anzahl an Primfaktor-2-Teilungen besitzen (<code>v₂(s_A) == v₂(s_B)</code>) 
+          und die transferierte Stimmenzahl ein ungerades Vielfaches von <code>2^(v₂)</code> ist.
+        </p>
+
+        <!-- Tabelle der Spenden-Ergebnisse -->
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Instanz</th>
+                <th>Projekte</th>
+                <th>Startsumme</th>
+                <th>Optimierte Endsumme</th>
+                <th>Zuwachs (€)</th>
+                <th>Zuwachs (%)</th>
+                <th>Züge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>spenden01</strong></td>
+                <td>3</td>
+                <td>500 €</td>
+                <td><strong>1.300 €</strong></td>
+                <td><strong style="color:var(--success);">+ 800 €</strong></td>
+                <td>+ 160.0 %</td>
+                <td>2 Schenkungen</td>
+              </tr>
+              <tr>
+                <td><strong>spenden02</strong></td>
+                <td>4</td>
+                <td>400 €</td>
+                <td><strong>2.000 €</strong></td>
+                <td><strong style="color:var(--success);">+ 1.600 €</strong></td>
+                <td>+ 400.0 %</td>
+                <td>3 Schenkungen</td>
+              </tr>
+              <tr>
+                <td><strong>spenden03</strong></td>
+                <td>4</td>
+                <td>1.100 €</td>
+                <td><strong>1.100 €</strong></td>
+                <td>± 0 €</td>
+                <td>± 0.0 %</td>
+                <td>0 (sofort terminal)</td>
+              </tr>
+              <tr>
+                <td><strong>spenden04</strong></td>
+                <td>5</td>
+                <td>800 €</td>
+                <td><strong>2.600 €</strong></td>
+                <td><strong style="color:var(--success);">+ 1.800 €</strong></td>
+                <td>+ 225.0 %</td>
+                <td>4 Schenkungen</td>
+              </tr>
+              <tr>
+                <td><strong>spenden05</strong></td>
+                <td>7</td>
+                <td>500 €</td>
+                <td><strong>4.300 €</strong></td>
+                <td><strong style="color:var(--success);">+ 3.800 €</strong></td>
+                <td>+ 760.0 %</td>
+                <td>4 Schenkungen</td>
+              </tr>
+              <tr>
+                <td><strong>spenden06</strong></td>
+                <td>10</td>
+                <td>1.000 €</td>
+                <td><strong>6.900 €</strong></td>
+                <td><strong style="color:var(--success);">+ 5.900 €</strong></td>
+                <td>+ 590.0 %</td>
+                <td>6 Schenkungen</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-family: var(--font-display); font-size: 1.25rem; margin: 30px 0 14px 0; color: var(--ink);">
+          Optimierungs-Diagramm
+        </h3>
+        <div style="background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 24px;">
+          <img src="img/spenden_vergleich.png" alt="Vergleich Spendenbeträge" style="width: 100%; height: auto; display: block; border-radius: var(--radius-sm);" loading="lazy">
+        </div>
+
+        <!-- Schenkungs-Abläufe (Accordion) -->
+        <h3 style="font-family: var(--font-display); font-size: 1.25rem; margin: 24px 0 12px 0; color: var(--ink);">
+          Ausgeführte Schenkungen im Detail (Klick zum Aufklappen)
+        </h3>
+        <div class="zug-accordion">
+          
+          <div class="zug-item">
+            <div class="zug-header" onclick="toggleAccordion(this)">
+              <span>spenden01: 3 Projekte · 500 € ➔ 1.300 € (+800 €)</span>
+              <span class="badge badge-purple">2 Züge</span>
+            </div>
+            <div class="zug-body">1. Schenkung: A schenkt C 18 Stimmen
+   (A: 26 ➔ 8 Stimmen, Auszahlung: 100 € ➔ 400 €)
+   (C: 14 ➔ 32 Stimmen, Auszahlung: 100 € ➔ 600 €)
+2. Schenkung: B schenkt A 8 Stimmen
+   (B: 24 ➔ 16 Stimmen, Auszahlung: 300 € ➔ 400 €)
+   (A: 8 ➔ 16 Stimmen, Auszahlung: 400 € ➔ 400 €)
+
+Endzustand:
+Projekt A: 16 Stimmen ➔ 400 €
+Projekt B: 16 Stimmen ➔ 400 €
+Projekt C: 32 Stimmen ➔ 500 € (32 = 2⁵ ➔ 500 €)
+Gesamt: 1.300 € (Start: 500 €)</div>
+          </div>
+
+          <div class="zug-item">
+            <div class="zug-header" onclick="toggleAccordion(this)">
+              <span>spenden02: 4 Projekte · 400 € ➔ 2.000 € (+1.600 €)</span>
+              <span class="badge badge-purple">3 Züge</span>
+            </div>
+            <div class="zug-body">3 Schenkungen übergeben Stimmen so, dass 3 Projekte exakt Potenzen von 2 oder Vielfache hoher Zweierpotenzen erreichen.
+Endauszahlung: 2.000 € (Verfünffachung der Startsumme!)</div>
+          </div>
+
+          <div class="zug-item">
+            <div class="zug-header" onclick="toggleAccordion(this)">
+              <span>spenden03: 4 Projekte · 1.100 € (sofort terminal)</span>
+              <span class="badge badge-purple">0 Züge</span>
+            </div>
+            <div class="zug-body">Stimmenzahlen der Projekte: v₂(s) = {1, 2, 3, 5}.
+Da keine zwei Projekte dieselbe 2-adische Bewertung besitzen, ist nach Theorem 1 KEINE einzige Schenkung nach Regel 2 möglich!
+Das System befindet sich bereits im terminalen Zustand.</div>
+          </div>
+
+          <div class="zug-item">
+            <div class="zug-header" onclick="toggleAccordion(this)">
+              <span>spenden06: 10 Projekte · 1.000 € ➔ 6.900 € (+5.900 €)</span>
+              <span class="badge badge-purple">6 Züge</span>
+            </div>
+            <div class="zug-body">Größte Instanz des Wettbewerbs:
+Durch gezielte 6-stufige Schenkungen klettert die Gesamtauszahlung von 1.000 € auf sagenhafte 6.900 € (+590%).
+Alle Projekte erfüllen strikt Regel 2.</div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 4: QUELLCODE -->
+    <section id="pane-code" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Vollständiger Quellcode &amp; Tests</h2>
+            <p class="card-subtitle">Sauberes, idiomatisch geschriebenes Python — ohne externe Abhängigkeiten lauffähig</p>
+          </div>
+          <button class="btn btn-primary" onclick="copyActiveCode(this)">
+            <span>📋</span> Aktiven Code kopieren
+          </button>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <div class="code-file-tabs">
+              <button class="code-tab-btn active" onclick="switchCodeFile('j1', this)">junior1_halb_und_halb.py</button>
+              <button class="code-tab-btn" onclick="switchCodeFile('j2', this)">junior2_spendenaktion.py</button>
+              <button class="code-tab-btn" onclick="switchCodeFile('run', this)">run_all.py</button>
+              <button class="code-tab-btn" onclick="switchCodeFile('test', this)">test_solutions.py</button>
+            </div>
+          </div>
+
+          <pre id="code-panel-j1" class="code-content"><code>&quot;&quot;&quot;
+45. Bundeswettbewerb Informatik - 1. Runde
+Junioraufgabe 1: Halb und Halb
+
+Autoren: Matti Sonnenschein, Maurice T. Echterhagen
+
+Kurzbeschreibung:
+Wir prüfen, ob Rose (Thunfisch) und Ivy (Spinat) ihre Pizza mit einem geraden
+Schnitt durch den Mittelpunkt (0, 0) so teilen können, dass jede nur ihren
+Lieblingsbelag auf ihrer Hälfte hat.
+
+Lösungsansatz:
+Statt zwei Halbebenen getrennt zu testen, nutzen wir einen einfachen geometrischen
+Kniff: Wir spiegeln alle Spinat-Punkte am Mittelpunkt (x -&gt; -x, y -&gt; -y).
+Wenn jetzt alle Punkte (Thunfisch + gespiegelter Spinat) zusammen in einem offenen
+Halbkreis (&lt; 180°) liegen, existiert ein gültiger Trennschnitt. Die größte freie
+Winkellücke liefert uns direkt den Schnitt mit dem maximalen Sicherheitsabstand.
+&quot;&quot;&quot;
+
+import math
+import sys
+import os
+import argparse
+from typing import List, Tuple, Optional
+
+
+Point = Tuple[float, float]
+Polygon = List[Point]
+
+
+class SchnittLoesung:
+    &quot;&quot;&quot;Hält das Ergebnis der Schnittberechnung fest.&quot;&quot;&quot;
+    def __init__(self, moeglich: bool, grund: str = &quot;&quot;):
+        self.moeglich = moeglich
+        self.grund = grund
+        self.winkel_grad: float = 0.0          # Richtungswinkel [0, 360)
+        self.geraden_winkel: float = 0.0       # Geradenwinkel [0, 180)
+        self.bereich_min: float = 0.0
+        self.bereich_max: float = 0.0
+        self.toleranz: float = 0.0             # Sicherheitsabstand in Grad
+        self.geradengleichung: str = &quot;&quot;
+        self.normalenvektor: Tuple[float, float] = (0.0, 0.0)
+
+
+def datei_einlesen(pfad: str) -&gt; Tuple[float, List[Polygon], List[Polygon]]:
+    &quot;&quot;&quot;Liest die Pizza-Datei im vorgegebenen BWINF-Format ein.&quot;&quot;&quot;
+    with open(pfad, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+        tokens = f.read().split()
+
+    if not tokens:
+        raise ValueError(f&quot;Datei &#x27;{pfad}&#x27; ist leer.&quot;)
+
+    it = iter(tokens)
+    radius = float(next(it))
+
+    # Thunfisch (Rose)
+    anzahl_thunfisch = int(next(it))
+    thunfisch: List[Polygon] = []
+    for _ in range(anzahl_thunfisch):
+        ecken = int(next(it))
+        poly = [(float(next(it)), float(next(it))) for _ in range(ecken)]
+        thunfisch.append(poly)
+
+    # Spinat (Ivy)
+    anzahl_spinat = int(next(it))
+    spinat: List[Polygon] = []
+    for _ in range(anzahl_spinat):
+        ecken = int(next(it))
+        poly = [(float(next(it)), float(next(it))) for _ in range(ecken)]
+        spinat.append(poly)
+
+    return radius, thunfisch, spinat
+
+
+def finde_trennschnitt(
+    radius: float,
+    thunfisch: List[Polygon],
+    spinat: List[Polygon]
+) -&gt; SchnittLoesung:
+    &quot;&quot;&quot;
+    Prüft, ob ein gerader Schnitt durch (0,0) die beiden Beläge trennen kann.
+    Gibt die optimale Schnittgerade mit größtem Abstand zu den Belägen zurück.
+    &quot;&quot;&quot;
+    punkte_thunfisch: List[Point] = [p for poly in thunfisch for p in poly]
+    punkte_spinat: List[Point] = [p for poly in spinat for p in poly]
+
+    # Sonderfall: Gar keine Beläge drauf -&gt; jeder Schnitt teilt die Pizza
+    if not punkte_thunfisch and not punkte_spinat:
+        res = SchnittLoesung(moeglich=True)
+        res.geradengleichung = &quot;y = 0 (beliebiger Schnitt)&quot;
+        res.toleranz = 90.0
+        res.bereich_max = 180.0
+        return res
+
+    # Liegt ein Eckpunkt genau im Ursprung? Dann wird er von jedem Schnitt zerschnitten.
+    for x, y in punkte_thunfisch + punkte_spinat:
+        if math.isclose(x, 0.0, abs_tol=1e-9) and math.isclose(y, 0.0, abs_tol=1e-9):
+            return SchnittLoesung(
+                moeglich=False,
+                grund=&quot;Ein Belag liegt direkt im Mittelpunkt (0, 0) und wird unweigerlich zerschnitten.&quot;
+            )
+
+    # Der Spiegel-Trick:
+    # Für einen Schnitt mit Winkel alpha müssen alle Thunfisch-Punkte auf der einen Seite
+    # liegen (Winkel im Intervall (alpha, alpha + pi)) und alle Spinat-Punkte auf der
+    # gegenüberliegenden Seite (alpha + pi, alpha + 2*pi).
+    # Wenn wir Spinat am Ursprung spiegeln (Punkt -P), müssen plötzlich ALLE Punkte
+    # im selben Halbkreis liegen!
+    alle_punkte: List[Point] = list(punkte_thunfisch) + [(-x, -y) for x, y in punkte_spinat]
+
+    # Polarwinkel im Bereich [0, 2*pi) berechnen und sortieren
+    polarwinkel = sorted([math.atan2(y, x) % (2.0 * math.pi) for x, y in alle_punkte])
+
+    # Nach der größten Lücke zwischen zwei aufeinanderfolgenden Winkeln suchen
+    n = len(polarwinkel)
+    groesste_luecke = -1.0
+    luecke_start = 0.0
+    luecke_ende = 0.0
+
+    for i in range(n):
+        w1 = polarwinkel[i]
+        w2 = polarwinkel[(i + 1) % n]
+        abstand = (w2 - w1) % (2.0 * math.pi)
+        if abstand &gt; groesste_luecke:
+            groesste_luecke = abstand
+            luecke_start = w1
+            luecke_ende = w2
+
+    # Wenn die größte freie Lücke kleiner oder gleich 180° ist,
+    # umschließen die Beläge den Mittelpunkt -&gt; kein Halbraum reicht aus!
+    if groesste_luecke &lt;= math.pi + 1e-11:
+        return SchnittLoesung(
+            moeglich=False,
+            grund=f&quot;Beläge umringen den Mittelpunkt (größte freie Lücke nur {math.degrees(groesste_luecke):.2f}° &lt;= 180°).&quot;
+        )
+
+    # Es gibt einen Schnitt!
+    # Die belegten Punkte liegen in einem Bogen von luecke_ende bis luecke_start.
+    # Damit dieser Bogen komplett in (alpha, alpha + pi) liegt, muss alpha
+    # zwischen (luecke_start - pi) und luecke_ende liegen.
+    alpha_min = (luecke_start - math.pi) % (2.0 * math.pi)
+    alpha_max = luecke_ende % (2.0 * math.pi)
+
+    winkel_spielraum = (alpha_max - alpha_min) % (2.0 * math.pi)
+    puffer = winkel_spielraum / 2.0
+    optimales_alpha = (alpha_min + puffer) % (2.0 * math.pi)
+
+    # Normalenvektor des Schnitts: senkrecht zur Schnittrichtung
+    nx = -math.sin(optimales_alpha)
+    ny = math.cos(optimales_alpha)
+
+    # Schöne Geradengleichung für die Dokumentation
+    if math.isclose(abs(ny), 0.0, abs_tol=1e-7):
+        gleichung = &quot;x = 0 (vertikaler Schnitt)&quot;
+    else:
+        steigung = math.tan(optimales_alpha)
+        gleichung = f&quot;y = {steigung:.4f} * x&quot;
+
+    loesung = SchnittLoesung(moeglich=True)
+    loesung.winkel_grad = math.degrees(optimales_alpha)
+    loesung.geraden_winkel = math.degrees(optimales_alpha) % 180.0
+    loesung.bereich_min = math.degrees(alpha_min)
+    loesung.bereich_max = math.degrees(alpha_max)
+    loesung.toleranz = math.degrees(puffer)
+    loesung.geradengleichung = gleichung
+    loesung.normalenvektor = (nx, ny)
+
+    return loesung
+
+
+def erzeuge_visualisierung(
+    radius: float,
+    thunfisch: List[Polygon],
+    spinat: List[Polygon],
+    loesung: SchnittLoesung,
+    ausgabe_pfad: str,
+    titel: str = &quot;&quot;
+):
+    &quot;&quot;&quot;Zeichnet die Pizza, Beläge und die Trennlinie mit Matplotlib.&quot;&quot;&quot;
+    try:
+        import matplotlib.pyplot as plt
+        from matplotlib.patches import Circle, Polygon as MplPoly, Wedge
+    except ImportError:
+        print(&quot;[Info] Matplotlib nicht installiert - überspringe Bildgenerierung.&quot;)
+        return
+
+    fig, ax = plt.subplots(figsize=(8, 8), dpi=300)
+
+    # Pizzaboden
+    boden = Circle((0, 0), radius, facecolor=&quot;#FDE8CD&quot;, edgecolor=&quot;#C87D32&quot;, linewidth=3, label=&quot;Pizzarand&quot;)
+    ax.add_patch(boden)
+    ax.add_patch(Circle((0, 0), radius * 0.95, facecolor=&quot;#FFE3BE&quot;, edgecolor=&quot;none&quot;))
+
+    if loesung.moeglich:
+        alpha = math.radians(loesung.winkel_grad)
+        # Halbebene Rose (Thunfisch)
+        ax.add_patch(Wedge((0, 0), radius * 0.95, math.degrees(alpha), math.degrees(alpha + math.pi),
+                           facecolor=&quot;#FF8A80&quot;, alpha=0.20, label=&quot;Roses Hälfte (Thunfisch)&quot;))
+        # Halbebene Ivy (Spinat)
+        ax.add_patch(Wedge((0, 0), radius * 0.95, math.degrees(alpha + math.pi), math.degrees(alpha + 2*math.pi),
+                           facecolor=&quot;#A5D6A7&quot;, alpha=0.20, label=&quot;Ivys Hälfte (Spinat)&quot;))
+
+        # Schnittlinie
+        xs = [radius * 1.05 * math.cos(alpha + math.pi), radius * 1.05 * math.cos(alpha)]
+        ys = [radius * 1.05 * math.sin(alpha + math.pi), radius * 1.05 * math.sin(alpha)]
+        ax.plot(xs, ys, color=&quot;#D32F2F&quot;, linestyle=&quot;--&quot;, linewidth=2.5,
+                label=f&quot;Schnitt: {loesung.winkel_grad:.1f}° ({loesung.geradengleichung})&quot;)
+
+        # Toleranzbereich anzeigen
+        ax.add_patch(Wedge((0, 0), radius * 0.45, loesung.bereich_min, loesung.bereich_max,
+                           facecolor=&quot;#FFD54F&quot;, alpha=0.35, edgecolor=&quot;#FFA000&quot;, linestyle=&quot;:&quot;,
+                           label=f&quot;Zulässiger Bereich (±{loesung.toleranz:.1f}°)&quot;))
+
+    # Beläge einzeichnen
+    for i, poly in enumerate(thunfisch):
+        ax.add_patch(MplPoly(poly, closed=True, facecolor=&quot;#E57373&quot;, edgecolor=&quot;#B71C1C&quot;,
+                             linewidth=1.5, alpha=0.85, label=&quot;Thunfisch&quot; if i == 0 else None))
+    for i, poly in enumerate(spinat):
+        ax.add_patch(MplPoly(poly, closed=True, facecolor=&quot;#81C784&quot;, edgecolor=&quot;#1B5E20&quot;,
+                             linewidth=1.5, alpha=0.85, label=&quot;Spinat&quot; if i == 0 else None))
+
+    ax.plot(0, 0, &quot;ko&quot;, markersize=5, label=&quot;Mitte (0, 0)&quot;)
+    ax.set_xlim(-radius * 1.15, radius * 1.15)
+    ax.set_ylim(-radius * 1.15, radius * 1.15)
+    ax.set_aspect(&quot;equal&quot;)
+    ax.grid(True, linestyle=&quot;:&quot;, alpha=0.5)
+
+    status_text = &quot;LÖSBAR&quot; if loesung.moeglich else &quot;NICHT LÖSBAR&quot;
+    ax.set_title(f&quot;{titel}: {status_text} (r = {radius})&quot;, fontsize=13, fontweight=&quot;bold&quot;, pad=12)
+    ax.set_xlabel(&quot;x&quot;)
+    ax.set_ylabel(&quot;y&quot;)
+    ax.legend(loc=&quot;upper right&quot;, bbox_to_anchor=(1.45, 1.0), frameon=True, fontsize=9)
+
+    os.makedirs(os.path.dirname(os.path.abspath(ausgabe_pfad)), exist_ok=True)
+    plt.savefig(ausgabe_pfad, bbox_inches=&quot;tight&quot;)
+    plt.close()
+
+
+def erstelle_bericht(dateiname: str, loesung: SchnittLoesung) -&gt; str:
+    &quot;&quot;&quot;Gibt eine übersichtliche Zusammenfassung der Ergebnisse aus.&quot;&quot;&quot;
+    zeilen = [f&quot;=== Ergebnis für {os.path.basename(dateiname)} ===&quot;]
+    if not loesung.moeglich:
+        zeilen.append(&quot;Kann die Pizza geteilt werden? NEIN&quot;)
+        zeilen.append(f&quot;Begründung: {loesung.grund}&quot;)
+    else:
+        zeilen.append(&quot;Kann die Pizza geteilt werden? JA&quot;)
+        zeilen.append(f&quot;Optimaler Schnittwinkel: {loesung.winkel_grad:.2f}° (Gerade: {loesung.geraden_winkel:.2f}°)&quot;)
+        zeilen.append(f&quot;Geradengleichung:        {loesung.geradengleichung}&quot;)
+        zeilen.append(f&quot;Zulässiger Bereich:      [{loesung.bereich_min:.2f}°, {loesung.bereich_max:.2f}°] (Toleranz: ±{loesung.toleranz:.2f}°)&quot;)
+        nx, ny = loesung.normalenvektor
+        zeilen.append(&quot;Aufteilung:&quot;)
+        zeilen.append(f&quot;  - Rose (Thunfisch) bekommt die Hälfte mit ({nx:.4f})*x + ({ny:.4f})*y &gt; 0&quot;)
+        zeilen.append(f&quot;  - Ivy (Spinat) bekommt die Hälfte mit ({nx:.4f})*x + ({ny:.4f})*y &lt; 0&quot;)
+    return &quot;\n&quot;.join(zeilen)
+
+
+if __name__ == &quot;__main__&quot;:
+    parser = argparse.ArgumentParser(description=&quot;BWINF 45 - Junioraufgabe 1 (Halb und Halb)&quot;)
+    parser.add_argument(&quot;datei&quot;, nargs=&quot;?&quot;, default=None, help=&quot;Pfad zu einer Pizza-Datei (z. B. halb00.txt)&quot;)
+    parser.add_argument(&quot;--plot&quot;, action=&quot;store_true&quot;, help=&quot;Erstellt ein PNG-Bild der Pizza&quot;)
+    args = parser.parse_args()
+
+    basis_verzeichnis = os.path.dirname(os.path.abspath(__file__))
+    bild_ordner = os.path.join(basis_verzeichnis, &quot;visualisierungen&quot;)
+
+    if args.datei:
+        r, t, s = datei_einlesen(args.datei)
+        loesung = finde_trennschnitt(r, t, s)
+        print(erstelle_bericht(args.datei, loesung))
+        if args.plot:
+            dateiname = os.path.splitext(os.path.basename(args.datei))[0]
+            ziel = os.path.join(bild_ordner, f&quot;{dateiname}.png&quot;)
+            erzeuge_visualisierung(r, t, s, loesung, ziel, titel=dateiname)
+            print(f&quot;[Bild gespeichert unter: {ziel}]&quot;)
+    else:
+        import glob
+        dateien = sorted(glob.glob(os.path.join(basis_verzeichnis, &quot;material&quot;, &quot;J1_HalbUndHalb&quot;, &quot;halb*.txt&quot;)))
+        if not dateien:
+            print(&quot;Keine halb*.txt Dateien im material-Ordner gefunden!&quot;)
+            sys.exit(1)
+
+        for d in dateien:
+            r, t, s = datei_einlesen(d)
+            loesung = finde_trennschnitt(r, t, s)
+            print(erstelle_bericht(d, loesung))
+            dateiname = os.path.splitext(os.path.basename(d))[0]
+            erzeuge_visualisierung(r, t, s, loesung, os.path.join(bild_ordner, f&quot;{dateiname}.png&quot;), titel=dateiname)
+            print()
+</code></pre>
+          <pre id="code-panel-j2" class="code-content" style="display:none;"><code>&quot;&quot;&quot;
+45. Bundeswettbewerb Informatik - 1. Runde
+Junioraufgabe 2: Spendenaktion
+
+Autoren: Matti Sonnenschein, Maurice T. Echterhagen
+
+Kurzbeschreibung:
+An der Gesamtschule Zweithailen bestimmen Sponsoren das Spendengeld nach der
+Häufigkeit, mit der die Stimmenzahl durch 2 geteilt werden kann (2-adische Bewertung).
+Nach Regel 2 dürfen Projekte Stimmen tauschen, wenn sich BEIDE Projekte dadurch
+finanziell verbessern.
+
+Wichtige Erkenntnis:
+Zwei Projekte können sich nur dann gegenseitig helfen, wenn sie aktuell genau die
+gleiche 2-adische Bewertung v_2 haben! Bei ungleichen Bewertungen stürzt das Projekt
+mit dem höheren Betrag unweigerlich ab.
+Das Programm berechnet eine optimale Schenkungsfolge und gibt den Endstand exakt im
+BWINF-Format aus.
+&quot;&quot;&quot;
+
+import sys
+import os
+import argparse
+from typing import List, Tuple, Dict
+
+
+def v2(n: int) -&gt; int:
+    &quot;&quot;&quot;
+    Zählt, wie oft n ohne Rest durch 2 teilbar ist.
+    Schicker Bit-Trick: (n &amp; -n) isoliert das niederwertigste 1-Bit in O(1).
+    &quot;&quot;&quot;
+    if n &lt;= 0:
+        return -1
+    return (n &amp; -n).bit_length() - 1
+
+
+def spendenbetrag(stimmen: int) -&gt; int:
+    &quot;&quot;&quot;Berechnet den Auszahlungsbetrag nach Regel 1.&quot;&quot;&quot;
+    if stimmen &lt;= 0:
+        return 0
+    return v2(stimmen) * 100
+
+
+def datei_einlesen(pfad: str) -&gt; Tuple[List[str], List[int]]:
+    &quot;&quot;&quot;Liest die Projektnamen und Stimmen aus einer spenden*.txt Datei.&quot;&quot;&quot;
+    with open(pfad, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+        zeilen = [z.strip() for z in f if z.strip()]
+
+    if not zeilen:
+        raise ValueError(f&quot;Datei &#x27;{pfad}&#x27; ist leer.&quot;)
+
+    anzahl = int(zeilen[0])
+    namen: List[str] = []
+    stimmen: List[int] = []
+
+    for z in zeilen[1:anzahl + 1]:
+        teile = z.split()
+        namen.append(teile[0])
+        stimmen.append(int(teile[1]))
+
+    return namen, stimmen
+
+
+def moegliche_schenkungen(zustand: Tuple[int, ...]) -&gt; List[Tuple[int, int, int]]:
+    &quot;&quot;&quot;
+    Findet alle gültigen Schenkungen nach Regel 2 im aktuellen Zustand.
+    Rückgabe: Liste von (geber_index, nehmer_index, stimmen_k).
+    &quot;&quot;&quot;
+    n = len(zustand)
+    bewertungen = [v2(s) for s in zustand]
+    zuege = []
+
+    for i in range(n):
+        vi = bewertungen[i]
+        if vi &lt; 0:
+            continue
+        for j in range(n):
+            if i == j:
+                continue
+            # Nur Projekte mit exakt gleicher Bewertung können beide gewinnen!
+            if vi != bewertungen[j]:
+                continue
+
+            schritt = 1 &lt;&lt; vi
+            # k muss ein ungerades Vielfaches von 2^vi sein
+            for k in range(schritt, zustand[i], schritt * 2):
+                neu_i = zustand[i] - k
+                neu_j = zustand[j] + k
+                if v2(neu_i) &gt; vi and v2(neu_j) &gt; vi:
+                    zuege.append((i, j, k))
+
+    return zuege
+
+
+def gesamtsumme(zustand: Tuple[int, ...]) -&gt; int:
+    &quot;&quot;&quot;Berechnet die Summe aller Spenden im aktuellen Zustand.&quot;&quot;&quot;
+    return sum(spendenbetrag(s) for s in zustand)
+
+
+def loese_spendenaktion(
+    start_stimmen: List[int],
+    suchbreite: int = 150
+) -&gt; Tuple[List[int], List[Tuple[int, int, int]]]:
+    &quot;&quot;&quot;
+    Sucht eine Schenkungsfolge, die zu einem terminalen Zustand mit
+    maximaler Gesamtsumme führt (Beam-Search).
+    &quot;&quot;&quot;
+    start = tuple(start_stimmen)
+    kandidaten = [(gesamtsumme(start), start, [])]
+    bester_endzustand = (start, [], gesamtsumme(start))
+    gesehen = {start}
+
+    tiefe = 0
+    while kandidaten and tiefe &lt; 30:
+        tiefe += 1
+        naechste_ebene = []
+
+        for betrag, st, weg in kandidaten:
+            zuege = moegliche_schenkungen(st)
+
+            # Wenn keine Züge mehr möglich sind, ist dieser Pfad terminal
+            if not zuege:
+                if betrag &gt; bester_endzustand[2]:
+                    bester_endzustand = (st, weg, betrag)
+                continue
+
+            for i, j, k in zuege:
+                folge = list(st)
+                folge[i] -= k
+                folge[j] += k
+                folge_tup = tuple(folge)
+
+                if folge_tup not in gesehen:
+                    gesehen.add(folge_tup)
+                    naechste_ebene.append((gesamtsumme(folge_tup), folge_tup, weg + [(i, j, k)]))
+
+        if not naechste_ebene:
+            break
+
+        # Die vielversprechendsten Pfade mit dem höchsten Gesamtbetrag weiterverfolgen
+        naechste_ebene.sort(key=lambda eintrag: eintrag[0], reverse=True)
+        kandidaten = naechste_ebene[:suchbreite]
+
+    end_zustand, schenkungen, _ = bester_endzustand
+    return list(end_zustand), schenkungen
+
+
+def loesung_pruefen(
+    start_stimmen: List[int],
+    schenkungen: List[Tuple[int, int, int]],
+    end_stimmen: List[int]
+) -&gt; Tuple[bool, str]:
+    &quot;&quot;&quot;
+    Überprüft die Schenkungen Schritt für Schritt auf Einhaltung der Regeln:
+    1. Geber und Nehmer müssen sich strikt verbessern
+    2. Kein Projekt darf &lt;= 0 Stimmen bekommen
+    3. Stimmen bleiben erhalten (Erhaltungssatz)
+    4. Am Ende darf kein weiterer Zug mehr möglich sein (terminal)
+    &quot;&quot;&quot;
+    aktuell = list(start_stimmen)
+
+    for nr, (g, n, k) in enumerate(schenkungen, 1):
+        if k &lt;= 0 or k &gt;= aktuell[g]:
+            return False, f&quot;Schritt {nr}: Ungültige Stimmenanzahl k={k} von Projekt {g}&quot;
+
+        alt_g, alt_n = v2(aktuell[g]), v2(aktuell[n])
+        neu_g = aktuell[g] - k
+        neu_n = aktuell[n] + k
+
+        if v2(neu_g) &lt;= alt_g:
+            return False, f&quot;Schritt {nr}: Geber hat seinen Betrag nicht verbessert!&quot;
+        if v2(neu_n) &lt;= alt_n:
+            return False, f&quot;Schritt {nr}: Nehmer hat seinen Betrag nicht verbessert!&quot;
+
+        aktuell[g] = neu_g
+        aktuell[n] = neu_n
+
+    if aktuell != end_stimmen:
+        return False, &quot;Endzustand stimmt nicht mit den berechneten Stimmen überein.&quot;
+
+    if sum(aktuell) != sum(start_stimmen):
+        return False, &quot;Die Gesamtanzahl der Stimmen hat sich verändert!&quot;
+
+    restliche_zuege = moegliche_schenkungen(tuple(aktuell))
+    if restliche_zuege:
+        return False, f&quot;Zustand ist noch nicht terminal ({len(restliche_zuege)} Züge noch möglich).&quot;
+
+    return True, &quot;Alles korrekt und vollständig abgeschlossen.&quot;
+
+
+def bwinf_format(
+    namen: List[str],
+    schenkungen: List[Tuple[int, int, int]],
+    end_stimmen: List[int]
+) -&gt; str:
+    &quot;&quot;&quot;Erzeugt exakt das in Ausgabeformat.txt geforderte Textformat.&quot;&quot;&quot;
+    zeilen = []
+    # Zuerst alle Schenkungen: GEBER NEHMER STIMMEN
+    for g, n, k in schenkungen:
+        zeilen.append(f&quot;{namen[g]} {namen[n]} {k}&quot;)
+
+    # Danach der Endstand: PROJEKT STIMMEN BETRAG
+    for name, s in zip(namen, end_stimmen):
+        zeilen.append(f&quot;{name} {s} {spendenbetrag(s)}&quot;)
+
+    return &quot;\n&quot;.join(zeilen)
+
+
+if __name__ == &quot;__main__&quot;:
+    parser = argparse.ArgumentParser(description=&quot;BWINF 45 - Junioraufgabe 2 (Spendenaktion)&quot;)
+    parser.add_argument(&quot;datei&quot;, nargs=&quot;?&quot;, default=None, help=&quot;Pfad zu einer spenden*.txt Datei&quot;)
+    parser.add_argument(&quot;--outdir&quot;, default=None, help=&quot;Ordner zum Abspeichern der Ausgabedatei&quot;)
+    args = parser.parse_args()
+
+    basis_verzeichnis = os.path.dirname(os.path.abspath(__file__))
+
+    if args.datei:
+        namen, stimmen = datei_einlesen(args.datei)
+        end_stimmen, schenkungen = loese_spendenaktion(stimmen)
+        ok, msg = loesung_pruefen(stimmen, schenkungen, end_stimmen)
+        if not ok:
+            print(f&quot;Fehler bei der Prüfung: {msg}&quot;, file=sys.stderr)
+            sys.exit(1)
+
+        text = bwinf_format(namen, schenkungen, end_stimmen)
+        print(text)
+
+        if args.outdir:
+            os.makedirs(args.outdir, exist_ok=True)
+            name = os.path.splitext(os.path.basename(args.datei))[0]
+            ziel = os.path.join(args.outdir, f&quot;{name}_out.txt&quot;)
+            with open(ziel, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+                f.write(text + &quot;\n&quot;)
+            print(f&quot;\n[Ausgabe gespeichert: {ziel}]&quot;)
+    else:
+        import glob
+        dateien = sorted(glob.glob(os.path.join(basis_verzeichnis, &quot;material&quot;, &quot;J2_Spendenaktion&quot;, &quot;spenden*.txt&quot;)))
+        ausgabe_ordner = os.path.join(basis_verzeichnis, &quot;Ausgaben&quot;)
+        os.makedirs(ausgabe_ordner, exist_ok=True)
+
+        for d in dateien:
+            namen, stimmen = datei_einlesen(d)
+            basisname = os.path.splitext(os.path.basename(d))[0]
+            start_geld = gesamtsumme(tuple(stimmen))
+
+            end_stimmen, schenkungen = loese_spendenaktion(stimmen)
+            ok, msg = loesung_pruefen(stimmen, schenkungen, end_stimmen)
+            end_geld = gesamtsumme(tuple(end_stimmen))
+
+            text = bwinf_format(namen, schenkungen, end_stimmen)
+            print(f&quot;=== {basisname} ({start_geld}€ -&gt; {end_geld}€, {len(schenkungen)} Schenkungen) ===&quot;)
+            print(text)
+            print()
+
+            # Offizielle Ausgabedatei schreiben
+            out_pfad = os.path.join(ausgabe_ordner, f&quot;{basisname}_out.txt&quot;)
+            with open(out_pfad, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+                f.write(text + &quot;\n&quot;)
+</code></pre>
+          <pre id="code-panel-run" class="code-content" style="display:none;"><code>&quot;&quot;&quot;
+45. Bundeswettbewerb Informatik - 1. Runde
+Master-Skript zur Ausführung aller Junioraufgaben und Generierung aller Abgabedateien.
+
+Autoren: Matti Sonnenschein, Maurice T. Echterhagen
+&quot;&quot;&quot;
+
+import os
+import sys
+import glob
+import subprocess
+
+import junior1_halb_und_halb as j1
+import junior2_spendenaktion as j2
+
+
+def main():
+    basis = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(basis)
+    sys.path.insert(0, basis)
+
+    print(&quot;=&quot; * 70)
+    print(&quot;45. Bundeswettbewerb Informatik - Junioraufgabe 1 &amp; 2&quot;)
+    print(&quot;Autoren: Matti Sonnenschein, Maurice T. Echterhagen&quot;)
+    print(&quot;=&quot; * 70)
+    print()
+
+    # 1. Tests ausführen
+    print(&quot;[1/3] Führe automatische Tests aus...&quot;)
+    test_lauf = subprocess.run([sys.executable, os.path.join(basis, &quot;tests&quot;, &quot;test_solutions.py&quot;)],
+                               capture_output=True, text=True)
+    if test_lauf.returncode != 0:
+        print(&quot;FEHLER in den Tests:\n&quot;, test_lauf.stderr)
+        sys.exit(1)
+    print(&quot;  -&gt; Alle Tests erfolgreich bestanden!\n&quot;)
+
+    ausgabe_ordner = os.path.join(basis, &quot;Ausgaben&quot;)
+    bild_ordner = os.path.join(basis, &quot;visualisierungen&quot;)
+    os.makedirs(ausgabe_ordner, exist_ok=True)
+    os.makedirs(bild_ordner, exist_ok=True)
+
+    # 2. Junioraufgabe 1 (Halb und Halb)
+    print(&quot;[2/3] Berechne Junioraufgabe 1 (Halb und Halb)...&quot;)
+    halb_dateien = sorted(glob.glob(os.path.join(basis, &quot;material&quot;, &quot;J1_HalbUndHalb&quot;, &quot;halb*.txt&quot;)))
+    print(f&quot;{&#x27;Datei&#x27;:&lt;12} | {&#x27;Lösbar?&#x27;:&lt;8} | {&#x27;Gerade&#x27;:&lt;10} | {&#x27;Bereich&#x27;:&lt;22} | {&#x27;Toleranz&#x27;:&lt;10}&quot;)
+    print(&quot;-&quot; * 68)
+
+    for hd in halb_dateien:
+        r, thun, spin = j1.datei_einlesen(hd)
+        loesung = j1.finde_trennschnitt(r, thun, spin)
+        name = os.path.splitext(os.path.basename(hd))[0]
+
+        # Bericht abspeichern
+        bericht = j1.erstelle_bericht(hd, loesung)
+        with open(os.path.join(ausgabe_ordner, f&quot;{name}_out.txt&quot;), &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+            f.write(bericht + &quot;\n&quot;)
+
+        # Visualisierung abspeichern
+        j1.erzeuge_visualisierung(r, thun, spin, loesung, os.path.join(bild_ordner, f&quot;{name}.png&quot;), titel=name)
+
+        if loesung.moeglich:
+            print(f&quot;{name:&lt;12} | {&#x27;JA&#x27;:&lt;8} | {loesung.geraden_winkel:&gt;6.2f}°   | [{loesung.bereich_min:.1f}°, {loesung.bereich_max:.1f}°]{&#x27;&#x27;:&lt;7} | ±{loesung.toleranz:.2f}°&quot;)
+        else:
+            print(f&quot;{name:&lt;12} | {&#x27;NEIN&#x27;:&lt;8} | {&#x27;-&#x27;:&lt;10} | {&#x27;-&#x27;:&lt;22} | -&quot;)
+
+    print(&quot;  -&gt; Alle Pizzen berechnet, Berichte und PNG-Bilder gespeichert!\n&quot;)
+
+    # 3. Junioraufgabe 2 (Spendenaktion)
+    print(&quot;[3/3] Berechne Junioraufgabe 2 (Spendenaktion)...&quot;)
+    spenden_dateien = sorted(glob.glob(os.path.join(basis, &quot;material&quot;, &quot;J2_Spendenaktion&quot;, &quot;spenden*.txt&quot;)))
+    print(f&quot;{&#x27;Datei&#x27;:&lt;12} | {&#x27;Projekte&#x27;:&lt;8} | {&#x27;Startsumme&#x27;:&lt;12} | {&#x27;Endsumme&#x27;:&lt;12} | {&#x27;Zuwachs&#x27;:&lt;10} | {&#x27;Züge&#x27;:&lt;6}&quot;)
+    print(&quot;-&quot; * 68)
+
+    for sd in spenden_dateien:
+        namen, stimmen = j2.datei_einlesen(sd)
+        name = os.path.splitext(os.path.basename(sd))[0]
+
+        start_geld = j2.gesamtsumme(tuple(stimmen))
+        end_stimmen, schenkungen = j2.loese_spendenaktion(stimmen)
+        ok, msg = j2.loesung_pruefen(stimmen, schenkungen, end_stimmen)
+        if not ok:
+            print(f&quot;Fehler in {name}: {msg}&quot;)
+            sys.exit(1)
+
+        end_geld = j2.gesamtsumme(tuple(end_stimmen))
+        plus = end_geld - start_geld
+
+        # Offizielles Ausgabeformat erzeugen &amp; abspeichern
+        text = j2.bwinf_format(namen, schenkungen, end_stimmen)
+        with open(os.path.join(ausgabe_ordner, f&quot;{name}_out.txt&quot;), &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+            f.write(text + &quot;\n&quot;)
+
+        print(f&quot;{name:&lt;12} | {len(namen):&lt;8} | {start_geld:&gt;8} €   | {end_geld:&gt;8} €   | {f&#x27;+{plus} €&#x27;:&lt;10} | {len(schenkungen):&lt;6}&quot;)
+
+    # Diagramm für die Dokumentation aktualisieren
+    subprocess.run([sys.executable, os.path.join(basis, &quot;plot_spenden_charts.py&quot;)], check=True)
+
+    print()
+    print(&quot;=&quot; * 70)
+    print(&quot;Fertig! Alle Ausgaben liegen im Ordner &#x27;Ausgaben&#x27;.&quot;)
+    print(&quot;=&quot; * 70)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+          <pre id="code-panel-test" class="code-content" style="display:none;"><code>&quot;&quot;&quot;
+Test-Suite für die Junioraufgaben 1 und 2 des 45. Bundeswettbewerbs Informatik
+Autoren: Matti Sonnenschein, Maurice T. Echterhagen
+&quot;&quot;&quot;
+
+import unittest
+import sys
+import os
+import math
+
+basis_verzeichnis = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, basis_verzeichnis)
+
+import junior1_halb_und_halb as j1
+import junior2_spendenaktion as j2
+
+
+class TestHalbUndHalb(unittest.TestCase):
+    &quot;&quot;&quot;Tests für Junioraufgabe 1 (Pizza-Trennung)&quot;&quot;&quot;
+
+    def test_beispiel_halb00(self):
+        &quot;&quot;&quot;halb00 aus der Aufgabenstellung muss lösbar sein.&quot;&quot;&quot;
+        pfad = os.path.join(basis_verzeichnis, &quot;material&quot;, &quot;J1_HalbUndHalb&quot;, &quot;halb00.txt&quot;)
+        r, t, s = j1.datei_einlesen(pfad)
+        res = j1.finde_trennschnitt(r, t, s)
+        self.assertTrue(res.moeglich)
+        self.assertAlmostEqual(res.winkel_grad, 307.37, delta=0.5)
+        self.assertAlmostEqual(res.toleranz, 18.94, delta=0.5)
+
+        # Prüfe, ob 310° (aus dem Text) im erlaubten Bereich liegt
+        w310 = math.radians(310)
+        w_min = math.radians(res.bereich_min)
+        spanne = math.radians(res.bereich_max - res.bereich_min) % (2 * math.pi)
+        self.assertLess((w310 - w_min) % (2 * math.pi), spanne)
+
+    def test_unloesbare_pizzen(self):
+        &quot;&quot;&quot;halb04 und halb06 dürfen keine Lösung haben (umringen die Mitte).&quot;&quot;&quot;
+        for dateiname in [&quot;halb04.txt&quot;, &quot;halb06.txt&quot;]:
+            pfad = os.path.join(basis_verzeichnis, &quot;material&quot;, &quot;J1_HalbUndHalb&quot;, dateiname)
+            r, t, s = j1.datei_einlesen(pfad)
+            res = j1.finde_trennschnitt(r, t, s)
+            self.assertFalse(res.moeglich, f&quot;{dateiname} sollte unlösbar sein&quot;)
+
+    def test_knapper_schnitt_halb07(self):
+        &quot;&quot;&quot;halb07 hat nur 0.18° Spielraum, muss aber gefunden werden.&quot;&quot;&quot;
+        pfad = os.path.join(basis_verzeichnis, &quot;material&quot;, &quot;J1_HalbUndHalb&quot;, &quot;halb07.txt&quot;)
+        r, t, s = j1.datei_einlesen(pfad)
+        res = j1.finde_trennschnitt(r, t, s)
+        self.assertTrue(res.moeglich)
+        self.assertAlmostEqual(res.toleranz * 2, 0.18, delta=0.05)
+
+    def test_ohne_belag(self):
+        &quot;&quot;&quot;Pizza ganz ohne Belag: jeder Schnitt teilt fair.&quot;&quot;&quot;
+        res = j1.finde_trennschnitt(10.0, [], [])
+        self.assertTrue(res.moeglich)
+        self.assertAlmostEqual(res.toleranz, 90.0)
+
+    def test_belag_in_der_mitte(self):
+        &quot;&quot;&quot;Ein Punkt genau bei (0,0) macht die Pizza unlösbar.&quot;&quot;&quot;
+        res = j1.finde_trennschnitt(10.0, [[(0.0, 0.0), (1.0, 1.0), (0.0, 1.0)]], [])
+        self.assertFalse(res.moeglich)
+
+
+class TestSpendenaktion(unittest.TestCase):
+    &quot;&quot;&quot;Tests für Junioraufgabe 2 (Spendenaktion)&quot;&quot;&quot;
+
+    def test_v2_bewertung_und_auszahlung(self):
+        &quot;&quot;&quot;Testet die 2-adische Teilbarkeit und die 100€-Regel.&quot;&quot;&quot;
+        self.assertEqual(j2.v2(24), 3)
+        self.assertEqual(j2.spendenbetrag(24), 300)
+        self.assertEqual(j2.v2(26), 1)
+        self.assertEqual(j2.spendenbetrag(26), 100)
+        self.assertEqual(j2.v2(25), 0)
+        self.assertEqual(j2.spendenbetrag(25), 0)
+        self.assertEqual(j2.v2(16), 4)
+        self.assertEqual(j2.spendenbetrag(16), 400)
+        self.assertEqual(j2.spendenbetrag(0), 0)
+
+    def test_aufgabenbeispiel_25_und_15(self):
+        &quot;&quot;&quot;Testet CommitForChange (25) &amp; GarbageCollector (15).&quot;&quot;&quot;
+        stimmen = [25, 15]
+        end_stimmen, zuege = j2.loese_spendenaktion(stimmen)
+        ok, msg = j2.loesung_pruefen(stimmen, zuege, end_stimmen)
+        self.assertTrue(ok, msg)
+        # Endbetrag muss mindestens 700€ sein (unser Beam Search findet sogar 800€ bei k=17)
+        self.assertGreaterEqual(j2.gesamtsumme(tuple(end_stimmen)), 700)
+
+    def test_alle_beispieldateien_regelkonform(self):
+        &quot;&quot;&quot;Alle offiziellen Dateien spenden01 bis spenden06 müssen korrekt und terminal sein.&quot;&quot;&quot;
+        for i in range(1, 7):
+            pfad = os.path.join(basis_verzeichnis, &quot;material&quot;, &quot;J2_Spendenaktion&quot;, f&quot;spenden0{i}.txt&quot;)
+            namen, stimmen = j2.datei_einlesen(pfad)
+            end_stimmen, zuege = j2.loese_spendenaktion(stimmen)
+            ok, msg = j2.loesung_pruefen(stimmen, zuege, end_stimmen)
+            self.assertTrue(ok, f&quot;spenden0{i}.txt hat Fehler: {msg}&quot;)
+
+    def test_spenden03_bereits_fertig(self):
+        &quot;&quot;&quot;spenden03 hat lauter unterschiedliche v2-Werte und ist sofort terminal (0 Züge).&quot;&quot;&quot;
+        pfad = os.path.join(basis_verzeichnis, &quot;material&quot;, &quot;J2_Spendenaktion&quot;, &quot;spenden03.txt&quot;)
+        namen, stimmen = j2.datei_einlesen(pfad)
+        end_stimmen, zuege = j2.loese_spendenaktion(stimmen)
+        self.assertEqual(len(zuege), 0)
+        self.assertEqual(stimmen, end_stimmen)
+
+    def test_patt_gleiche_zweierpotenzen(self):
+        &quot;&quot;&quot;Zwei Projekte mit je 16 Stimmen dürfen sich nichts schenken (sonst hätte eines 0).&quot;&quot;&quot;
+        zuege = j2.moegliche_schenkungen((16, 16))
+        self.assertEqual(len(zuege), 0)
+
+
+if __name__ == &quot;__main__&quot;:
+    unittest.main()
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: OFFIZIELLE AUSGABEN -->
+    <section id="pane-ausgaben" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Offizielle Ausgabedateien (.txt)</h2>
+            <p class="card-subtitle">Exakt nach den Vorgaben der BWINF-Aufgabenstellung formatiert</p>
+          </div>
+          <button class="btn btn-primary" onclick="copyActiveOutput(this)">
+            <span>📋</span> Ausgabe kopieren
+          </button>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <div class="code-file-tabs">
+              <button class="code-tab-btn active" onclick="switchOutputFile('halb00_out.txt', this)">halb00_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('halb01_out.txt', this)">halb01_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('halb02_out.txt', this)">halb02_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('halb03_out.txt', this)">halb03_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('halb04_out.txt', this)">halb04_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('halb05_out.txt', this)">halb05_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('halb06_out.txt', this)">halb06_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('halb07_out.txt', this)">halb07_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('spenden01_out.txt', this)">spenden01_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('spenden02_out.txt', this)">spenden02_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('spenden03_out.txt', this)">spenden03_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('spenden04_out.txt', this)">spenden04_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('spenden05_out.txt', this)">spenden05_out.txt</button>
+              <button class="code-tab-btn " onclick="switchOutputFile('spenden06_out.txt', this)">spenden06_out.txt</button>
+            </div>
+          </div>
+          <pre id="out-panel-halb00_out.txt" class="code-content out-content-panel" style="display:block;"><code>=== Ergebnis für halb00.txt ===
+Kann die Pizza geteilt werden? JA
+Optimaler Schnittwinkel: 307.37° (Gerade: 127.37°)
+Geradengleichung:        y = -1.3093 * x
+Zulässiger Bereich:      [288.43°, 326.31°] (Toleranz: ±18.94°)
+Aufteilung:
+  - Rose (Thunfisch) bekommt die Hälfte mit (0.7947)*x + (0.6070)*y &gt; 0
+  - Ivy (Spinat) bekommt die Hälfte mit (0.7947)*x + (0.6070)*y &lt; 0</code></pre>
+          <pre id="out-panel-halb01_out.txt" class="code-content out-content-panel" style="display:none;"><code>=== Ergebnis für halb01.txt ===
+Kann die Pizza geteilt werden? JA
+Optimaler Schnittwinkel: 110.79° (Gerade: 110.79°)
+Geradengleichung:        y = -2.6335 * x
+Zulässiger Bereich:      [104.54°, 117.04°] (Toleranz: ±6.25°)
+Aufteilung:
+  - Rose (Thunfisch) bekommt die Hälfte mit (-0.9349)*x + (-0.3550)*y &gt; 0
+  - Ivy (Spinat) bekommt die Hälfte mit (-0.9349)*x + (-0.3550)*y &lt; 0</code></pre>
+          <pre id="out-panel-halb02_out.txt" class="code-content out-content-panel" style="display:none;"><code>=== Ergebnis für halb02.txt ===
+Kann die Pizza geteilt werden? JA
+Optimaler Schnittwinkel: 91.96° (Gerade: 91.96°)
+Geradengleichung:        y = -29.1806 * x
+Zulässiger Bereich:      [59.92°, 124.00°] (Toleranz: ±32.04°)
+Aufteilung:
+  - Rose (Thunfisch) bekommt die Hälfte mit (-0.9994)*x + (-0.0342)*y &gt; 0
+  - Ivy (Spinat) bekommt die Hälfte mit (-0.9994)*x + (-0.0342)*y &lt; 0</code></pre>
+          <pre id="out-panel-halb03_out.txt" class="code-content out-content-panel" style="display:none;"><code>=== Ergebnis für halb03.txt ===
+Kann die Pizza geteilt werden? JA
+Optimaler Schnittwinkel: 21.10° (Gerade: 21.10°)
+Geradengleichung:        y = 0.3859 * x
+Zulässiger Bereich:      [12.98°, 29.22°] (Toleranz: ±8.12°)
+Aufteilung:
+  - Rose (Thunfisch) bekommt die Hälfte mit (-0.3600)*x + (0.9330)*y &gt; 0
+  - Ivy (Spinat) bekommt die Hälfte mit (-0.3600)*x + (0.9330)*y &lt; 0</code></pre>
+          <pre id="out-panel-halb04_out.txt" class="code-content out-content-panel" style="display:none;"><code>=== Ergebnis für halb04.txt ===
+Kann die Pizza geteilt werden? NEIN
+Begründung: Beläge umringen den Mittelpunkt (größte freie Lücke nur 98.72° &lt;= 180°).</code></pre>
+          <pre id="out-panel-halb05_out.txt" class="code-content out-content-panel" style="display:none;"><code>=== Ergebnis für halb05.txt ===
+Kann die Pizza geteilt werden? JA
+Optimaler Schnittwinkel: 79.44° (Gerade: 79.44°)
+Geradengleichung:        y = 5.3620 * x
+Zulässiger Bereich:      [67.56°, 91.31°] (Toleranz: ±11.88°)
+Aufteilung:
+  - Rose (Thunfisch) bekommt die Hälfte mit (-0.9831)*x + (0.1833)*y &gt; 0
+  - Ivy (Spinat) bekommt die Hälfte mit (-0.9831)*x + (0.1833)*y &lt; 0</code></pre>
+          <pre id="out-panel-halb06_out.txt" class="code-content out-content-panel" style="display:none;"><code>=== Ergebnis für halb06.txt ===
+Kann die Pizza geteilt werden? NEIN
+Begründung: Beläge umringen den Mittelpunkt (größte freie Lücke nur 66.25° &lt;= 180°).</code></pre>
+          <pre id="out-panel-halb07_out.txt" class="code-content out-content-panel" style="display:none;"><code>=== Ergebnis für halb07.txt ===
+Kann die Pizza geteilt werden? JA
+Optimaler Schnittwinkel: 155.67° (Gerade: 155.67°)
+Geradengleichung:        y = -0.4521 * x
+Zulässiger Bereich:      [155.59°, 155.76°] (Toleranz: ±0.09°)
+Aufteilung:
+  - Rose (Thunfisch) bekommt die Hälfte mit (-0.4119)*x + (-0.9112)*y &gt; 0
+  - Ivy (Spinat) bekommt die Hälfte mit (-0.4119)*x + (-0.9112)*y &lt; 0</code></pre>
+          <pre id="out-panel-spenden01_out.txt" class="code-content out-content-panel" style="display:none;"><code>A C 18
+B A 8
+A 16 400
+B 16 400
+C 32 500</code></pre>
+          <pre id="out-panel-spenden02_out.txt" class="code-content out-content-panel" style="display:none;"><code>A C 9
+D B 12
+A B 8
+A 16 400
+B 32 500
+C 64 600
+D 32 500</code></pre>
+          <pre id="out-panel-spenden03_out.txt" class="code-content out-content-panel" style="display:none;"><code>A 40 300
+B 26 100
+C 32 500
+D 60 200</code></pre>
+          <pre id="out-panel-spenden04_out.txt" class="code-content out-content-panel" style="display:none;"><code>A E 7
+B A 14
+A C 4
+D A 32
+A 64 600
+B 64 600
+C 24 300
+D 64 600
+E 32 500</code></pre>
+          <pre id="out-panel-spenden05_out.txt" class="code-content out-content-panel" style="display:none;"><code>A E 61
+F G 77
+B D 102
+B F 4
+A 60 200
+B 128 700
+C 88 300
+D 256 800
+E 256 800
+F 128 700
+G 256 800</code></pre>
+          <pre id="out-panel-spenden06_out.txt" class="code-content out-content-panel" style="display:none;"><code>F D 39
+A C 210
+G I 23
+E J 58
+B E 20
+F H 16
+A 48 400
+B 128 700
+C 512 900
+D 256 800
+E 128 700
+F 256 800
+G 256 800
+H 128 700
+I 248 300
+J 256 800</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-left">
+        <strong>spanani.de/bwinf</strong> · 45. Bundeswettbewerb Informatik 2026
+      </div>
+      <div class="footer-right">
+        Autoren: <strong>Matti Sonnenschein &amp; Maurice T. Echterhagen</strong>
+      </div>
+    </footer>
+
+  </main>
+
+  <script>
+    // Tab Umschaltung Hauptnavigation
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('pane-' + tabId).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    // Code Datei Umschaltung
+    let currentCodeId = 'j1';
+    function switchCodeFile(fileId, btn) {
+      document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('pre.code-content').forEach(p => {
+        if (!p.classList.contains('out-content-panel')) p.style.display = 'none';
+      });
+      btn.classList.add('active');
+      document.getElementById('code-panel-' + fileId).style.display = 'block';
+      currentCodeId = fileId;
+    }
+
+    // Output Datei Umschaltung
+    let currentOutId = 'halb00_out.txt';
+    function switchOutputFile(fname, btn) {
+      document.querySelectorAll('#pane-ausgaben .code-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.out-content-panel').forEach(p => p.style.display = 'none');
+      btn.classList.add('active');
+      const target = document.getElementById('out-panel-' + fname);
+      if (target) target.style.display = 'block';
+      currentOutId = fname;
+    }
+
+    // Kopier-Funktionen
+    function copyMarkdown(btn) {
+      const text = document.getElementById('raw-markdown-storage').value;
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<span>✓</span> Markdown kopiert!';
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
+      });
+    }
+
+    function copyActiveCode(btn) {
+      const el = document.getElementById('code-panel-' + currentCodeId);
+      if (el) {
+        navigator.clipboard.writeText(el.innerText).then(() => {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Code kopiert!';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
+    }
+
+    function copyActiveOutput(btn) {
+      const el = document.getElementById('out-panel-' + currentOutId);
+      if (el) {
+        navigator.clipboard.writeText(el.innerText).then(() => {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span> Ausgabe kopiert!';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
+    }
+
+    // Accordion Aufklappen
+    function toggleAccordion(header) {
+      const body = header.nextElementSibling;
+      if (body.classList.contains('open')) {
+        body.classList.remove('open');
+      } else {
+        body.classList.add('open');
+      }
+    }
+  </script>
+
+</body>
+</html>

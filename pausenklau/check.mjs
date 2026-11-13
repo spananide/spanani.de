@@ -134,6 +134,7 @@ const e1 = { end: -2, mb: 3 };
 assert.strictEqual(overOf(e1), 2);
 assert.strictEqual(earlyOf(e1), 2);
 assert.strictEqual(netOf(e1), 0);
+assert.strictEqual(netOf({ end: 0 }), 0);
 
 const e2 = { end: 7.2, mb: 0 };
 assert.ok(Math.abs(overOf(e2) - 12.2) < 1e-9);

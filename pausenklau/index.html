@@ -184,21 +184,14 @@
     .rankhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: var(--space-3); }
     .rankhead h2 { font-size: clamp(22px, 3vw, 28px); }
     .sorts { display: inline-flex; flex-wrap: wrap; }
-    .legend { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: var(--fs-xs); color: var(--ink-soft); margin-bottom: 10px; }
-    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
     ol.rank { list-style: none; display: grid; gap: 8px; }
-    .row { display: grid; grid-template-columns: 30px minmax(0, 1.1fr) minmax(0, 2fr) 120px; align-items: center; gap: 14px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 12px 18px; }
+    .row { display: grid; grid-template-columns: 30px minmax(0, 1fr) 120px; align-items: center; gap: 14px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 12px 18px; }
     .row.nodata { opacity: 0.45; }
     .row .pos { font-family: var(--font-mono); font-size: 16px; color: var(--ink-faint); }
     .row:first-child:not(.nodata) { border-color: rgba(var(--accent-rgb), 0.5); }
     .row:first-child:not(.nodata) .pos { color: var(--accent); }
     .row .who b { display: block; font-family: var(--font-display); font-size: 16px; font-weight: 700; }
     .row .who small { color: var(--ink-faint); font-family: var(--font-mono); font-size: 11px; }
-    .div { display: grid; grid-template-columns: 1fr 2px 1fr; align-items: center; height: 18px; }
-    .div .mid { height: 18px; background: var(--line-strong); }
-    .div .l, .div .r { height: 12px; }
-    .div .l { justify-self: end; background: var(--success); border-radius: 4px 0 0 4px; margin-right: 2px; }
-    .div .r { justify-self: start; background: var(--danger); border-radius: 0 4px 4px 0; margin-left: 2px; }
     .vals { text-align: right; font-size: var(--fs-xs); color: var(--ink-soft); line-height: 1.4; }
     .vals .num { font-size: 15px; color: var(--ink); }
     .empty { margin-bottom: var(--space-6); }
@@ -208,7 +201,6 @@
     body.me #tiles { display: none; }
     body.me #rkListHead { order: 3; }
     body.me #rkListHead h2 { display: none; }
-    body.me #viewRank .legend { order: 4; }
     body.me #rank { order: 5; margin-bottom: var(--space-6); }
     body.me #trend { order: 6; }
     body.me #awards { order: 7; }
@@ -288,7 +280,6 @@
       .grid > [data-d]:not(.sel) { display: none; }
       .daytabs { display: flex; }
       .row { grid-template-columns: 24px minmax(0, 1fr) auto; }
-      .row .div { grid-column: 1 / -1; order: 3; }
       .choice.inline { grid-template-columns: 1fr; }
       .blabels span:nth-child(even) { visibility: hidden; }
       .tile .v { font-size: 22px; }
@@ -464,11 +455,10 @@
             <button class="mode-btn" data-sort="under">Unterzogen</button>
             <button class="mode-btn" data-sort="net">Bilanz</button>
             <button class="mode-btn" data-sort="avg">Ø/Std</button>
-            <button class="mode-btn" data-sort="late" id="sortLate" hidden>Zu spät</button>
+            <button class="mode-btn" data-sort="late" id="sortLate">Zu spät</button>
             <button class="mode-btn" data-sort="cancel">Ausfälle</button>
           </div>
         </div>
-        <div class="legend"><span><i style="background:var(--success)"></i><span id="lgUnder">Unterzogen (früher Schluss + später Beginn)</span></span><span><i style="background:var(--danger)"></i>Überzogen (in die Pause)</span></div>
         <ol class="rank" id="rank"></ol>
         <div class="rk-foot" id="rkFoot" hidden></div>
       </section>
@@ -526,7 +516,7 @@
           <div class="hintrow"><span class="hint zero" id="lateHint"></span><button type="button" class="nowbtn" data-now="late" id="lateNow">Jetzt geht's los</button></div>
         </div>
         <div class="field" id="mbWrap" hidden>
-          <label class="lbl" for="mbIn">5-Minuten-Pause (m:ss, 0 = keine)</label>
+          <label class="lbl" for="mbIn">5-Minuten-Pause (m:ss, leer = keine, außer Sport)</label>
           <input class="inp" type="text" id="mbIn" inputmode="text" autocomplete="off" placeholder="offen">
           <div class="hintrow"><span class="hint zero" id="mbHint"></span></div>
         </div>
@@ -776,6 +766,8 @@ function hasMidBreak(L, day) {
   const seq = [...day.filter(x => toMin(x.end) <= s).sort((a, b) => toMin(a.start) - toMin(b.start)), L];
   return seq.length > 1 && !seq.some((x, i) => i && toMin(x.start) >= MB_NOON && toMin(x.start) - toMin(seq[i - 1].end) >= MB_GAP);
 }
+// Wer die 5-Minuten-Pause nicht gestoppt hat, hat keine bekommen (außer in Sport): mb = 0. Nur ME stoppt Pausen.
+const noBreak = (L, mon, e) => ME() && e?.mb == null && e?.mbs == null && !/sport|^sp\b/i.test(L.c) && hasMidBreak(L, lessonsOf(mon).filter(l => l.d === L.d)) ? { mb: 0 } : {};
 const pauseDiff = e => typeof e.mb === 'number' ? MB_LEN - e.mb : 0;
 const netOf = e => (+e.end || 0) + pauseDiff(e);
 const overOf = e => Math.max(0, +e.end || 0) + Math.max(0, pauseDiff(e));
@@ -894,8 +886,8 @@ function breakTotals(from) {
   }
   return { plan, stolen };
 }
-// Für ME ist Zuspätkommen eine eigene Kategorie, für alle anderen zählt es zu „unterzogen“
-const derive = t => ({ ...t, under: ME() ? t.early : t.early + t.late, net: t.over - t.early - t.late, avg: t.n ? (t.over - t.early - t.late) / t.n : 0 });
+// Zuspätkommen ist eine eigene Kategorie (zählt nicht zu „unterzogen“ oder Bilanz)
+const derive = t => ({ ...t, under: t.early, net: t.over - t.early, avg: t.n ? (t.over - t.early) / t.n : 0 });
 // Einträge eines Lehrers ab from (für Lehrer-Profil und Prognose)
 function teacherEntries(k, from) {
   const out = [];
@@ -1341,8 +1333,7 @@ function renderWeek() {
     if (e?.s === 'cancelled') canc++;
     else if (e?.s === 'ok') { over += overOf(e); under += earlyOf(e); late += e.late || 0; }
   }
-  if (!ME()) under += late;
-  $('#weeksum').innerHTML = `<span>${mk === iso(mondayOf(now())) ? 'Diese Woche' : 'Woche'}: <b>${sgn(over)}</b> min überzogen</span><span><b>${mmss(under)}</b> min unterzogen</span>${ME() ? `<span><b>${mmss(late)}</b> min zu spät</span>` : ''}<span><b>${canc}</b> ${canc === 1 ? 'Ausfall' : 'Ausfälle'}</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
+  $('#weeksum').innerHTML = `<span>${mk === iso(mondayOf(now())) ? 'Diese Woche' : 'Woche'}: <b>${sgn(over)}</b> min überzogen</span><span><b>${mmss(under)}</b> min unterzogen</span><span><b>${mmss(late)}</b> min zu spät</span><span><b>${canc}</b> ${canc === 1 ? 'Ausfall' : 'Ausfälle'}</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
 }
 
 // Gruppen-Rangliste vom Server; from passt zum gewählten Zeitraum
@@ -1386,17 +1377,15 @@ function renderRank() {
   const tracked = sum('n'), skips = sum('skip');
   $('#tiles').innerHTML = `
     <div class="tile"><div class="k">Pause verloren</div><div class="v">${mmss(sum('over'))}<small>min</small></div><div class="s">durch Überziehen</div></div>
-    <div class="tile"><div class="k">Unterzogen</div><div class="v">${mmss(sum('under'))}<small>min</small></div><div class="s">${ME() ? 'früher Schluss' : 'früher Schluss + später Beginn'}</div></div>
-    ${ME() ? `<div class="tile"><div class="k">Zu spät</div><div class="v">${mmss(sum('late'))}<small>min</small></div><div class="s">Lehrer kamen später</div></div>` : ''}
+    <div class="tile"><div class="k">Unterzogen</div><div class="v">${mmss(sum('under'))}<small>min</small></div><div class="s">früher Schluss</div></div>
+    <div class="tile"><div class="k">Zu spät</div><div class="v">${mmss(sum('late'))}<small>min</small></div><div class="s">${ME() ? 'Lehrer kamen später' : 'später angefangen'}</div></div>
     <div class="tile"><div class="k">Ausfälle</div><div class="v">${sum('cancel')}</div><div class="s">${sum('cancel') === 1 ? 'Stunde' : 'Stunden'}</div></div>
     <div class="tile"><div class="k">Erfasst</div><div class="v">${tracked}</div><div class="s">${tracked === 1 ? 'Stunde' : 'Stunden'}${skips ? ` · ${skips} geskippt` : ''}</div></div>`;
   const withData = rows.filter(r => r.n);
   const top = f => withData.filter(r => r[f] > 0).sort((a, b) => b[f] - a[f])[0];
-  const king = top('over'), friend = top('under'), slow = ME() && top('late');
-  const off = r => (r.over + r.early + r.late) / r.n;
+  const king = top('over'), friend = top('under'), slow = top('late');
+  const off = r => (r.over + r.early) / r.n;
   const clock = withData.filter(r => r.n >= 3).sort((a, b) => off(a) - off(b))[0];
-  $('#sortLate').hidden = !ME();
-  $('#lgUnder').textContent = ME() ? 'Unterzogen (früher Schluss)' : 'Unterzogen (früher Schluss + später Beginn)';
   const names = grp ? Object.fromEntries(state.grp.rows.map(r => [r.k, r.name])) : {};
   const nm = k => esc(names[k] || teacherName(k) || k);
   const aw = (k, r, s) => r ? `<div class="award"><div class="k">${k}</div><div class="n">${nm(r.k)}</div><div class="s">${s}</div></div>` : '';
@@ -1420,7 +1409,6 @@ function renderRank() {
   for (const l of allPlanLessons()) (courses[l.te] ||= new Set()).add(l.c);
   const s = state.sort;
   rows.sort((a, b) => (+!!(b.n || b.cancel) - +!!(a.n || a.cancel)) || (b[s] - a[s]) || (b.n - a.n));
-  const max = Math.max(1, ...rows.map(r => Math.max(r.over, r.under)));
   lastRank = { rows: rows.filter(r => r.n || r.cancel), nm, s, sub: $('#rangeInfo').textContent };
   $('#rank').innerHTML = rows.map((r, i) => {
     const none = !r.n && !r.cancel, main = mainVal(r, s);
@@ -1428,7 +1416,6 @@ function renderRank() {
     return `<li class="row${none ? ' nodata' : ''}${ME() && !grp && !none ? ' click' : ''}" data-k="${esc(r.k)}">
       <span class="pos">${none ? '–' : pad(i + 1)}</span>
       <div class="who"><b>${nm(r.k)}</b><small>${esc(r.k)}${sub}</small></div>
-      <div class="div" title="${nm(r.k)}: ${mmss(r.under)} min unterzogen, ${mmss(r.over)} min überzogen"><span class="l" style="width:${r.under / max * 100}%"></span><span class="mid"></span><span class="r" style="width:${r.over / max * 100}%"></span></div>
       <div class="vals"><span class="num">${none ? '—' : main}</span><br>${r.n} Std · ${r.cancel} Ausf.</div></li>`;
   }).join('') || '<p class="muted">Noch keine Lehrer im Stundenplan.</p>';
 }
@@ -1715,6 +1702,7 @@ function record(L, mon, patch, msg) {
   w.e[L.key] = { s: 'ok', end: 0, late: 0, n: '', ...(old?.s === 'ok' ? old : {}), c: L.c, t: L.te, ...patch };
   if ('end' in patch) delete w.e[L.key].pend;
   if ('mbs' in patch && patch.mbs === undefined) delete w.e[L.key].mbs;
+  if (patch.end !== undefined && w.e[L.key].s === 'ok') Object.assign(w.e[L.key], noBreak(L, mon, w.e[L.key]));
   saveWeek(mk, 'e', L.key); render(); liveSig = ''; tickLive(); offerUndo(msg, mk, { [L.key]: before });
 }
 function allOnTime() {
@@ -1729,6 +1717,7 @@ function allOnTime() {
     w.e[l.key] = { s: 'ok', end: 0, late: 0, n: '', ...(old?.s === 'ok' ? old : {}), c: l.c, t: l.te, end: 0, ...breakStop(old, secOf(l.end)) };
     delete w.e[l.key].pend;
     if (w.e[l.key].mbs === undefined) delete w.e[l.key].mbs;
+    Object.assign(w.e[l.key], noBreak(l, mon, w.e[l.key]));
     saveWeek(mk, 'e', l.key);
   }
   render(); liveSig = ''; tickLive();
@@ -1861,6 +1850,7 @@ $('#lf').addEventListener('submit', e => {
   if (s === 'ok' && !$('#mbWrap').hidden) {
     if (raw) entry.mb = typeof old?.mb === 'number' && raw === timeIn(old.mb) ? old.mb : parseMmss(raw);
     else if (old?.mbs != null) entry.mbs = old.mbs;
+    else Object.assign(entry, noBreak(cur, state.mon, entry));
   }
   w.e[cur.key] = entry;
   saveWeek(mk, 'e', cur.key); $('#dlg').close(); render(); liveSig = ''; tickLive();

@@ -203,6 +203,8 @@
     body.me #rkListHead h2 { display: none; }
     body.me #rank { order: 5; margin-bottom: var(--space-6); }
     body.me #trend { order: 6; }
+    body.me #heat { order: 6; }
+    body.me #heat:empty { display: none; }
     body.me #awards { order: 7; }
     body.me #awards h3 { font-size: 16px; margin-bottom: 10px; }
     .rk-lead { order: 2; margin-bottom: var(--space-5); }
@@ -234,7 +236,23 @@
     .tlist { list-style: none; display: grid; gap: 4px; max-height: 240px; overflow: auto; font-size: var(--fs-sm); margin-top: 12px; }
     #tdBody .tiles { margin-bottom: 12px; }
     #tdBody p { font-size: var(--fs-sm); color: var(--ink-soft); max-width: none; }
+    #tdBody .bars { height: 90px; }
     .lesson .note.hw { color: var(--accent); font-style: normal; }
+    .note.hw.done, .hw.done span { text-decoration: line-through; color: var(--ink-faint); }
+    .hwlist { display: grid; gap: 8px; font-size: var(--fs-sm); margin-top: var(--space-4); }
+    .hwlist h3 { font-size: 16px; margin: 0; }
+    .hw { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
+    .hw input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px; flex: none; }
+    .hw small { color: var(--ink-soft); font-family: var(--font-mono); font-size: var(--fs-xs); margin-left: auto; }
+    .heat { display: grid; grid-template-columns: 44px repeat(5, minmax(0, 1fr)); gap: 2px; }
+    .hc-head { text-align: center; font-size: 11px; font-weight: 600; color: var(--ink-soft); padding: 4px 0; }
+    .hc-time { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; }
+    .hc { min-height: 34px; font-size: 12px; color: var(--ink); display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); font-family: var(--font-mono); font-weight: 500; }
+    .hc.pos { background: color-mix(in srgb, var(--danger) calc(var(--a) * 100%), transparent); }
+    .hc.neg { background: color-mix(in srgb, var(--success) calc(var(--a) * 100%), transparent); }
+    #ddEv { margin-top: 16px; }
+    #ddEv h4 { font-size: 15px; margin-bottom: 8px; }
+    #ddEv .row-btns { margin-top: 8px; }
     .evlist { list-style: none; display: grid; gap: 6px; }
     .evlist li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: var(--fs-sm); }
     .evlist .sp { flex: 1; }
@@ -270,6 +288,16 @@
     body.me .nav-links, body.me .legal-note, body.me .hint-tip, body.me .hint-sep { display: none; }
     body.me .site-nav--tool .nav-inner { justify-content: space-between; }
     #dayOff { display: none; }
+
+    @media (max-width: 520px) {
+      .hc { font-size: 11px; }
+      .set .f2 { grid-template-columns: 1fr; }
+      .evlist li { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; }
+      .evlist li .num { grid-column: 1 / -1; }
+      .evlist li .sp { display: none; }
+      #tdBody .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    }
+    .set .err:empty { display: none; }
 
     @media (max-width: 900px) {
       .ed-layout { grid-template-columns: 1fr; }
@@ -428,6 +456,7 @@
         <div class="daytabs" id="daytabs"></div>
         <div class="grid" id="grid"></div>
         <div class="weeksum" id="weeksum"></div>
+        <div class="hwlist" id="hwList" hidden></div>
         <p class="fine" style="margin-top:var(--space-2)"><span id="abfix">A/B-Woche stimmt nicht? <button class="linkbtn" id="flip">Ab dieser Woche tauschen</button><span class="hint-sep"> · </span></span><span class="hint-tip">Tipp auf einen Tag, um ihn schulfrei zu machen.</span><button type="button" class="linkbtn" id="dayOff"></button></p>
       </section>
 
@@ -440,11 +469,13 @@
             <button class="mode-btn active" data-range="all">Insgesamt</button>
             <button class="mode-btn" data-range="half">Halbjahr</button>
             <button class="mode-btn" data-range="month">Monat</button>
+            <button class="mode-btn" data-range="week">Woche</button>
           </div>
         </div>
         <div class="rk-lead" id="rkLead" hidden></div>
         <div class="tiles" id="tiles"></div>
         <div id="trend"></div>
+        <div id="heat"></div>
         <div id="awards"></div>
         <div class="rankhead" id="rkListHead">
           <h2>Rangliste</h2>
@@ -463,7 +494,7 @@
 
       <section id="viewSettings" class="settings" hidden>
         <div class="set"><h3>Konto</h3><p>Angemeldet als <b id="sUser"></b>. Deine Einträge werden mit dem Konto gespeichert und sind auf allen Geräten gleich.</p>
-          <div class="row-btns"><button class="btn btn-secondary" id="sLogout">Abmelden</button><button class="btn btn-ghost" id="sExport">Daten exportieren</button></div></div>
+          <div class="row-btns"><button class="btn btn-secondary" id="sLogout">Abmelden</button><button class="btn btn-ghost" id="sExport">Daten exportieren</button><button class="btn btn-ghost" id="sImport">Daten importieren</button><input type="file" id="sImportFile" accept="application/json,.json" hidden></div></div>
         <div class="set"><h3>Stundenplan</h3><p id="sPlanInfo"></p>
           <div class="row-btns"><button class="btn btn-secondary" id="sEdit">Bearbeiten</button><button class="btn btn-ghost" id="sReupload">Neu hochladen</button></div></div>
         <div class="set" id="sEv" hidden><h3>Termine</h3><p>Klausuren, Abgaben und alles mit Datum. Sie stehen im Stundenplan über dem Tag und oben mit Countdown.</p>
@@ -594,6 +625,15 @@
         <label class="lbl" for="ddReason">Grund</label>
         <input class="inp" type="text" id="ddReason" list="reasons" maxlength="40" placeholder="Beweglicher Ferientag">
         <datalist id="reasons"><option>Beweglicher Ferientag</option><option>Wandertag</option><option>Pädagogischer Tag</option><option>Klausurtag</option><option>Exkursion</option><option>Krank</option></datalist>
+      </div>
+      <div id="ddEv" hidden>
+        <h4>Termine</h4>
+        <ul class="evlist" id="ddEvList"></ul>
+        <div class="row-btns">
+          <input class="inp" type="time" id="ddEvT" aria-label="Uhrzeit (optional)" style="width:auto">
+          <input class="inp" id="ddEvN" maxlength="40" placeholder="z. B. Mathe-Klausur" style="flex:1;min-width:140px">
+          <button type="button" class="btn btn-secondary" id="ddEvAdd">Hinzufügen</button>
+        </div>
       </div>
       <div class="actions">
         <button type="button" class="btn btn-ghost" id="ddClear">Wieder Schultag</button>
@@ -728,6 +768,10 @@ const today0 = now();
 const state = { token: lsGet('pk-token'), username: '', profile: blankProfile(), weeks: {}, holidays: [],
   view: 'week', sort: 'over', range: 'all', scope: 'me', grp: null, navigated: false,
   mon: mondayOf(today0), day: today0.getDay() >= 1 && today0.getDay() <= 5 ? today0.getDay() - 1 : 0 };
+const ui = lsGet('pk-ui') || {};
+if (['week', 'rank', 'settings'].includes(ui.view)) state.view = ui.view;
+if (['over', 'under', 'net', 'avg', 'late', 'cancel'].includes(ui.sort)) state.sort = ui.sort;
+if (['all', 'half', 'month', 'week'].includes(ui.range)) state.range = ui.range;
 const P = () => state.profile;
 const ME = () => state.username === 'spanani'; // Extras nur für das Konto des Betreibers, alle anderen sehen die normale Seite
 
@@ -781,6 +825,23 @@ function breakBook(ls, ent) {
     if (e?.s === 'ok' && typeof e.mb === 'number') { plan += MB_LEN; stolen += Math.min(MB_LEN, Math.max(0, MB_LEN - e.mb)); }
   });
   return { plan, stolen };
+}
+function heatCells(items) {
+  const byKey = {}, rowSet = new Set();
+  for (const it of items) {
+    rowSet.add(it.s);
+    (byKey[it.d + '|' + it.s] ||= []).push(it.v);
+  }
+  const rows = [...rowSet].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  const cells = {};
+  let max = 0;
+  for (const [k, vs] of Object.entries(byKey)) {
+    const avg = vs.reduce((a, b) => a + b, 0) / vs.length;
+    cells[k] = { avg, n: vs.length };
+    const abs = Math.abs(avg);
+    if (abs > max) max = abs;
+  }
+  return { rows, cells, max };
 }
 const teacherName = te => P().teachers[te] || '';
 const teacherLabel = te => teacherName(te) ? `${te} (${teacherName(te)})` : te;
@@ -848,6 +909,7 @@ const fmtS = s => { s = Math.max(0, Math.floor(s)); const h = Math.floor(s / 360
 // Beginn des gewählten Zeitraums für die Rangliste ('' = alles). Halbjahre: August–Januar, Februar–Juli.
 function rangeFrom() {
   const n = now(), y = n.getFullYear(), m = n.getMonth();
+  if (state.range === 'week') return iso(mondayOf(now()));
   if (state.range === 'month') return iso(new Date(y, m, 1));
   if (state.range === 'half') return iso(m >= 7 ? new Date(y, 7, 1) : m === 0 ? new Date(y - 1, 7, 1) : new Date(y, 1, 1));
   return '';
@@ -1297,7 +1359,7 @@ function gridHtml({ mon, lessons, preview, teachers }) {
         else badge = `<span class="b ${netOf(e) > 0 ? 'over' : netOf(e) < 0 ? 'early' : 'zero'}">${sgn(netOf(e))}</span>${e.late ? `<span class="note">${mmss(e.late)} spät</span>` : ''}`;
         if (e?.n) badge = `<span class="note">${esc(e.n)}</span>` + badge;
         if (e && mbNote(e)) badge = `<span class="note">${mbNote(e)}</span>` + badge;
-        for (const x of (P().events || []).filter(x => x.k === L.key && x.d === ds)) badge = `<span class="note hw">${esc(x.n.replace(/^HA [^:]*:/, 'HA:'))}</span>` + badge;
+        for (const x of (P().events || []).filter(x => x.k === L.key && x.d === ds)) badge = `<span class="note hw${x.done ? ' done' : ''}">${esc(x.n.replace(/^HA [^:]*:/, 'HA:'))}</span>` + badge;
         if (ds === td && nm >= s - 5 && nm <= en + 15 && (!e || e.s === 'ok')) cls += ' live';
       } else badge = `<span class="t num">${L.start}–${L.end}</span>`;
       const idx = preview ? editing.draft.plans[editing.v].findIndex(x => x.d === L.d && x.s === L.s) : -1;
@@ -1332,6 +1394,30 @@ function renderWeek() {
     else if (e?.s === 'ok') { over += overOf(e); under += earlyOf(e); late += e.late || 0; }
   }
   $('#weeksum').innerHTML = `<span>${mk === iso(mondayOf(now())) ? 'Diese Woche' : 'Woche'}: <b>${sgn(over)}</b> min überzogen</span><span><b>${mmss(under)}</b> min unterzogen</span><span><b>${mmss(late)}</b> min zu spät</span><span><b>${canc}</b> ${canc === 1 ? 'Ausfall' : 'Ausfälle'}</span>${open ? `<span><b>${open}</b> noch nicht eingetragen</span>` : ''}`;
+  const hwEl = $('#hwList');
+  if (hwEl) {
+    if (!ME()) {
+      hwEl.hidden = true;
+      hwEl.innerHTML = '';
+    } else {
+      const hwItems = (P().events || [])
+        .map((x, i) => ({ x, i }))
+        .filter(({ x }) => x.k && (!x.done || x.d >= td))
+        .sort((a, b) => byWhen(a.x, b.x));
+      if (!hwItems.length) {
+        hwEl.hidden = true;
+        hwEl.innerHTML = '';
+      } else {
+        hwEl.hidden = false;
+        hwEl.innerHTML = '<h3>Hausaufgaben</h3>' + hwItems.map(({ x, i }) => {
+          const d = fromIso(x.d);
+          const wd = DAYS[(d.getDay() + 6) % 7];
+          const text = x.n.replace(/^HA /, 'Hausaufgabe ');
+          return `<label class="hw${x.done ? ' done' : ''}"><input type="checkbox" data-hw="${i}"${x.done ? ' checked' : ''}> <span>${esc(text)}</span> <small>für ${wd} ${fmtD(d)}</small></label>`;
+        }).join('');
+      }
+    }
+  }
 }
 
 // Gruppen-Rangliste vom Server; from passt zum gewählten Zeitraum
@@ -1360,10 +1446,40 @@ function trendHtml(from) {
     <div class="bars">${ks.map(k => `<div title="Woche ab ${fmtD(fromIso(k))}: ${mmss(wk[k].over)} min überzogen${ME() ? `, ${mmss(wk[k].late)} min zu spät` : ''}">${k === top ? `<b>${sgn(max)}</b>` : ''}<i style="height:${wk[k].over / max * 100}%"></i></div>`).join('')}</div>
     <div class="blabels">${ks.map(k => `<span>${fmtD(fromIso(k))}</span>`).join('')}</div></div>`;
 }
+function heatHtml(from) {
+  const items = [];
+  for (const [mk, w] of Object.entries(state.weeks)) for (const [key, e] of Object.entries(w.e || {})) {
+    const parts = key.split('-');
+    const d = +parts[0], s = parts[1];
+    const ds = iso(addDays(fromIso(mk), d));
+    if (e.s !== 'ok' || e.pend || ds < from || offReason(ds)) continue;
+    items.push({ d, s, v: netOf(e) });
+  }
+  if (items.length < 5) return '';
+  const { rows, cells, max } = heatCells(items);
+  if (!rows.length) return '';
+  let out = '<div class="trend"><h3>Wann wird überzogen</h3><div class="heat">';
+  out += '<span></span>' + DAYS.map(d => `<span class="hc-head">${d}</span>`).join('');
+  for (const s of rows) {
+    out += `<span class="hc-time">${s}</span>`;
+    for (let d = 0; d < 5; d++) {
+      const c = cells[d + '|' + s];
+      if (!c) { out += '<div class="hc"></div>'; continue; }
+      const a = max > 0 ? (0.12 + 0.5 * Math.abs(c.avg) / max).toFixed(3) : '0.12';
+      const cls = c.avg > 0 ? ' pos' : c.avg < 0 ? ' neg' : '';
+      const title = `${c.n} ${c.n === 1 ? 'Stunde' : 'Stunden'}`;
+      out += `<div class="hc${cls}" style="--a:${a}" title="${title}">${sgn(c.avg)}</div>`;
+    }
+  }
+  out += '</div></div>';
+  return out;
+}
 const mainVal = (r, s) => s === 'avg' ? sgn(r.avg) : s === 'cancel' ? String(r.cancel) : s === 'late' ? mmss(r.late) + ' min' : s === 'net' ? sgn(r.net) : s === 'under' ? '−' + mmss(r.under) : '+' + mmss(r.over);
 let lastRank = null; // für „Als Bild teilen“
 function renderRank() {
   $('#rkLead').hidden = $('#rkFoot').hidden = !ME();
+  $$('#sorts button').forEach(b => b.classList.toggle('active', b.dataset.sort === state.sort));
+  $$('#ranges button').forEach(b => b.classList.toggle('active', b.dataset.range === state.range));
   const from = rangeFrom(), grp = state.scope === 'group' && state.grp?.group;
   if (grp && state.grp.from !== from) loadGroup(from);
   const { rows, rec } = grp ? { rows: state.grp.rows.map(derive), rec: null } : stats();
@@ -1371,6 +1487,7 @@ function renderRank() {
   $$('#scope button').forEach(b => b.classList.toggle('active', b.dataset.scope === (grp ? 'group' : 'me')));
   $('#rangeInfo').textContent = (grp ? `${grp.name} · ${state.grp.members.length} Mitglieder · ` : '') + (from ? `Seit ${fmtD(fromIso(from))}${from.slice(0, 4)}` : 'Alle Einträge');
   $('#trend').innerHTML = ME() && !grp ? trendHtml(from) : '';
+  $('#heat').innerHTML = ME() && !grp ? heatHtml(from) : '';
   const sum = f => rows.reduce((a, r) => a + r[f], 0);
   const tracked = sum('n'), skips = sum('skip');
   $('#tiles').innerHTML = `
@@ -1425,11 +1542,31 @@ function openTeacher(k) {
   const worst = ok.filter(e => overOf(e) > 0).sort((a, b) => overOf(b) - overOf(a))[0];
   const byDay = DAYS.map((n, d) => { const x = ok.filter(e => e.d === d); return x.length ? `${n} ${sgn(x.reduce((a, e) => a + netOf(e), 0) / x.length)}` : ''; }).filter(Boolean).join(' · ');
   const tile = (key, v, s) => `<div class="tile"><div class="k">${key}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  const mbs = ok.filter(e => typeof e.mb === 'number');
+  const byCourse = {};
+  for (const e of ok) if (e.c) (byCourse[e.c] ||= []).push(e);
+  const cKeys = Object.keys(byCourse);
+  const byCourseHtml = cKeys.length > 1 ? '<p>Nach Kurs: ' + cKeys.map(c => {
+    const list = byCourse[c];
+    return `${esc(c)} ${sgn(list.reduce((a, e) => a + netOf(e), 0) / list.length)} (${list.length})`;
+  }).join(' · ') + '</p>' : '';
+  const last10 = ok.slice(0, 10).reverse();
+  let barsHtml = '';
+  if (last10.length >= 3) {
+    const maxOver = Math.max(1 / 60, ...last10.map(e => overOf(e)));
+    const topOver = last10.find(e => overOf(e) === maxOver);
+    barsHtml = `<div class="trend"><div class="bars">${last10.map(e => {
+      const ov = overOf(e);
+      return `<div title="${fmtD(fromIso(e.ds))}: ${mmss(ov)} min überzogen">${e === topOver && ov > 0 ? `<b>${sgn(maxOver)}</b>` : ''}<i style="height:${Math.max(0, ov) / maxOver * 100}%"></i></div>`;
+    }).join('')}</div><div class="blabels">${last10.map(e => `<span>${fmtD(fromIso(e.ds))}</span>`).join('')}</div></div>`;
+  }
   $('#tdTitle').textContent = teacherName(k) || k;
   $('#tdMeta').textContent = [k, ...new Set(allPlanLessons().filter(l => l.te === k).map(l => l.c))].join(' · ');
-  $('#tdBody').innerHTML = `<div class="tiles">${tile('Ø Schluss', sgn(avg(e => netOf(e))), 'min pro Stunde')}${tile('Ø zu spät', mmss(avg(e => e.late || 0)), 'min pro Stunde')}${tile('Erfasst', ok.length, `Stunden · ${es.filter(e => e.s === 'cancelled').length} Ausf.`)}</div>
+  $('#tdBody').innerHTML = `<div class="tiles">${tile('Ø Schluss', sgn(avg(e => netOf(e))), 'min pro Stunde')}${tile('Ø zu spät', mmss(avg(e => e.late || 0)), 'min pro Stunde')}${tile('Erfasst', ok.length, `Stunden · ${es.filter(e => e.s === 'cancelled').length} Ausf.`)}${ok.length ? tile('Überzogen', Math.round(100 * ok.filter(e => overOf(e) > 0).length / ok.length) + ' %', 'der Stunden') : ''}${mbs.length ? tile('Ø Pause', mmss(mbs.reduce((a, e) => a + e.mb, 0) / mbs.length), 'von 5:00') : ''}</div>
     ${worst ? `<p>Schlimmste Stunde: <b>${sgn(overOf(worst))} min</b> in ${esc(worst.c)} am ${fmtD(fromIso(worst.ds))}</p>` : ''}
     ${byDay ? `<p>Ø nach Wochentag: ${byDay}</p>` : ''}
+    ${byCourseHtml}
+    ${barsHtml}
     <ul class="tlist">${es.map(e => `<li><span class="num">${fmtD(fromIso(e.ds))}</span> ${esc(e.c)} · ${e.s === 'cancelled' ? 'Ausfall' : e.s === 'skipped' ? 'geskippt' : `${e.pend ? 'Ende offen' : sgn(netOf(e)) + ' min'}${e.late ? ` · ${mmss(e.late)} spät` : ''}${mbNote(e) ? ' · ' + mbNote(e) : ''}`}${e.n ? ` · <i>${esc(e.n)}</i>` : ''}</li>`).join('')}</ul>`;
   $('#tdlg').showModal();
 }
@@ -1511,6 +1648,7 @@ function renderSettings() {
 }
 
 function render() {
+  lsSet('pk-ui', { view: state.view, sort: state.sort, range: state.range });
   $('#live').hidden = ME() && state.view !== 'week';
   for (const v of ['week', 'rank', 'settings']) $('#view' + v[0].toUpperCase() + v.slice(1)).hidden = state.view !== v;
   $$('#tabs [data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
@@ -1534,7 +1672,7 @@ function countdowns() {
   if (last) out.push(['Wochenende in', finish(last)]);
   const hol = state.holidays.filter(([a, b]) => b > a && b >= ds).sort((x, y) => x[0] < y[0] ? -1 : 1)[0];
   if (hol) out.push(hol[0] <= ds ? [hol[2] + ' noch', addDays(fromIso(hol[1]), 1)] : [hol[2] + ' in', fromIso(hol[0])]);
-  const evs = (P().events || []).map(x => ({ x, t: at(x.d, x.t) })).filter(v => v.t > n).sort((a, b) => a.t - b.t);
+  const evs = (P().events || []).filter(x => !(x.k && x.done)).map(x => ({ x, t: at(x.d, x.t) })).filter(v => v.t > n).sort((a, b) => a.t - b.t);
   for (const v of [evs.find(v => !v.x.k), evs.find(v => v.x.k)]) if (v) out.push([v.x.n + ' in', v.t]);
   return out;
 }
@@ -1572,7 +1710,7 @@ function freeInfo(n) {
   const nx = nextSchoolDay(n);
   if (nx) {
     lines.push(`${nx.label}: ${esc(nx.first.c)} um ${nx.first.start}${nx.first.r ? ', Raum ' + esc(nx.first.r) : ''}`);
-    for (const x of (P().events || []).filter(x => x.d === nx.ds)) lines.push(esc(x.k ? x.n.replace(/^HA /, 'Hausaufgabe ') : 'Termin: ' + x.n));
+    for (const x of (P().events || []).filter(x => x.d === nx.ds && !(x.k && x.done))) lines.push(esc(x.k ? x.n.replace(/^HA /, 'Hausaufgabe ') : 'Termin: ' + x.n));
   }
   return { lines, acts: open.length ? `<button type="button" class="btn btn-primary" data-act="openfirst" data-key="${open[0].key}">Eintragen</button>${open.length > 1 ? '<button type="button" class="btn btn-ghost" data-act="allontime">Alle pünktlich</button>' : ''}` : '' };
 }
@@ -1898,7 +2036,32 @@ $('#chf').addEventListener('submit', e => { e.preventDefault(); setChange($('#ch
 $('#chClear').onclick = () => setChange('', '');
 
 // ---------- Tag schulfrei ----------
-let curDay = null;
+let curDay = null, ddEditEv = null;
+function renderDdEv() {
+  if (!ME() || !curDay) return;
+  const items = (P().events || []).map((x, i) => ({ x, i })).filter(({ x }) => x.d === curDay && !x.k);
+  $('#ddEvList').innerHTML = items.map(({ x, i }) => `<li>${x.t ? `<span class="num">${x.t}</span> ` : ''}<b>${esc(x.n)}</b><span class="sp"></span><button type="button" class="linkbtn" data-ev="${i}" data-act="edit">Ändern</button><button type="button" class="linkbtn" data-ev="${i}" data-act="del">Löschen</button></li>`).join('') || '<li class="fine">Keine Termine an diesem Tag.</li>';
+}
+function addOrSaveDdEv() {
+  const n = $('#ddEvN').value.trim();
+  if (!n) return;
+  const t = $('#ddEvT').value;
+  if (ddEditEv) {
+    ddEditEv.t = t;
+    ddEditEv.n = n;
+    ddEditEv = null;
+    $('#ddEvAdd').textContent = 'Hinzufügen';
+  } else {
+    P().events = [...(P().events || []), { d: curDay, t, n }];
+  }
+  P().events.sort(byWhen);
+  $('#ddEvT').value = '';
+  $('#ddEvN').value = '';
+  saveProfile();
+  renderDdEv();
+  render();
+  liveSig = '';
+}
 function openDay(ds) {
   curDay = ds;
   const b = builtinOff(ds), c = customOff(ds), d = fromIso(ds);
@@ -1907,6 +2070,12 @@ function openDay(ds) {
   $('#ddEdit').hidden = $('#ddSave').hidden = !!b;
   $('#ddClear').hidden = !c || !!b;
   $('#ddReason').value = c || '';
+  $('#ddEv').hidden = !ME() || !!b;
+  ddEditEv = null;
+  $('#ddEvT').value = '';
+  $('#ddEvN').value = '';
+  $('#ddEvAdd').textContent = 'Hinzufügen';
+  renderDdEv();
   $('#ddlg').showModal();
 }
 function setDayOff(reason) {
@@ -1917,6 +2086,55 @@ function setDayOff(reason) {
 $('#df').addEventListener('submit', e => { e.preventDefault(); setDayOff($('#ddReason').value.trim().slice(0, 40) || 'Schulfrei'); });
 $('#ddClear').addEventListener('click', () => setDayOff(null));
 $$('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+$('#ddEvAdd').onclick = addOrSaveDdEv;
+$('#ddEvN').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addOrSaveDdEv();
+  }
+});
+$('#ddEvT').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    $('#ddEvN').focus();
+  }
+});
+$('#ddEvList').addEventListener('click', e => {
+  const b = e.target.closest('[data-ev]'); if (!b) return;
+  const idx = +b.dataset.ev;
+  if (b.dataset.act === 'edit' || b.textContent === 'Ändern') {
+    const ev = P().events?.[idx];
+    if (!ev) return;
+    ddEditEv = ev;
+    $('#ddEvT').value = ev.t || '';
+    $('#ddEvN').value = ev.n || '';
+    $('#ddEvAdd').textContent = 'Speichern';
+    $('#ddEvN').focus();
+  } else if (b.dataset.act === 'del' || b.textContent === 'Löschen') {
+    if (ddEditEv === P().events?.[idx]) {
+      ddEditEv = null;
+      $('#ddEvT').value = '';
+      $('#ddEvN').value = '';
+      $('#ddEvAdd').textContent = 'Hinzufügen';
+    }
+    P().events.splice(idx, 1);
+    saveProfile();
+    renderDdEv();
+    render();
+    liveSig = '';
+  }
+});
+$('#hwList').addEventListener('change', e => {
+  const cb = e.target.closest('input[data-hw]');
+  if (!cb) return;
+  const ev = P().events?.[+cb.dataset.hw];
+  if (ev) {
+    ev.done = !ev.done;
+    saveProfile();
+    render();
+    liveSig = '';
+  }
+});
 
 // ---------- Navigation ----------
 $('#grid').addEventListener('click', e => {
@@ -1964,6 +2182,36 @@ $('#sExport').onclick = () => {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = `pausenklau-${state.username}-${todayIso()}.json`;
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('#sImport').onclick = () => $('#sImportFile').click();
+$('#sImportFile').onchange = async e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    let d;
+    try { d = JSON.parse(text); } catch { return toast('Das ist keine gültige Pausenklau-Datei.'); }
+    if (!d || d.app !== 'pausenklau' || !d.profile || typeof d.profile !== 'object' || Array.isArray(d.profile) || !d.weeks || typeof d.weeks !== 'object' || Array.isArray(d.weeks)) {
+      return toast('Das ist keine gültige Pausenklau-Datei.');
+    }
+    const n = Object.keys(d.weeks).length;
+    if (!confirm('Stundenplan und die ' + n + ' Wochen aus der Datei überschreiben deine aktuellen Daten. Fortfahren?')) return;
+    state.profile = { ...blankProfile(), ...d.profile, v: d.profile.v || 3 };
+    state.weeks = { ...state.weeks, ...d.weeks };
+    migrateV2(state.profile, state.weeks);
+    saveGen++;
+    pending.profile = true;
+    Object.keys(d.weeks).forEach(mk => pending.weeks.set(mk, null));
+    cacheLocal();
+    flush();
+    state.holidays = [];
+    loadHolidays();
+    render();
+    liveSig = '';
+    toast('Daten importiert');
+  } finally {
+    e.target.value = '';
+  }
 };
 $('#sEdit').onclick = () => openEditor({ plans: structuredClone({ A: P().plans.A, B: P().plans.B || [] }), teachers: structuredClone(P().teachers) }, {});
 $('#sReupload').onclick = () => { ob.results = {}; ob.reupload = true; $('#onb').dataset.ready = '1'; show(); goStep(3); };

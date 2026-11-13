@@ -37,10 +37,11 @@ ${extractFn('mergeWeek')}
 ${extractFn('plansAt')}
 ${extractFn('dayNow')}
 ${extractFn('breakBook')}
-return { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, secOf, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote, breakStop, plansAt, dayNow, breakBook };
+${extractFn('heatCells')}
+return { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, secOf, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote, breakStop, plansAt, dayNow, breakBook, heatCells };
 `)();
 
-const { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, secOf, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote, breakStop, plansAt, dayNow, breakBook } = fns;
+const { pad, mmss, sgn, timeIn, parseMmss, mergeWeek, toMin, secOf, MB_LEN, MB_DOUBLE, MB_NOON, MB_GAP, hasMidBreak, pauseDiff, netOf, overOf, earlyOf, mbNote, breakStop, plansAt, dayNow, breakBook, heatCells } = fns;
 
 // 1. Roundtrip for every integer s from -18000 to 18000
 for (let s = -18000; s <= 18000; s++) {
@@ -296,6 +297,38 @@ assert.deepEqual(breakStop({}, 300), {});
   res = breakBook([], ent({}));
   assert.strictEqual(res.plan, 0);
   assert.ok(Math.abs(res.stolen - 0) < 1e-9);
+}
+
+// 16. heatCells
+{
+  // empty input gives {rows: [], cells: {}, max: 0}
+  assert.deepEqual(heatCells([]), { rows: [], cells: {}, max: 0 });
+
+  // two items same cell average correctly
+  const r1 = heatCells([
+    { d: 0, s: '08:00', v: 2 },
+    { d: 0, s: '08:00', v: 6 },
+  ]);
+  assert.strictEqual(r1.cells['0|08:00'].avg, 4);
+  assert.strictEqual(r1.cells['0|08:00'].n, 2);
+  assert.strictEqual(r1.max, 4);
+  assert.deepEqual(r1.rows, ['08:00']);
+
+  // rows sorted
+  const r2 = heatCells([
+    { d: 1, s: '11:40', v: 1 },
+    { d: 0, s: '08:00', v: 2 },
+    { d: 2, s: '09:50', v: 3 },
+  ]);
+  assert.deepEqual(r2.rows, ['08:00', '09:50', '11:40']);
+
+  // max is the largest abs average
+  const r3 = heatCells([
+    { d: 0, s: '08:00', v: -5 },
+    { d: 1, s: '08:00', v: 3 },
+    { d: 2, s: '08:00', v: -1 },
+  ]);
+  assert.strictEqual(r3.max, 5);
 }
 
 console.log('ok');

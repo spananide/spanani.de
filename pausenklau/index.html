@@ -68,7 +68,7 @@
     .inp { width: 100%; background: var(--paper-sunk); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink); font: inherit; font-size: 16px; padding: 10px 12px; min-height: 44px; }
     .inp:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
     select.inp { appearance: auto; }
-    .lbl { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+    .lbl { display: block; font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); margin-bottom: 6px; }
     .choice { display: grid; gap: 8px; }
     .choice label { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-radius: var(--radius-md); padding: 14px 16px; cursor: pointer; background: var(--paper); }
     .choice label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
@@ -127,7 +127,7 @@
     .arrow { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-sm); width: 38px; height: 38px; cursor: pointer; color: var(--ink-soft); font-size: 18px; }
     .arrow:hover { color: var(--ink); border-color: var(--line-strong); }
     .range { font-family: var(--font-mono); font-weight: 500; font-size: 15px; }
-    .chip { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: var(--radius-pill); border: 1px solid var(--line); color: var(--ink-soft); }
+    .chip { font-family: var(--font-mono); font-size: 12px; padding: 4px 10px; border-radius: var(--radius-pill); border: 1px solid var(--line); color: var(--ink-soft); }
     .chip.a { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.4); background: var(--accent-soft); }
     .wnav .btn { margin-left: auto; padding: 8px 16px; min-height: 38px; }
     .weeksum { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: var(--space-4); font-size: var(--fs-sm); color: var(--ink-soft); }
@@ -165,14 +165,14 @@
     .lesson.cancelled .c { text-decoration: line-through; color: var(--ink-faint); }
     .lesson.skipped { opacity: 0.5; border-left-style: dashed; }
     .lesson.open { border-left-color: var(--line-strong); }
-    .lesson.live { border-color: var(--accent); border-left-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 6px 18px rgba(var(--accent-rgb), 0.22); }
+    .lesson.live { border-color: var(--accent); border-left-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
     .lesson.live .b { color: var(--accent); }
     .lesson.preview { border-left-color: var(--accent); }
 
     /* Rangliste */
     .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: var(--space-5); }
     .tile { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 16px 18px; box-shadow: var(--shadow-sm); }
-    .tile .k, .award .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+    .tile .k, .award .k { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); }
     .tile .v { font-family: var(--font-mono); font-weight: 500; font-size: 34px; line-height: 1.1; margin-top: 6px; letter-spacing: -0.02em; }
     .tile .v small { font-family: var(--font-sans); font-size: 13px; color: var(--ink-faint); margin-left: 4px; letter-spacing: 0; }
     .tile .s { font-size: var(--fs-xs); color: var(--ink-soft); }
@@ -295,8 +295,6 @@
     }
     @media (max-width: 420px) { body.me #lf .actions { gap: 6px; padding-inline: 16px; } body.me #lf .actions .btn { padding-inline: 8px; flex: none; } }
     @media (max-width: 340px) { body.me #lf .actions { flex-wrap: wrap; } }
-    @media (prefers-reduced-motion: no-preference) { .lesson.live { animation: livePulse 2.4s ease-in-out infinite; } }
-    @keyframes livePulse { 50% { box-shadow: 0 0 0 1px var(--accent), 0 0 0 5px var(--accent-soft); } }
   </style>
 </head>
 <body>
@@ -1702,8 +1700,9 @@ function record(L, mon, patch, msg) {
   w.e[L.key] = { s: 'ok', end: 0, late: 0, n: '', ...(old?.s === 'ok' ? old : {}), c: L.c, t: L.te, ...patch };
   if ('end' in patch) delete w.e[L.key].pend;
   if ('mbs' in patch && patch.mbs === undefined) delete w.e[L.key].mbs;
-  if (patch.end !== undefined && w.e[L.key].s === 'ok') Object.assign(w.e[L.key], noBreak(L, mon, w.e[L.key]));
-  saveWeek(mk, 'e', L.key); render(); liveSig = ''; tickLive(); offerUndo(msg, mk, { [L.key]: before });
+  let nb = {};
+  if (patch.end !== undefined && w.e[L.key].s === 'ok') Object.assign(w.e[L.key], nb = noBreak(L, mon, w.e[L.key]));
+  saveWeek(mk, 'e', L.key); render(); liveSig = ''; tickLive(); offerUndo(nb.mb === 0 ? msg + ' · Keine Pause: +5:00 min' : msg, mk, { [L.key]: before });
 }
 function allOnTime() {
   const n = now(), mon = mondayOf(n), mk = iso(mon), ds = iso(n), w = editWeek(mk);

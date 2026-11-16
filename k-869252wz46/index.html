@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#0f0d14">
+  <title>Kosher-Scanner</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231fbf6a'/%3E%3Cpath d='M7 8v16M10 8v16M14 8v16M16 8v16M20 8v16M23 8v16M25 8v16' stroke='%230f0d14' stroke-width='1.6'/%3E%3C/svg%3E">
+  <style>
+    @font-face { font-family: "Bricolage Grotesque"; src: url("/assets/fonts/bricolage-grotesque-var.woff2") format("woff2"); font-weight: 200 800; font-display: swap; }
+    @font-face { font-family: "Atkinson Hyperlegible Next"; src: url("/assets/fonts/atkinson-next-var.woff2") format("woff2"); font-weight: 200 800; font-display: swap; }
+    @font-face { font-family: "Atkinson Hyperlegible Mono"; src: url("/assets/fonts/atkinson-mono-var.woff2") format("woff2"); font-weight: 200 800; font-display: swap; }
+
+    :root {
+      --bg: #0f0d14;
+      --surface: #1b1724;
+      --surface-2: #261f33;
+      --line: #2e2739;
+      --ink: #f4f1f9;
+      --ink-soft: #aaa3b8;
+      --ok: #1fbf6a;
+      --ok-deep: #0a3a22;
+      --ok-ink: #e9fff2;
+      --bad: #e8202a;
+      --bad-deep: #3a070a;
+      --warn: #ffd23f;
+      --tape-dark: #121016;
+      --accent: #b892f2;
+      --radius-sm: 8px;
+      --radius-lg: 18px;
+      --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+      --font-sans: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+      --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, input { font: inherit; color: inherit; }
+    [hidden] { display: none !important; }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: max(20px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
+      display: grid;
+      gap: 20px;
+    }
+
+    .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-weight: 760;
+      font-size: 34px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+    .top p { margin: 6px 0 0; color: var(--ink-soft); }
+    .sound {
+      flex: none;
+      min-height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .sound:hover { color: var(--ink); }
+
+    .btn {
+      min-height: 48px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      color: var(--ink);
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--ok); color: var(--bg); }
+    .btn-primary:hover { background: #33d27d; }
+    .btn:disabled { opacity: .6; cursor: default; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    /* Viewfinder */
+    .viewfinder {
+      position: relative;
+      aspect-ratio: 4 / 3.4;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .viewfinder video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .viewfinder.live video { opacity: 1; }
+    .frame {
+      position: absolute;
+      inset: 26% 9%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .viewfinder.live .frame { opacity: 1; }
+    .frame i {
+      position: absolute;
+      width: 28px; height: 28px;
+      border: 4px solid var(--ok);
+    }
+    .frame i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; border-top-left-radius: 8px; }
+    .frame i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; border-top-right-radius: 8px; }
+    .frame i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; border-bottom-left-radius: 8px; }
+    .frame i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; border-bottom-right-radius: 8px; }
+    .laser {
+      position: absolute;
+      left: 6px; right: 6px; top: 0;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--bad);
+      animation: laser 1.6s ease-in-out infinite alternate;
+    }
+    @keyframes laser { to { top: calc(100% - 3px); } }
+
+    .vf-idle {
+      position: absolute; inset: 0;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      gap: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .viewfinder.live .vf-idle { display: none; }
+    .vf-idle svg { width: 96px; height: 64px; color: var(--ink-soft); }
+    .vf-msg { margin: 0; max-width: 30ch; color: var(--ink-soft); font-size: 14px; min-height: 1.5em; }
+    .vf-hint {
+      position: absolute; left: 0; right: 0; bottom: 14px;
+      margin: 0;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      pointer-events: none;
+    }
+    .vf-hint span { background: rgb(0 0 0 / .55); padding: 4px 10px; border-radius: 999px; }
+    .vf-close {
+      position: absolute; top: 10px; right: 10px;
+      width: 44px; height: 44px;
+      border: 0; border-radius: 999px;
+      background: rgb(0 0 0 / .55);
+      color: #fff;
+      font-size: 26px; line-height: 1;
+      cursor: pointer;
+    }
+
+    /* Entry */
+    .entry label { display: block; font-weight: 700; margin-bottom: 8px; }
+    .entry .row { display: flex; gap: 8px; }
+    .entry input {
+      flex: 1;
+      min-width: 0;
+      min-height: 48px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+    }
+    .entry input::placeholder { color: var(--ink-soft); }
+    .entry input:focus { border-color: var(--accent); outline: none; }
+
+    /* History */
+    .history-head { display: flex; align-items: baseline; justify-content: space-between; }
+    .history h2 { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+    .linkish { border: 0; background: none; color: var(--ink-soft); cursor: pointer; font-size: 14px; padding: 8px 0; }
+    .linkish:hover { color: var(--ink); }
+    .history ul { list-style: none; margin: 8px 0 0; padding: 0; }
+    .history li + li { border-top: 1px solid var(--line); }
+    .history li button {
+      width: 100%;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0;
+      border: 0; background: none;
+      text-align: left;
+      cursor: pointer;
+    }
+    .dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--ok); }
+    .dot.bad { background: var(--bad); }
+    .h-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .h-verdict { flex: none; color: var(--ink-soft); font-size: 14px; }
+
+    .foot { color: var(--ink-soft); font-size: 13px; margin: 0; }
+    .foot a { color: var(--ink-soft); }
+
+    /* Checking */
+    .checking {
+      position: fixed; inset: 0; z-index: 20;
+      display: grid; place-content: center; justify-items: center; gap: 22px;
+      background: var(--bg);
+      text-align: center;
+      padding: 24px;
+    }
+    .bars { display: flex; gap: 5px; height: 72px; align-items: stretch; }
+    .bars span {
+      width: 6px;
+      background: var(--ink);
+      border-radius: 1px;
+      animation: bar .6s ease-in-out infinite alternate;
+      animation-delay: calc(var(--i) * -90ms);
+    }
+    .bars span:nth-child(3n) { width: 3px; }
+    .bars span:nth-child(4n+1) { width: 9px; }
+    @keyframes bar { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
+    .checking p { margin: 0; font-family: var(--font-display); font-size: 22px; font-weight: 650; min-height: 1.4em; }
+
+    /* Verdict */
+    .verdict {
+      position: fixed; inset: 0; z-index: 30;
+      display: grid; place-items: center;
+      overflow: hidden;
+      text-align: center;
+      padding: 24px 20px max(24px, env(safe-area-inset-bottom));
+    }
+    .verdict.is-ok { background: var(--ok-deep); color: var(--ok-ink); }
+    .verdict.is-bad { background: var(--bad-deep); color: #fff; }
+    .verdict.is-ok.run { animation: reveal .55s cubic-bezier(.2,.8,.2,1) both; }
+    .verdict.is-bad.run { animation: flash .5s steps(1) 6 both; }
+    @keyframes reveal { from { clip-path: circle(0 at 50% 45%); } to { clip-path: circle(150% at 50% 45%); } }
+    @keyframes flash { 0% { background: var(--bad); } 50% { background: var(--bad-deep); } }
+
+    .v-inner { position: relative; z-index: 2; display: grid; justify-items: center; gap: 10px; max-width: 420px; }
+    .verdict.is-bad.run .v-inner { animation: shake .45s .5s 2; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      15% { transform: translateX(-14px) rotate(-2deg); }
+      30% { transform: translateX(12px) rotate(2deg); }
+      45% { transform: translateX(-10px) rotate(-1deg); }
+      60% { transform: translateX(8px); }
+      80% { transform: translateX(-4px); }
+    }
+
+    .v-alarm {
+      margin: 0 0 6px;
+      font-family: var(--font-display);
+      font-size: clamp(21px, 6.4vw, 40px);
+      font-weight: 800;
+      white-space: nowrap;
+      color: var(--warn);
+      letter-spacing: -0.01em;
+    }
+    .verdict.run .v-alarm { animation: blink .5s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: .15; } }
+    .v-alarm span { display: inline-block; }
+    .verdict.run .v-alarm span { animation: wobble .4s ease-in-out infinite alternate; }
+    @keyframes wobble { from { transform: rotate(-14deg) scale(1); } to { transform: rotate(14deg) scale(1.15); } }
+
+    .v-stamp {
+      width: 168px; height: 168px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--ok);
+      color: var(--ok-deep);
+      transform: rotate(-8deg);
+    }
+    .is-bad .v-stamp {
+      background: #fff;
+      color: var(--bad);
+      clip-path: polygon(29% 0, 71% 0, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0 71%, 0 29%);
+      border-radius: 0;
+    }
+    .v-stamp svg { width: 62%; height: 62%; }
+    .verdict.run .v-stamp { animation: stamp .5s .15s cubic-bezier(.3,1.6,.5,1) both; }
+    @keyframes stamp {
+      from { transform: scale(3) rotate(-30deg); opacity: 0; }
+      60% { opacity: 1; }
+      to { transform: scale(1) rotate(-8deg); opacity: 1; }
+    }
+    .verdict.run .v-check path { stroke-dasharray: 60; stroke-dashoffset: 60; animation: draw .35s .55s ease-out forwards; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    .v-title {
+      margin: 10px 0 0;
+      font-family: var(--font-display);
+      font-size: clamp(56px, 19vw, 104px);
+      font-weight: 800;
+      line-height: .95;
+      letter-spacing: -0.03em;
+    }
+    .verdict.run .v-title { animation: pop .45s .45s cubic-bezier(.3,1.5,.5,1) both; }
+    @keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .v-item { margin: 4px 0 0; font-size: 19px; font-weight: 700; overflow-wrap: anywhere; }
+    .v-why { margin: 0; opacity: .85; }
+    .v-again { margin-top: 18px; background: #fff; color: #111; }
+    .is-ok .v-again:hover, .is-bad .v-again:hover { background: #eee; }
+    .verdict.run .v-item, .verdict.run .v-why, .verdict.run .v-again { animation: fade .3s .8s both; }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } }
+
+    .tape {
+      position: absolute; left: -40px; right: -40px;
+      height: 34px;
+      z-index: 1;
+      background: repeating-linear-gradient(-45deg, var(--warn) 0 22px, var(--tape-dark) 22px 44px);
+      background-size: 62.2px 34px;
+    }
+    .tape.t1 { top: 6%; transform: rotate(-4deg); }
+    .tape.t2 { bottom: 6%; transform: rotate(3deg); }
+    .verdict.run .tape { animation: tape .6s linear infinite; }
+    .verdict.run .tape.t2 { animation-direction: reverse; }
+    @keyframes tape { to { background-position: 62.2px 0; } }
+
+    .confetti { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+    .confetti i {
+      position: absolute; top: -20px;
+      width: 10px; height: 16px;
+      border-radius: 2px;
+      animation: fall var(--d) var(--w) cubic-bezier(.25,.6,.5,1) both;
+    }
+    @keyframes fall {
+      from { transform: translate3d(0, 0, 0) rotate(0); }
+      to { transform: translate3d(var(--x), 110dvh, 0) rotate(var(--r)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; animation-delay: 0ms !important; transition: none !important; }
+      .verdict.is-bad.run { animation: none; }
+      .verdict.run .v-alarm, .verdict.run .v-alarm span { animation: none; }
+      .laser { top: 50%; animation: none; }
+      .confetti { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div>
+        <h1>Kosher-Scanner</h1>
+        <p>Barcode scannen oder etwas eintippen.</p>
+      </div>
+      <button class="sound" id="soundBtn" type="button" aria-pressed="true">Ton an</button>
+    </header>
+
+    <section class="viewfinder" id="vf" aria-label="Kamera">
+      <video id="video" playsinline muted></video>
+      <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="laser"></span></div>
+      <div class="vf-idle">
+        <svg viewBox="0 0 96 64" aria-hidden="true" fill="currentColor">
+          <rect x="4" y="4" width="4" height="56"/><rect x="11" y="4" width="2" height="56"/><rect x="16" y="4" width="6" height="56"/>
+          <rect x="25" y="4" width="2" height="56"/><rect x="30" y="4" width="4" height="56"/><rect x="38" y="4" width="2" height="56"/>
+          <rect x="43" y="4" width="6" height="56"/><rect x="52" y="4" width="2" height="56"/><rect x="57" y="4" width="4" height="56"/>
+          <rect x="64" y="4" width="2" height="56"/><rect x="69" y="4" width="6" height="56"/><rect x="78" y="4" width="2" height="56"/>
+          <rect x="83" y="4" width="4" height="56"/><rect x="90" y="4" width="2" height="56"/>
+        </svg>
+        <button class="btn btn-primary" id="camBtn" type="button">Barcode scannen</button>
+        <p class="vf-msg" id="camMsg" role="status"></p>
+      </div>
+      <p class="vf-hint" id="vfHint" hidden><span>Barcode in den Rahmen halten</span></p>
+      <button class="vf-close" id="camStop" type="button" aria-label="Kamera ausschalten" hidden>&times;</button>
+    </section>
+
+    <form class="entry" id="form" autocomplete="off">
+      <label for="q">Oder eintippen</label>
+      <div class="row">
+        <input id="q" name="q" type="text" enterkeyhint="go" maxlength="80" placeholder="Barcode, Produkt oder Name">
+        <button class="btn" type="submit">Prüfen</button>
+      </div>
+    </form>
+
+    <section class="history" id="historyWrap" hidden>
+      <div class="history-head">
+        <h2>Zuletzt geprüft</h2>
+        <button class="linkish" id="clearBtn" type="button">Leeren</button>
+      </div>
+      <ul id="history"></ul>
+    </section>
+
+    <p class="foot">Barcodes werden bei Open Food Facts nachgeschlagen; zählt nur, ob dort ein Koscher-Siegel eingetragen ist. Alles andere entscheidet das Orakel. <a href="/impressum/">Impressum</a> · <a href="/datenschutz/">Datenschutz</a></p>
+  </main>
+
+  <div class="checking" id="checking" hidden aria-live="polite">
+    <div class="bars" aria-hidden="true"></div>
+    <p id="checkText">Wird geprüft</p>
+  </div>
+
+  <div class="verdict" id="verdict" hidden role="dialog" aria-modal="true" aria-labelledby="vTitle">
+    <div class="tape t1" aria-hidden="true"></div>
+    <div class="tape t2" aria-hidden="true"></div>
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+    <div class="v-inner">
+      <p class="v-alarm" id="vAlarm"><span>🚨</span> Achtung, achtung! <span>🚨</span></p>
+      <div class="v-stamp" aria-hidden="true">
+        <svg class="v-check" id="iconOk" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 25l9 9 19-20"/></svg>
+        <svg id="iconBad" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"><path d="M13 13l22 22M35 13L13 35"/></svg>
+      </div>
+      <h2 class="v-title" id="vTitle">Kosher</h2>
+      <p class="v-item" id="vItem"></p>
+      <p class="v-why" id="vWhy"></p>
+      <button class="btn v-again" id="vAgain" type="button">Nochmal prüfen</button>
+    </div>
+  </div>
+
+  <script>
+  (() => {
+    'use strict';
+    const $ = (id) => document.getElementById(id);
+    const vf = $('vf'), video = $('video'), camBtn = $('camBtn'), camMsg = $('camMsg'), camStop = $('camStop'), vfHint = $('vfHint');
+    const form = $('form'), input = $('q');
+    const checking = $('checking'), checkText = $('checkText');
+    const verdict = $('verdict'), vTitle = $('vTitle'), vItem = $('vItem'), vWhy = $('vWhy'), vAlarm = $('vAlarm'), vAgain = $('vAgain');
+    const soundBtn = $('soundBtn');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    const store = {
+      get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+      set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+    };
+
+    // ---------- Sound ----------
+    let muted = store.get('kosher-muted', false);
+    let ac = null, siren = null;
+    function renderSound() { soundBtn.textContent = muted ? 'Ton aus' : 'Ton an'; soundBtn.setAttribute('aria-pressed', String(!muted)); }
+    renderSound();
+    soundBtn.addEventListener('click', () => { muted = !muted; store.set('kosher-muted', muted); renderSound(); if (!muted) { unlockAudio(); tone(880, 0, .08, 'sine', .15); } else stopSiren(); });
+
+    function unlockAudio() {
+      if (muted) return;
+      try {
+        ac ??= new (window.AudioContext || window.webkitAudioContext)();
+        if (ac.state === 'suspended') ac.resume();
+      } catch { ac = null; }
+    }
+    function tone(freq, at, dur, type = 'sine', vol = .2) {
+      if (muted || !ac) return;
+      const t = ac.currentTime + at;
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(ac.destination);
+      o.start(t); o.stop(t + dur + 0.02);
+    }
+    function chime() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * 0.09, 0.45, 'triangle', .22)); tone(1567.98, 0.42, 0.6, 'sine', .1); }
+    function startSiren() {
+      if (muted || !ac) return;
+      stopSiren();
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'square';
+      const t = ac.currentTime;
+      // Tatütata: two tones alternating, four times
+      for (let i = 0; i < 8; i++) o.frequency.setValueAtTime(i % 2 ? 440 : 587, t + i * 0.42);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.09, t + 0.03);
+      g.gain.setValueAtTime(0.09, t + 3.3);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 3.4);
+      o.connect(g).connect(ac.destination);
+      o.start(t); o.stop(t + 3.45);
+      siren = { o, g };
+      o.onended = () => { if (siren && siren.o === o) siren = null; };
+    }
+    function stopSiren() {
+      if (!siren || !ac) return;
+      try { siren.g.gain.cancelScheduledValues(ac.currentTime); siren.g.gain.setValueAtTime(0.0001, ac.currentTime); siren.o.stop(ac.currentTime + 0.02); } catch {}
+      siren = null;
+    }
+    const buzz = (p) => { try { navigator.vibrate?.(p); } catch {} };
+
+    // ---------- Verdict logic ----------
+    const BAD = [
+      [/schwein|\bpork\b|ferkel|spanferkel/, 'Schwein'],
+      [/speck|bacon|pancetta/, 'Speck'],
+      [/schinken|\bham\b|prosciutto|serrano/, 'Schinken'],
+      [/salami|mett|leberwurst|blutwurst|currywurst|chorizo|wiener\b/, 'Wurst vom Schwein'],
+      [/gelatine|gelatin|gummib(ä|ae)r|haribo|fruchtgummi/, 'Gelatine'],
+      [/garnele|shrimp|scampi|krabbe|krebs|hummer|lobster|languste/, 'Meeresfrüchte'],
+      [/muschel|auster|tintenfisch|calamar|oktopus|octopus|sushi mit|meeresfr/, 'Meeresfrüchte'],
+      [/\baal\b|\bwels\b|\bhai\b|haifisch/, 'Fisch ohne Schuppen'],
+      [/kaninchen|\bhase\b|pferd|kamel|strau(ß|ss)/, 'nicht koscheres Fleisch'],
+      [/cheeseburger|lasagne|carbonara|cordon bleu|schnitzel mit k(ä|ae)se/, 'Fleisch mit Milch'],
+      [/blut\b|blutig/, 'Blut']
+    ];
+    const GOOD = [
+      [/^(wasser|mineralwasser|leitungswasser)$/, 'Wasser geht immer.'],
+      [/^(apfel|äpfel|banane|birne|orange|traube|trauben|erdbeere|kirsche|mango|gurke|tomate|karotte|möhre|kartoffel|salat|brokkoli|paprika)$/, 'Obst und Gemüse sind unverdächtig.'],
+      [/matze|challa|hummus|falafel|bagel|latkes|schakschuka|shakshuka/, 'Ein Klassiker.'],
+      [/^(honig|salz|zucker|reis|tee|kaffee)$/, 'Unverdächtig.']
+    ];
+    const ORACLE_OK = ['Das Orakel hat entschieden.', 'Der Scanner ist sich ganz sicher.', 'Geprüft und für gut befunden.'];
+    const ORACLE_BAD = ['Das Orakel hat entschieden.', 'Der Scanner ist sich ganz sicher.', 'Irgendwas stimmt hier nicht.'];
+
+    function hash(s) { let h = 2166136261; for (const c of s) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+    const norm = (s) => s.toLowerCase().normalize('NFC').replace(/\s+/g, ' ').trim();
+    const isCode = (s) => /^(\d{8}|\d{12,14})$/.test(s);
+
+    function oracle(text) {
+      const n = norm(text);
+      for (const [re, what] of BAD) if (re.test(n)) return { ok: false, why: `Enthält ${what}.` };
+      for (const [re, why] of GOOD) if (re.test(n)) return { ok: true, why };
+      const h = hash(n);
+      const ok = h % 100 < 55;
+      const list = ok ? ORACLE_OK : ORACLE_BAD;
+      return { ok, why: list[(h >>> 8) % list.length] };
+    }
+
+    async function lookup(code) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 7000);
+      try {
+        const url = `https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_de,brands,labels_tags`;
+        const r = await fetch(url, { signal: ctrl.signal, referrerPolicy: 'no-referrer', credentials: 'omit' });
+        if (r.status === 404) return { found: false };
+        if (!r.ok) return null;
+        const j = await r.json();
+        if (j.status !== 1 || !j.product) return { found: false };
+        const p = j.product;
+        const name = (p.product_name_de || p.product_name || '').trim();
+        const brand = (p.brands || '').split(',')[0].trim();
+        const labels = Array.isArray(p.labels_tags) ? p.labels_tags : [];
+        const kosher = labels.some((t) => /kosher|koscher|casher|cacher|kasher|kascher|kosjer/.test(t));
+        return { found: true, name, brand, kosher };
+      } catch { return null; } finally { clearTimeout(timer); }
+    }
+
+    async function judge(q) {
+      const digits = q.replace(/[\s-]/g, '');
+      if (isCode(digits)) {
+        const p = await lookup(digits);
+        if (p && p.found) {
+          const label = [p.name, p.brand && !p.name.toLowerCase().includes(p.brand.toLowerCase()) ? p.brand : ''].filter(Boolean).join(' · ') || digits;
+          if (p.kosher) return { ok: true, label, why: 'Koscher-Siegel laut Open Food Facts.' };
+          const hit = oracle(p.name || '');
+          const why = !hit.ok && hit.why.startsWith('Enthält') ? hit.why : 'Kein Koscher-Siegel bei Open Food Facts.';
+          return { ok: false, label, why };
+        }
+        const o = oracle(digits);
+        return { ok: o.ok, label: digits, why: p ? 'Unbekannter Barcode. ' + o.why : 'Keine Verbindung. ' + o.why };
+      }
+      const o = oracle(q);
+      return { ok: o.ok, label: q, why: o.why };
+    }
+
+    // ---------- Checking + verdict screens ----------
+    const bars = checking.querySelector('.bars');
+    for (let i = 0; i < 16; i++) { const s = document.createElement('span'); s.style.setProperty('--i', i); bars.append(s); }
+    const STEPS = ['Zutaten werden geprüft', 'Siegel werden gesucht', 'Das Orakel wird befragt'];
+    let lastSource = 'text', running = false;
+
+    async function check(q, source) {
+      q = q.trim();
+      if (!q || running) return;
+      running = true;
+      lastSource = source;
+      input.blur();
+      checking.hidden = false;
+      let step = 0;
+      checkText.textContent = STEPS[0];
+      const ticker = setInterval(() => { step = (step + 1) % STEPS.length; checkText.textContent = STEPS[step]; tone(660 + step * 110, 0, .05, 'sine', .06); }, 450);
+      const t0 = performance.now();
+      const res = await judge(q);
+      await sleep(Math.max(0, 1350 - (performance.now() - t0)));
+      clearInterval(ticker);
+      checking.hidden = true;
+      show(res);
+      addHistory(q, res);
+      running = false;
+    }
+
+    function show(res) {
+      verdict.classList.remove('run', 'is-ok', 'is-bad');
+      verdict.classList.add(res.ok ? 'is-ok' : 'is-bad');
+      vTitle.textContent = res.ok ? 'Kosher' : 'Nicht kosher';
+      vItem.textContent = res.label;
+      vWhy.textContent = res.why;
+      vAlarm.hidden = res.ok;
+      $('iconOk').style.display = res.ok ? '' : 'none';
+      $('iconBad').style.display = res.ok ? 'none' : '';
+      verdict.querySelectorAll('.tape').forEach((t) => { t.hidden = res.ok; });
+      vAgain.textContent = lastSource === 'scan' ? 'Nochmal scannen' : 'Nochmal prüfen';
+      verdict.hidden = false;
+      void verdict.offsetWidth;
+      verdict.classList.add('run');
+      if (res.ok) {
+        confetti();
+        chime();
+        buzz([40, 60, 40]);
+      } else {
+        startSiren();
+        buzz([300, 120, 300, 120, 600]);
+      }
+      setTimeout(() => vAgain.focus({ preventScroll: true }), 50);
+    }
+
+    function closeVerdict() {
+      if (verdict.hidden) return;
+      stopSiren();
+      verdict.hidden = true;
+      verdict.classList.remove('run');
+      $('confetti').replaceChildren();
+      if (lastSource === 'scan') { lastCodeAt = performance.now(); startCam(); }
+      else { input.select(); input.focus(); }
+    }
+    vAgain.addEventListener('click', closeVerdict);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeVerdict(); });
+
+    function confetti() {
+      if (reduced.matches) return;
+      const box = $('confetti');
+      box.replaceChildren();
+      const colors = ['#1fbf6a', '#ffd23f', '#ffffff', '#b892f2', '#3ec7e0', '#ff8a3d'];
+      for (let i = 0; i < 70; i++) {
+        const c = document.createElement('i');
+        c.style.left = Math.random() * 100 + '%';
+        c.style.background = colors[i % colors.length];
+        c.style.setProperty('--x', (Math.random() * 160 - 80).toFixed(0) + 'px');
+        c.style.setProperty('--r', (Math.random() * 1080 - 540).toFixed(0) + 'deg');
+        c.style.setProperty('--d', (1.6 + Math.random() * 1.4).toFixed(2) + 's');
+        c.style.setProperty('--w', (0.25 + Math.random() * 0.5).toFixed(2) + 's');
+        if (i % 3 === 0) { c.style.width = '8px'; c.style.height = '8px'; c.style.borderRadius = '50%'; }
+        box.append(c);
+      }
+    }
+
+    // ---------- History ----------
+    let history = store.get('kosher-history', []);
+    const histWrap = $('historyWrap'), histList = $('history');
+    function renderHistory() {
+      histWrap.hidden = history.length === 0;
+      histList.replaceChildren(...history.map((h) => {
+        const li = document.createElement('li');
+        const b = document.createElement('button');
+        b.type = 'button';
+        const dot = document.createElement('span'); dot.className = 'dot' + (h.ok ? '' : ' bad');
+        const l = document.createElement('span'); l.className = 'h-label'; l.textContent = h.label;
+        const v = document.createElement('span'); v.className = 'h-verdict'; v.textContent = h.ok ? 'Kosher' : 'Nicht kosher';
+        b.append(dot, l, v);
+        b.addEventListener('click', () => { unlockAudio(); check(h.q, 'text'); });
+        li.append(b);
+        return li;
+      }));
+    }
+    function addHistory(q, res) {
+      history = [{ q, label: res.label, ok: res.ok }, ...history.filter((h) => h.q !== q)].slice(0, 8);
+      store.set('kosher-history', history);
+      renderHistory();
+    }
+    $('clearBtn').addEventListener('click', () => { history = []; store.set('kosher-history', history); renderHistory(); });
+    renderHistory();
+
+    // ---------- Text entry ----------
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      unlockAudio();
+      stopCam();
+      check(input.value, 'text');
+    });
+
+    // ---------- Camera ----------
+    let stream = null, detect = null, loopTimer = 0, scanId = 0, lastCode = '', lastCodeAt = 0;
+
+    function loadScript(src) {
+      return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.append(s); });
+    }
+
+    async function makeDetector() {
+      if ('BarcodeDetector' in window) {
+        try {
+          const supported = await BarcodeDetector.getSupportedFormats();
+          const formats = ['ean_13', 'ean_8', 'upc_a', 'upc_e'].filter((f) => supported.includes(f));
+          if (formats.length) {
+            const d = new BarcodeDetector({ formats });
+            return async (v) => { const r = await d.detect(v); return r[0] && r[0].rawValue; };
+          }
+        } catch {}
+      }
+      if (!window.ZXingWASM) {
+        await loadScript('vendor/zxing-reader.js');
+        const base = new URL('vendor/', location.href).href;
+        window.ZXingWASM.prepareZXingModule({
+          overrides: { locateFile: (path, prefix) => path.endsWith('.wasm') ? base + path : prefix + path },
+          fireImmediately: true
+        });
+      }
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      const opts = { formats: ['EAN13', 'EAN8', 'UPCA', 'UPCE'], tryHarder: true, maxNumberOfSymbols: 1 };
+      return async (v) => {
+        const w = v.videoWidth, h = v.videoHeight;
+        if (!w || !h) return;
+        const cw = Math.round(w * 0.92), ch = Math.round(h * 0.7);
+        const scale = Math.min(1, 1000 / cw);
+        canvas.width = Math.round(cw * scale); canvas.height = Math.round(ch * scale);
+        ctx.drawImage(v, (w - cw) / 2, (h - ch) / 2, cw, ch, 0, 0, canvas.width, canvas.height);
+        const r = await window.ZXingWASM.readBarcodes(ctx.getImageData(0, 0, canvas.width, canvas.height), opts);
+        const hit = r.find((x) => x.isValid);
+        return hit && hit.text;
+      };
+    }
+
+    async function startCam() {
+      if (stream) return;
+      unlockAudio();
+      camMsg.textContent = '';
+      if (!navigator.mediaDevices?.getUserMedia) {
+        camMsg.textContent = 'Dieser Browser lässt keinen Kamerazugriff zu. Tipp den Code einfach unten ein.';
+        return;
+      }
+      const id = ++scanId;
+      camBtn.disabled = true;
+      camMsg.textContent = 'Kamera startet …';
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } });
+        if (id !== scanId) { s.getTracks().forEach((t) => t.stop()); return; }
+        stream = s;
+        video.srcObject = s;
+        await video.play();
+        vf.classList.add('live');
+        camStop.hidden = false;
+        vfHint.hidden = false;
+        camMsg.textContent = '';
+        if (!detect) detect = await makeDetector();
+        if (id === scanId) loop(id);
+      } catch (e) {
+        stopCam();
+        camMsg.textContent = e && e.name === 'NotAllowedError'
+          ? 'Kein Kamerazugriff erlaubt. Tipp den Code einfach unten ein.'
+          : e && (e.name === 'NotFoundError' || e.name === 'OverconstrainedError')
+            ? 'Keine Kamera gefunden. Tipp den Code einfach unten ein.'
+            : 'Der Scanner konnte nicht starten. Tipp den Code einfach unten ein.';
+      } finally {
+        camBtn.disabled = false;
+      }
+    }
+
+    async function loop(id) {
+      if (id !== scanId || !stream) return;
+      let code;
+      if (video.readyState >= 2) { try { code = await detect(video); } catch {} }
+      if (id !== scanId || !stream) return;
+      // Ignore the code that was just checked while it is still in front of the lens
+      if (code && code === lastCode && performance.now() - lastCodeAt < 3000) code = '';
+      if (code) {
+        lastCode = code;
+        stopCam();
+        tone(1760, 0, .09, 'square', .08);
+        buzz(50);
+        input.value = code;
+        check(code, 'scan');
+        return;
+      }
+      loopTimer = setTimeout(() => loop(id), 140);
+    }
+
+    function stopCam() {
+      scanId++;
+      clearTimeout(loopTimer);
+      if (stream) stream.getTracks().forEach((t) => t.stop());
+      stream = null;
+      video.srcObject = null;
+      vf.classList.remove('live');
+      camStop.hidden = true;
+      vfHint.hidden = true;
+    }
+
+    camBtn.addEventListener('click', startCam);
+    camStop.addEventListener('click', stopCam);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) { stopCam(); stopSiren(); } });
+  })();
+  </script>
+</body>
+</html>

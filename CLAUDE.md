@@ -6,6 +6,8 @@ Static site (plain HTML, CSS, vanilla JS, no build step) on GitHub Pages from `m
 
 `/c-r8kq2wv5zn/` ("Stand": the owner's Claude Code usage limits) is a third private app, backed by `workers/claude-stand`. Same rules: no link, no sitemap, `noindex`. The repo is public, so these paths are not secret: data must be protected by the worker (Zuhause: member tokens; Stand is open without a key on purpose), never by the URL. Its design rules ("Zählerstand"), API, reset pushes and setup are in `workers/claude-stand/README.md`.
 
+`/k-869252wz46/` (Kosher-Scanner) is a private joke page: barcode via camera (native `BarcodeDetector`, else the self-hosted `vendor/` zxing-wasm reader) or typed text, then an animated "Kosher" / "Nicht kosher" verdict. Barcodes go to Open Food Facts (only a kosher label counts), everything else is a deterministic oracle. Own look, dark only, no link, no sitemap, `noindex`, no changelog entry.
+
 ## Languages, tools and third parties
 
 - `/`, `/projects`, `/services` and `/contact` have German twins at `/de/`, `/de/projekte/`, `/de/leistungen/`, `/de/kontakt/`. Any copy change goes into both. German marketing copy says "du"; the legal pages stay "Sie". Each pair links the other via `hreflang` alternates and a language link at the end of the nav.

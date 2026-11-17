@@ -1602,3 +1602,18 @@ input[type="color"].input { width: 64px; padding: 4px; cursor: pointer; }
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .turnstile-slot{min-height:0}
 
+
+.tiles { align-items: start; }
+
+/* The hero image is dark in both themes, so the hero keeps the dark tokens. */
+.hero {
+  --accent: #b892f2;
+  --accent-rgb: 184, 146, 242;
+  --on-accent: #120a20;
+  --paper-raised: #1a1228;
+  --line: rgba(240, 236, 249, 0.13);
+  --line-strong: rgba(240, 236, 249, 0.3);
+  --block-edge: #2b1656;
+}
+.hero .kbd { background: transparent; color: var(--ink-soft); border-color: var(--line-strong); }
+.hero .handle-line { color: var(--ink-soft); }

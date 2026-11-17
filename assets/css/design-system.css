@@ -1603,7 +1603,6 @@ input[type="color"].input { width: 64px; padding: 4px; cursor: pointer; }
 .turnstile-slot{min-height:0}
 
 
-.tiles { align-items: start; }
 
 /* The hero image is dark in both themes, so the hero keeps the dark tokens. */
 .hero {
@@ -1617,3 +1616,34 @@ input[type="color"].input { width: 64px; padding: 4px; cursor: pointer; }
 }
 .hero .kbd { background: transparent; color: var(--ink-soft); border-color: var(--line-strong); }
 .hero .handle-line { color: var(--ink-soft); }
+
+/* Imageless project tiles get a block illustration so every row stays even. */
+.tile-art {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  width: calc(100% + 48px);
+  margin: -24px -24px 0;
+  border-bottom: 1px solid var(--line-strong);
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  background:
+    radial-gradient(circle at 72% 28%, rgba(153, 85, 231, 0.55), transparent 62%),
+    repeating-linear-gradient(30deg, rgba(184, 146, 242, 0.12) 0 1px, transparent 1px 32px),
+    repeating-linear-gradient(150deg, rgba(184, 146, 242, 0.12) 0 1px, transparent 1px 32px),
+    linear-gradient(135deg, #2b1656, #0f0a18);
+}
+.tile-art::after {
+  content: "";
+  position: absolute;
+  left: 34%;
+  top: 30%;
+  width: 32%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(240, 236, 249, 0.35);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #b892f2, #9955e7);
+  box-shadow: 14px 14px 0 #2b1656, 14px 14px 0 1px rgba(240, 236, 249, 0.2);
+  transition: transform 150ms var(--ease-out);
+}
+.tile:hover .tile-art::after { transform: translate(-3px, -3px); }

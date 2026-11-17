@@ -43,7 +43,6 @@
     // Projects
     { k: 'project', en: 'Atomic Precision Clock', de: 'Atomic Precision Clock', go: '/clock/' },
     { k: 'project', en: 'Tagesspiele (daily games)', de: 'Tagesspiele', go: 'https://geo.spanani.de/', hint: 'daily games' },
-    { k: 'project', en: 'Server map', de: 'Server-Karte', go: 'https://server.spanani.de/' },
     { k: 'project', en: 'Flags', de: 'Flaggen', go: '/flags/' },
     { k: 'project', en: 'Pausenklau', de: 'Pausenklau', go: '/pausenklau/' },
     { k: 'project', en: 'Rust Empire', de: 'Rust Empire', go: '/rust/' },

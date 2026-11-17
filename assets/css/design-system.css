@@ -1567,3 +1567,33 @@ input[type="color"].input { width: 64px; padding: 4px; cursor: pointer; }
 .closing { margin-top: clamp(40px, 6vw, 72px); color: var(--ink-soft); }
 .legal-page > h1 { margin-bottom: var(--space-4); }
 .legal-page > .lead { margin-bottom: var(--space-5); }
+
+/* Blockwerk additions */
+.tile-img {
+  aspect-ratio: 4 / 3;
+  width: calc(100% + 48px);
+  margin: -24px -24px 0;
+  object-fit: cover;
+  border-bottom: 1px solid var(--line-strong);
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.tile h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.tiles--big .tile h2 {
+  font-size: var(--fs-h3);
+}
+.hero-inner {
+  padding-block: clamp(48px, 8vw, 96px);
+}
+.hero-search {
+  margin-top: var(--space-5);
+}
+[data-filter-status]:not(:empty) {
+  margin-top: calc(-1 * var(--space-4));
+  margin-bottom: var(--space-5);
+}
+

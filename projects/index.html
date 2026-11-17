@@ -19,8 +19,8 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="spanani: websites, Discord bots and Minecraft mods">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#f4f2f7" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#16121d" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#efe9fa" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f0a18" media="(prefers-color-scheme: dark)">
   <meta name="author" content="spanani">
 
 
@@ -39,6 +39,7 @@
   </script>
 
   <script src="/assets/js/site.js" defer></script>
+  <script src="/assets/js/projects.js" defer></script>
 </head>
 <body>
 
@@ -69,86 +70,207 @@
 
     <section class="section section--flush">
       <div class="container">
+        <div class="filters" role="group" aria-label="Filter projects">
+          <button class="filter" type="button" data-filter="all" aria-pressed="true">All <span class="filter-count"></span></button>
+          <button class="filter" type="button" data-filter="web" aria-pressed="false">Web <span class="filter-count"></span></button>
+          <button class="filter" type="button" data-filter="games" aria-pressed="false">Games <span class="filter-count"></span></button>
+          <button class="filter" type="button" data-filter="discord" aria-pressed="false">Discord <span class="filter-count"></span></button>
+          <button class="filter" type="button" data-filter="minecraft" aria-pressed="false">Minecraft <span class="filter-count"></span></button>
+          <button class="filter" type="button" data-filter="tools" aria-pressed="false">Tools <span class="filter-count"></span></button>
+        </div>
 
-        <article class="project">
-          <a class="project-media" href="https://bauchgefuehl.spanani.workers.dev" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="/assets/img/projects/bauchgefuehl.webp" width="960" height="720" alt="" loading="lazy"></a>
-          <div class="project-text">
-            <h2><a href="https://bauchgefuehl.spanani.workers.dev" target="_blank" rel="noopener">Bauchgefühl</a></h2>
-            <p>A food and symptom diary for sensitive stomachs. Describe a meal in one sentence and AI breaks it into ingredients and nutrients, or scan a barcode for real Open Food Facts data. One tap logs a stomach ache, and over time it shows which patterns repeat in your own data. Patterns, never diagnoses. German and English, with a Stripe subscription for the premium analysis.</p>
-            <p class="project-stack">Built with Next.js, Supabase, Cloudflare Workers AI and Stripe.</p>
-            <a class="btn btn-secondary" href="https://bauchgefuehl.spanani.workers.dev" target="_blank" rel="noopener">Open Bauchgefühl</a>
-          </div>
-        </article>
+        <p class="field-hint" data-filter-status role="status" aria-live="polite"></p>
 
-        <article class="project">
-          <a class="project-media" href="/pausenklau/" tabindex="-1" aria-hidden="true"><img src="/assets/img/projects/pausenklau.webp" width="960" height="720" alt="" loading="lazy"></a>
-          <div class="project-text">
-            <h2><a href="/pausenklau/">Pausenklau</a></h2>
-            <p>Upload a photo of your timetable and AI reads every lesson with its real start and end time, A/B weeks included. A live countdown to the bell turns into a red overtime counter when the teacher keeps going, and one tap logs it. A leaderboard shows who eats the most of your break, with school holidays for every German state built in.</p>
-            <p class="project-stack">Plain JavaScript on a Cloudflare Worker with D1 and Workers AI. German interface.</p>
-            <a class="btn btn-secondary" href="/pausenklau/">Open Pausenklau</a>
-          </div>
-        </article>
+        <div class="tiles tiles--big" data-projects>
+          <a class="tile rise" style="--i:0" href="https://bauchgefuehl.spanani.workers.dev" target="_blank" rel="noopener" data-cats="web">
+            <img class="tile-img" src="/assets/img/projects/bauchgefuehl.webp" width="960" height="720" alt="" loading="lazy">
+            <div class="tile-top">
+              <span class="tile-kind">Web app</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>Bauchgefühl</h2>
+            <p>A food and symptom diary for sensitive stomachs. Describe a meal in one sentence or scan a barcode, log stomach aches with one tap, and spot repeating patterns in your data.</p>
+            <div class="tile-tags">
+              <span>Next.js</span>
+              <span>Supabase</span>
+              <span>Workers AI</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
 
-        <article class="project">
-          <a class="project-media" href="/clock/" tabindex="-1" aria-hidden="true"><img src="/assets/img/projects/clock.webp" width="960" height="720" alt="" loading="lazy"></a>
-          <div class="project-text">
-            <h2><a href="/clock/">Atomic Precision Clock</a></h2>
-            <p>A network-synced clock that measures and compensates for your device's own drift. It has a Swiss-style analog dial, an interactive 3D globe, world clocks, a stopwatch and a timer, plus a settings panel that remembers everything locally.</p>
-            <p class="project-stack">Plain JavaScript with SVG and canvas, NTP-style offset sync, no dependencies.</p>
-            <a class="btn btn-secondary" href="/clock/">Open the clock</a>
-          </div>
-        </article>
+          <a class="tile rise" style="--i:1" href="/pausenklau/" data-cats="web">
+            <img class="tile-img" src="/assets/img/projects/pausenklau.webp" width="960" height="720" alt="" loading="lazy">
+            <div class="tile-top">
+              <span class="tile-kind">Web app</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>Pausenklau</h2>
+            <p>Upload a photo of your timetable and AI reads every lesson with its real start and end time. A live countdown turns into an overtime counter when class runs over.</p>
+            <div class="tile-tags">
+              <span>Cloudflare Worker</span>
+              <span>D1</span>
+              <span>Workers AI</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
 
-        <article class="project">
-          <a class="project-media" href="/rust/" tabindex="-1" aria-hidden="true"><img src="/assets/img/projects/rust.webp" width="960" height="720" alt="" loading="lazy"></a>
-          <div class="project-text">
-            <h2><a href="/rust/">Rust Raid Calculator</a></h2>
-            <p>A raid calculator for the game Rust. Pick walls, doors and deployables, choose which explosives you can use, and get the cheapest raid path, mixed combos included, with sulfur, gunpowder and every raw material.</p>
-            <p class="project-stack">Plain JavaScript, settings kept in your browser.</p>
-            <a class="btn btn-secondary" href="/rust/">Open the calculator</a>
-          </div>
-        </article>
+          <a class="tile rise" style="--i:2" href="/clock/" data-cats="web tools">
+            <img class="tile-img" src="/assets/img/projects/clock.webp" width="960" height="720" alt="" loading="lazy">
+            <div class="tile-top">
+              <span class="tile-kind">Web tool</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>Atomic Precision Clock</h2>
+            <p>A network-synced clock that measures and compensates for device drift, with a Swiss-style analog dial, 3D globe, world clocks, stopwatch and timer.</p>
+            <div class="tile-tags">
+              <span>JavaScript</span>
+              <span>SVG</span>
+              <span>canvas</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
 
-        <article class="project">
-          <a class="project-media" href="/tennis/" tabindex="-1" aria-hidden="true"><img src="/assets/img/projects/tennis.webp" width="430" height="322" alt="" loading="lazy"></a>
-          <div class="project-text">
-            <h2><a href="/tennis/">Tennis Match Tracker</a></h2>
-            <p>An offline-first scorekeeper built for actually holding a phone courtside: point-by-point entry, full set timelines, ace and double-fault counts, and a head-to-head momentum view that shows who was winning which stretch of the match.</p>
-            <p class="project-stack">Plain JavaScript, built for phones, works offline. German interface.</p>
-            <a class="btn btn-secondary" href="/tennis/">Open the tracker</a>
-          </div>
-        </article>
+          <a class="tile rise" style="--i:3" href="/rust/" data-cats="games tools">
+            <img class="tile-img" src="/assets/img/projects/rust.webp" width="960" height="720" alt="" loading="lazy">
+            <div class="tile-top">
+              <span class="tile-kind">Game tool</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>Rust Raid Calculator</h2>
+            <p>A raid calculator for the game Rust. Pick walls, doors and deployables to find the cheapest raid path, mixed combos included, with sulfur and raw material totals.</p>
+            <div class="tile-tags">
+              <span>JavaScript</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
 
-        <article class="project">
-          <a class="project-media" href="/party/" tabindex="-1" aria-hidden="true"><img src="/assets/img/projects/party.webp" width="960" height="720" alt="" loading="lazy"></a>
-          <div class="project-text">
-            <h2><a href="/party/">Daumenduell</a></h2>
-            <p>27 quick party games for one to four people sharing one phone or tablet. Everyone gets a part of the screen and one finger: tapping races, a red-light run, a tug of war that moves the border between the halves, a dare where you let go before the bang, shot put, word and number snaps, a blind stopwatch, blind counting, a rhythm test, darts, basketball, skipping rope, fishing, tower stacking, hurdles, lane switching, a light trail and a flappy flight. Every game says which player counts it makes sense for, and solo rounds keep a personal best.</p>
-            <p class="project-stack">Plain JavaScript, multi-touch, sound and haptics. Installable as an app and works offline. German interface.</p>
-            <a class="btn btn-secondary" href="/party/">Open the games</a>
-          </div>
-        </article>
+          <a class="tile rise" style="--i:4" href="/tennis/" data-cats="tools">
+            <img class="tile-img" src="/assets/img/projects/tennis.webp" width="430" height="322" alt="" loading="lazy">
+            <div class="tile-top">
+              <span class="tile-kind">Tool</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>Tennis Match Tracker</h2>
+            <p>An offline-first scorekeeper built for holding a phone courtside: point-by-point entry, full set timelines, ace and double-fault counts, and a head-to-head momentum view.</p>
+            <div class="tile-tags">
+              <span>JavaScript</span>
+              <span>offline</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
 
-        <article class="project">
-          <a class="project-media" href="https://modrinth.com/resourcepack/ww2-frontline" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="/assets/img/projects/ww2-frontline.webp" width="1280" height="720" alt="" loading="lazy"></a>
-          <div class="project-text">
-            <h2><a href="https://modrinth.com/resourcepack/ww2-frontline" target="_blank" rel="noopener">WW2 Frontline</a></h2>
-            <p>A Minecraft resource pack that reskins the game for the Second World War era, 1939 to 1945: firearms, uniforms, field rations and a military-style interface, all at 32x.</p>
-            <p class="project-stack">Resource pack for Minecraft 26.2, 32x. Found a problem? <a href="https://github.com/spananide/ww2-frontline" target="_blank" rel="noopener">Report it on GitHub</a>.</p>
-            <a class="btn btn-secondary" href="https://modrinth.com/resourcepack/ww2-frontline" target="_blank" rel="noopener">Open on Modrinth</a>
-          </div>
-        </article>
+          <a class="tile rise" style="--i:5" href="/party/" data-cats="games">
+            <img class="tile-img" src="/assets/img/projects/party.webp" width="960" height="720" alt="" loading="lazy">
+            <div class="tile-top">
+              <span class="tile-kind">Party game</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>Daumenduell</h2>
+            <p>27 quick party games for one to four people sharing one phone or tablet: tapping races, tug of war, reaction tests, darts and arcade mini-games.</p>
+            <div class="tile-tags">
+              <span>JavaScript</span>
+              <span>multi-touch</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
 
-        <article class="project">
-          <a class="project-media" href="https://discord.gg/NfVExtZZJs" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="/assets/img/projects/spanani-bot.webp" width="960" height="720" alt="" loading="lazy"></a>
-          <div class="project-text">
-            <h2><a href="https://discord.gg/NfVExtZZJs" target="_blank" rel="noopener">spanani bot</a></h2>
-            <p>The Discord bot that runs my server. Post a project request or ask for a quote and it opens a private thread with a card that shows how far along your project is. It also sets reminders and has free tools for server owners: a Minecraft server status check, Discord timestamps, a bot permissions calculator and a MOTD preview. Every reply is a card with buttons, so nobody has to remember commands.</p>
-            <p class="project-stack">TypeScript with discord.js and SQLite, running on my own server. Every button is also a slash command. English and German. <a href="/bot/privacy/">Privacy</a> and <a href="/bot/terms/">terms</a>.</p>
-            <a class="btn btn-secondary" href="https://discord.gg/NfVExtZZJs" target="_blank" rel="noopener">Try it in Discord</a>
+          <a class="tile rise" style="--i:6" href="https://geo.spanani.de/" target="_blank" rel="noopener" data-cats="games web">
+            <div class="tile-top">
+              <span class="tile-kind">Web game</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>Tagesspiele</h2>
+            <p>Daily geography, word and logic games with a leaderboard.</p>
+            <div class="tile-tags">
+              <span>16 daily games</span>
+              <span>Cloudflare Worker</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
+
+          <a class="tile rise" style="--i:7" href="/flags/" data-cats="games web">
+            <div class="tile-top">
+              <span class="tile-kind">Web game</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>Flags quiz</h2>
+            <p>Learn every flag on earth: five levels from Starter to Impossible, flashcards and a mastery wall.</p>
+            <div class="tile-tags">
+              <span>JavaScript</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
+
+          <a class="tile rise" style="--i:8" href="https://modrinth.com/resourcepack/ww2-frontline" target="_blank" rel="noopener" data-cats="minecraft">
+            <img class="tile-img" src="/assets/img/projects/ww2-frontline.webp" width="1280" height="720" alt="" loading="lazy">
+            <div class="tile-top">
+              <span class="tile-kind">Minecraft pack</span>
+              <span class="badge badge--oss">Open source</span>
+            </div>
+            <h2>WW2 Frontline</h2>
+            <p>A Minecraft resource pack that reskins the game for the Second World War era, 1939 to 1945: firearms, uniforms, field rations and a military interface at 32x.</p>
+            <div class="tile-tags">
+              <span>Resource pack</span>
+              <span>32x</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
+
+          <a class="tile rise" style="--i:9" href="https://server.spanani.de/" target="_blank" rel="noopener" data-cats="minecraft web">
+            <div class="tile-top">
+              <span class="tile-kind">Live map</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>Server map</h2>
+            <p>A live map of my Minecraft server.</p>
+            <div class="tile-tags">
+              <span>live map of a Minecraft server</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
+
+          <div class="tile rise" style="--i:10" data-cats="minecraft tools">
+            <div class="tile-top">
+              <span class="tile-kind">Paper plugin</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>VillagerReroll</h2>
+            <p>A Paper plugin I wrote for my own server: re-roll a villager's trades in place.</p>
+            <div class="tile-tags">
+              <span>Paper plugin</span>
+            </div>
           </div>
-        </article>
+
+          <a class="tile rise" style="--i:11" href="https://discord.gg/NfVExtZZJs" target="_blank" rel="noopener" data-cats="discord">
+            <img class="tile-img" src="/assets/img/projects/spanani-bot.webp" width="960" height="720" alt="" loading="lazy">
+            <div class="tile-top">
+              <span class="tile-kind">Discord bot</span>
+              <span class="badge badge--live">Live</span>
+            </div>
+            <h2>spanani bot</h2>
+            <p>The Discord bot that runs my server. Post a project request or ask for a quote to open a private thread with a progress card, reminders and free server tools.</p>
+            <div class="tile-tags">
+              <span>TypeScript</span>
+              <span>discord.js</span>
+              <span>SQLite</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
+
+          <a class="tile rise" style="--i:12" href="https://github.com/spananide/fmhy-ios" target="_blank" rel="noopener" data-cats="tools">
+            <div class="tile-top">
+              <span class="tile-kind">iOS app</span>
+              <span class="badge badge--oss">Open source</span>
+            </div>
+            <h2>FMHY for iOS</h2>
+            <p>SwiftUI port of an Android app that puts the FMHY wiki on your phone, searchable and offline.</p>
+            <div class="tile-tags">
+              <span>SwiftUI</span>
+              <span>Open source</span>
+            </div>
+            <span class="tile-arrow">Open ↗</span>
+          </a>
+        </div>
 
         <p class="closing">Experiments, half-finished ideas, Rust Empire (server and clan tooling for a Rust community) and the source for this site live on <a href="https://github.com/spananide" target="_blank" rel="noopener">GitHub</a>. Want something like one of these built for you? <a href="/services/">See what I build for other people</a>.</p>
       </div>

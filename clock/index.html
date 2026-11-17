@@ -43,107 +43,222 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: clamp(24px, 5vw, 48px) var(--gutter) 48px;
+      width: 100%;
       position: relative;
       z-index: 10;
-      width: 100%;
-      max-width: 1080px;
-      margin: 0 auto;
     }
 
-    .clock-stage { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-
-    .clock-panel {
+    /* Stage */
+    .clock-hero {
       position: relative;
-      overflow: hidden;
+      isolation: isolate;
+      overflow: clip;
       width: 100%;
+      min-height: min(78vh, 720px);
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: var(--paper-raised);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 48px);
+      justify-content: center;
+      padding: clamp(32px, 6vw, 72px) var(--gutter);
+      --accent: #b892f2;
+      --paper: #0f0a18;
+      --paper-raised: #1a1228;
+      --paper-sunk: #0a0610;
+      --ink: #f0ecf9;
+      --ink-soft: #c9bfe0;
+      --ink-faint: #a89ec0;
+      --line: rgba(240, 236, 249, 0.13);
+      --line-strong: rgba(240, 236, 249, 0.3);
+      --block-edge: #2b1656;
+      color: var(--ink);
     }
-    .clock-panel::before {
-      content: '';
+    .clock-bg {
       position: absolute;
-      inset: 0 0 auto 0;
-      height: 3px;
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-      background: var(--ac);
-      opacity: 0.9;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      pointer-events: none;
+    }
+    .clock-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(180deg, rgba(15, 10, 24, 0.55) 0%, rgba(15, 10, 24, 0.92) 100%);
+      pointer-events: none;
     }
 
-    .loc-chip {
-      margin-top: var(--space-5);
-      cursor: pointer;
+    .clock-stage {
+      width: 100%;
+      max-width: 1080px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Digital View */
+    .digital-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+    }
+    .time-zone-line {
       font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: var(--space-4);
     }
-    .loc-chip .loc-sep { color: var(--ink-faint); }
-    .loc-chip .loc-src { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); }
-    .loc-chip .loc-chev { width: 11px; height: 11px; color: var(--ink-faint); }
-    .drift { margin-top: var(--space-6); max-width: none; text-align: center; text-wrap: balance; font-family: var(--font-display); font-size: var(--fs-h3); font-weight: 500; letter-spacing: -0.015em; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-    .drift strong { font-weight: 600; color: var(--ink); white-space: nowrap; }
-    .drift--bad strong { color: var(--danger); }
-    .drift-hint { margin-top: var(--space-2); text-align: center; font-size: var(--fs-sm); color: var(--ink-soft); }
-    .drift-hint[hidden] { display: none; }
-
-    .digital-view { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; }
-    .time-zone-line { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: var(--space-3); }
     .time-digits {
-      font-family: var(--font-numeric);
-      font-size: clamp(40px, min(17vw, 23vw - 33px), 168px);
-      font-weight: 400;
-      letter-spacing: -0.03em;
-      line-height: 0.95;
+      font-family: var(--font-display);
+      font-size: clamp(2.6rem, min(15vw, 14vw), 9rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
       font-variant-numeric: tabular-nums;
       color: var(--ink);
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       align-items: baseline;
       justify-content: center;
+      gap: .12em;
       user-select: none;
     }
-    #digH, #digM, #digS { min-width: 2ch; display: inline-block; }
-    #digS { color: var(--ink-soft); }
-    .time-colon { color: var(--ac); opacity: 0.85; animation: pulseColon 1s infinite; margin: 0 -1px; }
-    @keyframes pulseColon { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.15; } }
-    .time-colon.static { animation: none; opacity: 0.9; }
-    .time-ms { font-family: var(--font-mono); font-size: clamp(18px, 3.5vw, 36px); color: var(--ink-faint); opacity: 0.85; min-width: 4.5ch; margin-left: 8px; }
-    .time-ampm { font-size: clamp(14px, 2vw, 20px); font-weight: 500; color: var(--ink-soft); margin-left: 10px; }
-    .time-subtitle { font-family: var(--font-mono); font-size: clamp(12px, 2vw, 14px); color: var(--ink-soft); letter-spacing: 0.12em; text-transform: uppercase; margin-top: var(--space-4); }
 
-    .day-horizon { width: 100%; max-width: 480px; margin-top: 26px; display: flex; flex-direction: column; gap: 6px; }
+    #digH, #digM, #digS {
+      display: inline-block;
+      background: var(--paper-raised);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      box-shadow: var(--block-depth) var(--block-depth) 0 var(--block-edge);
+      padding: .08em .14em;
+      min-width: 2.1ch;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    #digS {
+      border: 2px solid var(--ac);
+      color: var(--ac);
+      padding: calc(.08em - 1px) calc(.14em - 1px);
+    }
+
+    .time-colon {
+      font-size: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: .2em;
+      height: 1em;
+      flex-shrink: 0;
+      animation: pulseColon 1s infinite;
+      align-self: center;
+    }
+    .time-colon::before {
+      content: '';
+      display: block;
+      width: .14em;
+      height: .14em;
+      background: var(--ac);
+      border-radius: 1px;
+    }
+    @keyframes pulseColon {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 0.15; }
+    }
+    .time-colon.static {
+      animation: none;
+      opacity: 0.9;
+    }
+
+    .time-ms {
+      font-family: var(--font-mono);
+      font-size: clamp(14px, 1.8vw, 24px);
+      font-weight: 500;
+      color: var(--ink-soft);
+      font-variant-numeric: tabular-nums;
+      align-self: baseline;
+      margin-left: .15em;
+      flex-shrink: 0;
+    }
+    .time-ampm {
+      font-family: var(--font-mono);
+      font-size: clamp(12px, 1.4vw, 18px);
+      font-weight: 600;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      align-self: baseline;
+      margin-left: .15em;
+      flex-shrink: 0;
+    }
+
+    .time-subtitle {
+      font-family: var(--font-mono);
+      font-size: clamp(12px, 2vw, 14px);
+      color: var(--ink-soft);
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      margin-top: var(--space-5);
+    }
+
+    /* Day Horizon */
+    .day-horizon {
+      width: 100%;
+      max-width: 480px;
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
     .dh-track {
       width: 100%;
-      height: 6px;
-      border-radius: 3px;
-      background-color: var(--line);
-      background-image: repeating-linear-gradient(90deg, var(--line-strong) 0 1px, transparent 1px 8.3333%);
+      height: 10px;
+      background: repeating-linear-gradient(90deg, var(--line-strong) 0 calc(4.1667% - 3px), transparent calc(4.1667% - 3px) 4.1667%);
       overflow: hidden;
+      position: relative;
     }
     .dh-fill {
       height: 100%;
-      background: linear-gradient(90deg, rgba(var(--ac-rgb), 0.35), var(--ac));
-      box-shadow: 0 0 8px rgba(var(--ac-rgb), 0.55);
-      border-radius: 3px;
+      background: var(--ac);
+      -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 calc(4.1667% - 3px), transparent calc(4.1667% - 3px) 4.1667%);
+      mask-image: repeating-linear-gradient(90deg, #000 0 calc(4.1667% - 3px), transparent calc(4.1667% - 3px) 4.1667%);
       width: 50%;
       transition: width var(--dur) var(--ease);
+      box-shadow: none;
     }
-    .dh-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-top: var(--space-2); }
+    .dh-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: var(--space-2);
+    }
 
-    .analog-view { display: none; width: 100%; align-items: center; justify-content: center; margin: 12px 0; }
+    /* Analog View */
+    .analog-view {
+      display: none;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      margin: 16px 0;
+    }
     .watch-case {
       width: clamp(260px, 65vw, 380px);
       height: clamp(260px, 65vw, 380px);
-      border-radius: 50%;
-      background: radial-gradient(circle at 32% 26%, var(--paper-raised) 0%, var(--paper) 58%, var(--paper-sunk) 100%);
+      border-radius: var(--radius-lg);
+      background: var(--paper-raised);
       border: 1px solid var(--line-strong);
-      box-shadow: var(--shadow-lg), inset 0 0 0 1px var(--line);
+      box-shadow: var(--block-depth) var(--block-depth) 0 var(--block-edge);
       position: relative;
       display: flex;
       align-items: center;
@@ -160,7 +275,7 @@
       height: 10px;
       border-radius: 50%;
       background: var(--ink);
-      box-shadow: 0 0 0 2px var(--paper), var(--shadow-sm);
+      box-shadow: 0 0 0 2px var(--paper-raised), var(--shadow-sm);
       z-index: 5;
     }
     .dial-center-cap::after {
@@ -171,27 +286,156 @@
       background: var(--ac);
     }
 
-    .telemetry-bar {
+    /* Drift & Location Chip */
+    .drift {
       margin-top: var(--space-6);
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(164px, 1fr));
-      gap: 1px;
-      background: var(--line);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      width: 100%;
-      max-width: 880px;
+      max-width: none;
+      text-align: center;
+      text-wrap: balance;
+      font-family: var(--font-display);
+      font-size: var(--fs-h3);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--ink-soft);
+      font-variant-numeric: tabular-nums;
     }
-    .tel-cell { background: var(--paper-raised); padding: 13px 18px; display: flex; flex-direction: column; gap: 3px; transition: background var(--dur) var(--ease); }
-    .tel-cell-l { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
-    .tel-cell-v { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
-    .tel-cell--action { border: none; font: inherit; text-align: left; cursor: pointer; width: 100%; }
-    .tel-cell--action:hover { background: var(--paper-sunk); }
+    .drift strong { font-weight: 700; color: var(--ink); white-space: nowrap; }
+    .drift--bad strong { color: var(--danger); }
+    .drift-hint { margin-top: var(--space-2); text-align: center; font-size: var(--fs-sm); color: var(--ink-soft); }
+    .drift-hint[hidden] { display: none; }
 
+    .loc-chip {
+      margin-top: var(--space-5);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      background: var(--paper-raised);
+      border: 1px solid var(--line-strong);
+      color: var(--ink-soft);
+      box-shadow: 0 3px 0 var(--block-edge);
+      transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out), border-color var(--dur-fast), color var(--dur-fast);
+    }
+    .loc-chip:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 0 var(--block-edge);
+    }
+    .loc-chip:active {
+      transform: translateY(3px);
+      box-shadow: 0 0 0 var(--block-edge);
+    }
+    .loc-chip .loc-sep { color: var(--ink-faint); }
+    .loc-chip .loc-src { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); }
+    .loc-chip .loc-chev { width: 11px; height: 11px; color: var(--ink-faint); }
+
+    /* Telemetry Section */
+    .telemetry-section {
+      width: 100%;
+      max-width: 1080px;
+      margin: var(--space-6) auto var(--space-8);
+      padding-inline: var(--gutter);
+    }
+    .telemetry-intro {
+      margin-bottom: var(--space-4);
+    }
+    .telemetry-intro .hero-eyebrow {
+      margin-bottom: 0;
+    }
+    .telemetry-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: var(--space-4);
+      width: 100%;
+    }
+    .tel-cell {
+      background: var(--paper-raised);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      box-shadow: 4px 4px 0 var(--block-edge);
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out), border-color var(--dur-fast);
+    }
+    .tel-cell-l {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+    .tel-cell-v {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+    .tel-cell--action {
+      border: 1px solid var(--line-strong);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+    }
+    .tel-cell--action:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--block-edge);
+      border-color: var(--ink);
+    }
+    .tel-cell--action:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0 0 0 var(--block-edge);
+    }
+
+    /* Studio Dock fine-tuning */
+    .studio-dock {
+      box-shadow: 4px 4px 0 var(--block-edge);
+      max-width: calc(100vw - 32px);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .studio-dock::-webkit-scrollbar {
+      display: none;
+    }
+    .dock-btn {
+      flex-shrink: 0;
+      transition: transform 120ms var(--ease-out), background-color var(--dur-fast), color var(--dur-fast);
+    }
+    .dock-btn:active {
+      transform: translateY(2px);
+    }
+
+    /* Motion */
+    @keyframes digit-rise {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    #digH {
+      animation: digit-rise 450ms var(--ease-out) both;
+      animation-delay: 0ms;
+    }
+    #digM {
+      animation: digit-rise 450ms var(--ease-out) both;
+      animation-delay: 70ms;
+    }
+    #digS {
+      animation: digit-rise 450ms var(--ease-out) both;
+      animation-delay: 140ms;
+    }
+
+    /* Modal Contents */
     .sw-display { font-family: var(--font-mono); font-size: clamp(38px, 8vw, 68px); font-weight: 500; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; text-align: center; margin-bottom: 24px; color: var(--ink); }
     .sw-actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
-
     .sw-laps-box { max-height: 180px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 12px; }
     .sw-laps-box:empty { display: none; }
     .lap-row { display: flex; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--line); color: var(--ink-soft); }
@@ -241,10 +485,49 @@
       width: 100%;
     }
 
+    /* Responsive queries */
     @media (max-width: 680px) {
-      main { padding: 20px 14px 28px; }
-      .telemetry-bar { grid-template-columns: 1fr 1fr; }
-      .telemetry-bar > *:last-child { grid-column: 1 / -1; }
+      .time-digits {
+        flex-wrap: wrap;
+        row-gap: var(--space-2);
+      }
+      .time-ms, .time-ampm {
+        align-self: center;
+      }
+      .telemetry-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+      .telemetry-bar > *:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+    @media (max-width: 390px) {
+      .time-digits {
+        font-size: clamp(2.2rem, 13vw, 2.6rem);
+        gap: .08em;
+      }
+      #digH, #digM, #digS {
+        padding: .06em .1em;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #digH, #digM, #digS {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      .time-colon {
+        animation: none !important;
+        opacity: 0.9 !important;
+      }
+      .tel-cell--action:hover,
+      .tel-cell--action:active,
+      .loc-chip:hover,
+      .loc-chip:active,
+      .dock-btn:active {
+        transform: none !important;
+      }
     }
   </style>
 </head>
@@ -274,11 +557,12 @@
   </header>
 
   <main>
-    <noscript><p class="note-pill">This clock needs JavaScript to sync with the time servers and show the time. Turn JavaScript on to use it.</p></noscript>
-    <div class="clock-stage">
+    <noscript><p class="note-pill" style="margin: 16px auto; max-width: 600px; text-align: center;">This clock needs JavaScript to sync with the time servers and show the time. Turn JavaScript on to use it.</p></noscript>
 
-      <div class="clock-panel">
+    <section class="clock-hero">
+      <img class="clock-bg" src="/assets/img/hero/hero.webp" alt="" width="1600" height="900" fetchpriority="high">
 
+      <div class="clock-stage">
         <div class="digital-view" id="viewDigital">
           <div class="time-zone-line" id="timeZoneLine">LOCATING…</div>
           <div class="time-digits">
@@ -326,9 +610,13 @@
           <span class="loc-src" id="locSrc">…</span>
           <svg class="loc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
-
       </div>
+    </section>
 
+    <section class="telemetry-section">
+      <div class="telemetry-intro">
+        <p class="hero-eyebrow">Live telemetry</p>
+      </div>
       <div class="telemetry-bar">
         <div class="tel-cell"><span class="tel-cell-l">Location Timezone</span><span class="tel-cell-v" id="telZone">—</span></div>
         <div class="tel-cell"><span class="tel-cell-l">UTC Time</span><span class="tel-cell-v" id="telUtcTime">--:--:-- UTC</span></div>
@@ -336,8 +624,7 @@
         <div class="tel-cell"><span class="tel-cell-l">Time source</span><span class="tel-cell-v" id="telSource">Syncing…</span></div>
         <div class="tel-cell"><span class="tel-cell-l">Location Source</span><span class="tel-cell-v" id="telLocSrc">Resolving…</span></div>
       </div>
-
-    </div>
+    </section>
   </main>
 
   <div class="studio-dock">

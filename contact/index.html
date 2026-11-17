@@ -63,7 +63,7 @@
     <section class="page-head">
       <div class="container">
         <h1>Message me</h1>
-        <p class="lead">Discord is fastest, email is fine too. There's no contact form that sends anything on purpose: the <a href="#brief">message helper</a> below only writes your first message, and you send it yourself.</p>
+        <p class="lead">Discord is fastest, email is fine too. Or fill in the <a href="#brief">brief</a> below and send it straight to me, or copy it and send it yourself.</p>
 
         <div class="reach-list">
           <div class="reach-row">
@@ -107,7 +107,7 @@
         <div>
           <h2>Write your first message</h2>
           <p class="brief-intro">I'm in Central European Time and I usually reply within a day. I work in German and English, and I'm currently taking on new projects. Answer whatever you can below and you'll have a first message that gets a useful answer fast. Nothing here is sent anywhere.</p>
-          <form class="form-grid" data-brief data-greeting="Hi spanani," data-signoff="Thanks!" data-subject="Project enquiry">
+          <form class="form-grid" id="brief-form" data-brief data-endpoint="https://contact-api.spanani.workers.dev/" data-sitekey="1x00000000000000000000AA" data-greeting="Hi spanani," data-signoff="Thanks!" data-subject="Project enquiry">
             <fieldset class="field">
               <legend class="field-label">What do you need?</legend>
               <div class="chips">
@@ -137,16 +137,21 @@
               <span class="field-label">Anything it has to work with?</span>
               <input class="input" name="existing" data-line="It has to work with: " placeholder="An existing bot, plugins, a website or an API">
             </label>
+            <label class="field"><span class="field-label">How can I reach you?</span><input class="input" name="contact" required autocomplete="off" data-line="Reach me at: " placeholder="Your Discord name or email"></label>
+            <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+            <div class="turnstile-slot" data-turnstile-slot></div>
           </form>
         </div>
         <div class="brief-out">
           <h3>Your message</h3>
           <pre class="output" data-brief-out></pre>
           <div class="actions">
-            <a class="btn btn-primary" href="https://discord.com/users/723110232263491635" target="_blank" rel="noopener" data-brief-discord>Copy and open Discord</a>
+            <button class="btn btn-primary" type="submit" form="brief-form" data-brief-send>Send to spanani</button>
+            <a class="btn btn-secondary" href="https://discord.com/users/723110232263491635" target="_blank" rel="noopener" data-brief-discord>Copy and open Discord</a>
             <a class="btn btn-secondary" href="mailto:webmaster@spanani.de" data-brief-mail>Open in mail app</a>
           </div>
-          <p class="field-hint">Discord can't fill in a message for you, so the button copies it first. Paste it into the chat.</p>
+          <p class="form-status" data-brief-status role="status" aria-live="polite"></p>
+          <p class="field-hint">Sending goes through a small server of mine and stays private. If it does not work, use the other two buttons.</p>
         </div>
       </div>
     </section>

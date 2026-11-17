@@ -62,7 +62,7 @@
     <section class="page-head">
       <div class="container">
         <h1>Schreib mir</h1>
-        <p class="lead">Discord geht am schnellsten, Mail ist auch gut. Es gibt mit Absicht kein Kontaktformular, das etwas verschickt: Der <a href="#nachricht">Nachrichten-Assistent</a> unten schreibt nur deine erste Nachricht, abschicken tust du sie selbst.</p>
+        <p class="lead">Discord geht am schnellsten, Mail ist auch gut. Oder füll den <a href="#brief">Fragebogen</a> unten aus und schick ihn direkt an mich, oder kopier ihn und schick ihn selbst ab.</p>
 
         <div class="reach-list">
           <div class="reach-row">
@@ -101,12 +101,13 @@
       </div>
     </section>
 
-    <section class="section section--flush" id="nachricht">
+    <section class="section section--flush" id="brief">
+      <span id="nachricht" aria-hidden="true"></span>
       <div class="container brief">
         <div>
           <h2>Schreib deine erste Nachricht</h2>
           <p class="brief-intro">Ich bin in der mitteleuropäischen Zeitzone und antworte meistens innerhalb eines Tages. Ich arbeite auf Deutsch und Englisch und nehme gerade neue Projekte an. Beantworte unten, was du kannst, dann hast du eine erste Nachricht, auf die du schnell eine brauchbare Antwort bekommst. Nichts davon wird irgendwohin geschickt.</p>
-          <form class="form-grid" data-brief data-greeting="Hi spanani," data-signoff="Danke!" data-subject="Projektanfrage">
+          <form class="form-grid" id="brief-form" data-brief data-endpoint="https://contact-api.spanani.workers.dev/" data-sitekey="1x00000000000000000000AA" data-greeting="Hi spanani," data-signoff="Danke!" data-subject="Projektanfrage">
             <fieldset class="field">
               <legend class="field-label">Was brauchst du?</legend>
               <div class="chips">
@@ -136,16 +137,21 @@
               <span class="field-label">Womit muss es zusammenarbeiten?</span>
               <input class="input" name="existing" data-line="Muss zusammenarbeiten mit: " placeholder="Ein vorhandener Bot, Plugins, eine Website oder eine API">
             </label>
+            <label class="field"><span class="field-label">Wie erreiche ich dich?</span><input class="input" name="contact" required autocomplete="off" data-line="Erreichbar unter: " placeholder="Dein Discord-Name oder deine E-Mail"></label>
+            <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+            <div class="turnstile-slot" data-turnstile-slot></div>
           </form>
         </div>
         <div class="brief-out">
           <h3>Deine Nachricht</h3>
           <pre class="output" data-brief-out></pre>
           <div class="actions">
-            <a class="btn btn-primary" href="https://discord.com/users/723110232263491635" target="_blank" rel="noopener" data-brief-discord>Kopieren und Discord öffnen</a>
+            <button class="btn btn-primary" type="submit" form="brief-form" data-brief-send>An spanani senden</button>
+            <a class="btn btn-secondary" href="https://discord.com/users/723110232263491635" target="_blank" rel="noopener" data-brief-discord>Kopieren und Discord öffnen</a>
             <a class="btn btn-secondary" href="mailto:webmaster@spanani.de" data-brief-mail>Im Mailprogramm öffnen</a>
           </div>
-          <p class="field-hint">Discord kann keine Nachricht für dich vorausfüllen, deshalb kopiert der Button sie vorher. Füg sie im Chat ein.</p>
+          <p class="form-status" data-brief-status role="status" aria-live="polite"></p>
+          <p class="field-hint">Das Abschicken läuft über einen kleinen eigenen Server und bleibt privat. Wenn es nicht klappt, nutz einfach die anderen beiden Knöpfe.</p>
         </div>
       </div>
     </section>

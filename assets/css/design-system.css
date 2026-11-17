@@ -484,6 +484,7 @@ button.time-pill { cursor: pointer; }
   }
 }
 .hero h1 {
+  max-width: 9ch;
   font-size: var(--fs-hero);
   font-weight: 800;
   line-height: 0.95;
@@ -1572,6 +1573,8 @@ input[type="color"].input { width: 64px; padding: 4px; cursor: pointer; }
 .tile-img {
   aspect-ratio: 4 / 3;
   width: calc(100% + 48px);
+  max-width: none;
+  height: auto;
   margin: -24px -24px 0;
   object-fit: cover;
   border-bottom: 1px solid var(--line-strong);
@@ -1596,4 +1599,6 @@ input[type="color"].input { width: 64px; padding: 4px; cursor: pointer; }
   margin-top: calc(-1 * var(--space-4));
   margin-bottom: var(--space-5);
 }
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.turnstile-slot{min-height:0}
 

@@ -7,12 +7,18 @@
     copyFailSelected: 'Automatisches Kopieren ging nicht. {v} ist markiert, kopier es von dort.',
     copyFailText: 'Automatisches Kopieren ging nicht. Der Text lautet: {v}',
     briefCopied: 'Nachricht kopiert. Füg sie in Discord ein.',
+    briefSpamWait: 'Bitte kurz auf den Spam-Schutz warten und dann noch einmal auf Senden drücken.',
+    briefSent: 'Gesendet. Ich lese alles und antworte meistens innerhalb eines Tages.',
+    briefSendError: 'Konnte nicht gesendet werden. Nutz stattdessen Kopieren oder Mail, dein Text ist fertig.',
     status: { online: 'Gerade online auf Discord', idle: 'Abwesend auf Discord', dnd: 'Bitte nicht stören auf Discord', offline: 'Offline auf Discord' }
   } : {
     copied: 'Copied',
     copyFailSelected: 'Couldn’t copy automatically. {v} is selected, copy it from there.',
     copyFailText: 'Couldn’t copy automatically. The text is: {v}',
     briefCopied: 'Message copied. Paste it into Discord.',
+    briefSpamWait: 'Please wait a second for the spam check, then press Send again.',
+    briefSent: 'Sent. I read everything and usually reply within a day.',
+    briefSendError: 'Couldn’t send it. Use the copy or mail button instead, your text is ready.',
     status: { online: 'Online on Discord', idle: 'Away on Discord', dnd: 'Do not disturb on Discord', offline: 'Offline on Discord' }
   };
   var DISCORD_ID = '723110232263491635';
@@ -201,6 +207,53 @@
     var out = document.querySelector('[data-brief-out]');
     var mail = document.querySelector('[data-brief-mail]');
     var discord = document.querySelector('[data-brief-discord]');
+    var sendBtn = document.querySelector('[data-brief-send]');
+    var status = document.querySelector('[data-brief-status]');
+    var slot = form.querySelector('[data-turnstile-slot]') || document.querySelector('[data-turnstile-slot]');
+    var token = '';
+    var widgetId = null;
+    var turnstileLoading = false;
+
+    function renderTurnstile() {
+      if (!window.turnstile || !slot) return;
+      var sitekey = form.getAttribute('data-sitekey');
+      if (!sitekey) return;
+      try {
+        widgetId = window.turnstile.render(slot, {
+          sitekey: sitekey,
+          theme: 'auto',
+          callback: function (t) {
+            token = t;
+          },
+          'error-callback': function () {
+            token = '';
+          },
+          'expired-callback': function () {
+            token = '';
+          }
+        });
+      } catch (e) {}
+    }
+
+    function loadTurnstile() {
+      if (turnstileLoading) return;
+      turnstileLoading = true;
+      if (window.turnstile) {
+        renderTurnstile();
+        return;
+      }
+      var script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.onload = renderTurnstile;
+      document.head.appendChild(script);
+    }
+
+    function onFirstFocus() {
+      form.removeEventListener('focusin', onFirstFocus);
+      loadTurnstile();
+    }
+    form.addEventListener('focusin', onFirstFocus);
 
     function compose() {
       var lines = [form.getAttribute('data-greeting'), ''];
@@ -220,9 +273,86 @@
       return text;
     }
 
+    function send() {
+      if (!window.fetch) {
+        if (status) status.textContent = T.briefSendError;
+        return;
+      }
+      if (form.checkValidity && !form.checkValidity()) {
+        if (form.reportValidity) form.reportValidity();
+        return;
+      }
+      if (!token) {
+        if (status) status.textContent = T.briefSpamWait;
+        loadTurnstile();
+        return;
+      }
+
+      if (sendBtn) sendBtn.disabled = true;
+      if (status) status.textContent = '';
+
+      var checkedRadio = form.querySelector('input[name="type"]:checked');
+      var typeVal = checkedRadio ? (checkedRadio.getAttribute('data-subject') || '') : '';
+      var whatVal = form.elements.what ? form.elements.what.value : '';
+      var whoVal = form.elements.who ? form.elements.who.value : '';
+      var whenVal = form.elements.when ? form.elements.when.value : '';
+      var existingVal = form.elements.existing ? form.elements.existing.value : '';
+      var contactVal = form.elements.contact ? form.elements.contact.value : '';
+      var websiteVal = form.elements.website ? form.elements.website.value : '';
+
+      var payload = {
+        type: typeVal,
+        what: whatVal,
+        who: whoVal,
+        when: whenVal,
+        existing: existingVal,
+        contact: contactVal,
+        lang: DE ? 'de' : 'en',
+        website: websiteVal,
+        token: token
+      };
+
+      var endpoint = form.getAttribute('data-endpoint') || '';
+
+      fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        if (data && data.ok) {
+          if (status) status.textContent = T.briefSent;
+          showToast(T.briefSent);
+          form.reset();
+          compose();
+          if (window.turnstile) {
+            try {
+              if (widgetId !== null) window.turnstile.reset(widgetId);
+              else window.turnstile.reset();
+            } catch (e) {}
+          }
+          token = '';
+          if (sendBtn) sendBtn.disabled = false;
+        } else {
+          if (status) status.textContent = T.briefSendError;
+          if (sendBtn) sendBtn.disabled = false;
+        }
+      })
+      .catch(function () {
+        if (status) status.textContent = T.briefSendError;
+        if (sendBtn) sendBtn.disabled = false;
+      });
+    }
+
     form.addEventListener('input', compose);
     form.addEventListener('change', compose);
-    form.addEventListener('submit', function (e) { e.preventDefault(); });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      send();
+    });
     // The link opens Discord natively; copying runs in the same click so no popup blocker gets involved.
     discord.addEventListener('click', function () {
       var text = compose();

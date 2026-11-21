@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>App-Aufräumer</title>
+<style>
+:root{--bg:#16121d;--raised:#201a2a;--ink:#ece8f3;--soft:#a69fb4;--keep:#b892f2;--del:#e5484d;--line:#352d44;--on:#16121d}
+@media(prefers-color-scheme:light){:root{--bg:#f4f2f7;--raised:#fff;--ink:#1a1622;--soft:#5b536a;--keep:#661bbb;--del:#c4292e;--line:#d9d3e2;--on:#fff}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:480px;margin:0 auto;padding:16px;min-height:100dvh;display:flex;flex-direction:column}
+.top{font-size:14px;color:var(--soft)}
+.bar{height:3px;background:var(--line);margin:8px 0 0}.bar i{display:block;height:100%;width:0;background:var(--keep)}
+.stage{flex:1;display:flex;align-items:center;justify-content:center;touch-action:pan-y;user-select:none}
+.app{text-align:center;width:100%;padding:24px 8px}
+.ico{width:96px;height:96px;border-radius:22%;margin:0 auto 20px;display:block;background:var(--raised);object-fit:cover}
+.let{display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:700;color:var(--keep);border:1px solid var(--line)}
+h1{font-size:28px;line-height:1.15;margin:0 0 8px;overflow-wrap:anywhere}
+code{font:13px ui-monospace,Consolas,monospace;color:var(--soft);overflow-wrap:anywhere}
+.ver{color:var(--soft);font-size:14px;margin-top:4px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--line);background:var(--raised);color:var(--ink);padding:12px}
+button:focus-visible{outline:3px solid var(--keep);outline-offset:2px}
+.big{padding:22px 12px;font-size:20px;font-weight:700;border:0}
+.d{background:var(--del);color:#fff}.k{background:var(--keep);color:var(--on)}
+.sm{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 4px}
+.end h1{margin-top:16px}.end p{color:var(--soft)}
+ul{list-style:none;margin:16px 0;padding:0}
+li{display:flex;gap:12px;align-items:center;padding:8px 0;border-top:1px solid var(--line);cursor:pointer}
+li img,li .let{width:40px;height:40px;margin:0;font-size:18px;flex:none}
+li span{flex:1;min-width:0;overflow-wrap:anywhere}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+@media(prefers-reduced-motion:no-preference){.app{transition:transform .15s}}
+</style>
+</head>
+<body>
+<main id="m" aria-live="polite"></main>
+<script>
+const KEY="app-aufraeumer-v1";
+let apps=[],dec={},hist=[],i=0;
+const $=s=>document.querySelector(s);
+const load=()=>{try{dec=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){dec={}}};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(dec))}catch(e){}};
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ico=(a,c)=>a.icon?`<img class="${c}" src="${esc(a.icon)}" alt="" width="96" height="96">`:`<div class="${c} let">${esc(a.name[0]||"?")}</div>`;
+const next=()=>{i=apps.findIndex(a=>!dec[a.id]&&!skip.has(a.id));return i};
+const skip=new Set();
+function draw(){
+  const done=apps.filter(a=>dec[a.id]).length;
+  if(next()<0)return end();
+  const a=apps[i];
+  $("#m").innerHTML=`<div class="top">${done+1} von ${apps.length}<div class="bar"><i style="width:${done/apps.length*100}%"></i></div></div>
+  <div class="stage"><div class="app" id="card">${ico(a,"ico")}<h1>${esc(a.name)}</h1><code>${esc(a.id)}</code><div class="ver">${esc(a.ver)}</div></div></div>
+  <div class="btns"><button class="big d" id="bd">Löschen</button><button class="big k" id="bk">Behalten</button></div>
+  <div class="sm"><button id="bu">Zurück</button><button id="bs">Später</button></div>`;
+  $("#bd").onclick=()=>set("del");$("#bk").onclick=()=>set("keep");$("#bu").onclick=undo;
+  $("#bs").onclick=()=>{skip.add(a.id);hist.push({id:a.id,skip:1});draw()};
+  swipe($("#card"));
+}
+function set(v){const a=apps[i];dec[a.id]=v;hist.push({id:a.id});save();draw()}
+function undo(){const h=hist.pop();if(!h)return;if(h.skip)skip.delete(h.id);else{delete dec[h.id];save()}draw()}
+function swipe(el){
+  let x0=null,dx=0;
+  el.ontouchstart=e=>{x0=e.touches[0].clientX;dx=0};
+  el.ontouchmove=e=>{if(x0==null)return;dx=e.touches[0].clientX-x0;el.style.transform=`translateX(${dx}px)`};
+  el.ontouchend=()=>{if(x0==null)return;x0=null;el.style.transform="";if(dx<-60)set("del");else if(dx>60)set("keep")};
+}
+function end(){
+  const del=apps.filter(a=>dec[a.id]==="del"),keep=apps.filter(a=>dec[a.id]==="keep").length;
+  $("#m").innerHTML=`<div class="end"><h1>Fertig</h1><p>${keep} behalten, ${del.length} löschen, ${apps.length-keep-del.length} übersprungen.</p>
+  <div class="row"><button class="k big" id="cp">Löschliste kopieren</button></div>
+  <p>Tippe eine App, um sie auf Behalten zu setzen.</p>
+  <ul>${del.map(a=>`<li data-id="${esc(a.id)}">${ico(a,"ico")}<span>${esc(a.name)}<br><code>${esc(a.id)}</code></span></li>`).join("")}</ul>
+  <div class="row"><button id="un">Zurück</button><button id="rs">Von vorn</button></div></div>`;
+  $("#cp").onclick=async()=>{
+    const t=del.map(a=>a.id+"  # "+a.name).join("\n");
+    try{await navigator.clipboard.writeText(t)}catch(e){const x=document.createElement("textarea");x.value=t;document.body.appendChild(x);x.select();document.execCommand("copy");x.remove()}
+    $("#cp").textContent="Kopiert";setTimeout(()=>{const b=$("#cp");if(b)b.textContent="Löschliste kopieren"},2000)};
+  document.querySelectorAll("li").forEach(l=>l.onclick=()=>{dec[l.dataset.id]="keep";save();end()});
+  $("#un").onclick=undo;
+  $("#rs").onclick=()=>{if(confirm("Alle Entscheidungen löschen?")){dec={};hist=[];skip.clear();save();draw()}};
+}
+onkeydown=e=>{
+  if(!$("#bd"))return;
+  if(e.key==="ArrowLeft")set("del");else if(e.key==="ArrowRight")set("keep");
+  else if(e.key==="Backspace"||e.key==="z")undo();
+};
+fetch("apps.json").then(r=>r.json()).then(d=>{
+  apps=d.map(a=>({...a,name:a.name.split(/\s*\n\s*/)[0].trim()}));
+  load();draw();
+}).catch(()=>{$("#m").textContent="apps.json konnte nicht geladen werden."});
+</script>
+</body>
+</html>
